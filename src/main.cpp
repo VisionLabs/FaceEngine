@@ -94,15 +94,15 @@ class PyIAttributeEstimator : public fsdk::IAttributeEstimator{
 public:
 
 
-	virtual fsdk::Result<fsdk::FSDKError> estimate(
+	 fsdk::Result<fsdk::FSDKError> estimate(
 			const fsdk::Image &warp,
 			fsdk::AttributeEstimation &out) noexcept {
 		PYBIND11_OVERLOAD_PURE(
-				fsdk::Result<fsdk::FSDKError>,     /* Return type */
-				fsdk::IAttributeEstimator,
-				estimate,
-				warp,
-				out
+			fsdk::Result<fsdk::FSDKError>,
+			fsdk::IAttributeEstimator,
+			estimate,
+			warp,
+			out
 		);
 	}
 };
@@ -139,13 +139,13 @@ class PyIFaceEnginePtr : fsdk::IFaceEnginePtr {
 
 };
 
-class PyIRefCounted : fsdk::IRefCounted {
+class PyIRefCounted : public fsdk::IRefCounted {
 
 	int32_t retain() noexcept override {
 		PYBIND11_OVERLOAD_PURE(
 			int32_t ,               /* Return type */
 			fsdk::IRefCounted,      /* Parent class */
-			retain(),               /* Name of function */
+			retain,               /* Name of function */
 		/* This function has no arguments. The trailing comma
 		   in the previous line is needed for some compilers */
 		);
@@ -153,9 +153,9 @@ class PyIRefCounted : fsdk::IRefCounted {
 
 	int32_t release() noexcept override {
 		PYBIND11_OVERLOAD_PURE(
-			int32_t ,               /* Return type */
+			int32_t,                /* Return type */
 			fsdk::IRefCounted,      /* Parent class */
-			release(),              /* Name of function */
+			release,              /* Name of function */
 		/* This function has no arguments. The trailing comma
 		   in the previous line is needed for some compilers */
 		);
@@ -163,18 +163,29 @@ class PyIRefCounted : fsdk::IRefCounted {
 
 	int32_t getRefCount() noexcept {
 		PYBIND11_OVERLOAD_PURE(
-			int32_t,               /* Return type */
+			int32_t,                /* Return type */
 			fsdk::IRefCounted,      /* Parent class */
-			getRefCount(),          /* Name of function */
+			getRefCount,          /* Name of function */
 		/* This function has no arguments. The trailing comma
 		   in the previous line is needed for some compilers */
 		);
 	}
 };
 
-class PyImage: public fsdk::Image {
-
-};
+//class PyImage: public fsdk::Image {
+//public:
+//
+//	fsdk::Result<Error> load(const char* path, const fsdk::Format format) noexcept {
+//		PYBIND11_OVERLOAD(
+//			fsdk::Result<Error>,
+//			fsdk::Image,
+//			load,
+//			path,
+//			format
+//		);
+//	}
+//
+//};
 
 
 
@@ -210,9 +221,17 @@ PYBIND11_MODULE(fe, f) {
 	py::class_<fsdk::ISettingsProvider, PyISettingsProvider>(f, "ISettingsProvider");
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
 
-	py::class_<fsdk::Image>(f, "Image")
+	py::class_<fsdk::Image> Image(f, "Image");
+	Image.def(py::init<>())
+#if defined(PYBIND11_OVERLOAD_CAST)
+		.def("load", py::overload_cast<const char*>(&fsdk::Image::load))
+		.def("load", py::overload_cast<const char*, const fsdk::Format>(&fsdk::Image::load));
 
-		.def("load", &fsdk::Image::load);
+#else
+		.def("load", static_cast<py::str (fsdk::Image::*)(const char*)>(&fsdk::Image::load))
+        .def("load", static_cast<py::str (fsdk::Image::*)(const char*, const fsdk::Format)>(&fsdk::Image::load))
+
+#endif
 
 }
 

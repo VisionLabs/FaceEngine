@@ -6,7 +6,8 @@ b = a.createAttributeEstimator()
 d = a.createQualityEstimator()
 print(d)
 # b.estimate()
-g = f.createFaceEngine2("/home/mar/Desktop/luna-sdk/data",
-                         "/home/mar/Desktop/luna-sdk/data/faceengine.conf")
+
+image = f.Image()
+image.load("/home/mar/Pictures/2017-11-22-161637.jpg")
 a = f.createSettingsProvider("/home/mar/Desktop/luna-sdk/data/faceengine.conf")
 print(a)
