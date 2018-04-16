@@ -210,13 +210,22 @@ PYBIND11_MODULE(fe, f) {
 	py::class_<fsdk::Landmarks5>(f, "Landmarks5")
 		.def(py::init<>())
 		.def("__len__", [](const fsdk::Landmarks5 &v) { return v.landmarkCount; })
-		.def("__getitem__", [](const fsdk::Landmarks5 &s, size_t i) {
+//		.def("__getitem__", [](const fsdk::Landmarks5 &s, size_t i) {
+//			if (i >= s.landmarkCount) throw py::index_error();
+//			return s.landmarks[i];
+//		})
+//		.def("__setitem__", [](fsdk::Landmarks68 &s, size_t i, float value) {
+//			if (i >= s.landmarkCount) throw py::index_error();
+//				s.landmarks[i] = value;
+//		})
+
+		.def("getItem", [](fsdk::Landmarks5 &s, size_t i)  {
 			if (i >= s.landmarkCount) throw py::index_error();
 			return s.landmarks[i];
 		})
-		.def("__setitem__", [](fsdk::Landmarks68 &s, size_t i, float value) {
+		.def("setItem", [](fsdk::Landmarks5 &s, size_t i, fsdk::Vector2<float> v)  {
 			if (i >= s.landmarkCount) throw py::index_error();
-				s.landmarks[i] = value;
+			s.landmarks[i] = v;
 		})
 
 		.def("setX", [](fsdk::Landmarks5 &s, size_t i, float value) {
@@ -233,10 +242,20 @@ PYBIND11_MODULE(fe, f) {
 	py::class_<fsdk::Landmarks68>(f, "Landmarks68")
 		.def(py::init<>())
 		.def("__len__", [](const fsdk::Landmarks68 &v) { return v.landmarkCount; })
-		.def("__getitem__", [](const fsdk::Landmarks68 &s, size_t i) {
+//		.def("__getitem__", [](const fsdk::Landmarks68 &s, size_t i) {
+//			if (i >= s.landmarkCount) throw py::index_error();
+//			return s.landmarks[i];
+//		})
+		.def("getItem", [](fsdk::Landmarks68 &s, size_t i)  {
 			if (i >= s.landmarkCount) throw py::index_error();
 			return s.landmarks[i];
 		})
+
+		.def("setItem", [](fsdk::Landmarks5 &s, size_t i, fsdk::Vector2<float> v)  {
+			if (i >= s.landmarkCount) throw py::index_error();
+			s.landmarks[i] = v;
+		})
+
 		.def("setX", [](fsdk::Landmarks68 &s, size_t i, float value) {
 			if (i >= s.landmarkCount) throw py::index_error();
 			s.landmarks[i].x = value;
@@ -260,7 +279,7 @@ PYBIND11_MODULE(fe, f) {
 		.def_readwrite("y", &fsdk::Vector2<float>::y)
 		.def("__repr__",
 		 [](const fsdk::Vector2<float> &v) {
-			 return "<Vector2 \nx = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
+			 return "<Vector2 x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
 		 });
 
 
