@@ -14,7 +14,7 @@ else ()
 endif ()
 
 
-set(FSDK_ROOT /home/parallels/Desktop/luna-sdk_linux_rel)
+set(FSDK_ROOT ~/Desktop/luna-sdk)
 
 find_package(FaceEngineSDK REQUIRED)
 include_directories(${FSDK_INCLUDE_DIRS})

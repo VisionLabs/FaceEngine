@@ -15,3 +15,7 @@ config
 info/exclude
 
 hooks/
+
+testData/
+
+data/

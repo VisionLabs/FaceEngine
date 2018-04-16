@@ -2,6 +2,8 @@
 #include <iostream>
 #include <fsdk/FaceEngine.h>
 #include <pybind11/functional.h>
+#include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
 
 //class overload_caster_t;
 //
@@ -181,7 +183,12 @@ public:
 };
 
 
+//PYBIND11_MAKE_OPAQUE(std::map<std::string, double>);
+//
+//// ...
 
+PYBIND11_MAKE_OPAQUE(fsdk::Landmarks5);
+PYBIND11_MAKE_OPAQUE(fsdk::Landmarks68);
 
 PYBIND11_MODULE(fe, f) {
 
@@ -190,6 +197,72 @@ PYBIND11_MODULE(fe, f) {
 		  "Create static FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr);
 	f.def("createSettingsProvider", &createSettingsProviderPy, py::return_value_policy::take_ownership,
 		  "Create static object SettingsProvider");
+
+//	py::class_<A>(m, "A")
+//	.def(py::init<>())
+//	.def("set", &A::set)
+//	.def("get", &A::get)
+//	// Alternative for property access in Python
+//	.def_property("x", &A::get, &A::set);
+//
+//	    fsdk::Landmarks5 landmarks5[MaxDetections];
+//    fsdk::Landmarks68 landmarks68[MaxDetections];
+	py::class_<fsdk::Landmarks5>(f, "Landmarks5")
+		.def(py::init<>())
+		.def("__len__", [](const fsdk::Landmarks5 &v) { return v.landmarkCount; })
+		.def("__getitem__", [](const fsdk::Landmarks5 &s, size_t i) {
+			if (i >= s.landmarkCount) throw py::index_error();
+			return s.landmarks[i];
+		})
+		.def("__setitem__", [](fsdk::Landmarks68 &s, size_t i, float value) {
+			if (i >= s.landmarkCount) throw py::index_error();
+				s.landmarks[i] = value;
+		})
+
+		.def("setX", [](fsdk::Landmarks5 &s, size_t i, float value) {
+			if (i >= s.landmarkCount) throw py::index_error();
+			s.landmarks[i].x = value;
+		})
+
+		.def("setY", [](fsdk::Landmarks5 &s, size_t i, float value) {
+			if (i >= s.landmarkCount) throw py::index_error();
+			s.landmarks[i].y = value;
+		})
+			;
+
+	py::class_<fsdk::Landmarks68>(f, "Landmarks68")
+		.def(py::init<>())
+		.def("__len__", [](const fsdk::Landmarks68 &v) { return v.landmarkCount; })
+		.def("__getitem__", [](const fsdk::Landmarks68 &s, size_t i) {
+			if (i >= s.landmarkCount) throw py::index_error();
+			return s.landmarks[i];
+		})
+		.def("setX", [](fsdk::Landmarks68 &s, size_t i, float value) {
+			if (i >= s.landmarkCount) throw py::index_error();
+			s.landmarks[i].x = value;
+		})
+
+		.def("setY", [](fsdk::Landmarks68 &s, size_t i, float value) {
+			if (i >= s.landmarkCount) throw py::index_error();
+			s.landmarks[i].y = value;
+		})
+
+//		.def("__setitem__", [](fsdk::Landmarks68 &s, size_t i, fsdk::Vector2<float> value) {
+//			if (i >= s.landmarkCount) throw py::index_error();
+//			s.landmarks[i] = value;
+//		})
+			;
+
+	py::class_<fsdk::Vector2<float>>(f, "Vector2")
+		.def(py::init<>())
+		.def(py::init<float, float>())
+		.def_readwrite("x", &fsdk::Vector2<float>::x)
+		.def_readwrite("y", &fsdk::Vector2<float>::y)
+		.def("__repr__",
+		 [](const fsdk::Vector2<float> &v) {
+			 return "<Vector2 \nx = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
+		 });
+
 
 	py::class_<fsdk::IFaceEngine, PyIFaceEngine>(f, "IFaceEngine")
 		/* Reference original class in function definitions */
