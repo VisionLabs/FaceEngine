@@ -13,7 +13,8 @@ else ()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif ()
 
-set(FSDK_ROOT /home/mar/Desktop/luna-sdk)
+
+set(FSDK_ROOT /home/parallels/Desktop/luna-sdk_linux_rel)
 
 find_package(FaceEngineSDK REQUIRED)
 include_directories(${FSDK_INCLUDE_DIRS})

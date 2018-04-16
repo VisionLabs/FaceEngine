@@ -172,20 +172,13 @@ class PyIRefCounted : public fsdk::IRefCounted {
 	}
 };
 
-//class PyImage: public fsdk::Image {
-//public:
-//
-//	fsdk::Result<Error> load(const char* path, const fsdk::Format format) noexcept {
-//		PYBIND11_OVERLOAD(
-//			fsdk::Result<Error>,
-//			fsdk::Image,
-//			load,
-//			path,
-//			format
-//		);
-//	}
-//
-//};
+class PyImage: public fsdk::Image {
+public:
+
+	py::str load(const char*) { return "(int)"; }
+	py::str load(const char*, const fsdk::Format) { return "(int, float)"; }
+
+};
 
 
 
@@ -221,15 +214,24 @@ PYBIND11_MODULE(fe, f) {
 	py::class_<fsdk::ISettingsProvider, PyISettingsProvider>(f, "ISettingsProvider");
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
 
-	py::class_<fsdk::Image> Image(f, "Image");
-	Image.def(py::init<>())
+	py::class_<fsdk::AttributeEstimation>(f, "AttributeEstimation")
+		.def(py::init<>())
+		.def_readwrite("gender", &fsdk::AttributeEstimation::gender)
+		.def_readwrite("glasses", &fsdk::AttributeEstimation::glasses)
+		.def_readwrite("age", &fsdk::AttributeEstimation::age)
+		.def("__repr__",
+		 [](const fsdk::AttributeEstimation &a) {
+			 return "<example.AttributeEstimation \ngender = " + std::to_string(a.gender) + "\nglasses = " + std::to_string(a.glasses) + "\nage = " + std::to_string(a.age)  + "'>";
+		 });
+	py::class_<fsdk::Image> image(f, "Image");
+	image.def(py::init<>())
 #if defined(PYBIND11_OVERLOAD_CAST)
 		.def("load", py::overload_cast<const char*>(&fsdk::Image::load))
 		.def("load", py::overload_cast<const char*, const fsdk::Format>(&fsdk::Image::load));
 
 #else
-		.def("load", static_cast<py::str (fsdk::Image::*)(const char*)>(&fsdk::Image::load))
-        .def("load", static_cast<py::str (fsdk::Image::*)(const char*, const fsdk::Format)>(&fsdk::Image::load))
+		.def("load", static_cast<py::str (fsdk::Image::*)(const char*)>(&PyImage::load))
+        .def("load", static_cast<py::str (fsdk::Image::*)(const char*, const fsdk::Format)>(&PyImage::load));
 
 #endif
 
