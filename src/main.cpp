@@ -182,6 +182,9 @@ public:
 
 };
 
+class PyVector2: public fsdk::Vector2<float> {
+
+};
 
 //PYBIND11_MAKE_OPAQUE(std::map<std::string, double>);
 //
@@ -219,13 +222,9 @@ PYBIND11_MODULE(fe, f) {
 //				s.landmarks[i] = value;
 //		})
 
-		.def("getItem", [](fsdk::Landmarks5 &s, size_t i)  {
+		.def("getitem", [](fsdk::Landmarks5 &s, size_t i)  {
 			if (i >= s.landmarkCount) throw py::index_error();
 			return s.landmarks[i];
-		})
-		.def("setItem", [](fsdk::Landmarks5 &s, size_t i, fsdk::Vector2<float> v)  {
-			if (i >= s.landmarkCount) throw py::index_error();
-			s.landmarks[i] = v;
 		})
 
 		.def("setX", [](fsdk::Landmarks5 &s, size_t i, float value) {
@@ -246,14 +245,9 @@ PYBIND11_MODULE(fe, f) {
 //			if (i >= s.landmarkCount) throw py::index_error();
 //			return s.landmarks[i];
 //		})
-		.def("getItem", [](fsdk::Landmarks68 &s, size_t i)  {
+		.def("getitem", [](fsdk::Landmarks68 &s, size_t i)  {
 			if (i >= s.landmarkCount) throw py::index_error();
 			return s.landmarks[i];
-		})
-
-		.def("setItem", [](fsdk::Landmarks5 &s, size_t i, fsdk::Vector2<float> v)  {
-			if (i >= s.landmarkCount) throw py::index_error();
-			s.landmarks[i] = v;
 		})
 
 		.def("setX", [](fsdk::Landmarks68 &s, size_t i, float value) {
@@ -265,16 +259,12 @@ PYBIND11_MODULE(fe, f) {
 			if (i >= s.landmarkCount) throw py::index_error();
 			s.landmarks[i].y = value;
 		})
-
-//		.def("__setitem__", [](fsdk::Landmarks68 &s, size_t i, fsdk::Vector2<float> value) {
-//			if (i >= s.landmarkCount) throw py::index_error();
-//			s.landmarks[i] = value;
-//		})
-			;
+		;
 
 	py::class_<fsdk::Vector2<float>>(f, "Vector2")
 		.def(py::init<>())
 		.def(py::init<float, float>())
+//		.def(py::init<const fsdk::Vector2<float>&>())
 		.def_readwrite("x", &fsdk::Vector2<float>::x)
 		.def_readwrite("y", &fsdk::Vector2<float>::y)
 		.def("__repr__",
@@ -313,8 +303,37 @@ PYBIND11_MODULE(fe, f) {
 		.def_readwrite("age", &fsdk::AttributeEstimation::age)
 		.def("__repr__",
 		 [](const fsdk::AttributeEstimation &a) {
-			 return "<example.AttributeEstimation \ngender = " + std::to_string(a.gender) + "\nglasses = " + std::to_string(a.glasses) + "\nage = " + std::to_string(a.age)  + "'>";
+			 return "<example.AttributeEstimation \ngender = "
+					+ std::to_string(a.gender) + "\nglasses = "
+					+ std::to_string(a.glasses) + "\nage = "
+					+ std::to_string(a.age)  + "'>";
 		 });
+	py::class_<fsdk::Quality>(f, "Quality")
+	.def(py::init<>())
+	.def_readwrite("light", &fsdk::Quality::light)
+	.def_readwrite("dark", &fsdk::Quality::dark)
+	.def_readwrite("gray", &fsdk::Quality::gray)
+	.def_readwrite("blur", &fsdk::Quality::blur)
+	.def("__repr__",
+		 [](const fsdk::Quality &a) {
+			 return "<example.Quality "
+					"\nlight = " + std::to_string(a.light)
+					+ "\ndark = " + std::to_string(a.dark)
+					+ "\ngray = " + std::to_string(a.gray)
+					+ "\ngblur = " + std::to_string(a.blur) +  "'>";
+		 })
+	.def("getQuality", &fsdk::Quality::getQuality)
+		;
+	// Error here!!!
+//	py::class_<fsdk::Transformation>(f, "Transformation")
+//	.def(py::init<>())
+//	.def_readwrite("angleDeg", &fsdk::Transformation::angleDeg, py::arg("angleDeg") = 0)
+//	.def_readwrite("scale", &fsdk::Transformation::scale, py::arg("scale") = 0)
+//	.def_readwrite("centerP", &fsdk::Transformation::centerP)
+//	.def_readwrite("detectionTopLeft", &fsdk::Transformation::detectionTopLeft)
+//		;
+
+
 	py::class_<fsdk::Image> image(f, "Image");
 	image.def(py::init<>())
 #if defined(PYBIND11_OVERLOAD_CAST)
@@ -326,6 +345,7 @@ PYBIND11_MODULE(fe, f) {
         .def("load", static_cast<py::str (fsdk::Image::*)(const char*, const fsdk::Format)>(&PyImage::load));
 
 #endif
+
 
 }
 
