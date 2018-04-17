@@ -174,12 +174,41 @@ class PyIRefCounted : public fsdk::IRefCounted {
 	}
 };
 
-class PyImage: public fsdk::Image {
+class PyImage {
+
 public:
 
-	py::str load(const char*) { return "(int)"; }
-	py::str load(const char*, const fsdk::Format) { return "(int, float)"; }
+	int load(const std::string &path) {
+		return int(image.load(path.c_str()));
+	}
 
+	fsdk::Image getImage() {
+		return image;
+	}
+
+	py::object getPythonImage() {
+		 return py::cast(image);
+	}
+
+	int getWidth() {
+		return image.getWidth();
+	}
+
+	int getHeight() {
+		return image.getHeight();
+	}
+
+	bool isValid() {
+		return image.isValid();
+	}
+
+	void setImage(const fsdk::Image image) {
+		this->image = image;
+	}
+//	py::str load(const char*) { return "load(const char*)"; }
+//	py::str load(const char*, const fsdk::Format) { return "load(const char*, const fsdk::Format)"; }
+private:
+	fsdk::Image image = fsdk::Image();
 };
 
 class PyVector2: public fsdk::Vector2<float> {
@@ -261,15 +290,26 @@ PYBIND11_MODULE(fe, f) {
 		})
 		;
 
-	py::class_<fsdk::Vector2<float>>(f, "Vector2")
+	py::class_<fsdk::Vector2<float>>(f, "Vector2f")
 		.def(py::init<>())
 		.def(py::init<float, float>())
-//		.def(py::init<const fsdk::Vector2<float>&>())
+		.def(py::init<const fsdk::Vector2<float>&>())
 		.def_readwrite("x", &fsdk::Vector2<float>::x)
 		.def_readwrite("y", &fsdk::Vector2<float>::y)
 		.def("__repr__",
 		 [](const fsdk::Vector2<float> &v) {
-			 return "<Vector2 x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
+			 return "<Vector2f: x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
+		 });
+
+	py::class_<fsdk::Vector2<int>>(f, "Vector2i")
+	.def(py::init<>())
+	.def(py::init<int, int>())
+		.def(py::init<const fsdk::Vector2<int>&>())
+	.def_readwrite("x", &fsdk::Vector2<int>::x)
+	.def_readwrite("y", &fsdk::Vector2<int>::y)
+	.def("__repr__",
+		 [](const fsdk::Vector2<int> &v) {
+			 return "<Vector2i: x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
 		 });
 
 
@@ -308,42 +348,79 @@ PYBIND11_MODULE(fe, f) {
 					+ std::to_string(a.glasses) + "\nage = "
 					+ std::to_string(a.age)  + "'>";
 		 });
+
 	py::class_<fsdk::Quality>(f, "Quality")
-	.def(py::init<>())
-	.def_readwrite("light", &fsdk::Quality::light)
-	.def_readwrite("dark", &fsdk::Quality::dark)
-	.def_readwrite("gray", &fsdk::Quality::gray)
-	.def_readwrite("blur", &fsdk::Quality::blur)
-	.def("__repr__",
+		.def(py::init<>())
+		.def_readwrite("light", &fsdk::Quality::light)
+		.def_readwrite("dark", &fsdk::Quality::dark)
+		.def_readwrite("gray", &fsdk::Quality::gray)
+		.def_readwrite("blur", &fsdk::Quality::blur)
+		.def("__repr__",
 		 [](const fsdk::Quality &a) {
 			 return "<example.Quality "
-					"\nlight = " + std::to_string(a.light)
-					+ "\ndark = " + std::to_string(a.dark)
-					+ "\ngray = " + std::to_string(a.gray)
-					+ "\ngblur = " + std::to_string(a.blur) +  "'>";
+					", light = " + std::to_string(a.light)
+					+ ", dark = " + std::to_string(a.dark)
+					+ ", gray = " + std::to_string(a.gray)
+					+ "blur = " + std::to_string(a.blur) +  "'>";
 		 })
 	.def("getQuality", &fsdk::Quality::getQuality)
 		;
-	// Error here!!!
-//	py::class_<fsdk::Transformation>(f, "Transformation")
-//	.def(py::init<>())
-//	.def_readwrite("angleDeg", &fsdk::Transformation::angleDeg, py::arg("angleDeg") = 0)
-//	.def_readwrite("scale", &fsdk::Transformation::scale, py::arg("scale") = 0)
-//	.def_readwrite("centerP", &fsdk::Transformation::centerP)
-//	.def_readwrite("detectionTopLeft", &fsdk::Transformation::detectionTopLeft)
-//		;
+
+	py::class_<fsdk::Transformation>(f, "Transformation")
+		.def(py::init<>())
+		.def_readwrite("angleDeg", &fsdk::Transformation::angleDeg)
+		.def_readwrite("scale", &fsdk::Transformation::scale)
+		.def_readwrite("centerP", &fsdk::Transformation::centerP)
+		.def_readwrite("detectionTopLeft", &fsdk::Transformation::detectionTopLeft)
+		.def("__repr__", [](const fsdk::Transformation &t) {
+				 return "<example.Transformation: "
+						" angleDeg= " + std::to_string(t.angleDeg)
+						+ ", scale = " + std::to_string(t.scale)
+						+ ", centerP: x = " + std::to_string(t.centerP.x) + " y = " + std::to_string(t.centerP.y)
+						+ ", detectionTopLeft: x = " + std::to_string(t.detectionTopLeft.x)
+						+ " y = " + std::to_string(t.detectionTopLeft.y) + "'>";
+			 })
+			;
+
+	enum Type {
+		Unknown,		//!< unknown format.
+		B8G8R8X8,		//!< 3 channel 8, bit per channel, B-G-R color order format with 8 bit padding before next pixel.
+		R8G8B8X8,		//!< 3 channel 8, bit per channel, R-G-B color order format with 8 bit padding before next pixel.
+		B8G8R8,			//!< 3 channel 8, bit per channel, B-G-R color order format.
+		R8G8B8,			//!< 3 channel 8, bit per channel, R-G-B color order format.
+		R8,				//!< 1 channel 8, bit per channel format.
+		R16				//!< 1 channel 16, bit per channel format;
+	};
 
 
-	py::class_<fsdk::Image> image(f, "Image");
-	image.def(py::init<>())
+
+	py::enum_<fsdk::Format::Type>(f, "Type")
+		.value("Unknown", fsdk::Format::Unknown)
+		.value("B8G8R8X8", fsdk::Format::B8G8R8X8)
+		.value("R8G8B8X8", fsdk::Format::R8G8B8X8)
+		.value("B8G8R8", fsdk::Format::B8G8R8)
+		.value("R8G8B8", fsdk::Format::R8G8B8)
+		.value("R8", fsdk::Format::R8)
+		.value("R16", fsdk::Format::R16)
+		.export_values();
+			;
+
+
+	py::class_<PyImage> image(f, "Image");
+		image.def(py::init<>());
+		image.def("getWidth", &PyImage::getWidth);
+		image.def("getHeight", &PyImage::getHeight);
+		image.def("isValid", &PyImage::isValid);
 #if defined(PYBIND11_OVERLOAD_CAST)
 		.def("load", py::overload_cast<const char*>(&fsdk::Image::load))
 		.def("load", py::overload_cast<const char*, const fsdk::Format>(&fsdk::Image::load));
 
 #else
-		.def("load", static_cast<py::str (fsdk::Image::*)(const char*)>(&PyImage::load))
-        .def("load", static_cast<py::str (fsdk::Image::*)(const char*, const fsdk::Format)>(&PyImage::load));
-
+		image.def("load", &PyImage::load);
+		image.def("setImage", &PyImage::setImage);
+		image.def("getImage", &PyImage::getImage);
+		image.def("getPythonImage", &PyImage::getPythonImage, py::return_value_policy::reference_internal);
+//        image.def("load", static_cast<py::str (fsdk::Image::*)(const char*, const fsdk::Format)>(&PyImage::load));
 #endif
 
 
