@@ -118,26 +118,43 @@ public:
 	}
 };
 
-int PyIAttributeEstimator_estimate(fsdk::IAttributeEstimator* estimator, const fsdk::Image &warp,
+int PyIAttributeEstimator_estimate(fsdk::IAttributeEstimator* estimator,
+								   const fsdk::Image &warp,
 								   fsdk::AttributeEstimation &out) {
 	if (estimator)
 		return int(estimator->estimate(warp, out));
 	return -1;
 }
 
-int PyIQualityEstimator_estimate(fsdk::IQualityEstimator* estimator, const fsdk::Image &warp,
+int PyIQualityEstimator_estimate(fsdk::IQualityEstimator* estimator,
+								 const fsdk::Image &warp,
 								   fsdk::Quality &out) {
 	if (estimator)
 		return int(estimator->estimate(warp, out));
 	return -1;
 }
 
-int PyIEthnicityEstimator_estimate(fsdk::IEthnicityEstimator* estimator, const fsdk::Image &warp,
+int PyIEthnicityEstimator_estimate(fsdk::IEthnicityEstimator* estimator,
+								   const fsdk::Image &warp,
 								 fsdk::EthnicityEstimation &out) {
 	if (estimator)
 		return int(estimator->estimate(warp, out));
 	return -1;
 }
+
+int PyDetector_detect(fsdk::IDetector* detector,
+	  const fsdk::Image& image,
+	  const fsdk::Rect& rect,
+	  fsdk::Detection* const detections,
+	  fsdk::Landmarks5* const landmarks,
+	  fsdk::Landmarks68* const landmarks68, int maxCount) {
+		if (detector)
+			return int(detector->detect(image, rect, detections,
+									landmarks, landmarks68, maxCount));
+		return -1;
+}
+
+
 
 class PyIQualityEstimator: public fsdk::IQualityEstimator {
 public:
@@ -252,6 +269,7 @@ private:
 };
 
 
+
 //PYBIND11_MAKE_OPAQUE(std::map<std::string, double>);
 //
 //// ...
@@ -325,7 +343,7 @@ PYBIND11_MODULE(fe, f) {
 			if (i >= s.landmarkCount) throw py::index_error();
 			s.landmarks[i].y = value;
 		})
-		;
+			;
 
 	py::class_<fsdk::Vector2<float>>(f, "Vector2f")
 		.def(py::init<>())
@@ -518,6 +536,8 @@ PYBIND11_MODULE(fe, f) {
 		image.def("load_as", &PyImage::load_as);
 		image.def("setImage", &PyImage::setImage);
 		image.def("getImage", &PyImage::getImage);
+
+
 #if defined(PYBIND11_OVERLOAD_CAST)
 //		image.def("load", py::overload_cast<const char*>(&fsdk::Image::load));
 //		image.def("load", py::overload_cast<const char*, const fsdk::Format>(&fsdk::Image::load));
@@ -526,6 +546,8 @@ PYBIND11_MODULE(fe, f) {
 //		image.def("getPythonImage", &PyImage::getPythonImage, py::return_value_policy::reference_internal);
 //        image.def("load", static_cast<py::str (fsdk::Image::*)(const char*, const fsdk::Format)>(&PyImage::load));
 #endif
+
+	py::class_<fsdk::Rect>(f, "Rect");
 
 
 }
