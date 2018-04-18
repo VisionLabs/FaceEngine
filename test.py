@@ -2,23 +2,28 @@ import fe as f
 
 a = f.createFaceEngine("data",
                    "data/faceengine.conf")
-b = a.createAttributeEstimator()
-d = a.createQualityEstimator()
-print(b)
+attributeEstimator = a.createAttributeEstimator()
+qualityEstimator = a.createQualityEstimator()
+print(attributeEstimator)
 
 
 image = f.Image()
-print(f.Type.R8)
-print(image.load("testData/warp1.ppm"))
-# print(image.load_as("testData/warp1.ppm", f.Type.R8))
+print(f.Format_Type.R8)
+print(image.load("testData/warp2.ppm"))
+# print(image.load_as("testData/warp2.ppm", f.Format_Type.R8))
+# print(image.load_as("testData/warp1.ppm", f.Format_Type.R8))
 print(image)
 print(image.getWidth())
 print(image.getHeight())
 print(image.isValid())
 
 attr = f.AttributeEstimation()
-q = f.AttibuteEstimator_etimate(b, image.getImage(), attr)
-print(q)
+qual = f.Quality()
+attribute_result = f.AttibuteEstimator_estimate(attributeEstimator, image.getImage(), attr)
+quality_result = f.QualityEstimator_estimate(qualityEstimator, image.getImage(), qual)
+
+print(attribute_result)
+print(quality_result)
 # q = b.estimate(image.getImage(), attr)
 # attr.gender = 0.7
 # attr.glasses = 1

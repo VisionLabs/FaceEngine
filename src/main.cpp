@@ -107,15 +107,33 @@ public:
 	}
 };
 
-int PyIAttributeEstimator_estimate(fsdk::IAttributeEstimator* attr, const fsdk::Image &warp,
+int PyIAttributeEstimator_estimate(fsdk::IAttributeEstimator* estimator, const fsdk::Image &warp,
 								   fsdk::AttributeEstimation &out) {
-	if (attr)
-		return int(attr->estimate(warp, out));
+	if (estimator)
+		return int(estimator->estimate(warp, out));
+	return -1;
+}
+
+int PyIQualityEstimator_estimate(fsdk::IQualityEstimator* estimator, const fsdk::Image &warp,
+								   fsdk::Quality &out) {
+	if (estimator)
+		return int(estimator->estimate(warp, out));
 	return -1;
 }
 
 class PyQualityEstimator: public fsdk::IQualityEstimator {
 public:
+	fsdk::Result<fsdk::FSDKError> estimate(
+	const fsdk::Image &warp,
+	fsdk::Quality &out) noexcept {
+		PYBIND11_OVERLOAD_PURE(
+			fsdk::Result<fsdk::FSDKError>,
+			fsdk::IQualityEstimator,
+			estimate,
+			warp,
+			out
+			);
+	}
 };
 
 py::object createFaceEnginePy (const char* dataPath = nullptr, const char* configPath = nullptr) {
@@ -334,20 +352,29 @@ PYBIND11_MODULE(fe, f) {
 //		.def("getRefCount", &fsdk::IRefCounted::getRefCount);
 
 	py::class_<fsdk::IAttributeEstimator, PyIAttributeEstimator,
-	std::unique_ptr<fsdk::IAttributeEstimator>>(f, "IAttributeEstimator")
-		.def("estimate", &fsdk::IAttributeEstimator::estimate);
+	std::unique_ptr<fsdk::IAttributeEstimator>>(f, "IAttributeEstimator");
+//		.def("estimate", &fsdk::IAttributeEstimator::estimate);
 
-	f.def("AttibuteEstimator_etimate", [](
+	py::class_<fsdk::IQualityEstimator, PyQualityEstimator,
+	std::unique_ptr<fsdk::IQualityEstimator>>(f, "IQualityEstimator");
+//		.def("estimate", &fsdk::IAttributeEstimator::estimate);
+
+	f.def("AttibuteEstimator_estimate", [](
 		fsdk::IAttributeEstimator* attr,
 		const fsdk::Image &warp,
 		fsdk::AttributeEstimation &out) { int err = PyIAttributeEstimator_estimate(attr, warp, out);
-		return std::make_tuple(err, out); });
+			return std::make_tuple(err, out); })
+		;
 
 //ex	m.def("foo", [](int i) { int rv = foo(i); return std::make_tuple(rv, i); });
 
+	f.def("QualityEstimator_estimate",[](
+		fsdk::IQualityEstimator* attr,
+		const fsdk::Image &warp,
+		fsdk::Quality &out) { int err = PyIQualityEstimator_estimate(attr, warp, out);
+			return std::make_tuple(err, out); })
+		;
 
-	py::class_<fsdk::IQualityEstimator, PyQualityEstimator>(f, "IQualityEstimator");
-//		.def("estimate", &fsdk::IAttributeEstimator::estimate);
 
 	py::class_<fsdk::ISettingsProvider, PyISettingsProvider>(f, "ISettingsProvider");
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
@@ -359,9 +386,9 @@ PYBIND11_MODULE(fe, f) {
 		.def_readwrite("age", &fsdk::AttributeEstimation::age)
 		.def("__repr__",
 		 [](const fsdk::AttributeEstimation &a) {
-			 return "<example.AttributeEstimation \ngender = "
-					+ std::to_string(a.gender) + "\nglasses = "
-					+ std::to_string(a.glasses) + "\nage = "
+			 return "<example.AttributeEstimation: gender = "
+					+ std::to_string(a.gender) + ", glasses = "
+					+ std::to_string(a.glasses) + ", age = "
 					+ std::to_string(a.age)  + "'>";
 		 });
 
@@ -373,11 +400,11 @@ PYBIND11_MODULE(fe, f) {
 		.def_readwrite("blur", &fsdk::Quality::blur)
 		.def("__repr__",
 		 [](const fsdk::Quality &a) {
-			 return "<example.Quality "
+			 return "<example.Quality: "
 					", light = " + std::to_string(a.light)
 					+ ", dark = " + std::to_string(a.dark)
 					+ ", gray = " + std::to_string(a.gray)
-					+ "blur = " + std::to_string(a.blur) +  "'>";
+					+ ", blur = " + std::to_string(a.blur) +  "'>";
 		 })
 	.def("getQuality", &fsdk::Quality::getQuality)
 		;
@@ -398,7 +425,7 @@ PYBIND11_MODULE(fe, f) {
 			 })
 			;
 
-	py::enum_<fsdk::Format::Type>(f, "Type")
+	py::enum_<fsdk::Format::Type>(f, "Format_Type")
 		.value("Unknown", fsdk::Format::Unknown)
 		.value("B8G8R8X8", fsdk::Format::B8G8R8X8)
 		.value("R8G8B8X8", fsdk::Format::R8G8B8X8)
@@ -406,7 +433,7 @@ PYBIND11_MODULE(fe, f) {
 		.value("R8G8B8", fsdk::Format::R8G8B8)
 		.value("R8", fsdk::Format::R8)
 		.value("R16", fsdk::Format::R16)
-		.export_values();
+//		.export_values();
 			;
 	py::class_<fsdk::Image>(f, "Image2");
 
