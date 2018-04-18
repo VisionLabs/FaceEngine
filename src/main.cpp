@@ -107,6 +107,13 @@ public:
 	}
 };
 
+int PyIAttributeEstimator_estimate(fsdk::IAttributeEstimator* attr, const fsdk::Image &warp,
+								   fsdk::AttributeEstimation &out) {
+	if (attr)
+		return int(attr->estimate(warp, out));
+	return -1;
+}
+
 class PyQualityEstimator: public fsdk::IQualityEstimator {
 public:
 };
@@ -212,9 +219,6 @@ private:
 	fsdk::Image image = fsdk::Image();
 };
 
-class PyVector2: public fsdk::Vector2<float> {
-
-};
 
 //PYBIND11_MAKE_OPAQUE(std::map<std::string, double>);
 //
@@ -300,18 +304,20 @@ PYBIND11_MODULE(fe, f) {
 		.def("__repr__",
 		 [](const fsdk::Vector2<float> &v) {
 			 return "<Vector2f: x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
-		 });
+		 })
+			;
 
 	py::class_<fsdk::Vector2<int>>(f, "Vector2i")
-	.def(py::init<>())
-	.def(py::init<int, int>())
+		.def(py::init<>())
+		.def(py::init<int, int>())
 		.def(py::init<const fsdk::Vector2<int>&>())
-	.def_readwrite("x", &fsdk::Vector2<int>::x)
-	.def_readwrite("y", &fsdk::Vector2<int>::y)
-	.def("__repr__",
-		 [](const fsdk::Vector2<int> &v) {
-			 return "<Vector2i: x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
-		 });
+		.def_readwrite("x", &fsdk::Vector2<int>::x)
+		.def_readwrite("y", &fsdk::Vector2<int>::y)
+		.def("__repr__",
+			 [](const fsdk::Vector2<int> &v) {
+				 return "<Vector2i: x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
+			 })
+				;
 
 
 	py::class_<fsdk::IFaceEngine, PyIFaceEngine>(f, "IFaceEngine")
@@ -330,6 +336,14 @@ PYBIND11_MODULE(fe, f) {
 	py::class_<fsdk::IAttributeEstimator, PyIAttributeEstimator,
 	std::unique_ptr<fsdk::IAttributeEstimator>>(f, "IAttributeEstimator")
 		.def("estimate", &fsdk::IAttributeEstimator::estimate);
+
+	f.def("AttibuteEstimator_etimate", [](
+		fsdk::IAttributeEstimator* attr,
+		const fsdk::Image &warp,
+		fsdk::AttributeEstimation &out) { int err = PyIAttributeEstimator_estimate(attr, warp, out);
+		return std::make_tuple(err, out); });
+
+//ex	m.def("foo", [](int i) { int rv = foo(i); return std::make_tuple(rv, i); });
 
 
 	py::class_<fsdk::IQualityEstimator, PyQualityEstimator>(f, "IQualityEstimator");

@@ -17,8 +17,9 @@ print(image.getHeight())
 print(image.isValid())
 
 attr = f.AttributeEstimation()
-
-q = b.estimate(image.getImage(), attr)
+q = f.AttibuteEstimator_etimate(b, image.getImage(), attr)
+print(q)
+# q = b.estimate(image.getImage(), attr)
 # attr.gender = 0.7
 # attr.glasses = 1
 # attr.age = 0.3
