@@ -54,7 +54,6 @@ namespace py = pybind11;
 class PyIFaceEngine : public fsdk::IFaceEngine {
 public:
 
-
 	// Create ethnicity estimator.
 	fsdk::IAttributeEstimator* createAttributeEstimator() noexcept override {
 		PYBIND11_OVERLOAD_PURE(
@@ -94,7 +93,6 @@ public:
 
 class PyIAttributeEstimator : public fsdk::IAttributeEstimator{
 public:
-
 
 	 fsdk::Result<fsdk::FSDKError> estimate(
 			const fsdk::Image &warp,
@@ -204,6 +202,9 @@ public:
 
 	void setImage(const fsdk::Image image) {
 		this->image = image;
+	}
+	int load_as(const std::string& path, const fsdk::Format format) {
+		return int(image.load(path.c_str(), format));
 	}
 //	py::str load(const char*) { return "load(const char*)"; }
 //	py::str load(const char*, const fsdk::Format) { return "load(const char*, const fsdk::Format)"; }
@@ -326,7 +327,8 @@ PYBIND11_MODULE(fe, f) {
 //		.def("release", &fsdk::IRefCounted::release)
 //		.def("getRefCount", &fsdk::IRefCounted::getRefCount);
 
-	py::class_<fsdk::IAttributeEstimator, PyIAttributeEstimator>(f, "IAttributeEstimator")
+	py::class_<fsdk::IAttributeEstimator, PyIAttributeEstimator,
+	std::unique_ptr<fsdk::IAttributeEstimator>>(f, "IAttributeEstimator")
 		.def("estimate", &fsdk::IAttributeEstimator::estimate);
 
 
@@ -382,18 +384,6 @@ PYBIND11_MODULE(fe, f) {
 			 })
 			;
 
-	enum Type {
-		Unknown,		//!< unknown format.
-		B8G8R8X8,		//!< 3 channel 8, bit per channel, B-G-R color order format with 8 bit padding before next pixel.
-		R8G8B8X8,		//!< 3 channel 8, bit per channel, R-G-B color order format with 8 bit padding before next pixel.
-		B8G8R8,			//!< 3 channel 8, bit per channel, B-G-R color order format.
-		R8G8B8,			//!< 3 channel 8, bit per channel, R-G-B color order format.
-		R8,				//!< 1 channel 8, bit per channel format.
-		R16				//!< 1 channel 16, bit per channel format;
-	};
-
-
-
 	py::enum_<fsdk::Format::Type>(f, "Type")
 		.value("Unknown", fsdk::Format::Unknown)
 		.value("B8G8R8X8", fsdk::Format::B8G8R8X8)
@@ -404,21 +394,22 @@ PYBIND11_MODULE(fe, f) {
 		.value("R16", fsdk::Format::R16)
 		.export_values();
 			;
-
+	py::class_<fsdk::Image>(f, "Image2");
 
 	py::class_<PyImage> image(f, "Image");
 		image.def(py::init<>());
 		image.def("getWidth", &PyImage::getWidth);
 		image.def("getHeight", &PyImage::getHeight);
 		image.def("isValid", &PyImage::isValid);
-#if defined(PYBIND11_OVERLOAD_CAST)
-		.def("load", py::overload_cast<const char*>(&fsdk::Image::load))
-		.def("load", py::overload_cast<const char*, const fsdk::Format>(&fsdk::Image::load));
-
-#else
 		image.def("load", &PyImage::load);
+		image.def("load_as", &PyImage::load_as);
 		image.def("setImage", &PyImage::setImage);
 		image.def("getImage", &PyImage::getImage);
+#if defined(PYBIND11_OVERLOAD_CAST)
+//		image.def("load", py::overload_cast<const char*>(&fsdk::Image::load));
+//		image.def("load", py::overload_cast<const char*, const fsdk::Format>(&fsdk::Image::load));
+
+#else
 		image.def("getPythonImage", &PyImage::getPythonImage, py::return_value_policy::reference_internal);
 //        image.def("load", static_cast<py::str (fsdk::Image::*)(const char*, const fsdk::Format)>(&PyImage::load));
 #endif
@@ -584,7 +575,7 @@ PYBIND11_MODULE(fe, f) {
 //            return -1;
 //        }
 //        fsdk::Result<fsdk::FSDKError> transformedLandmarks68Result = warper->warp(
-//            landmarks68[detectionIndex],
+//           Аф landmarks68[detectionIndex],
 //            transformation,
 //            transformedLandmarks68
 //        );
