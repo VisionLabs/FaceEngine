@@ -76,6 +76,17 @@ public:
 		   in the previous line is needed for some compilers */
 		);
 	}
+
+	// Create ethnicity estimator.
+	fsdk::IEthnicityEstimator* createEthnicityEstimator() noexcept override {
+		PYBIND11_OVERLOAD_PURE(
+			fsdk::IEthnicityEstimator*,         /* Return type */
+			fsdk::IFaceEngine,                   /* Parent class */
+			createEthnicityEstimator,     /* Name of function */
+		/* This function has no arguments. The trailing comma
+		   in the previous line is needed for some compilers */
+		);
+	}
 	static fsdk::IAttributeEstimatorPtr pt1;
 	static fsdk::IQualityEstimatorPtr pt2;
 	fsdk::IAttributeEstimatorPtr getAttributeEstimator() {
@@ -121,7 +132,14 @@ int PyIQualityEstimator_estimate(fsdk::IQualityEstimator* estimator, const fsdk:
 	return -1;
 }
 
-class PyQualityEstimator: public fsdk::IQualityEstimator {
+int PyIEthnicityEstimator_estimate(fsdk::IEthnicityEstimator* estimator, const fsdk::Image &warp,
+								 fsdk::EthnicityEstimation &out) {
+	if (estimator)
+		return int(estimator->estimate(warp, out));
+	return -1;
+}
+
+class PyIQualityEstimator: public fsdk::IQualityEstimator {
 public:
 	fsdk::Result<fsdk::FSDKError> estimate(
 	const fsdk::Image &warp,
@@ -136,6 +154,21 @@ public:
 	}
 };
 
+class PyIEthnicityEstimator: public fsdk::IEthnicityEstimator {
+public:
+	fsdk::Result<fsdk::FSDKError> estimate(
+	const fsdk::Image &warp,
+	fsdk::EthnicityEstimation &out) noexcept {
+		PYBIND11_OVERLOAD_PURE(
+		fsdk::Result<fsdk::FSDKError>,
+		fsdk::IEthnicityEstimator,
+		estimate,
+		warp,
+		out
+		);
+	}
+};
+
 py::object createFaceEnginePy (const char* dataPath = nullptr, const char* configPath = nullptr) {
 	return py::cast(fsdk::createFaceEngine(dataPath, configPath));
 }
@@ -144,25 +177,6 @@ py::object createSettingsProviderPy(const char* path) {
 	return py::cast(fsdk::createSettingsProvider(path));
 }
 
-class IFaceEnginePtr : fsdk::IFaceEngine {
-public:
-	py::object createAttributeEstimatorPtr() {
-		return py::cast(createAttributeEstimator());
-	}
-
-	py::object createQualityEstimatorPtr() {
-		return py::cast(createQualityEstimator());
-	}
-};
-
-class PyIFaceEnginePtr : fsdk::IFaceEnginePtr {
-
-//	// Create quality estimator.
-//	py::object createQualityEstimatorPtr() noexcept {
-//
-//	}
-
-};
 
 class PyIRefCounted : public fsdk::IRefCounted {
 
@@ -344,7 +358,10 @@ PYBIND11_MODULE(fe, f) {
 		.def("createAttributeEstimator", &fsdk::IFaceEngine::createAttributeEstimator,
 			 py::return_value_policy::reference)
 		.def("createQualityEstimator", &fsdk::IFaceEngine::createQualityEstimator,
+			 py::return_value_policy::reference)
+		.def("createEthnicityEstimator", &fsdk::IFaceEngine::createEthnicityEstimator,
 			 py::return_value_policy::reference);
+			;
 
 //	py::class_<fsdk::IRefCounted, PyIRefCounted>(f, "IRefCounted")
 //		.def("retain", &fsdk::IRefCounted::retain)
@@ -355,23 +372,34 @@ PYBIND11_MODULE(fe, f) {
 	std::unique_ptr<fsdk::IAttributeEstimator>>(f, "IAttributeEstimator");
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
 
-	py::class_<fsdk::IQualityEstimator, PyQualityEstimator,
+	py::class_<fsdk::IQualityEstimator, PyIQualityEstimator,
 	std::unique_ptr<fsdk::IQualityEstimator>>(f, "IQualityEstimator");
+
+	py::class_<fsdk::IEthnicityEstimator, PyIEthnicityEstimator,
+	std::unique_ptr<fsdk::IEthnicityEstimator>>(f, "IEthnicityEstimator");
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
 
+
 	f.def("AttibuteEstimator_estimate", [](
-		fsdk::IAttributeEstimator* attr,
+		fsdk::IAttributeEstimator* est,
 		const fsdk::Image &warp,
-		fsdk::AttributeEstimation &out) { int err = PyIAttributeEstimator_estimate(attr, warp, out);
+		fsdk::AttributeEstimation &out) { int err = PyIAttributeEstimator_estimate(est, warp, out);
 			return std::make_tuple(err, out); })
 		;
 
 //ex	m.def("foo", [](int i) { int rv = foo(i); return std::make_tuple(rv, i); });
 
 	f.def("QualityEstimator_estimate",[](
-		fsdk::IQualityEstimator* attr,
+		fsdk::IQualityEstimator* est,
 		const fsdk::Image &warp,
-		fsdk::Quality &out) { int err = PyIQualityEstimator_estimate(attr, warp, out);
+		fsdk::Quality &out) { int err = PyIQualityEstimator_estimate(est, warp, out);
+			return std::make_tuple(err, out); })
+		;
+
+	f.def("EthnicityEstimator_estimate",[](
+		fsdk::IEthnicityEstimator* est,
+		const fsdk::Image &warp,
+		fsdk::EthnicityEstimation &out) { int err = PyIEthnicityEstimator_estimate(est, warp, out);
 			return std::make_tuple(err, out); })
 		;
 
@@ -386,10 +414,10 @@ PYBIND11_MODULE(fe, f) {
 		.def_readwrite("age", &fsdk::AttributeEstimation::age)
 		.def("__repr__",
 		 [](const fsdk::AttributeEstimation &a) {
-			 return "<example.AttributeEstimation: gender = "
-					+ std::to_string(a.gender) + ", glasses = "
-					+ std::to_string(a.glasses) + ", age = "
-					+ std::to_string(a.age)  + "'>";
+			 return "<example.AttributeEstimation: "
+				"gender = " + std::to_string(a.gender) +
+			 	", glasses = " + std::to_string(a.glasses) +
+			 	", age = " + std::to_string(a.age)  + "'>";
 		 });
 
 	py::class_<fsdk::Quality>(f, "Quality")
@@ -406,8 +434,37 @@ PYBIND11_MODULE(fe, f) {
 					+ ", gray = " + std::to_string(a.gray)
 					+ ", blur = " + std::to_string(a.blur) +  "'>";
 		 })
-	.def("getQuality", &fsdk::Quality::getQuality)
-		;
+		.def("getQuality", &fsdk::Quality::getQuality)
+			;
+
+	py::class_<fsdk::EthnicityEstimation>(f, "EthnicityEstimation")
+		.def(py::init<>())
+		.def_readwrite("africanAmerican", &fsdk::EthnicityEstimation::africanAmerican)
+		.def_readwrite("indian", &fsdk::EthnicityEstimation::indian)
+		.def_readwrite("asian", &fsdk::EthnicityEstimation::asian)
+		.def_readwrite("caucasian", &fsdk::EthnicityEstimation::caucasian)
+		.def("__repr__",
+			 [](const fsdk::EthnicityEstimation &a) {
+				 return "<example.EthnicityEstimation: "
+						", africanAmerican = " + std::to_string(a.africanAmerican)
+						+ ", indian = " + std::to_string(a.indian)
+						+ ", asian = " + std::to_string(a.asian)
+						+ ", caucasian = " + std::to_string(a.caucasian) +  "'>";
+			 })
+		.def("getEthnicityScore", &fsdk::EthnicityEstimation::getEthnicityScore)
+		.def("getPredominantEthnicity", &fsdk::EthnicityEstimation::getPredominantEthnicity)
+			;
+
+	py::enum_<fsdk::EthnicityEstimation::Ethnicities >(f, "Ethnicity")
+		.value("AfricanAmerican", fsdk::EthnicityEstimation::AfricanAmerican)
+		.value("Indian", fsdk::EthnicityEstimation::Indian)
+		.value("Asian", fsdk::EthnicityEstimation::Asian)
+		.value("Caucasian", fsdk::EthnicityEstimation::Caucasian)
+		.value("Count", fsdk::EthnicityEstimation::Count)
+	//		.export_values();
+			;
+
+
 
 	py::class_<fsdk::Transformation>(f, "Transformation")
 		.def(py::init<>())
@@ -425,7 +482,7 @@ PYBIND11_MODULE(fe, f) {
 			 })
 			;
 
-	py::enum_<fsdk::Format::Type>(f, "Format_Type")
+	py::enum_<fsdk::Format::Type>(f, "Type")
 		.value("Unknown", fsdk::Format::Unknown)
 		.value("B8G8R8X8", fsdk::Format::B8G8R8X8)
 		.value("R8G8B8X8", fsdk::Format::R8G8B8X8)
@@ -435,6 +492,21 @@ PYBIND11_MODULE(fe, f) {
 		.value("R16", fsdk::Format::R16)
 //		.export_values();
 			;
+
+	py::class_<fsdk::Format>(f, "Format")
+		.def(py::init<>())
+		.def(py::init<fsdk::Format::Type>())
+		.def("getChannelCount", &fsdk::Format::getChannelCount)
+		.def("getChannelStep", &fsdk::Format::getChannelStep)
+		.def("getChannelSize", &fsdk::Format::getChannelSize)
+		.def("getBitDepth", &fsdk::Format::getBitDepth)
+		.def("getByteDepth", &fsdk::Format::getByteDepth)
+		.def("computePitch", &fsdk::Format::computePitch)
+		.def("isPadded", &fsdk::Format::isPadded)
+		.def("isBGR", &fsdk::Format::isBGR)
+		.def("isBlock", &fsdk::Format::isValid)
+			;
+
 	py::class_<fsdk::Image>(f, "Image2");
 
 	py::class_<PyImage> image(f, "Image");
@@ -451,7 +523,7 @@ PYBIND11_MODULE(fe, f) {
 //		image.def("load", py::overload_cast<const char*, const fsdk::Format>(&fsdk::Image::load));
 
 #else
-		image.def("getPythonImage", &PyImage::getPythonImage, py::return_value_policy::reference_internal);
+//		image.def("getPythonImage", &PyImage::getPythonImage, py::return_value_policy::reference_internal);
 //        image.def("load", static_cast<py::str (fsdk::Image::*)(const char*, const fsdk::Format)>(&PyImage::load));
 #endif
 

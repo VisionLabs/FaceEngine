@@ -4,26 +4,38 @@ a = f.createFaceEngine("data",
                    "data/faceengine.conf")
 attributeEstimator = a.createAttributeEstimator()
 qualityEstimator = a.createQualityEstimator()
+ethnicityEstimator = a.createEthnicityEstimator()
 print(attributeEstimator)
+print(qualityEstimator)
+print(ethnicityEstimator)
 
 
 image = f.Image()
-print(f.Format_Type.R8)
-print(image.load("testData/warp2.ppm"))
-# print(image.load_as("testData/warp2.ppm", f.Format_Type.R8))
+print(f.Type.R8)
+print(f.Format())
+print(image.load("testData/00205_9501_p.ppm"))
+print(image.load_as("testData/warp2.ppm", f.Format(f.Type.R8G8B8)))
 # print(image.load_as("testData/warp1.ppm", f.Format_Type.R8))
 print(image)
-print(image.getWidth())
-print(image.getHeight())
-print(image.isValid())
+print("image width {0}".format(image.getWidth()))
+print("image height {0}".format(image.getHeight()))
+print("image is valid {0}".format(image.isValid()))
 
 attr = f.AttributeEstimation()
 qual = f.Quality()
+ethn = f.EthnicityEstimation()
 attribute_result = f.AttibuteEstimator_estimate(attributeEstimator, image.getImage(), attr)
 quality_result = f.QualityEstimator_estimate(qualityEstimator, image.getImage(), qual)
+ethnicity_result = f.EthnicityEstimator_estimate(ethnicityEstimator, image.getImage(), ethn)
+
+print(f.Ethnicity.Indian)
+
+print("test of getEthnicityScore() {0}".format(ethn.getEthnicityScore(f.Ethnicity.Caucasian)))
+print("test of get getPredominantEthnicity() {0}".format(ethn.getPredominantEthnicity()))
 
 print(attribute_result)
 print(quality_result)
+print(ethnicity_result)
 # q = b.estimate(image.getImage(), attr)
 # attr.gender = 0.7
 # attr.glasses = 1
