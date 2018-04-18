@@ -67,7 +67,6 @@ public:
 
 	// Create quality estimator.
 	fsdk::IQualityEstimator* createQualityEstimator() noexcept override {
-
 		PYBIND11_OVERLOAD_PURE(
 			fsdk::IQualityEstimator*,         /* Return type */
 			fsdk::IFaceEngine,                   /* Parent class */
@@ -83,6 +82,17 @@ public:
 			fsdk::IEthnicityEstimator*,         /* Return type */
 			fsdk::IFaceEngine,                   /* Parent class */
 			createEthnicityEstimator,     /* Name of function */
+		/* This function has no arguments. The trailing comma
+		   in the previous line is needed for some compilers */
+		);
+	}
+
+	// Create ethnicity estimator.
+	fsdk::IDetector* createDetector() noexcept {
+		PYBIND11_OVERLOAD_PURE(
+		fsdk::IDetector*,         /* Return type */
+		fsdk::IFaceEngine,                   /* Parent class */
+		createDetector,     /* Name of function */
 		/* This function has no arguments. The trailing comma
 		   in the previous line is needed for some compilers */
 		);
@@ -106,16 +116,16 @@ class PyIAttributeEstimator : public fsdk::IAttributeEstimator{
 public:
 
 	 fsdk::Result<fsdk::FSDKError> estimate(
-			const fsdk::Image &warp,
-			fsdk::AttributeEstimation &out) noexcept {
-		PYBIND11_OVERLOAD_PURE(
-			fsdk::Result<fsdk::FSDKError>,
-			fsdk::IAttributeEstimator,
-			estimate,
-			warp,
-			out
-		);
-	}
+	 	const fsdk::Image &warp,
+		fsdk::AttributeEstimation &out) noexcept {
+		 	PYBIND11_OVERLOAD_PURE(
+				fsdk::Result<fsdk::FSDKError>,
+				fsdk::IAttributeEstimator,
+				estimate,
+				warp,
+				out
+			);
+		}
 };
 
 int PyIAttributeEstimator_estimate(fsdk::IAttributeEstimator* estimator, const fsdk::Image &warp,
@@ -142,32 +152,92 @@ int PyIEthnicityEstimator_estimate(fsdk::IEthnicityEstimator* estimator, const f
 class PyIQualityEstimator: public fsdk::IQualityEstimator {
 public:
 	fsdk::Result<fsdk::FSDKError> estimate(
-	const fsdk::Image &warp,
-	fsdk::Quality &out) noexcept {
-		PYBIND11_OVERLOAD_PURE(
-			fsdk::Result<fsdk::FSDKError>,
-			fsdk::IQualityEstimator,
-			estimate,
-			warp,
-			out
+		const fsdk::Image &warp,
+		fsdk::Quality &out) noexcept {
+			PYBIND11_OVERLOAD_PURE(
+				fsdk::Result<fsdk::FSDKError>,
+				fsdk::IQualityEstimator,
+				estimate,
+				warp,
+				out
 			);
-	}
+		}
 };
 
 class PyIEthnicityEstimator: public fsdk::IEthnicityEstimator {
+
 public:
-	fsdk::Result<fsdk::FSDKError> estimate(
-	const fsdk::Image &warp,
-	fsdk::EthnicityEstimation &out) noexcept {
-		PYBIND11_OVERLOAD_PURE(
-		fsdk::Result<fsdk::FSDKError>,
-		fsdk::IEthnicityEstimator,
-		estimate,
-		warp,
-		out
-		);
-	}
+//	fsdk::Result<fsdk::FSDKError> estimate(
+//		const fsdk::Image &warp,
+//		fsdk::EthnicityEstimation &out) noexcept {
+//			PYBIND11_OVERLOAD_PURE(
+//				fsdk::Result<fsdk::FSDKError>,
+//				fsdk::IEthnicityEstimator,
+//				estimate,
+//				warp,
+//				out
+//			);
+//		}
 };
+
+//class PyIDetector: public fsdk::IDetector {
+//
+//public:
+//	fsdk::ResultValue <fsdk::FSDKError, int>
+//		detect(
+//		const fsdk::Image& image,
+//		const fsdk::Rect& rect,
+//		fsdk::Detection* const detections,
+//		fsdk::Landmarks5* const landmarks,
+//		fsdk::Landmarks68* const landmarks68,
+//		int maxCount) noexcept override {
+//			PYBIND11_OVERLOAD_PURE(
+//			fsdk::ResultValue <fsdk::FSDKError, int > ,
+//			fsdk::IDetector,
+//			detect,
+//			image,
+//			rect,
+//			detections,
+//			landmarks,
+//			landmarks68,
+//			maxCount,
+//			);
+//		}
+
+//	fsdk::ResultValue<fsdk::FSDKError, int> detect(
+//	const fsdk::Image& image,
+//	const fsdk::Rect& rect,
+//	fsdk::Detection* const detections,
+//	fsdk::Landmarks5* const landmarks,
+//	int maxCount) noexcept override {
+//		PYBIND11_OVERLOAD_PURE(
+//		fsdk::ResultValue<fsdk::FSDKError, int>,
+//		fsdk::IDetector,
+//		detect,
+//		image,
+//		rect,
+//		detections,
+//		landmarks,
+//		maxCount,
+//		);
+//	}
+//
+//	fsdk::ResultValue<fsdk::FSDKError, int> detect(
+//	const fsdk::Image& image,
+//	const fsdk::Rect& rect,
+//	fsdk::Detection* const detections,
+//	int maxCount) noexcept override {
+//		PYBIND11_OVERLOAD_PURE(
+//		fsdk::ResultValue<fsdk::FSDKError, int>,
+//		fsdk::IDetector,
+//		detect,
+//		image,
+//		rect,
+//		detections,
+//		maxCount,
+//		);
+//	}
+//};
 
 py::object createFaceEnginePy (const char* dataPath = nullptr, const char* configPath = nullptr) {
 	return py::cast(fsdk::createFaceEngine(dataPath, configPath));
@@ -377,6 +447,9 @@ PYBIND11_MODULE(fe, f) {
 
 	py::class_<fsdk::IEthnicityEstimator, PyIEthnicityEstimator,
 	std::unique_ptr<fsdk::IEthnicityEstimator>>(f, "IEthnicityEstimator");
+
+//	py::class_<fsdk::IDetector, PyIDetector,
+//	std::unique_ptr<fsdk::IDetector>>(f, "IDetector");
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
 
 
@@ -465,7 +538,6 @@ PYBIND11_MODULE(fe, f) {
 			;
 
 
-
 	py::class_<fsdk::Transformation>(f, "Transformation")
 		.def(py::init<>())
 		.def_readwrite("angleDeg", &fsdk::Transformation::angleDeg)
@@ -492,6 +564,12 @@ PYBIND11_MODULE(fe, f) {
 		.value("R16", fsdk::Format::R16)
 //		.export_values();
 			;
+
+	py::enum_<fsdk::ObjectDetectorClassType>(f, "ObjectDetectorClassType", py::arithmetic())
+		.value("ODT_MTCNN", fsdk::ObjectDetectorClassType::ODT_MTCNN)
+		.value("ODT_COUNT", fsdk::ObjectDetectorClassType::ODT_COUNT)
+			;
+
 
 	py::class_<fsdk::Format>(f, "Format")
 		.def(py::init<>())
@@ -543,7 +621,7 @@ PYBIND11_MODULE(fe, f) {
 //    // Image should be in ppm format.
 //    if (argc != 2) {
 //        std::cout << "USAGE: " << argv[0] << " <image>\n"
-//            " *image - path to image\n"
+//            " *image - path to image\n"f
 //                  << std::endl;
 //        return -1;
 //    }
