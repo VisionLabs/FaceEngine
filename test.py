@@ -68,29 +68,34 @@ rect4.set(f.Vector2i(20, 20), f.Vector2i(40, 40))
 print("set={0}".format(rect4))
 
 # detector test and example
-maxDetections = 1
-detection = f.Detection()
-landmarks = f.Landmarks5()
-landmarks68 = f.Landmarks68()
+maxDetections = 30
+# detection = f.Detection()
+# landmarks = f.Landmarks5()
+# landmarks68 = f.Landmarks68()
 image_det = f.Image()
-image_det.load("testData/overlap.ppm")
+image_det.load("testData/2018-04-19 16.20.11.jpg")
 
 detector = faceEngine.createDetector(f.ODT_MTCNN)
 detector_result = f.Detector_detect(detector,
                                     image_det.getImage(),
                                     image_det.getRect(),
-                                    detection,
-                                    landmarks,
-                                    landmarks68,
                                     maxDetections)
-print("Detection = ", detection.rect)
-print("Detection = ", detection.score)
-for i in range(len(landmarks68)):
-    print(landmarks68.getItem(i))
-print("\n")
-for i in range(len(landmarks)):
-    print(landmarks.getItem(i))
-print(detector_result)
+# print("Detection = ", detection.rect)
+# print("Detection = ", detection.score)
+# for i in range(len(landmarks68)):
+#     print(landmarks68.getItem(i))
+# print("\n")
+# for i in range(len(landmarks)):
+#     print(landmarks.getItem(i))
+n = 0
+for d in detector_result["detections"]:
+    if d.rect.x != 0:
+        n += 1
+print(n)
+print(detector_result["detections"])
+
+print(detector_result["Landmarks5"])
+print(detector_result["Landmarks68"])
 # q = b.estimate(image.getImage(), attr)
 # attr.gender = 0.7
 # attr.glasses = 1

@@ -394,14 +394,37 @@ PYBIND11_MODULE(fe, f) {
 		;
 
 	f.def("Detector_detect",[](
-		fsdk::IDetector* det,
-		const fsdk::Image& image,
-		const fsdk::Rect& rect,
-		fsdk::Detection* const detections,
-		fsdk::Landmarks5* const landmarks,
-		fsdk::Landmarks68* const landmarks68,
-		int maxCount) { int err = PyDetector_detect(det, image, rect, detections, landmarks, landmarks68, maxCount);
-			return std::make_tuple(err, detections, landmarks, landmarks68); })
+			fsdk::IDetector* det,
+			const fsdk::Image& image,
+			const fsdk::Rect& rect,
+			int maxCount) {
+				fsdk::Detection detections[maxCount];
+				fsdk::Landmarks5 landmarks[maxCount];
+				fsdk::Landmarks68 landmarks68[maxCount];
+				int err = PyDetector_detect(det, image, rect, detections, landmarks, landmarks68, maxCount);
+
+
+		//		d["basic_attr"] = o.attr("basic_attr");
+
+				auto detectionPyList = py::list();
+				for (const auto &detection : detections) {
+					detectionPyList.append(detection);
+				}
+				auto landmarksPyList = py::list();
+				for (const auto landmark : landmarks) {
+					landmarksPyList.append(landmark);
+				}
+
+				auto landmarks68PyList = py::list();
+				for (const auto landmark : landmarks68) {
+					landmarks68PyList.append(landmark);
+				}
+				auto detResultPy = py::dict();
+				detResultPy["Detection"] = detectionPyList;
+				detResultPy["Landmarks5"] = landmarksPyList;
+				detResultPy["Landmarks68"] = landmarks68PyList;
+
+			return detResultPy; })
 			;
 
 	py::class_<fsdk::ISettingsProvider, PyISettingsProvider>(f, "ISettingsProvider");
