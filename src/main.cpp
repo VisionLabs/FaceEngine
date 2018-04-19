@@ -256,9 +256,7 @@ public:
 		return image.isValid();
 	}
 
-	void setImage(const fsdk::Image image) {
-		this->image = image;
-	}
+
 	int load_as(const std::string& path, const fsdk::Format format) {
 		return int(image.load(path.c_str(), format));
 	}
@@ -534,7 +532,6 @@ PYBIND11_MODULE(fe, f) {
 		image.def("isValid", &PyImage::isValid);
 		image.def("load", &PyImage::load);
 		image.def("load_as", &PyImage::load_as);
-		image.def("setImage", &PyImage::setImage);
 		image.def("getImage", &PyImage::getImage);
 
 
@@ -547,7 +544,60 @@ PYBIND11_MODULE(fe, f) {
 //        image.def("load", static_cast<py::str (fsdk::Image::*)(const char*, const fsdk::Format)>(&PyImage::load));
 #endif
 
-	py::class_<fsdk::Rect>(f, "Rect");
+	py::class_<fsdk::Rect>(f, "Rect")
+		.def(py::init<>())
+		.def(py::init<int, int, int, int>())
+		.def(py::init<fsdk::Vector2<int>, fsdk::Vector2<int>>())
+		.def(py::init<const fsdk::Rect&>())
+		.def(py::self != py::self)
+		.def(py::self == py::self)
+		.def_readwrite("x", &fsdk::Rect::x)
+		.def_readwrite("y", &fsdk::Rect::y)
+		.def_readwrite("width", &fsdk::Rect::width)
+		.def_readwrite("height", &fsdk::Rect::height)
+		.def_static("coords", &fsdk::Rect::coords)
+		.def("size", &fsdk::Rect::size)
+		.def("topLeft", &fsdk::Rect::topLeft)
+		.def("center", &fsdk::Rect::center)
+		.def("bottomRight", &fsdk::Rect::bottomRight)
+		.def("top", &fsdk::Rect::top)
+		.def("bottom", &fsdk::Rect::bottom)
+		.def("left", &fsdk::Rect::left)
+		.def("right", &fsdk::Rect::right)
+		.def("set", &fsdk::Rect::set)
+		.def("adjust", &fsdk::Rect::adjust)
+		.def("adjusted", &fsdk::Rect::adjusted)
+		.def("getArea", &fsdk::Rect::getArea)
+		.def("inside", &fsdk::Rect::inside)
+		.def("isValid", &fsdk::Rect::isValid)
+		.def("__repr__",
+			 [](const fsdk::Rect &r) {
+				 return "<example.Rect: x = " + std::to_string(r.x) +
+				 ", y = " + std::to_string(r.y) +
+				 ", width = " + std::to_string(r.width) +
+				 ", height = " + std::to_string(r.height) + ">";
+			 })
+				;
+
+
+//	.def(py::self + py::self)
+//	.def(py::self + float())
+//	.def(py::self - py::self)
+//	.def(py::self - float())
+//	.def(py::self * float())
+//	.def(py::self / float())
+//	.def(py::self * py::self)
+//	.def(py::self / py::self)
+//	.def(py::self += py::self)
+//	.def(py::self -= py::self)
+//	.def(py::self *= float())
+//	.def(py::self /= float())
+//	.def(py::self *= py::self)
+//	.def(py::self /= py::self)
+//	.def(float() + py::self)
+//	.def(float() - py::self)
+//	.def(float() * py::self)
+//	.def(float() / py::self)
 
 
 }

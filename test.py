@@ -36,6 +36,35 @@ print("test of get getPredominantEthnicity() {0}".format(ethn.getPredominantEthn
 print(attribute_result)
 print(quality_result)
 print(ethnicity_result)
+
+# Rect test
+# constructors
+rect1 = f.Rect()
+print(rect1)
+# print(rect1.x, rect1.y. rect1.width, rect1.height)
+print(rect1.size())
+print(rect1.x, rect1.y, rect1.width, rect1.height)
+rect2 = f.Rect(2, 5, 7, 10)
+print(rect2)
+rect3 = f.Rect(f.Vector2i(0, 0), f.Vector2i(100, 120))
+print(rect3)
+rect3 = rect2
+print(rect3 == rect2)
+rect4 = f.Rect()
+rect4.x = 100
+rect4.y = 100
+rect4.width = 100
+rect4.height = 100
+print(rect4)
+print("size={0}, topLeft={1}, topLeft={2}, center={3}, bottomRight={4}, bottom={5}, left={6}, right={7}, "
+      "getArea={8}, isValid={9} ".format(rect4.size(), rect4.topLeft(),
+      rect4.center(), rect4.bottomRight(), rect4.top(), rect4.bottom(),
+      rect4.left(), rect4.right(), rect4.getArea(), rect4.isValid()))
+rect4.adjust(0, 0, 100, 100)
+rect_adjusted = rect4.adjusted(10, 10, 10, 10)
+print("adjust={0}, adjusted={1}".format(rect4, rect_adjusted))
+rect4.set(f.Vector2i(20, 20), f.Vector2i(40, 40))
+print("set={0}".format(rect4))
 # q = b.estimate(image.getImage(), attr)
 # attr.gender = 0.7
 # attr.glasses = 1
@@ -72,7 +101,5 @@ print(ethnicity_result)
 # print(len(landmarks5))
 # print(len(landmarks68))
 
-
-
-a = f.createSettingsProvider("data/faceengine.conf")
+# a = f.createSettingsProvider("data/faceengine.conf")
 # print(a)
