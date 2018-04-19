@@ -25,9 +25,9 @@ print("image is valid {0}".format(image.isValid()))
 attr = f.AttributeEstimation()
 qual = f.Quality()
 ethn = f.EthnicityEstimation()
-attribute_result = f.AttibuteEstimator_estimate(attributeEstimator, image.getImage(), attr)
-quality_result = f.QualityEstimator_estimate(qualityEstimator, image.getImage(), qual)
-ethnicity_result = f.EthnicityEstimator_estimate(ethnicityEstimator, image.getImage(), ethn)
+attribute_result = f.AttibuteEstimator_estimate(attributeEstimator, image.getImage())
+quality_result = f.QualityEstimator_estimate(qualityEstimator, image.getImage())
+ethnicity_result = f.EthnicityEstimator_estimate(ethnicityEstimator, image.getImage())
 
 print(f.Ethnicity.Indian)
 
@@ -69,9 +69,6 @@ print("set={0}".format(rect4))
 
 # detector test and example
 maxDetections = 30
-# detection = f.Detection()
-# landmarks = f.Landmarks5()
-# landmarks68 = f.Landmarks68()
 image_det = f.Image()
 image_det.load("testData/2018-04-19 16.20.11.jpg")
 
@@ -80,22 +77,13 @@ detector_result = f.Detector_detect(detector,
                                     image_det.getImage(),
                                     image_det.getRect(),
                                     maxDetections)
-# print("Detection = ", detection.rect)
-# print("Detection = ", detection.score)
-# for i in range(len(landmarks68)):
-#     print(landmarks68.getItem(i))
-# print("\n")
-# for i in range(len(landmarks)):
-#     print(landmarks.getItem(i))
-n = 0
-for d in detector_result["detections"]:
-    if d.rect.x != 0:
-        n += 1
-print(n)
-print(detector_result["detections"])
 
-print(detector_result["Landmarks5"])
-print(detector_result["Landmarks68"])
+for i, item in enumerate(detector_result, 1):
+    print(i, item)
+
+# for i in enumerate(detector_result):
+#     print(detector_result[i])
+
 # q = b.estimate(image.getImage(), attr)
 # attr.gender = 0.7
 # attr.glasses = 1

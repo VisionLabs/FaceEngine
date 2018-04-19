@@ -372,26 +372,36 @@ PYBIND11_MODULE(fe, f) {
 
 	f.def("AttibuteEstimator_estimate", [](
 		fsdk::IAttributeEstimator* est,
-		const fsdk::Image &warp,
-		fsdk::AttributeEstimation &out) { int err = PyIAttributeEstimator_estimate(est, warp, out);
-			return std::make_tuple(err, out); })
-		;
-
-//ex	m.def("foo", [](int i) { int rv = foo(i); return std::make_tuple(rv, i); });
+		const fsdk::Image &warp) {
+		fsdk::AttributeEstimation out;
+			int err = PyIAttributeEstimator_estimate(est, warp, out);
+			auto estResultPy = py::dict();
+			estResultPy["error"] = err;
+			estResultPy["AttributeEstimation"] = out;
+			return estResultPy; })
+				;
 
 	f.def("QualityEstimator_estimate",[](
 		fsdk::IQualityEstimator* est,
-		const fsdk::Image &warp,
-		fsdk::Quality &out) { int err = PyIQualityEstimator_estimate(est, warp, out);
-			return std::make_tuple(err, out); })
-		;
+		const fsdk::Image &warp) {
+			fsdk::Quality out;
+			int err = PyIQualityEstimator_estimate(est, warp, out);
+			auto estResultPy = py::dict();
+			estResultPy["error"] = err;
+			estResultPy["Quality"] = out;
+			return estResultPy; })
+				;
 
 	f.def("EthnicityEstimator_estimate",[](
 		fsdk::IEthnicityEstimator* est,
-		const fsdk::Image &warp,
-		fsdk::EthnicityEstimation &out) { int err = PyIEthnicityEstimator_estimate(est, warp, out);
-			return std::make_tuple(err, out); })
-		;
+		const fsdk::Image &warp) {
+			fsdk::EthnicityEstimation out;
+			int err = PyIEthnicityEstimator_estimate(est, warp, out);
+			auto estResultPy = py::dict();
+			estResultPy["error"] = err;
+			estResultPy["EthnicityEstimation"] = out;
+			return estResultPy; })
+				;
 
 	f.def("Detector_detect",[](
 			fsdk::IDetector* det,
@@ -402,30 +412,18 @@ PYBIND11_MODULE(fe, f) {
 				fsdk::Landmarks5 landmarks[maxCount];
 				fsdk::Landmarks68 landmarks68[maxCount];
 				int err = PyDetector_detect(det, image, rect, detections, landmarks, landmarks68, maxCount);
-
-
-		//		d["basic_attr"] = o.attr("basic_attr");
-
-				auto detectionPyList = py::list();
-				for (const auto &detection : detections) {
-					detectionPyList.append(detection);
+				auto detResultPy = py::list();
+				for (size_t i = 0; i < maxCount; ++i) {
+					auto tempDict = py::dict();
+					tempDict["error"] = err;
+					tempDict["Detection"] = detections[i];
+					tempDict["Landmarks5"] = landmarks[i];
+					tempDict["Landmarks68"] = landmarks68[i];
+					detResultPy.append(tempDict);
 				}
-				auto landmarksPyList = py::list();
-				for (const auto landmark : landmarks) {
-					landmarksPyList.append(landmark);
-				}
-
-				auto landmarks68PyList = py::list();
-				for (const auto landmark : landmarks68) {
-					landmarks68PyList.append(landmark);
-				}
-				auto detResultPy = py::dict();
-				detResultPy["Detection"] = detectionPyList;
-				detResultPy["Landmarks5"] = landmarksPyList;
-				detResultPy["Landmarks68"] = landmarks68PyList;
 
 			return detResultPy; })
-			;
+				;
 
 	py::class_<fsdk::ISettingsProvider, PyISettingsProvider>(f, "ISettingsProvider");
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
