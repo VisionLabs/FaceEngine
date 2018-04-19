@@ -87,15 +87,7 @@ public:
 		   in the previous line is needed for some compilers */
 		);
 	}
-	static fsdk::IAttributeEstimatorPtr pt1;
-	static fsdk::IQualityEstimatorPtr pt2;
-	fsdk::IAttributeEstimatorPtr getAttributeEstimator() {
-		return fsdk::acquire(createAttributeEstimator());
-	}
 
-	fsdk::IQualityEstimatorPtr getQualityEstimator() {
-		return fsdk::acquire(createQualityEstimator());
-	}
 };
 
 class PyISettingsProvider: public fsdk::ISettingsProvider {
@@ -154,13 +146,12 @@ int PyDetector_detect(fsdk::IDetector* detector,
 		return -1;
 }
 
-int PyWarper_warp(fsdk::IWarper* warper,
+fsdk::Result<fsdk::FSDKError> PyWarper_warp(fsdk::IWarper* warper,
 				  const fsdk::Image& image,
 				  const fsdk::Transformation& transformation,
 				  fsdk::Image& transformedImage) {
-	if (warper)
-		return int(warper->warp(image, transformation, transformedImage));
-	return -1;
+		return warper->warp(image, transformation, transformedImage);
+
 }
 
 
@@ -330,10 +321,10 @@ PYBIND11_MODULE(fe, f) {
 		.def_readwrite("x", &fsdk::Vector2<float>::x)
 		.def_readwrite("y", &fsdk::Vector2<float>::y)
 		.def("__repr__",
-		 [](const fsdk::Vector2<float> &v) {
-			 return "<Vector2f: x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
-		 })
-			;
+			 [](const fsdk::Vector2<float> &v) {
+				 return "<Vector2f: x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
+		 	})
+				;
 
 	py::class_<fsdk::Vector2<int>>(f, "Vector2i")
 		.def(py::init<>())
@@ -359,6 +350,8 @@ PYBIND11_MODULE(fe, f) {
 			 py::return_value_policy::reference)
 		.def("createDetector", &fsdk::IFaceEngine::createDetector,
 			 py::return_value_policy::reference)
+		.def("createWarper", &fsdk::IFaceEngine::createWarper,
+			 py::return_value_policy::reference)
 				;
 
 //	py::class_<fsdk::IRefCounted, PyIRefCounted>(f, "IRefCounted")
@@ -379,7 +372,10 @@ PYBIND11_MODULE(fe, f) {
 
 	py::class_<fsdk::IDetector, std::unique_ptr<fsdk::IDetector>>(f, "IDetector");
 
-	py::class_<fsdk::IWarper, std::unique_ptr<fsdk::IWarper>>(f, "IWarper");
+	py::class_<fsdk::IWarper, std::unique_ptr<fsdk::IWarper>>(f, "IWarper")
+		.def("createTransformation", &fsdk::IWarper::createTransformation,
+			py::return_value_policy::reference)
+			;
 
 	f.def("AttibuteEstimator_estimate", [](
 		fsdk::IAttributeEstimator* est,
@@ -432,9 +428,23 @@ PYBIND11_MODULE(fe, f) {
 					tempDict["Landmarks68"] = landmarks68[i];
 					detResultPy.append(tempDict);
 				}
-
 			return detResultPy; })
 				;
+	f.def("Warper_warp",[](
+		fsdk::IWarper* warper,
+		const fsdk::Image& image,
+		const fsdk::Transformation& transformation) {
+			fsdk::Image transformedImage;
+			fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, image, transformation, transformedImage);
+			auto warpResultPy = py::dict();
+			warpResultPy["error"] = error.getError();
+			warpResultPy["isOk"] = error.isOk();
+			warpResultPy["isError"] = error.isError();
+			warpResultPy["what"] = error.what();
+			warpResultPy["transformedImage"] = image;
+			return warpResultPy; })
+				;
+
 
 	py::class_<fsdk::ISettingsProvider, PyISettingsProvider>(f, "ISettingsProvider");
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
@@ -618,26 +628,34 @@ PYBIND11_MODULE(fe, f) {
 		.export_values();
 			;
 
-//	.def(py::self + py::self)
-//	.def(py::self + float())
-//	.def(py::self - py::self)
-//	.def(py::self - float())
-//	.def(py::self * float())
-//	.def(py::self / float())
-//	.def(py::self * py::self)
-//	.def(py::self / py::self)
-//	.def(py::self += py::self)
-//	.def(py::self -= py::self)
-//	.def(py::self *= float())
-//	.def(py::self /= float())
-//	.def(py::self *= py::self)
-//	.def(py::self /= py::self)
-//	.def(float() + py::self)
-//	.def(float() - py::self)
-//	.def(float() * py::self)
-//	.def(float() / py::self)
+	py::enum_<fsdk::FSDKError>(f, "FSDKError")
+		.value("Ok", fsdk::FSDKError::Ok)
+		.value("Internal", fsdk::FSDKError::Internal)
+		.value("InvalidInput", fsdk::FSDKError::InvalidInput)
+		.value("InvalidImage", fsdk::FSDKError::InvalidImage)
 
+		.value("InvalidRect", fsdk::FSDKError::InvalidRect)
+		.value("InvalidImageFormat", fsdk::FSDKError::InvalidImageFormat)
+		.value("InvalidImageSize", fsdk::FSDKError::InvalidImageSize)
+		.value("InvalidDetection", fsdk::FSDKError::InvalidDetection)
+		.value("InvalidLandmarks5", fsdk::FSDKError::InvalidLandmarks5)
+		.value("InvalidLandmarks68", fsdk::FSDKError::InvalidLandmarks68)
+		.value("InvalidTransformation", fsdk::FSDKError::InvalidTransformation)
+		.value("InvalidDescriptor", fsdk::FSDKError::InvalidDescriptor)
+		.value("InvalidDescriptorBatch", fsdk::FSDKError::InvalidDescriptorBatch)
+		.value("InvalidSettingsProvider", fsdk::FSDKError::InvalidSettingsProvider)
 
+		.value("ModuleNotInitialized", fsdk::FSDKError::ModuleNotInitialized)
+		.value("ModuleNotReady", fsdk::FSDKError::ModuleNotReady)
+		.value("LicenseError", fsdk::FSDKError::LicenseError)
+
+		.value("BufferIsNull", fsdk::FSDKError::BufferIsNull)
+		.value("BufferIsFull", fsdk::FSDKError::BufferIsFull)
+		.value("BufferIsEmpty", fsdk::FSDKError::BufferIsEmpty)
+		.value("InvalidBufferSize", fsdk::FSDKError::InvalidBufferSize)
+
+		.value("IncompatibleDescriptors", fsdk::FSDKError::IncompatibleDescriptors)
+			;
 }
 
 
@@ -798,7 +816,7 @@ PYBIND11_MODULE(fe, f) {
 //            return -1;
 //        }
 //        fsdk::Result<fsdk::FSDKError> transformedLandmarks68Result = warper->warp(
-//           Аф landmarks68[detectionIndex],
+//            landmarks68[detectionIndex],
 //            transformation,
 //            transformedLandmarks68
 //        );

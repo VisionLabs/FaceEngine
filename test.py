@@ -14,7 +14,7 @@ print(ethnicityEstimator)
 image = f.Image()
 print(f.Type.R8)
 print(f.Format())
-print(image.load("testData/00205_9501_p.ppm"))
+print(image.load("testData/warp1.ppm"))
 print(image.load_as("testData/warp2.ppm", f.Format(f.Type.R8G8B8)))
 # print(image.load_as("testData/warp1.ppm", f.Format_Type.R8))
 print(image)
@@ -68,9 +68,9 @@ rect4.set(f.Vector2i(20, 20), f.Vector2i(40, 40))
 print("set={0}".format(rect4))
 
 # detector test and example
-maxDetections = 30
+maxDetections = 3
 image_det = f.Image()
-image_det.load("testData/2018-04-19 16.20.11.jpg")
+image_det.load("testData/image2.ppm")
 
 detector = faceEngine.createDetector(f.ODT_MTCNN)
 detector_result = f.Detector_detect(detector,
@@ -80,6 +80,13 @@ detector_result = f.Detector_detect(detector,
 
 for i, item in enumerate(detector_result, 1):
     print(i, item)
+
+# warper test and example
+warper = faceEngine.createWarper()
+transformation = warper.createTransformation(detector_result[0]["Detection"],
+                                             detector_result[0]["Landmarks5"])
+warperResult = f.Warper_warp(warper, image_det.getImage(), transformation)
+print(warperResult)
 
 # for i in enumerate(detector_result):
 #     print(detector_result[i])
