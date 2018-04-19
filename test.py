@@ -31,6 +31,7 @@ ethnicity_result = f.EthnicityEstimator_estimate(ethnicityEstimator, image.getIm
 
 print(f.Ethnicity.Indian)
 
+print(ethnicity_result)
 print("test of getEthnicityScore() {0}".format(ethn.getEthnicityScore(f.Ethnicity.Caucasian)))
 print("test of get getPredominantEthnicity() {0}".format(ethn.getPredominantEthnicity()))
 
@@ -85,8 +86,14 @@ for i, item in enumerate(detector_result, 1):
 warper = faceEngine.createWarper()
 transformation = warper.createTransformation(detector_result[0]["Detection"],
                                              detector_result[0]["Landmarks5"])
+print(transformation)
 warperResult = f.Warper_warp(warper, image_det.getImage(), transformation)
+warpImage = warperResult["transformedImage"]
+print(warpImage)
+print (warpImage.getWidth(), warpImage.getHeight(), warpImage.isValid())
 print(warperResult)
+ethnicityEstimator = faceEngine.createEthnicityEstimator()
+f.EthnicityEstimator_estimate(ethnicityEstimator, warpImage)
 
 # for i in enumerate(detector_result):
 #     print(detector_result[i])

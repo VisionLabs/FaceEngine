@@ -223,6 +223,9 @@ public:
 		return image.isValid();
 	}
 
+	int save(const std::string& path) {
+		return int(image.save(path.c_str()));
+	}
 
 	int load_as(const std::string& path, const fsdk::Format format) {
 		return int(image.load(path.c_str(), format));
@@ -441,7 +444,7 @@ PYBIND11_MODULE(fe, f) {
 			warpResultPy["isOk"] = error.isOk();
 			warpResultPy["isError"] = error.isError();
 			warpResultPy["what"] = error.what();
-			warpResultPy["transformedImage"] = image;
+			warpResultPy["transformedImage"] = transformedImage;
 			return warpResultPy; })
 				;
 
@@ -549,7 +552,13 @@ PYBIND11_MODULE(fe, f) {
 		.def("isBlock", &fsdk::Format::isValid)
 			;
 
-	py::class_<fsdk::Image>(f, "Image2");
+	py::class_<fsdk::Image>(f, "Image2")
+		.def(py::init<>())
+		.def("getWidth", &fsdk::Image::getWidth)
+		.def("getHeight", &fsdk::Image::getHeight)
+		.def("isValid", &fsdk::Image::isValid)
+		.def("getRect", &fsdk::Image::isValid)
+			;
 
 	py::class_<PyImage> image(f, "Image");
 		image.def(py::init<>());
@@ -560,6 +569,7 @@ PYBIND11_MODULE(fe, f) {
 		image.def("load_as", &PyImage::load_as);
 		image.def("getImage", &PyImage::getImage);
 		image.def("getRect", &PyImage::getRect);
+		image.def("save", &PyImage::save);
 
 
 #if defined(PYBIND11_OVERLOAD_CAST)
