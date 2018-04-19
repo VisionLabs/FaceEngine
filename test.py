@@ -1,10 +1,11 @@
 import fe as f
 
-a = f.createFaceEngine("data",
+faceEngine = f.createFaceEngine("data",
                    "data/faceengine.conf")
-attributeEstimator = a.createAttributeEstimator()
-qualityEstimator = a.createQualityEstimator()
-ethnicityEstimator = a.createEthnicityEstimator()
+attributeEstimator = faceEngine.createAttributeEstimator()
+qualityEstimator = faceEngine.createQualityEstimator()
+ethnicityEstimator = faceEngine.createEthnicityEstimator()
+
 print(attributeEstimator)
 print(qualityEstimator)
 print(ethnicityEstimator)
@@ -65,6 +66,31 @@ rect_adjusted = rect4.adjusted(10, 10, 10, 10)
 print("adjust={0}, adjusted={1}".format(rect4, rect_adjusted))
 rect4.set(f.Vector2i(20, 20), f.Vector2i(40, 40))
 print("set={0}".format(rect4))
+
+# detector test and example
+maxDetections = 1
+detection = f.Detection()
+landmarks = f.Landmarks5()
+landmarks68 = f.Landmarks68()
+image_det = f.Image()
+image_det.load("testData/overlap.ppm")
+
+detector = faceEngine.createDetector(f.ODT_MTCNN)
+detector_result = f.Detector_detect(detector,
+                                    image_det.getImage(),
+                                    image_det.getRect(),
+                                    detection,
+                                    landmarks,
+                                    landmarks68,
+                                    maxDetections)
+print("Detection = ", detection.rect)
+print("Detection = ", detection.score)
+for i in range(len(landmarks68)):
+    print(landmarks68.getItem(i))
+print("\n")
+for i in range(len(landmarks)):
+    print(landmarks.getItem(i))
+print(detector_result)
 # q = b.estimate(image.getImage(), attr)
 # attr.gender = 0.7
 # attr.glasses = 1

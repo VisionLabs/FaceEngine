@@ -195,39 +195,6 @@ py::object createSettingsProviderPy(const char* path) {
 }
 
 
-class PyIRefCounted : public fsdk::IRefCounted {
-
-	int32_t retain() noexcept override {
-		PYBIND11_OVERLOAD_PURE(
-			int32_t ,               /* Return type */
-			fsdk::IRefCounted,      /* Parent class */
-			retain,               /* Name of function */
-		/* This function has no arguments. The trailing comma
-		   in the previous line is needed for some compilers */
-		);
-	}
-
-	int32_t release() noexcept override {
-		PYBIND11_OVERLOAD_PURE(
-			int32_t,                /* Return type */
-			fsdk::IRefCounted,      /* Parent class */
-			release,              /* Name of function */
-		/* This function has no arguments. The trailing comma
-		   in the previous line is needed for some compilers */
-		);
-	}
-
-	int32_t getRefCount() noexcept {
-		PYBIND11_OVERLOAD_PURE(
-			int32_t,                /* Return type */
-			fsdk::IRefCounted,      /* Parent class */
-			getRefCount,          /* Name of function */
-		/* This function has no arguments. The trailing comma
-		   in the previous line is needed for some compilers */
-		);
-	}
-};
-
 class PyImage {
 
 public:
@@ -259,6 +226,10 @@ public:
 
 	int load_as(const std::string& path, const fsdk::Format format) {
 		return int(image.load(path.c_str(), format));
+	}
+
+	fsdk::Rect getRect() {
+		return image.getRect();
 	}
 //	py::str load(const char*) { return "load(const char*)"; }
 //	py::str load(const char*, const fsdk::Format) { return "load(const char*, const fsdk::Format)"; }
@@ -304,7 +275,7 @@ PYBIND11_MODULE(fe, f) {
 //				s.landmarks[i] = value;
 //		})
 
-		.def("getitem", [](fsdk::Landmarks5 &s, size_t i)  {
+		.def("getItem", [](fsdk::Landmarks5 &s, size_t i)  {
 			if (i >= s.landmarkCount) throw py::index_error();
 			return s.landmarks[i];
 		})
@@ -327,7 +298,7 @@ PYBIND11_MODULE(fe, f) {
 //			if (i >= s.landmarkCount) throw py::index_error();
 //			return s.landmarks[i];
 //		})
-		.def("getitem", [](fsdk::Landmarks68 &s, size_t i)  {
+		.def("getItem", [](fsdk::Landmarks68 &s, size_t i)  {
 			if (i >= s.landmarkCount) throw py::index_error();
 			return s.landmarks[i];
 		})
@@ -376,8 +347,10 @@ PYBIND11_MODULE(fe, f) {
 		.def("createQualityEstimator", &fsdk::IFaceEngine::createQualityEstimator,
 			 py::return_value_policy::reference)
 		.def("createEthnicityEstimator", &fsdk::IFaceEngine::createEthnicityEstimator,
-			 py::return_value_policy::reference);
-			;
+			 py::return_value_policy::reference)
+		.def("createDetector", &fsdk::IFaceEngine::createDetector,
+			 py::return_value_policy::reference)
+				;
 
 //	py::class_<fsdk::IRefCounted, PyIRefCounted>(f, "IRefCounted")
 //		.def("retain", &fsdk::IRefCounted::retain)
@@ -395,6 +368,7 @@ PYBIND11_MODULE(fe, f) {
 	std::unique_ptr<fsdk::IEthnicityEstimator>>(f, "IEthnicityEstimator");
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
 
+	py::class_<fsdk::IDetector, std::unique_ptr<fsdk::IDetector>>(f, "IDetector");
 
 	f.def("AttibuteEstimator_estimate", [](
 		fsdk::IAttributeEstimator* est,
@@ -419,6 +393,16 @@ PYBIND11_MODULE(fe, f) {
 			return std::make_tuple(err, out); })
 		;
 
+	f.def("Detector_detect",[](
+		fsdk::IDetector* det,
+		const fsdk::Image& image,
+		const fsdk::Rect& rect,
+		fsdk::Detection* const detections,
+		fsdk::Landmarks5* const landmarks,
+		fsdk::Landmarks68* const landmarks68,
+		int maxCount) { int err = PyDetector_detect(det, image, rect, detections, landmarks, landmarks68, maxCount);
+			return std::make_tuple(err, detections, landmarks, landmarks68); })
+			;
 
 	py::class_<fsdk::ISettingsProvider, PyISettingsProvider>(f, "ISettingsProvider");
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
@@ -477,7 +461,7 @@ PYBIND11_MODULE(fe, f) {
 		.value("Asian", fsdk::EthnicityEstimation::Asian)
 		.value("Caucasian", fsdk::EthnicityEstimation::Caucasian)
 		.value("Count", fsdk::EthnicityEstimation::Count)
-	//		.export_values();
+			.export_values();
 			;
 
 
@@ -506,7 +490,7 @@ PYBIND11_MODULE(fe, f) {
 		.value("R8G8B8", fsdk::Format::R8G8B8)
 		.value("R8", fsdk::Format::R8)
 		.value("R16", fsdk::Format::R16)
-//		.export_values();
+		.export_values();
 			;
 
 	py::class_<fsdk::Format>(f, "Format")
@@ -533,6 +517,7 @@ PYBIND11_MODULE(fe, f) {
 		image.def("load", &PyImage::load);
 		image.def("load_as", &PyImage::load_as);
 		image.def("getImage", &PyImage::getImage);
+		image.def("getRect", &PyImage::getRect);
 
 
 #if defined(PYBIND11_OVERLOAD_CAST)
@@ -543,6 +528,22 @@ PYBIND11_MODULE(fe, f) {
 //		image.def("getPythonImage", &PyImage::getPythonImage, py::return_value_policy::reference_internal);
 //        image.def("load", static_cast<py::str (fsdk::Image::*)(const char*, const fsdk::Format)>(&PyImage::load));
 #endif
+
+	py::class_<fsdk::Detection>(f, "Detection")
+		.def(py::init<>())
+		.def_readwrite("rect", &fsdk::Detection::rect)
+		.def_readwrite("score", &fsdk::Detection::score)
+		.def("isValid", &fsdk::Detection::isValid)
+		.def("__repr__",
+			 [](const fsdk::Detection &d) {
+				 return "<example.Detection: rect: x = " + std::to_string(d.rect.x) +
+				 ", y = " + std::to_string(d.rect.y) +
+				 ", width = " + std::to_string(d.rect.width) +
+				 ", height = " + std::to_string(d.rect.height) +
+						"; score = " + std::to_string(d.score) +
+						"; isValid = " + std::to_string(d.isValid()) + ">";
+			 	})
+			;
 
 	py::class_<fsdk::Rect>(f, "Rect")
 		.def(py::init<>())
@@ -579,6 +580,11 @@ PYBIND11_MODULE(fe, f) {
 			 })
 				;
 
+	py::enum_<fsdk::ObjectDetectorClassType>(f, "ObjectDetectorClassType", py::arithmetic())
+		.value("ODT_MTCNN", fsdk::ODT_MTCNN)
+		.value("ODT_COUNT", fsdk::ODT_COUNT)
+		.export_values();
+			;
 
 //	.def(py::self + py::self)
 //	.def(py::self + float())
