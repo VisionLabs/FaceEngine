@@ -154,6 +154,15 @@ int PyDetector_detect(fsdk::IDetector* detector,
 		return -1;
 }
 
+int PyWarper_warp(fsdk::IWarper* warper,
+				  const fsdk::Image& image,
+				  const fsdk::Transformation& transformation,
+				  fsdk::Image& transformedImage) {
+	if (warper)
+		return int(warper->warp(image, transformation, transformedImage));
+	return -1;
+}
+
 
 
 class PyIQualityEstimator: public fsdk::IQualityEstimator {
@@ -369,6 +378,8 @@ PYBIND11_MODULE(fe, f) {
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
 
 	py::class_<fsdk::IDetector, std::unique_ptr<fsdk::IDetector>>(f, "IDetector");
+
+	py::class_<fsdk::IWarper, std::unique_ptr<fsdk::IWarper>>(f, "IWarper");
 
 	f.def("AttibuteEstimator_estimate", [](
 		fsdk::IAttributeEstimator* est,
