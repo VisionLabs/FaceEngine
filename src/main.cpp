@@ -51,106 +51,109 @@
 namespace py = pybind11;
 //PYBIND11_DECLARE_HOLDER_TYPE(fsdk::IFaceEngine, );
 
-class PyIFaceEngine : public fsdk::IFaceEngine {
-public:
-
-	// Create ethnicity estimator.
-	fsdk::IAttributeEstimator* createAttributeEstimator() noexcept override {
-		PYBIND11_OVERLOAD_PURE(
-			fsdk::IAttributeEstimator*,         /* Return type */
-			fsdk::IFaceEngine,                   /* Parent class */
-			createAttributeEstimator,     /* Name of function */
-		/* This function has no arguments. The trailing comma
-		   in the previous line is needed for some compilers */
-		);
-	}
-
-	// Create quality estimator.
-	fsdk::IQualityEstimator* createQualityEstimator() noexcept override {
-
-		PYBIND11_OVERLOAD_PURE(
-			fsdk::IQualityEstimator*,         /* Return type */
-			fsdk::IFaceEngine,                   /* Parent class */
-			createQualityEstimator,     /* Name of function */
-		/* This function has no arguments. The trailing comma
-		   in the previous line is needed for some compilers */
-		);
-	}
-
-	// Create ethnicity estimator.
-	fsdk::IEthnicityEstimator* createEthnicityEstimator() noexcept override {
-		PYBIND11_OVERLOAD_PURE(
-			fsdk::IEthnicityEstimator*,         /* Return type */
-			fsdk::IFaceEngine,                   /* Parent class */
-			createEthnicityEstimator,     /* Name of function */
-		/* This function has no arguments. The trailing comma
-		   in the previous line is needed for some compilers */
-		);
-	}
-
-};
+//class PyIFaceEngine : public fsdk::IFaceEngine {
+//public:
+//
+//	// Create ethnicity estimator.
+//	fsdk::IAttributeEstimator* createAttributeEstimator() noexcept override {
+//		PYBIND11_OVERLOAD_PURE(
+//			fsdk::IAttributeEstimator*,         /* Return type */
+//			fsdk::IFaceEngine,                   /* Parent class */
+//			createAttributeEstimator,     /* Name of function */
+//		/* This function has no arguments. The trailing comma
+//		   in the previous line is needed for some compilers */
+//		);
+//	}
+//
+//	// Create quality estimator.
+//	fsdk::IQualityEstimator* createQualityEstimator() noexcept override {
+//
+//		PYBIND11_OVERLOAD_PURE(
+//			fsdk::IQualityEstimator*,         /* Return type */
+//			fsdk::IFaceEngine,                   /* Parent class */
+//			createQualityEstimator,     /* Name of function */
+//		/* This function has no arguments. The trailing comma
+//		   in the previous line is needed for some compilers */
+//		);
+//	}
+//
+//	// Create ethnicity estimator.
+//	fsdk::IEthnicityEstimator* createEthnicityEstimator() noexcept override {
+//		PYBIND11_OVERLOAD_PURE(
+//			fsdk::IEthnicityEstimator*,         /* Return type */
+//			fsdk::IFaceEngine,                   /* Parent class */
+//			createEthnicityEstimator,     /* Name of function */
+//		/* This function has no arguments. The trailing comma
+//		   in the previous line is needed for some compilers */
+//		);
+//	}
+//
+//};
 
 class PyISettingsProvider: public fsdk::ISettingsProvider {
 public:
 };
 
-class PyIAttributeEstimator : public fsdk::IAttributeEstimator{
-public:
+//class PyIAttributeEstimator : public fsdk::IAttributeEstimator{
+//public:
+//
+//	 fsdk::Result<fsdk::FSDKError> estimate(
+//			const fsdk::Image &warp,
+//			fsdk::AttributeEstimation &out) noexcept {
+//		PYBIND11_OVERLOAD_PURE(
+//			fsdk::Result<fsdk::FSDKError>,
+//			fsdk::IAttributeEstimator,
+//			estimate,
+//			warp,
+//			out
+//		);
+//	}
+//};
 
-	 fsdk::Result<fsdk::FSDKError> estimate(
-			const fsdk::Image &warp,
-			fsdk::AttributeEstimation &out) noexcept {
-		PYBIND11_OVERLOAD_PURE(
-			fsdk::Result<fsdk::FSDKError>,
-			fsdk::IAttributeEstimator,
-			estimate,
-			warp,
-			out
-		);
-	}
-};
-
-int PyIAttributeEstimator_estimate(fsdk::IAttributeEstimator* estimator,
+fsdk::Result<fsdk::FSDKError> PyIAttributeEstimator_estimate(fsdk::IAttributeEstimator* estimator,
 								   const fsdk::Image &warp,
 								   fsdk::AttributeEstimation &out) {
 	if (estimator)
-		return int(estimator->estimate(warp, out));
-	return -1;
+		return estimator->estimate(warp, out);
+	return fsdk::makeResult(fsdk::FSDKError::ModuleNotInitialized);
 }
 
-int PyIQualityEstimator_estimate(fsdk::IQualityEstimator* estimator,
+fsdk::Result<fsdk::FSDKError> PyIQualityEstimator_estimate(fsdk::IQualityEstimator* estimator,
 								 const fsdk::Image &warp,
 								   fsdk::Quality &out) {
 	if (estimator)
-		return int(estimator->estimate(warp, out));
-	return -1;
+		return estimator->estimate(warp, out);
+	return fsdk::makeResult(fsdk::FSDKError::ModuleNotInitialized);
 }
 
-int PyIEthnicityEstimator_estimate(fsdk::IEthnicityEstimator* estimator,
+fsdk::Result<fsdk::FSDKError> PyIEthnicityEstimator_estimate(fsdk::IEthnicityEstimator* estimator,
 								   const fsdk::Image &warp,
 								 fsdk::EthnicityEstimation &out) {
 	if (estimator)
-		return int(estimator->estimate(warp, out));
-	return -1;
+		return estimator->estimate(warp, out);
+	return fsdk::makeResult(fsdk::FSDKError::ModuleNotInitialized);
 }
 
-int PyDetector_detect(fsdk::IDetector* detector,
-	  const fsdk::Image& image,
-	  const fsdk::Rect& rect,
-	  fsdk::Detection* const detections,
-	  fsdk::Landmarks5* const landmarks,
-	  fsdk::Landmarks68* const landmarks68, int maxCount) {
+fsdk::ResultValue<fsdk::FSDKError, int> PyDetector_detect(fsdk::IDetector* detector,
+	const fsdk::Image& image,
+	const fsdk::Rect& rect,
+	fsdk::Detection* const detections,
+	fsdk::Landmarks5* const landmarks,
+	fsdk::Landmarks68* const landmarks68, int maxCount) {
 		if (detector)
-			return int(detector->detect(image, rect, detections,
-									landmarks, landmarks68, maxCount));
-		return -1;
+			return detector->detect(image, rect, detections,
+									landmarks, landmarks68, maxCount);
+		return makeResultValue(fsdk::FSDKError::ModuleNotInitialized, 0);
+
 }
 
 fsdk::Result<fsdk::FSDKError> PyWarper_warp(fsdk::IWarper* warper,
 				  const fsdk::Image& image,
 				  const fsdk::Transformation& transformation,
 				  fsdk::Image& transformedImage) {
+	if (warper)
 		return warper->warp(image, transformation, transformedImage);
+	return makeResultValue(fsdk::FSDKError::ModuleNotInitialized, 0);
 
 }
 
@@ -158,41 +161,53 @@ fsdk::Result<fsdk::FSDKError> PyWarper_warp(fsdk::IWarper* warper,
 											const fsdk::Landmarks5& landmarks,
 											const fsdk::Transformation& transformation,
 											fsdk::Landmarks5& transformedLandmarks) {
-	return warper->warp(landmarks, transformation, transformedLandmarks);
+	if (warper)
+		return warper->warp(landmarks, transformation, transformedLandmarks);
+	makeResultValue(fsdk::FSDKError::ModuleNotInitialized, 0);
 
+}
+
+fsdk::Result<fsdk::FSDKError> PyWarper_warp(fsdk::IWarper* warper,
+											const fsdk::Landmarks68& landmarks68,
+											const fsdk::Transformation& transformation,
+											fsdk::Landmarks68& transformedLandmarks68) {
+	if (warper)
+		return warper->warp(landmarks68, transformation, transformedLandmarks68);
+	return
+		makeResultValue(fsdk::FSDKError::ModuleNotInitialized, 0);
 }
 
 
 
-class PyIQualityEstimator: public fsdk::IQualityEstimator {
-public:
-	fsdk::Result<fsdk::FSDKError> estimate(
-	const fsdk::Image &warp,
-	fsdk::Quality &out) noexcept {
-		PYBIND11_OVERLOAD_PURE(
-			fsdk::Result<fsdk::FSDKError>,
-			fsdk::IQualityEstimator,
-			estimate,
-			warp,
-			out
-			);
-	}
-};
+//class PyIQualityEstimator: public fsdk::IQualityEstimator {
+//public:
+//	fsdk::Result<fsdk::FSDKError> estimate(
+//	const fsdk::Image &warp,
+//	fsdk::Quality &out) noexcept {
+//		PYBIND11_OVERLOAD_PURE(
+//			fsdk::Result<fsdk::FSDKError>,
+//			fsdk::IQualityEstimator,
+//			estimate,
+//			warp,
+//			out
+//		);
+//	}
+//};
 
-class PyIEthnicityEstimator: public fsdk::IEthnicityEstimator {
-public:
-	fsdk::Result<fsdk::FSDKError> estimate(
-	const fsdk::Image &warp,
-	fsdk::EthnicityEstimation &out) noexcept {
-		PYBIND11_OVERLOAD_PURE(
-		fsdk::Result<fsdk::FSDKError>,
-		fsdk::IEthnicityEstimator,
-		estimate,
-		warp,
-		out
-		);
-	}
-};
+//class PyIEthnicityEstimator: public fsdk::IEthnicityEstimator {
+//public:
+//	fsdk::Result<fsdk::FSDKError> estimate(
+//	const fsdk::Image &warp,
+//	fsdk::EthnicityEstimation &out) noexcept {
+//		PYBIND11_OVERLOAD_PURE(
+//		fsdk::Result<fsdk::FSDKError>,
+//		fsdk::IEthnicityEstimator,
+//		estimate,
+//		warp,
+//		out
+//		);
+//	}
+//};
 
 py::object createFaceEnginePy (const char* dataPath = nullptr, const char* configPath = nullptr) {
 	return py::cast(fsdk::createFaceEngine(dataPath, configPath));
@@ -248,11 +263,39 @@ private:
 	fsdk::Image image = fsdk::Image();
 };
 
+struct ErrorResult {
 
+	bool isOk;
+	bool isError;
+	fsdk::FSDKError fsdkError;
+	const char* what;
 
-//PYBIND11_MAKE_OPAQUE(std::map<std::string, double>);
-//
-//// ...
+	ErrorResult(fsdk::Result<fsdk::FSDKError> err) :
+		isOk(err.isOk()),
+		isError(err.isError()),
+		fsdkError(err.getError()),
+		what(err.what())
+		{};
+
+};
+
+struct ErrorValue {
+
+	bool isOk;
+	bool isError;
+	fsdk::FSDKError fsdkError;
+	const char* what;
+	int value;
+
+	ErrorValue(fsdk::ResultValue<fsdk::FSDKError, int> err) :
+		isOk(err.isOk()),
+		isError(err.isError()),
+		fsdkError(err.getError()),
+		what(err.what()),
+		value(err.getValue())
+		{};
+
+};
 
 PYBIND11_MAKE_OPAQUE(fsdk::Landmarks5);
 PYBIND11_MAKE_OPAQUE(fsdk::Landmarks68);
@@ -348,11 +391,39 @@ PYBIND11_MODULE(fe, f) {
 				 return "<Vector2i: x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
 			 })
 				;
+	py::class_<ErrorResult>(f, "ErrorResult")
+		.def_readonly("isOk", &ErrorResult::isOk)
+		.def_readonly("isError", &ErrorResult::isError)
+		.def_readonly("FSDKError", &ErrorResult::fsdkError)
+		.def_readonly("what", &ErrorResult::what)
+		.def("__repr__",
+			 [](const ErrorResult &err) {
+				 return "<example.ErrorResult: "
+						"isOk = " + std::to_string(err.isOk)
+						+ ", isError = " + std::to_string(err.isError)
+						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", what = " + err.what +  "'>";
+			 })
+			;
 
+	py::class_<ErrorValue>(f, "ErrorValue")
+		.def_readonly("isOk", &ErrorValue::isOk)
+		.def_readonly("isError", &ErrorValue::isError)
+		.def_readonly("FSDKError", &ErrorValue::fsdkError)
+		.def_readonly("what", &ErrorValue::what)
+		.def_readonly("value", &ErrorValue::value)
+		.def("__repr__",
+			 [](const ErrorValue &err) {
+				 return "<example.ErrorValue: "
+						"isOk = " + std::to_string(err.isOk)
+						+ ", isError = " + std::to_string(err.isError)
+						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", value = " + std::to_string(err.value)
+						+ ", what = " + err.what +  "'>";
+			 })
+			;
 
-	py::class_<fsdk::IFaceEngine, PyIFaceEngine>(f, "IFaceEngine")
-		/* Reference original class in function definitions */
-//		.def("createEthnicityEstimator", &fsdk::IFaceEngine::createEthnicityEstimator)
+	py::class_<fsdk::IFaceEngine, std::unique_ptr<fsdk::IFaceEngine>>(f, "IFaceEngine")
 		.def("createAttributeEstimator", &fsdk::IFaceEngine::createAttributeEstimator,
 			 py::return_value_policy::reference)
 		.def("createQualityEstimator", &fsdk::IFaceEngine::createQualityEstimator,
@@ -370,15 +441,15 @@ PYBIND11_MODULE(fe, f) {
 //		.def("release", &fsdk::IRefCounted::release)
 //		.def("getRefCount", &fsdk::IRefCounted::getRefCount);
 
-	py::class_<fsdk::IAttributeEstimator, PyIAttributeEstimator,
-	std::unique_ptr<fsdk::IAttributeEstimator>>(f, "IAttributeEstimator");
+	py::class_<fsdk::IAttributeEstimator,
+		std::unique_ptr<fsdk::IAttributeEstimator>>(f, "IAttributeEstimator");
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
 
-	py::class_<fsdk::IQualityEstimator, PyIQualityEstimator,
-	std::unique_ptr<fsdk::IQualityEstimator>>(f, "IQualityEstimator");
+	py::class_<fsdk::IQualityEstimator,
+		std::unique_ptr<fsdk::IQualityEstimator>>(f, "IQualityEstimator");
 
-	py::class_<fsdk::IEthnicityEstimator, PyIEthnicityEstimator,
-	std::unique_ptr<fsdk::IEthnicityEstimator>>(f, "IEthnicityEstimator");
+	py::class_<fsdk::IEthnicityEstimator,
+		std::unique_ptr<fsdk::IEthnicityEstimator>>(f, "IEthnicityEstimator");
 //		.def("estimate", &fsdk::IAttributeEstimator::estimate);
 
 	py::class_<fsdk::IDetector, std::unique_ptr<fsdk::IDetector>>(f, "IDetector");
@@ -392,9 +463,9 @@ PYBIND11_MODULE(fe, f) {
 		fsdk::IAttributeEstimator* est,
 		const fsdk::Image &warp) {
 		fsdk::AttributeEstimation out;
-			int err = PyIAttributeEstimator_estimate(est, warp, out);
+			fsdk::Result<fsdk::FSDKError> err = PyIAttributeEstimator_estimate(est, warp, out);
 			auto estResultPy = py::dict();
-			estResultPy["error"] = err;
+			estResultPy["errorResult"] = ErrorResult(err);
 			estResultPy["AttributeEstimation"] = out;
 			return estResultPy; })
 				;
@@ -403,9 +474,9 @@ PYBIND11_MODULE(fe, f) {
 		fsdk::IQualityEstimator* est,
 		const fsdk::Image &warp) {
 			fsdk::Quality out;
-			int err = PyIQualityEstimator_estimate(est, warp, out);
+		fsdk::Result<fsdk::FSDKError> err = PyIQualityEstimator_estimate(est, warp, out);
 			auto estResultPy = py::dict();
-			estResultPy["error"] = err;
+			estResultPy["errorResult"] = ErrorResult(err);
 			estResultPy["Quality"] = out;
 			return estResultPy; })
 				;
@@ -414,9 +485,9 @@ PYBIND11_MODULE(fe, f) {
 		fsdk::IEthnicityEstimator* est,
 		const fsdk::Image &warp) {
 			fsdk::EthnicityEstimation out;
-			int err = PyIEthnicityEstimator_estimate(est, warp, out);
+			fsdk::Result<fsdk::FSDKError> err = PyIEthnicityEstimator_estimate(est, warp, out);
 			auto estResultPy = py::dict();
-			estResultPy["error"] = err;
+			estResultPy["errorResult"] = ErrorResult(err);
 			estResultPy["EthnicityEstimation"] = out;
 			return estResultPy; })
 				;
@@ -429,11 +500,11 @@ PYBIND11_MODULE(fe, f) {
 				fsdk::Detection detections[maxCount];
 				fsdk::Landmarks5 landmarks[maxCount];
 				fsdk::Landmarks68 landmarks68[maxCount];
-				int err = PyDetector_detect(det, image, rect, detections, landmarks, landmarks68, maxCount);
+				fsdk::ResultValue<fsdk::FSDKError, int> err = PyDetector_detect(det, image, rect, detections, landmarks, landmarks68, maxCount);
 				auto detResultPy = py::list();
 				for (size_t i = 0; i < maxCount; ++i) {
 					auto tempDict = py::dict();
-					tempDict["error"] = err;
+					tempDict["errorValue"] = ErrorValue(err);
 					tempDict["Detection"] = detections[i];
 					tempDict["Landmarks5"] = landmarks[i];
 					tempDict["Landmarks68"] = landmarks68[i];
@@ -448,10 +519,7 @@ PYBIND11_MODULE(fe, f) {
 			fsdk::Image transformedImage;
 			fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, image, transformation, transformedImage);
 			auto warpResultPy = py::dict();
-			warpResultPy["error"] = error.getError();
-			warpResultPy["isOk"] = error.isOk();
-			warpResultPy["isError"] = error.isError();
-			warpResultPy["what"] = error.what();
+			warpResultPy["errorResult"] = ErrorResult(error);
 			warpResultPy["transformedImage"] = transformedImage;
 			return warpResultPy; })
 		;
@@ -462,25 +530,19 @@ PYBIND11_MODULE(fe, f) {
 	fsdk::Landmarks5 transformedLandmarks;
 		fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, landmarks, transformation, transformedLandmarks);
 		auto warpResultPy = py::dict();
-		warpResultPy["error"] = error.getError();
-		warpResultPy["isOk"] = error.isOk();
-		warpResultPy["isError"] = error.isError();
-		warpResultPy["what"] = error.what();
+		warpResultPy["errorResult"] = ErrorResult(error);
 		warpResultPy["transformedLandmarks"] = transformedLandmarks;
 		return warpResultPy; })
 		;
 	f.def("Warper_warp",[](
 	fsdk::IWarper* warper,
-	const fsdk::Landmarks5& landmarks,
+	const fsdk::Landmarks68& landmarks68,
 	const fsdk::Transformation& transformation) {
-		fsdk::Landmarks5 transformedLandmarks;
-		fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, landmarks, transformation, transformedLandmarks);
+		fsdk::Landmarks68 transformedLandmarks68;
+		fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, landmarks68, transformation, transformedLandmarks68);
 		auto warpResultPy = py::dict();
-		warpResultPy["error"] = error.getError();
-		warpResultPy["isOk"] = error.isOk();
-		warpResultPy["isError"] = error.isError();
-		warpResultPy["what"] = error.what();
-		warpResultPy["transformedLandmarks"] = transformedLandmarks;
+		warpResultPy["errorResult"] = ErrorResult(error);
+		warpResultPy["transformedLandmarks68"] = transformedLandmarks68;
 		return warpResultPy; })
 		;
 
