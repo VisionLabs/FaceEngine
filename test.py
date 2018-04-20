@@ -90,11 +90,14 @@ print(transformation)
 warperResult = f.Warper_warp(warper, image_det.getImage(), transformation)
 warpImage = warperResult["transformedImage"]
 print(warpImage)
-print (warpImage.getWidth(), warpImage.getHeight(), warpImage.isValid())
+print(warpImage.getWidth(), warpImage.getHeight(), warpImage.isValid())
 print(warperResult)
 ethnicityEstimator = faceEngine.createEthnicityEstimator()
 f.EthnicityEstimator_estimate(ethnicityEstimator, warpImage)
 
+warperResult2 = f.Warper_warp(warper, detector_result[0]["Landmarks5"], transformation)
+
+print("warperResult 2 with Landmarks5 = ", warperResult2)
 # for i in enumerate(detector_result):
 #     print(detector_result[i])
 

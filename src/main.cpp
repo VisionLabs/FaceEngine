@@ -154,6 +154,14 @@ fsdk::Result<fsdk::FSDKError> PyWarper_warp(fsdk::IWarper* warper,
 
 }
 
+fsdk::Result<fsdk::FSDKError> PyWarper_warp(fsdk::IWarper* warper,
+											const fsdk::Landmarks5& landmarks,
+											const fsdk::Transformation& transformation,
+											fsdk::Landmarks5& transformedLandmarks) {
+	return warper->warp(landmarks, transformation, transformedLandmarks);
+
+}
+
 
 
 class PyIQualityEstimator: public fsdk::IQualityEstimator {
@@ -446,7 +454,35 @@ PYBIND11_MODULE(fe, f) {
 			warpResultPy["what"] = error.what();
 			warpResultPy["transformedImage"] = transformedImage;
 			return warpResultPy; })
-				;
+		;
+	f.def("Warper_warp",[](
+	fsdk::IWarper* warper,
+	const fsdk::Landmarks5& landmarks,
+	const fsdk::Transformation& transformation) {
+	fsdk::Landmarks5 transformedLandmarks;
+		fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, landmarks, transformation, transformedLandmarks);
+		auto warpResultPy = py::dict();
+		warpResultPy["error"] = error.getError();
+		warpResultPy["isOk"] = error.isOk();
+		warpResultPy["isError"] = error.isError();
+		warpResultPy["what"] = error.what();
+		warpResultPy["transformedLandmarks"] = transformedLandmarks;
+		return warpResultPy; })
+		;
+	f.def("Warper_warp",[](
+	fsdk::IWarper* warper,
+	const fsdk::Landmarks5& landmarks,
+	const fsdk::Transformation& transformation) {
+		fsdk::Landmarks5 transformedLandmarks;
+		fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, landmarks, transformation, transformedLandmarks);
+		auto warpResultPy = py::dict();
+		warpResultPy["error"] = error.getError();
+		warpResultPy["isOk"] = error.isOk();
+		warpResultPy["isError"] = error.isError();
+		warpResultPy["what"] = error.what();
+		warpResultPy["transformedLandmarks"] = transformedLandmarks;
+		return warpResultPy; })
+		;
 
 
 	py::class_<fsdk::ISettingsProvider, PyISettingsProvider>(f, "ISettingsProvider");
