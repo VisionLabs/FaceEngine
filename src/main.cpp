@@ -87,7 +87,7 @@ fsdk::ISettingsProviderPtr createSettingsProviderPtr(const char* path) {
 }
 
 
-fsdk::Result<fsdk::FSDKError> PyIAttributeEstimator_estimate(fsdk::IAttributeEstimatorPtr estimator,
+fsdk::Result<fsdk::FSDKError> estimate(fsdk::IAttributeEstimatorPtr estimator,
 								   const fsdk::Image &warp,
 								   fsdk::AttributeEstimation &out) {
 	if (!estimator.isExpired() && !estimator.isNull())
@@ -95,7 +95,7 @@ fsdk::Result<fsdk::FSDKError> PyIAttributeEstimator_estimate(fsdk::IAttributeEst
 	return fsdk::makeResult(fsdk::FSDKError::ModuleNotInitialized);
 }
 
-fsdk::Result<fsdk::FSDKError> PyIQualityEstimator_estimate(fsdk::IQualityEstimatorPtr estimator,
+fsdk::Result<fsdk::FSDKError> estimate(fsdk::IQualityEstimatorPtr estimator,
 								 const fsdk::Image &warp,
 								   fsdk::Quality &out) {
 	if (!estimator.isExpired() && !estimator.isNull())
@@ -103,7 +103,7 @@ fsdk::Result<fsdk::FSDKError> PyIQualityEstimator_estimate(fsdk::IQualityEstimat
 	return fsdk::makeResult(fsdk::FSDKError::ModuleNotInitialized);
 }
 
-fsdk::Result<fsdk::FSDKError> PyIEthnicityEstimator_estimate(fsdk::IEthnicityEstimatorPtr estimator,
+fsdk::Result<fsdk::FSDKError> estimate(fsdk::IEthnicityEstimatorPtr estimator,
 								   const fsdk::Image &warp,
 								 fsdk::EthnicityEstimation &out) {
 	if (!estimator.isExpired() && !estimator.isNull())
@@ -368,33 +368,33 @@ PYBIND11_MODULE(fe, f) {
 			 })
 			;
 
-	f.def("AttibuteEstimator_estimate", [](
+	f.def("estimate", [](
 		fsdk::IAttributeEstimatorPtr est,
 		const fsdk::Image &warp) {
 		fsdk::AttributeEstimation out;
-			fsdk::Result<fsdk::FSDKError> err = PyIAttributeEstimator_estimate(est, warp, out);
+			fsdk::Result<fsdk::FSDKError> err = estimate(est, warp, out);
 			auto estResultPy = py::dict();
 			estResultPy["errorResult"] = ErrorResult(err);
 			estResultPy["AttributeEstimation"] = out;
 			return estResultPy; })
 				;
 
-	f.def("QualityEstimator_estimate",[](
+	f.def("estimate",[](
 		fsdk::IQualityEstimatorPtr est,
 		const fsdk::Image &warp) {
 			fsdk::Quality out;
-		fsdk::Result<fsdk::FSDKError> err = PyIQualityEstimator_estimate(est, warp, out);
+		fsdk::Result<fsdk::FSDKError> err = estimate(est, warp, out);
 			auto estResultPy = py::dict();
 			estResultPy["errorResult"] = ErrorResult(err);
 			estResultPy["Quality"] = out;
 			return estResultPy; })
 				;
 
-	f.def("EthnicityEstimator_estimate",[](
+	f.def("estimate",[](
 		fsdk::IEthnicityEstimatorPtr est,
 		const fsdk::Image &warp) {
 			fsdk::EthnicityEstimation out;
-			fsdk::Result<fsdk::FSDKError> err = PyIEthnicityEstimator_estimate(est, warp, out);
+			fsdk::Result<fsdk::FSDKError> err = estimate(est, warp, out);
 			auto estResultPy = py::dict();
 			estResultPy["errorResult"] = ErrorResult(err);
 			estResultPy["EthnicityEstimation"] = out;

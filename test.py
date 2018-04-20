@@ -30,13 +30,10 @@ print("image width {0}".format(image.getWidth()))
 print("image height {0}".format(image.getHeight()))
 print("image is valid {0}".format(image.isValid()))
 
-attr = f.AttributeEstimation()
-qual = f.Quality()
-ethn = f.EthnicityEstimation()
-attribute_result = f.AttibuteEstimator_estimate(attributeEstimator, image.getImage())
-quality_result = f.QualityEstimator_estimate(qualityEstimator, image.getImage())
-ethnicity_result = f.EthnicityEstimator_estimate(ethnicityEstimator, image.getImage())
-
+attribute_result = f.estimate(attributeEstimator, image.getImage())
+quality_result = f.estimate(qualityEstimator, image.getImage())
+ethnicity_result = f.estimate(ethnicityEstimator, image.getImage())
+ethn = ethnicity_result['EthnicityEstimation']
 print(f.Ethnicity.Indian)
 
 print(ethnicity_result)
@@ -101,7 +98,7 @@ print(warpImage)
 print(warpImage.getWidth(), warpImage.getHeight(), warpImage.isValid())
 print(warperResult)
 ethnicityEstimator = faceEnginePtr.createEthnicityEstimator()
-f.EthnicityEstimator_estimate(ethnicityEstimator, warpImage)
+f.estimate(ethnicityEstimator, warpImage)
 
 warperResult2 = f.Warper_warp(warper, detector_result[0]["Landmarks5"], transformation)
 
