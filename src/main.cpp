@@ -433,27 +433,27 @@ PYBIND11_MODULE(fe, f) {
 			return warpResultPy; })
 		;
 	f.def("Warper_warp",[](
-	fsdk::IWarperPtr warper,
-	const fsdk::Landmarks5& landmarks,
-	const fsdk::Transformation& transformation) {
-	fsdk::Landmarks5 transformedLandmarks;
-		fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, landmarks, transformation, transformedLandmarks);
-		auto warpResultPy = py::dict();
-		warpResultPy["errorResult"] = ErrorResult(error);
-		warpResultPy["transformedLandmarks"] = transformedLandmarks;
-		return warpResultPy; })
+		fsdk::IWarperPtr warper,
+		const fsdk::Landmarks5& landmarks,
+		const fsdk::Transformation& transformation) {
+		fsdk::Landmarks5 transformedLandmarks;
+			fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, landmarks, transformation, transformedLandmarks);
+			auto warpResultPy = py::dict();
+			warpResultPy["errorResult"] = ErrorResult(error);
+			warpResultPy["transformedLandmarks"] = transformedLandmarks;
+			return warpResultPy; })
 		;
 	f.def("Warper_warp",[](
-	fsdk::IWarperPtr warper,
-	const fsdk::Landmarks68& landmarks68,
-	const fsdk::Transformation& transformation) {
-		fsdk::Landmarks68 transformedLandmarks68;
-		fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, landmarks68, transformation, transformedLandmarks68);
-		auto warpResultPy = py::dict();
-		warpResultPy["errorResult"] = ErrorResult(error);
-		warpResultPy["transformedLandmarks68"] = transformedLandmarks68;
-		return warpResultPy; })
-		;
+		fsdk::IWarperPtr warper,
+		const fsdk::Landmarks68& landmarks68,
+		const fsdk::Transformation& transformation) {
+			fsdk::Landmarks68 transformedLandmarks68;
+			fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, landmarks68, transformation, transformedLandmarks68);
+			auto warpResultPy = py::dict();
+			warpResultPy["errorResult"] = ErrorResult(error);
+			warpResultPy["transformedLandmarks68"] = transformedLandmarks68;
+			return warpResultPy; })
+			;
 
 	f.def("createTransformation", &createTransformation);
 
@@ -481,12 +481,12 @@ PYBIND11_MODULE(fe, f) {
 		.def_readwrite("gray", &fsdk::Quality::gray)
 		.def_readwrite("blur", &fsdk::Quality::blur)
 		.def("__repr__",
-		 [](const fsdk::Quality &a) {
+		 [](const fsdk::Quality &q) {
 			 return "<example.Quality: "
-					", light = " + std::to_string(a.light)
-					+ ", dark = " + std::to_string(a.dark)
-					+ ", gray = " + std::to_string(a.gray)
-					+ ", blur = " + std::to_string(a.blur) +  "'>";
+					", light = " + std::to_string(q.light)
+					+ ", dark = " + std::to_string(q.dark)
+					+ ", gray = " + std::to_string(q.gray)
+					+ ", blur = " + std::to_string(q.blur) +  "'>";
 		 })
 		.def("getQuality", &fsdk::Quality::getQuality)
 			;

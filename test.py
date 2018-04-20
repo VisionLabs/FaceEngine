@@ -104,6 +104,8 @@ warperResult2 = f.Warper_warp(warper, detector_result[0]["Landmarks5"], transfor
 
 warperResult3 = f.Warper_warp(warper, detector_result[0]["Landmarks68"], transformation)
 
+
+
 print("warperResult2 with Landmarks5 = ", warperResult2)
 print("warperResult2 with Landmarks68 = ", warperResult3)
 # for i in enumerate(detector_result):
