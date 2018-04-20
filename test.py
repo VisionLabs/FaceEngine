@@ -1,10 +1,18 @@
 import fe as f
 
-faceEngine = f.createFaceEngine("data",
-                   "data/faceengine.conf")
-attributeEstimator = faceEngine.createAttributeEstimator()
-qualityEstimator = faceEngine.createQualityEstimator()
-ethnicityEstimator = faceEngine.createEthnicityEstimator()
+faceEnginePtr = f.createPyFaceEnginePtr("data",
+                                      "data/faceengine.conf")
+
+attributeEstimator = faceEnginePtr.createAttributeEstimator()
+qualityEstimator = faceEnginePtr.createQualityEstimator()
+ethnicityEstimator = faceEnginePtr.createEthnicityEstimator()
+detector = faceEnginePtr.createDetector(f.ODT_MTCNN)
+
+# faceEngine = f.createFaceEngine("data",
+#                    "data/faceengine.conf")
+# attributeEstimator = faceEngine.createAttributeEstimator()
+# qualityEstimator = faceEngine.createQualityEstimator()
+# ethnicityEstimator = faceEngine.createEthnicityEstimator()
 
 print(attributeEstimator)
 print(qualityEstimator)
@@ -73,7 +81,7 @@ maxDetections = 3
 image_det = f.Image()
 image_det.load("testData/image2.ppm")
 
-detector = faceEngine.createDetector(f.ODT_MTCNN)
+detector = faceEnginePtr.createDetector(f.ODT_MTCNN)
 detector_result = f.Detector_detect(detector,
                                     image_det.getImage(),
                                     image_det.getRect(),
@@ -83,8 +91,8 @@ for i, item in enumerate(detector_result, 1):
     print(i, item)
 
 # warper test and example
-warper = faceEngine.createWarper()
-transformation = warper.createTransformation(detector_result[0]["Detection"],
+warper = faceEnginePtr.createWarper()
+transformation = f.createTransformation(warper, detector_result[0]["Detection"],
                                              detector_result[0]["Landmarks5"])
 print(transformation)
 warperResult = f.Warper_warp(warper, image_det.getImage(), transformation)
@@ -92,7 +100,7 @@ warpImage = warperResult["transformedImage"]
 print(warpImage)
 print(warpImage.getWidth(), warpImage.getHeight(), warpImage.isValid())
 print(warperResult)
-ethnicityEstimator = faceEngine.createEthnicityEstimator()
+ethnicityEstimator = faceEnginePtr.createEthnicityEstimator()
 f.EthnicityEstimator_estimate(ethnicityEstimator, warpImage)
 
 warperResult2 = f.Warper_warp(warper, detector_result[0]["Landmarks5"], transformation)
