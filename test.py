@@ -22,17 +22,17 @@ print(ethnicityEstimator)
 image = f.Image()
 print(f.Type.R8)
 print(f.Format())
-print(image.load("testData/warp1.ppm"))
-print(image.load_as("testData/warp2.ppm", f.Format(f.Type.R8G8B8)))
+print(f.Image_load(image,"testData/warp1.ppm"))
+print(f.Image_load(image, "testData/warp2.ppm", f.Format(f.Type.R8G8B8)))
 # print(image.load_as("testData/warp1.ppm", f.Format_Type.R8))
 print(image)
 print("image width {0}".format(image.getWidth()))
 print("image height {0}".format(image.getHeight()))
 print("image is valid {0}".format(image.isValid()))
 
-attribute_result = f.estimate(attributeEstimator, image.getImage())
-quality_result = f.estimate(qualityEstimator, image.getImage())
-ethnicity_result = f.estimate(ethnicityEstimator, image.getImage())
+attribute_result = f.estimate(attributeEstimator, image)
+quality_result = f.estimate(qualityEstimator, image)
+ethnicity_result = f.estimate(ethnicityEstimator, image)
 ethn = ethnicity_result['EthnicityEstimation']
 print(f.Ethnicity.Indian)
 
@@ -76,11 +76,12 @@ print("set={0}".format(rect4))
 # detector test and example
 maxDetections = 3
 image_det = f.Image()
-image_det.load("testData/image2.ppm")
+err = f.Image_load(image_det, "testData/image2.ppm")
+print("Image error = ", err)
 
 detector = faceEnginePtr.createDetector(f.ODT_MTCNN)
 detector_result = f.Detector_detect(detector,
-                                    image_det.getImage(),
+                                    image_det,
                                     image_det.getRect(),
                                     maxDetections)
 
@@ -92,7 +93,7 @@ warper = faceEnginePtr.createWarper()
 transformation = f.createTransformation(warper, detector_result[0]["Detection"],
                                              detector_result[0]["Landmarks5"])
 print(transformation)
-warperResult = f.Warper_warp(warper, image_det.getImage(), transformation)
+warperResult = f.Warper_warp(warper, image_det, transformation)
 warpImage = warperResult["transformedImage"]
 print(warpImage)
 print(warpImage.getWidth(), warpImage.getHeight(), warpImage.isValid())
@@ -103,8 +104,6 @@ f.estimate(ethnicityEstimator, warpImage)
 warperResult2 = f.Warper_warp(warper, detector_result[0]["Landmarks5"], transformation)
 
 warperResult3 = f.Warper_warp(warper, detector_result[0]["Landmarks68"], transformation)
-
-
 
 print("warperResult2 with Landmarks5 = ", warperResult2)
 print("warperResult2 with Landmarks68 = ", warperResult3)
