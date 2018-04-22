@@ -78,12 +78,22 @@ public:
 	}
 };
 
+class PyISettingsProvider {
+public:
+	fsdk::ISettingsProviderPtr settingsProviderPtr;
+
+	PyISettingsProvider(const char* path = nullptr) {
+		settingsProviderPtr = fsdk::acquire(fsdk::createSettingsProvider(path));
+	}
+
+};
+
 PyIFaceEngine createPyFaceEnginePtr(const char* dataPath = nullptr, const char* configPath = nullptr) {
 	return PyIFaceEngine(dataPath, configPath);
 }
 
-fsdk::ISettingsProviderPtr createSettingsProviderPtr(const char* path) {
-	return fsdk::acquire(fsdk::createSettingsProvider(path));
+PyISettingsProvider createSettingsProviderPtr(const char* path) {
+	return PyISettingsProvider(path);
 }
 
 
@@ -237,8 +247,8 @@ PYBIND11_MODULE(fe, f) {
 
 	f.def("createPyFaceEnginePtr", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
 		  "Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr);
-//	f.def("create SettingsProviderPtr", &createSettingsProviderPtr, py::return_value_policy::take_ownership,
-//		  "Create object SettingsProvider");
+	f.def("create SettingsProviderPtr", &createSettingsProviderPtr, py::return_value_policy::take_ownership,
+		  "Create object SettingsProvider");
 
 	py::class_<PyIFaceEngine>(f, "PyIFaceEngine")
 		.def("createAttributeEstimator", &PyIFaceEngine::createAttributeEstimator)
@@ -248,13 +258,109 @@ PYBIND11_MODULE(fe, f) {
 		.def("createWarper", &PyIFaceEngine::createWarper)
 			;
 
-	py::class_<fsdk::IFaceEnginePtr>(f, "IFaceEnginePtr");
-	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr");
-	py::class_<fsdk::IAttributeEstimatorPtr>(f, "IAttributeEstimatorPtr");
-	py::class_<fsdk::IEthnicityEstimatorPtr>(f, "IEthnicityEstimatorPtr");
-	py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr");
-	py::class_<fsdk::IWarperPtr>(f, "IWarperPtr")
+	py::class_<PyISettingsProvider>(f, "PyISettingsProvider")
 		;
+
+	py::class_<fsdk::IFaceEnginePtr>(f, "IFaceEnginePtr");
+	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr")
+		.def("estimate",[](
+		fsdk::IQualityEstimatorPtr est,
+		const fsdk::Image &warp) {
+			fsdk::Quality out;
+			fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+			auto estResultPy = py::dict();
+			estResultPy["FSDKErrorResult"] = FSDKErrorResult(err);
+			estResultPy["Quality"] = out;
+			return estResultPy; })
+		;
+
+	py::class_<fsdk::IAttributeEstimatorPtr>(f, "IAttributeEstimatorPtr")
+		.def("estimate", [](
+			const fsdk::IAttributeEstimatorPtr& est,
+			const fsdk::Image &warp) {
+				fsdk::AttributeEstimation out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+				auto estResultPy = py::dict();
+				estResultPy["FSDKErrorResult"] = FSDKErrorResult(err);
+				estResultPy["AttributeEstimation"] = out;
+				return estResultPy; })
+				;
+	py::class_<fsdk::IEthnicityEstimatorPtr>(f, "IEthnicityEstimatorPtr")
+		.def("estimate",[](
+			const fsdk::IEthnicityEstimatorPtr& est,
+			const fsdk::Image &warp) {
+				fsdk::EthnicityEstimation out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+				auto estResultPy = py::dict();
+				estResultPy["FSDKErrorResult"] = FSDKErrorResult(err);
+				estResultPy["EthnicityEstimation"] = out;
+				return estResultPy; })
+			;
+
+	py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr")
+	.def("detect",[](
+		const fsdk::IDetectorPtr& det,
+		const fsdk::Image& image,
+		const fsdk::Rect& rect,
+		int maxCount) {
+			fsdk::Detection detections[maxCount];
+			fsdk::Landmarks5 landmarks[maxCount];
+			fsdk::Landmarks68 landmarks68[maxCount];
+			fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(image, rect, detections, landmarks, landmarks68, maxCount);
+			auto detResultPy = py::list();
+			for (size_t i = 0; i < maxCount; ++i) {
+				auto tempDict = py::dict();
+				tempDict["errorValue"] = ErrorValue(err);
+				tempDict["Detection"] = detections[i];
+				tempDict["Landmarks5"] = landmarks[i];
+				tempDict["Landmarks68"] = landmarks68[i];
+				detResultPy.append(tempDict);
+			}
+			return detResultPy; })
+		;
+
+	;
+	py::class_<fsdk::IWarperPtr>(f, "IWarperPtr")
+		.def("warp",[](
+			const fsdk::IWarperPtr& warper,
+			const fsdk::Image& image,
+			const fsdk::Transformation& transformation) {
+				fsdk::Image transformedImage;
+				fsdk::Result<fsdk::FSDKError> error = warper->warp(image, transformation, transformedImage);
+				auto warpResultPy = py::dict();
+				warpResultPy["FSDKErrorResult"] = FSDKErrorResult(error);
+				warpResultPy["transformedImage"] = transformedImage;
+				return warpResultPy; })
+		.def("warp",[](
+			const fsdk::IWarperPtr& warper,
+			const fsdk::Landmarks5& landmarks,
+			const fsdk::Transformation& transformation) {
+				fsdk::Landmarks5 transformedLandmarks;
+				fsdk::Result<fsdk::FSDKError> error = warper->warp(
+					landmarks,
+					transformation,
+					transformedLandmarks);
+				auto warpResultPy = py::dict();
+				warpResultPy["FSDKErrorResult"] = FSDKErrorResult(error);
+				warpResultPy["transformedLandmarks"] = transformedLandmarks;
+				return warpResultPy; })
+		.def("warp",[](
+			const fsdk::IWarperPtr& warper,
+			const fsdk::Landmarks68& landmarks68,
+			const fsdk::Transformation& transformation) {
+				fsdk::Landmarks68 transformedLandmarks68;
+				fsdk::Result<fsdk::FSDKError> error = warper->warp(landmarks68,
+																	transformation, transformedLandmarks68);
+				auto warpResultPy = py::dict();
+				warpResultPy["FSDKErrorResult"] = FSDKErrorResult(error);
+				warpResultPy["transformedLandmarks68"] = transformedLandmarks68;
+				return warpResultPy; })
+		.def("createTransformation",[](
+			const fsdk::IWarperPtr& warper,
+			const fsdk::Detection& detection,
+			const fsdk::Landmarks5& landmarks) {
+				return warper->createTransformation(detection, landmarks); })
+					;
 
 
 	py::class_<fsdk::Landmarks5>(f, "Landmarks5")
@@ -376,100 +482,6 @@ PYBIND11_MODULE(fe, f) {
 			 })
 			;
 
-	f.def("estimate", [](
-		const fsdk::IAttributeEstimatorPtr& est,
-		const fsdk::Image &warp) {
-		fsdk::AttributeEstimation out;
-			fsdk::Result<fsdk::FSDKError> err = estimate(est, warp, out);
-			auto estResultPy = py::dict();
-			estResultPy["FSDKErrorResult"] = FSDKErrorResult(err);
-			estResultPy["AttributeEstimation"] = out;
-			return estResultPy; })
-				;
-
-	f.def("estimate",[](
-		fsdk::IQualityEstimatorPtr est,
-		const fsdk::Image &warp) {
-			fsdk::Quality out;
-		fsdk::Result<fsdk::FSDKError> err = estimate(est, warp, out);
-			auto estResultPy = py::dict();
-			estResultPy["FSDKErrorResult"] = FSDKErrorResult(err);
-			estResultPy["Quality"] = out;
-			return estResultPy; })
-				;
-
-	f.def("estimate",[](
-		const fsdk::IEthnicityEstimatorPtr& est,
-		const fsdk::Image &warp) {
-			fsdk::EthnicityEstimation out;
-			fsdk::Result<fsdk::FSDKError> err = estimate(est, warp, out);
-			auto estResultPy = py::dict();
-			estResultPy["FSDKErrorResult"] = FSDKErrorResult(err);
-			estResultPy["EthnicityEstimation"] = out;
-			return estResultPy; })
-				;
-
-	f.def("Detector_detect",[](
-			const fsdk::IDetectorPtr& det,
-			const fsdk::Image& image,
-			const fsdk::Rect& rect,
-			int maxCount) {
-				fsdk::Detection detections[maxCount];
-				fsdk::Landmarks5 landmarks[maxCount];
-				fsdk::Landmarks68 landmarks68[maxCount];
-				fsdk::ResultValue<fsdk::FSDKError, int> err = PyDetector_detect(det, image, rect, detections, landmarks, landmarks68, maxCount);
-				auto detResultPy = py::list();
-				for (size_t i = 0; i < maxCount; ++i) {
-					auto tempDict = py::dict();
-					tempDict["errorValue"] = ErrorValue(err);
-					tempDict["Detection"] = detections[i];
-					tempDict["Landmarks5"] = landmarks[i];
-					tempDict["Landmarks68"] = landmarks68[i];
-					detResultPy.append(tempDict);
-				}
-			return detResultPy; })
-				;
-	f.def("Warper_warp",[](
-		const fsdk::IWarperPtr& warper,
-		const fsdk::Image& image,
-		const fsdk::Transformation& transformation) {
-			fsdk::Image transformedImage;
-			fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, image, transformation, transformedImage);
-			auto warpResultPy = py::dict();
-			warpResultPy["FSDKErrorResult"] = FSDKErrorResult(error);
-			warpResultPy["transformedImage"] = transformedImage;
-			return warpResultPy; })
-		;
-	f.def("Warper_warp",[](
-		const fsdk::IWarperPtr& warper,
-		const fsdk::Landmarks5& landmarks,
-		const fsdk::Transformation& transformation) {
-		fsdk::Landmarks5 transformedLandmarks;
-			fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, landmarks, transformation, transformedLandmarks);
-			auto warpResultPy = py::dict();
-			warpResultPy["FSDKErrorResult"] = FSDKErrorResult(error);
-			warpResultPy["transformedLandmarks"] = transformedLandmarks;
-			return warpResultPy; })
-		;
-	f.def("Warper_warp",[](
-		const fsdk::IWarperPtr& warper,
-		const fsdk::Landmarks68& landmarks68,
-		const fsdk::Transformation& transformation) {
-			fsdk::Landmarks68 transformedLandmarks68;
-			fsdk::Result<fsdk::FSDKError> error = PyWarper_warp(warper, landmarks68,
-																transformation, transformedLandmarks68);
-			auto warpResultPy = py::dict();
-			warpResultPy["FSDKErrorResult"] = FSDKErrorResult(error);
-			warpResultPy["transformedLandmarks68"] = transformedLandmarks68;
-			return warpResultPy; })
-			;
-
-	f.def("createTransformation", &createTransformation);
-
-
-//	py::class_<fsdk::ISettingsProvider, PyISettingsProvider>(f, "ISettingsProvider");
-////		.def("estimate", &fsdk::IAttributeEstimator::estimate);
-
 	py::class_<fsdk::AttributeEstimation>(f, "AttributeEstimation")
 		.def(py::init<>())
 		.def_readwrite("gender", &fsdk::AttributeEstimation::gender)
@@ -574,30 +586,27 @@ PYBIND11_MODULE(fe, f) {
 		.def("getHeight", &fsdk::Image::getHeight)
 		.def("isValid", &fsdk::Image::isValid)
 		.def("getRect", &fsdk::Image::getRect)
-			;
-	f.def("Image_load",[]( fsdk::Image& image, const char* path) {
-			fsdk::Result<fsdk::Image::Error> error = Image_load(image, path);
+		.def("save", [](const fsdk::Image& image, const char* path) {
+			fsdk::Result<fsdk::Image::Error> error = image.save(path);
+			return ImageErrorResult(error);
+		})
+		.def("save", [](const fsdk::Image& image,
+						const char* path,
+						const fsdk::Format format) {
+				fsdk::Result<fsdk::Image::Error> error = image.save(path, format);
+				return ImageErrorResult(error);
+			})
+		.def("load",[](fsdk::Image& image, const char* path) {
+			fsdk::Result<fsdk::Image::Error> error = image.load(path);
 			return std::make_tuple(ImageErrorResult(error), image); })
-				;
-	f.def("Image_load",[](
-		fsdk::Image& image,
-		const char* path,
-		const fsdk::Format format) {
-			fsdk::Result<fsdk::Image::Error> error = Image_load(image, path, format);
-			return std::make_tuple(ImageErrorResult(error), image); })
-				;
 
-	f.def("Image_save",[]( fsdk::Image& image, const char* path) {
-		fsdk::Result<fsdk::Image::Error> error = Image_save(image, path);
-		return ImageErrorResult(error); })
-	;
-	f.def("Image_save",[](
-		fsdk::Image& image,
-		const char* path,
-		const fsdk::Format format) {
-			fsdk::Result<fsdk::Image::Error> error = Image_save(image, path, format);
-			return ImageErrorResult(error); })
-			;
+		.def("load", [](fsdk::Image& image,
+						const char* path,
+						const fsdk::Format format) {
+			fsdk::Result<fsdk::Image::Error> error = image.load(path);
+			return std::make_tuple(ImageErrorResult(error), image);
+			})
+				;
 
 
 	py::enum_<fsdk::Image::Type>(f, "ImageType")
