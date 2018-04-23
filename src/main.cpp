@@ -57,6 +57,7 @@ public:
 	PyIFaceEngine(const char* dataPath = nullptr, const char* configPath = nullptr) {
 		faceEnginePtr = fsdk::acquire(fsdk::createFaceEngine(dataPath, configPath));
 	}
+
 	fsdk::IDetectorPtr createDetector(fsdk::ObjectDetectorClassType type) {
 		return fsdk::acquire(faceEnginePtr->createDetector(type));
 	}
@@ -67,6 +68,7 @@ public:
 
 	fsdk::IQualityEstimatorPtr createQualityEstimator() {
 		return fsdk::acquire(faceEnginePtr->createQualityEstimator());
+
 	}
 
 	fsdk::IEthnicityEstimatorPtr createEthnicityEstimator() {
@@ -81,11 +83,11 @@ public:
 class PyISettingsProvider {
 public:
 	fsdk::ISettingsProviderPtr settingsProviderPtr;
-
+	
 	PyISettingsProvider(const char* path = nullptr) {
 		settingsProviderPtr = fsdk::acquire(fsdk::createSettingsProvider(path));
 	}
-
+	
 };
 
 PyIFaceEngine createPyFaceEnginePtr(const char* dataPath = nullptr, const char* configPath = nullptr) {
@@ -97,7 +99,7 @@ PyISettingsProvider createSettingsProviderPtr(const char* path) {
 }
 
 struct FSDKErrorResult {
-
+	
 	bool isOk;
 	bool isError;
 	fsdk::FSDKError fsdkError;
@@ -112,6 +114,7 @@ struct FSDKErrorResult {
 };
 
 struct ImageErrorResult {
+
 
 	bool isOk;
 	bool isError;
@@ -354,7 +357,7 @@ PYBIND11_MODULE(fe, f) {
 					+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
 					+ ", what = " + err.what +  "'>"; })
 			;
-
+	
 	py::class_<ImageErrorResult>(f, "ImageErrorResult")
 	.def_readonly("isOk", &ImageErrorResult::isOk)
 	.def_readonly("isError", &ImageErrorResult::isError)
@@ -442,7 +445,7 @@ PYBIND11_MODULE(fe, f) {
 		.value("Count", fsdk::EthnicityEstimation::Count)
 			.export_values();
 			;
-
+	
 	py::class_<fsdk::Transformation>(f, "Transformation")
 		.def(py::init<>())
 		.def_readwrite("angleDeg", &fsdk::Transformation::angleDeg)
@@ -468,6 +471,12 @@ PYBIND11_MODULE(fe, f) {
 		.value("R8", fsdk::Format::R8)
 		.value("R16", fsdk::Format::R16)
 			;
+
+	py::enum_<fsdk::ObjectDetectorClassType>(f, "ObjectDetectorClassType", py::arithmetic())
+		.value("ODT_MTCNN", fsdk::ObjectDetectorClassType::ODT_MTCNN)
+		.value("ODT_COUNT", fsdk::ObjectDetectorClassType::ODT_COUNT)
+			;
+
 
 	py::class_<fsdk::Format>(f, "Format")
 		.def(py::init<>())
@@ -642,7 +651,7 @@ PYBIND11_MODULE(fe, f) {
 //    // Image should be in ppm format.
 //    if (argc != 2) {
 //        std::cout << "USAGE: " << argv[0] << " <image>\n"
-//            " *image - path to image\n"
+//            " *image - path to image\n"f
 //                  << std::endl;
 //        return -1;
 //    }
