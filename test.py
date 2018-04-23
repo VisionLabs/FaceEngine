@@ -127,8 +127,12 @@ print(ext)
 
 print("Descriptor batch test befor", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
       descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
-ext_batch = extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation, batchSize)
-print(ext_batch)
+ext_batch1 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation, batchSize)
+print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
+ext_batch2 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, batchSize)
+
+print(ext_batch1)
+print(ext_batch2)
 print("Descriptor batch test after", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
       descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
 print(descriptor)
