@@ -472,10 +472,6 @@ PYBIND11_MODULE(fe, f) {
 		.value("R16", fsdk::Format::R16)
 			;
 
-	py::enum_<fsdk::ObjectDetectorClassType>(f, "ObjectDetectorClassType", py::arithmetic())
-		.value("ODT_MTCNN", fsdk::ObjectDetectorClassType::ODT_MTCNN)
-		.value("ODT_COUNT", fsdk::ObjectDetectorClassType::ODT_COUNT)
-			;
 
 
 	py::class_<fsdk::Format>(f, "Format")
