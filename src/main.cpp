@@ -78,6 +78,27 @@ public:
 	fsdk::IWarperPtr createWarper() {
 		return fsdk::acquire(faceEnginePtr->createWarper());
 	}
+
+	fsdk::IDescriptorPtr createDescriptor() {
+		return fsdk::acquire(faceEnginePtr->createDescriptor());
+	}
+
+	fsdk::IDescriptorBatchPtr createDescriptorBatch(int32_t size, int32_t version = 0) {
+		return fsdk::acquire(faceEnginePtr->createDescriptorBatch(size, version));
+	}
+
+	fsdk::IDescriptorExtractorPtr createExtractor() {
+		return fsdk::acquire(faceEnginePtr->createExtractor());
+	}
+
+	fsdk::IDescriptorMatcherPtr createMatcher() {
+		return fsdk::acquire(faceEnginePtr->createMatcher());
+	}
+
+	fsdk::ILSHTablePtr createLSHTable(const fsdk::IDescriptorBatchPtr& batch) {
+		return fsdk::acquire(faceEnginePtr->createLSHTable(batch));
+	}
+
 };
 
 class PyISettingsProvider {
@@ -114,36 +135,64 @@ struct FSDKErrorResult {
 };
 
 struct ImageErrorResult {
-
-
 	bool isOk;
 	bool isError;
-	fsdk::Image::Error error;
+	fsdk::Image::Error imageError;
 	const char* what;
 
 	ImageErrorResult(fsdk::Result<fsdk::Image::Error> err) :
 		isOk(err.isOk()),
 		isError(err.isError()),
-		error(err.getError()),
+		imageError(err.getError()),
 		what(err.what())
 		{};
 };
 
-struct ErrorValue {
+struct DescriptorBatchResult {
+	bool isOk;
+	bool isError;
+	fsdk::IDescriptorBatch::Error descriptorBatchError;
+	const char* what;
 
+	DescriptorBatchResult(fsdk::Result<fsdk::IDescriptorBatch::Error> err) :
+		isOk(err.isOk()),
+		isError(err.isError()),
+		descriptorBatchError(err.getError()),
+		what(err.what())
+		{};
+};
+
+struct FSDKErrorValueInt {
 	bool isOk;
 	bool isError;
 	fsdk::FSDKError fsdkError;
 	const char* what;
 	int value;
 
-	ErrorValue(fsdk::ResultValue<fsdk::FSDKError, int> err) :
+	FSDKErrorValueInt(fsdk::ResultValue<fsdk::FSDKError, int> err) :
 		isOk(err.isOk()),
 		isError(err.isError()),
 		fsdkError(err.getError()),
 		what(err.what()),
 		value(err.getValue())
 		{};
+
+};
+
+struct FSDKErrorValueFloat {
+	bool isOk;
+	bool isError;
+	fsdk::FSDKError fsdkError;
+	const char* what;
+	int value;
+
+	FSDKErrorValueFloat(fsdk::ResultValue<fsdk::FSDKError, float> err) :
+		isOk(err.isOk()),
+		isError(err.isError()),
+		fsdkError(err.getError()),
+		what(err.what()),
+		value(err.getValue())
+	{};
 
 };
 
@@ -163,6 +212,11 @@ PYBIND11_MODULE(fe, f) {
 		.def("createEthnicityEstimator", &PyIFaceEngine::createEthnicityEstimator)
 		.def("createDetector", &PyIFaceEngine::createDetector)
 		.def("createWarper", &PyIFaceEngine::createWarper)
+		.def("createDescriptor", &PyIFaceEngine::createDescriptor)
+		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0)
+		.def("createExtractor", &PyIFaceEngine::createExtractor)
+		.def("createMatcher", &PyIFaceEngine::createMatcher)
+		.def("createLSHTable", &PyIFaceEngine::createLSHTable)
 			;
 
 	py::class_<PyISettingsProvider>(f, "PyISettingsProvider")
@@ -217,7 +271,7 @@ PYBIND11_MODULE(fe, f) {
 			auto detResultPy = py::list();
 			for (size_t i = 0; i < maxCount; ++i) {
 				auto tempDict = py::dict();
-				tempDict["errorValue"] = ErrorValue(err);
+				tempDict["errorValue"] = FSDKErrorValueInt(err);
 				tempDict["Detection"] = detections[i];
 				tempDict["Landmarks5"] = landmarks[i];
 				tempDict["Landmarks68"] = landmarks68[i];
@@ -268,6 +322,132 @@ PYBIND11_MODULE(fe, f) {
 			const fsdk::Landmarks5& landmarks) {
 				return warper->createTransformation(detection, landmarks); })
 					;
+	// descriptor
+	py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr")
+		.def("getModelVersion",[]( const fsdk::IDescriptorPtr& desc) {
+				return desc->getModelVersion(); })
+		.def("getDescriptorLength",[]( const fsdk::IDescriptorPtr& desc) {
+			return desc->getDescriptorLength(); })
+		.def("getDescriptor",[]( const fsdk::IDescriptorPtr& desc, uint8_t* buffer) {
+			return desc->getDescriptor(buffer); })
+				;
+	py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr")
+		.def("add",[] (
+			const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
+			const fsdk::IDescriptorPtr& desc) {
+				fsdk::Result<fsdk::IDescriptorBatch::Error> error = descriptorBatchPtr->add(desc);
+				return std::make_tuple(DescriptorBatchResult(error), desc); })
+		.def("removeFast",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
+				return descriptorBatchPtr->removeFast(index); })
+		.def("removeSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
+				return descriptorBatchPtr->removeSlow(index); })
+		.def("getMaxCount",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
+			return descriptorBatchPtr->getMaxCount(); })
+		.def("getCount",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
+			return descriptorBatchPtr->getCount(); })
+		.def("getModelVersion",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
+			return descriptorBatchPtr->getModelVersion(); })
+		.def("getDescriptorSize",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
+			return descriptorBatchPtr->getDescriptorSize(); })
+		.def("getDescriptorSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
+			return fsdk::acquire(descriptorBatchPtr->getDescriptorSlow(index)); })
+		.def("getDescriptorFast",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
+			return fsdk::acquire(descriptorBatchPtr->getDescriptorFast(index)); })
+				;
+
+	py::enum_<fsdk::IDescriptorBatch::Error >(f, "DescriptorBatchError")
+		.value("Ok", fsdk::IDescriptorBatch::Error::Ok)
+		.value("InvalidInput", fsdk::IDescriptorBatch::Error::InvalidInput)
+		.value("BatchFull", fsdk::IDescriptorBatch::Error::BatchFull)
+		.value("Incompatible", fsdk::IDescriptorBatch::Error::Incompatible)
+		.value("Internal", fsdk::IDescriptorBatch::Error::Internal)
+		.value("IoError", fsdk::IDescriptorBatch::Error::IoError)
+		.value("OutOfRange", fsdk::IDescriptorBatch::Error::OutOfRange)
+			;
+
+	py::class_<fsdk::IDescriptorExtractorPtr>(f, "IDescriptorExtractorPtr")
+		.def("extract",[](
+			const fsdk::IDescriptorExtractorPtr& extractor,
+			fsdk::Image& image,
+			const fsdk::Detection& detection,
+			const fsdk::Landmarks5& landmarks,
+			const fsdk::IDescriptorPtr& descriptor) {
+			fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extract(image, detection,
+																			   landmarks, descriptor);
+				auto tempDict = py::dict();
+				tempDict["image"] = image;
+				tempDict["FSDKErrorValueFloat"] = FSDKErrorValueFloat(err);
+//				tempDict["IDescriptorPtr"] = descriptor;
+				return tempDict; })
+		.def("extractFromWarpedImage",[](
+			const fsdk::IDescriptorExtractorPtr& extractor,
+			const fsdk::Image& image,
+			const fsdk::IDescriptorPtr& descriptor) {
+			fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extractFromWarpedImage(image, descriptor);
+				return std::make_tuple(FSDKErrorValueFloat(err), descriptor); })
+
+		.def("extractFromWarpedImageBatch",[](
+			const fsdk::IDescriptorExtractorPtr& extractor,
+			py::list warpsBatchList,
+			const fsdk::IDescriptorBatchPtr& descriptorBatch,
+			const fsdk::IDescriptorPtr& aggregation,
+			int batchSize) {
+				float garbageScoreBatch[batchSize];
+				fsdk::Image warpsBatch [batchSize];
+				for (size_t i = 0; i < batchSize; ++i) {
+					warpsBatch[i] = warpsBatchList[i].cast<fsdk::Image>();
+				}
+				fsdk::Result<fsdk::FSDKError> err = extractor->extractFromWarpedImageBatch(
+						warpsBatch,
+						descriptorBatch,
+						aggregation,
+						garbageScoreBatch,
+						batchSize);
+					auto tempDict = py::dict();
+					tempDict["FSDKErrorResult"] = FSDKErrorResult(err);
+
+					auto garbagePyList = py::list();
+					for (size_t i = 0; i < batchSize; ++i) {
+						garbagePyList.append(garbageScoreBatch[i]);
+					}
+					tempDict["garbageScoreBatch"] = garbagePyList;
+					return tempDict; })
+
+		.def("extractFromWarpedImageBatch",[](
+			const fsdk::IDescriptorExtractorPtr& extractor,
+			py::list warpsBatchList,
+			const fsdk::IDescriptorBatchPtr& descriptorBatch,
+			int batchSize) {
+				float garbageScoreBatch[batchSize];
+				fsdk::Image warpsBatch [batchSize];
+				for (size_t i = 0; i < batchSize; ++i) {
+					warpsBatch[i] = warpsBatchList[i].cast<fsdk::Image>();
+				}
+				fsdk::Result<fsdk::FSDKError> err = extractor->extractFromWarpedImageBatch(
+					warpsBatch,
+					descriptorBatch,
+					garbageScoreBatch,
+					batchSize);
+
+				auto tempDict = py::dict();
+				auto garbagePyList = py::list();
+				for (size_t i = 0; i < batchSize; ++i) {
+					garbagePyList.append(garbageScoreBatch[i]);
+				}
+				tempDict["FSDKErrorResult"] = FSDKErrorResult(err);
+				tempDict["garbageScoreBatch"] = garbagePyList;
+				return tempDict; })
+					;
+
+	py::class_<fsdk::IDescriptorMatcherPtr>(f, "IDescriptorMatcherPtr");
+	py::class_<fsdk::ILSHTablePtr>(f, "ILSHTablePtr");
+
+	py::class_<fsdk::MatchingResult>(f, "MatchingResult")
+		.def(py::init<>())
+		.def(py::init<float, float>())
+		.def_readwrite("distance", &fsdk::MatchingResult::distance)
+		.def_readwrite("similarity", &fsdk::MatchingResult::similarity)
+			;
 
 
 	py::class_<fsdk::Landmarks5>(f, "Landmarks5")
@@ -357,30 +537,45 @@ PYBIND11_MODULE(fe, f) {
 					+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
 					+ ", what = " + err.what +  "'>"; })
 			;
-	
-	py::class_<ImageErrorResult>(f, "ImageErrorResult")
-	.def_readonly("isOk", &ImageErrorResult::isOk)
-	.def_readonly("isError", &ImageErrorResult::isError)
-	.def_readonly("ImageErrorResult", &ImageErrorResult::error)
-	.def_readonly("what", &ImageErrorResult::what)
-	.def("__repr__",
-		 [](const ImageErrorResult &err) {
-			 return "<example.ImageErrorResult: "
-					"isOk = " + std::to_string(err.isOk)
-					+ ", isError = " + std::to_string(err.isError)
-					+ ", ImageError = " + fsdk::ErrorTraits<fsdk::Image::Error>::toString(err.error)
-					+ ", what = " + err.what +  "'>"; })
-	;
 
-	py::class_<ErrorValue>(f, "ErrorValue")
-		.def_readonly("isOk", &ErrorValue::isOk)
-		.def_readonly("isError", &ErrorValue::isError)
-		.def_readonly("FSDKError", &ErrorValue::fsdkError)
-		.def_readonly("what", &ErrorValue::what)
-		.def_readonly("value", &ErrorValue::value)
+	py::class_<DescriptorBatchResult>(f, "DescriptorBatchResult")
+		.def_readonly("isOk", &DescriptorBatchResult::isOk)
+		.def_readonly("isError", &DescriptorBatchResult::isError)
+		.def_readonly("ImageErrorResult", &DescriptorBatchResult::descriptorBatchError)
+		.def_readonly("what", &DescriptorBatchResult::what)
 		.def("__repr__",
-			 [](const ErrorValue &err) {
-				 return "<example.ErrorValue: "
+			 [](const DescriptorBatchResult &err) {
+				 return "<example.DescriptorBatchResult: "
+						"isOk = " + std::to_string(err.isOk)
+						+ ", isError = " + std::to_string(err.isError)
+						+ ", DescriptorBatchError = " +
+				 fsdk::ErrorTraits<fsdk::IDescriptorBatch::Error>::toString(err.descriptorBatchError)
+						+ ", what = " + err.what +  "'>"; })
+			;
+
+	py::class_<ImageErrorResult>(f, "ImageErrorResult")
+		.def_readonly("isOk", &ImageErrorResult::isOk)
+		.def_readonly("isError", &ImageErrorResult::isError)
+		.def_readonly("ImageErrorResult", &ImageErrorResult::imageError)
+		.def_readonly("what", &ImageErrorResult::what)
+		.def("__repr__",
+			 [](const ImageErrorResult &err) {
+				 return "<example.ImageErrorResult: "
+						"isOk = " + std::to_string(err.isOk)
+						+ ", isError = " + std::to_string(err.isError)
+						+ ", ImageError = " + fsdk::ErrorTraits<fsdk::Image::Error>::toString(err.imageError)
+						+ ", what = " + err.what +  "'>"; })
+			;
+
+	py::class_<FSDKErrorValueInt>(f, "FSDKErrorValueInt")
+		.def_readonly("isOk", &FSDKErrorValueInt::isOk)
+		.def_readonly("isError", &FSDKErrorValueInt::isError)
+		.def_readonly("FSDKError", &FSDKErrorValueInt::fsdkError)
+		.def_readonly("what", &FSDKErrorValueInt::what)
+		.def_readonly("value", &FSDKErrorValueInt::value)
+		.def("__repr__",
+			 [](const FSDKErrorValueInt &err) {
+				 return "<example.FSDKErrorValueInt: "
 					"isOk = " + std::to_string(err.isOk)
 					+ ", isError = " + std::to_string(err.isError)
 					+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
@@ -388,6 +583,23 @@ PYBIND11_MODULE(fe, f) {
 					+ ", what = " + err.what + "'>";
 			 })
 			;
+
+	py::class_<FSDKErrorValueFloat>(f, "FSDKErrorValueFloat")
+		.def_readonly("isOk", &FSDKErrorValueFloat::isOk)
+		.def_readonly("isError", &FSDKErrorValueFloat::isError)
+		.def_readonly("FSDKError", &FSDKErrorValueFloat::fsdkError)
+		.def_readonly("what", &FSDKErrorValueFloat::what)
+		.def_readonly("value", &FSDKErrorValueFloat::value)
+		.def("__repr__",
+			 [](const FSDKErrorValueFloat &err) {
+				 return "<example.FSDKErrorValueFloat: "
+							"isOk = " + std::to_string(err.isOk)
+						+ ", isError = " + std::to_string(err.isError)
+						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", value = " + std::to_string(err.value)
+						+ ", what = " + err.what + "'>";
+			 })
+		;
 
 	py::class_<fsdk::AttributeEstimation>(f, "AttributeEstimation")
 		.def(py::init<>())
@@ -400,7 +612,8 @@ PYBIND11_MODULE(fe, f) {
 				"gender = " + std::to_string(a.gender) +
 			 	", glasses = " + std::to_string(a.glasses) +
 			 	", age = " + std::to_string(a.age)  + "'>";
-		 });
+		 })
+			;
 
 	py::class_<fsdk::Quality>(f, "Quality")
 		.def(py::init<>())

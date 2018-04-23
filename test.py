@@ -103,6 +103,66 @@ warperResult3 = warper.warp(detector_result[0]["Landmarks68"], transformation)
 
 print("warperResult2 with Landmarks5 = ", warperResult2)
 print("warperResult2 with Landmarks68 = ", warperResult3)
+
+
+# descriptor, creating objects
+descriptor = faceEnginePtr.createDescriptor()
+aggregation = faceEnginePtr.createDescriptor()
+batchSize = 2
+descriptorBatch = faceEnginePtr.createDescriptorBatch(batchSize)
+extractor = faceEnginePtr.createExtractor()
+matcher = faceEnginePtr.createMatcher()
+table = faceEnginePtr.createLSHTable(descriptorBatch)
+
+images = [f.Image(), f.Image()]
+# for i in range(2):
+images[0].load("testData/warp1.ppm")
+images[1].load("testData/warp2.ppm")
+print(images)
+print(type(extractor))
+print("Descriptor test", descriptor.getModelVersion(), descriptor.getDescriptorLength())
+ext = extractor.extractFromWarpedImage(images[0], descriptor)
+
+print(ext)
+
+print("Descriptor batch test befor", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
+      descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
+ext_batch = extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation, batchSize)
+print(ext_batch)
+print("Descriptor batch test after", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
+      descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
+print(descriptor)
+print(descriptorBatch)
+print(extractor)
+print(matcher)
+print(table)
+
+
+# IFaceEnginePtr faceEngine = acquire(fsdk::createFaceEngine(dataPath.c_str()));
+#
+# IDescriptorExtractorPtr extractor = acquire(faceEngine->createExtractor());
+# IDescriptorMatcherPtr matcher = acquire(faceEngine->createMatcher());
+#
+# IDescriptorPtr descriptor = acquire(faceEngine->createDescriptor());
+# IDescriptorPtr aggregation = acquire(faceEngine->createDescriptor());
+#
+# const int batchSize = 2;
+# IDescriptorBatchPtr descriptorBatch = acquire(faceEngine->createDescriptorBatch(batchSize));
+#
+# fsdk::Image images[batchSize];
+# for (int i = 0; i < batchSize; i++)
+# images[i].load((testDataPath + "/warp1.ppm").c_str());
+#
+# float garbages [batchSize];
+#
+# ASSERT_TRUE(extractor->extractFromWarpedImage(images[0],descriptor));
+# ASSERT_TRUE(extractor->extractFromWarpedImageBatch(images,descriptorBatch,aggregation,garbages,batchSize));
+#
+# auto assertMatchingResult = [](const MatchingResult& result)->void{
+#     ASSERT_EQ(result.similarity,1.0);
+# ASSERT_EQ(result.distance,0.0);
+# };
+
 # for i in enumerate(detector_result):
 #     print(detector_result[i])
 
