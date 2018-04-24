@@ -109,16 +109,20 @@ print("warperResult2 with Landmarks68 = ", warperResult3)
 descriptor1 = faceEnginePtr.createDescriptor()
 descriptor2 = faceEnginePtr.createDescriptor()
 aggregation = faceEnginePtr.createDescriptor()
-batchSize = 2
+
+
+images = [f.Image(), f.Image(), f.Image()]
+# for i in range(2):
+images[0].load("testData/warp1.ppm")
+images[1].load("testData/warp2.ppm")
+images[2].load("testData/photo_2017-03-30_14-47-43_p.ppm")
+
+batchSize = len(images)
 descriptorBatch = faceEnginePtr.createDescriptorBatch(batchSize)
 extractor = faceEnginePtr.createExtractor()
 matcher = faceEnginePtr.createMatcher()
 table = faceEnginePtr.createLSHTable(descriptorBatch)
 
-images = [f.Image(), f.Image()]
-# for i in range(2):
-images[0].load("testData/warp1.ppm")
-images[1].load("testData/warp2.ppm")
 print(images)
 print(type(extractor))
 print("Descriptor test befor = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
@@ -130,11 +134,11 @@ print("extractor result =", ext2[1])
 print("Descriptor batch test befor", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
       descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
 ext_batch1 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation, batchSize)
-print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
-ext_batch2 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, batchSize)
+# print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
+# ext_batch2 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, batchSize)
 
-print(ext_batch1)
-print(ext_batch2)
+print("Batch result = ", ext_batch1)
+# print(ext_batch2)
 print("Descriptor batch test after", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
       descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
 print(descriptor1)
@@ -145,8 +149,14 @@ print(table)
 
 # matcher test
 
-result = matcher.match(descriptor1, descriptor2)
-print(result)
+result1 = matcher.match(descriptor1, descriptor2)
+result2 = matcher.match(descriptor1, descriptorBatch)
+result3 = matcher.match(descriptor1, descriptorBatch, [0,])
+result4 = matcher.matchCompact(descriptor1, descriptorBatch, [1])
+print(result1)
+print(result2)
+print(result3)
+print(result4)
 # IFaceEnginePtr faceEngine = acquire(fsdk::createFaceEngine(dataPath.c_str()));
 #
 # IDescriptorExtractorPtr extractor = acquire(faceEngine->createExtractor());

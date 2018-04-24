@@ -521,6 +521,11 @@ PYBIND11_MODULE(fe, f) {
 		.def(py::init<float, float>())
 		.def_readwrite("distance", &fsdk::MatchingResult::distance)
 		.def_readwrite("similarity", &fsdk::MatchingResult::similarity)
+		.def("__repr__",
+			 [](const fsdk::MatchingResult &result) {
+				 return "<example.MatchingResult: "
+							"distance = " + std::to_string(result.distance)
+						+ ", similarity = " + std::to_string(result.similarity) + "'>"; })
 			;
 
 
@@ -683,12 +688,12 @@ PYBIND11_MODULE(fe, f) {
 		.def_readonly("value", &FSDKErrorValueMatching::value)
 		.def("__repr__",
 			 [](const FSDKErrorValueMatching &err) {
-				 return "<example.FSDKErrorValueFloat: "
+				 return "<example.FSDKErrorValueMatching: "
 							"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
 						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
 						+ ",value: (distance = " + std::to_string(err.value.distance) +
-					 		", similarity =" + std::to_string(err.value.similarity) + ")"
+					 		", similarity = " + std::to_string(err.value.similarity) + ")"
 						+ ", what = " + err.what + "'>";
 			 })
 		;
