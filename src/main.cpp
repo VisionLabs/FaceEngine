@@ -290,15 +290,15 @@ PYBIND11_MODULE(fe, f) {
 	py::class_<fsdk::IFaceEnginePtr>(f, "IFaceEnginePtr");
 	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr")
 		.def("estimate",[](
-		fsdk::IQualityEstimatorPtr est,
-		const fsdk::Image &warp) {
-			fsdk::Quality out;
-			fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
-			auto estResultPy = py::dict();
-			estResultPy["FSDKErrorResult"] = FSDKErrorResult(err);
-			estResultPy["Quality"] = out;
-			return estResultPy; })
-		;
+			fsdk::IQualityEstimatorPtr est,
+			const fsdk::Image &warp) {
+				fsdk::Quality out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+				auto estResultPy = py::dict();
+				estResultPy["FSDKErrorResult"] = FSDKErrorResult(err);
+				estResultPy["Quality"] = out;
+				return estResultPy; })
+			;
 
 	py::class_<fsdk::IAttributeEstimatorPtr>(f, "IAttributeEstimatorPtr")
 		.def("estimate", [](
@@ -562,15 +562,96 @@ PYBIND11_MODULE(fe, f) {
 				return std::make_tuple(FSDKErrorResult(err), resultsPyList); })
 			;
 //	second part of estimators
-	py::class_<fsdk::IHeadPoseEstimatorPtr>(f, "IHeadPoseEstimatorPtr");
-	py::class_<fsdk::Ref<fsdk::IBlackWhiteEstimator>>(f, "IBlackWhiteEstimatorPtr");
-	py::class_<fsdk::ILivenessDepthEstimatorPtr>(f, "ILivenessDepthEstimatorPtr");
-	py::class_<fsdk::ILivenessIREstimatorPtr>(f, "ILivenessIREstimatorPtr");
-	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr");
-	py::class_<fsdk::ILivenessFlowEstimatorPtr>(f, "ILivenessFlowEstimatorPtr");
-	py::class_<fsdk::IEyeEstimatorPtr>(f, "IEyeEstimatorPtr");
-	py::class_<fsdk::IEmotionsEstimatorPtr>(f, "IEmotionsEstimatorPtr");
-	py::class_<fsdk::IGazeEstimatorPtr>(f, "IGazeEstimatorPtr");
+	py::class_<fsdk::IHeadPoseEstimatorPtr>(f, "IHeadPoseEstimatorPtr")
+		.def("estimate",[](
+			const fsdk::IHeadPoseEstimatorPtr& est,
+			const fsdk::Landmarks68& landmarks68) {
+				fsdk::HeadPoseEstimation out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(landmarks68, out);
+				return std::make_tuple(FSDKErrorResult(err), out); })
+					;
+
+	py::class_<fsdk::Ref<fsdk::IBlackWhiteEstimator>>(f, "IBlackWhiteEstimatorPtr")
+		.def("estimate",[](
+			const fsdk::Ref<fsdk::IBlackWhiteEstimator>& est,
+			const fsdk::Image& image) {
+				bool outIsGrayscale;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, outIsGrayscale);
+				return std::make_tuple(FSDKErrorResult(err), outIsGrayscale); })
+					;
+
+	py::class_<fsdk::ILivenessDepthEstimatorPtr>(f, "ILivenessDepthEstimatorPtr")
+		.def("estimate",[](
+			const fsdk::ILivenessDepthEstimatorPtr& est,
+			const fsdk::Image& image) {
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(image);
+				return FSDKErrorResult(err); })
+		.def("setRange",[](
+			const fsdk::ILivenessDepthEstimatorPtr& est,
+			const fsdk::DepthRange& range) {
+				return est->setRange(range); })
+					;
+
+	py::class_<fsdk::ILivenessIREstimatorPtr>(f, "ILivenessIREstimatorPtr")
+		.def("estimate",[](
+			const fsdk::ILivenessIREstimatorPtr& est,
+			const fsdk::Image& irWarp) {
+			fsdk::ResultValue<fsdk::FSDKError,float> err = est->estimate(irWarp);
+				return FSDKErrorValueFloat(err); })
+					;
+
+	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr")
+		.def("estimate",[](
+			const fsdk::ISmileEstimatorPtr& est,
+			const fsdk::Image& image) {
+				fsdk::SmileEstimation out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, out);
+				return std::make_tuple(FSDKErrorResult(err), out); })
+					;
+
+	py::class_<fsdk::ILivenessFlowEstimatorPtr>(f, "ILivenessFlowEstimatorPtr")
+		.def("estimate",[](
+			const fsdk::ILivenessFlowEstimatorPtr& est,
+			const fsdk::Image& small,
+			py::list framesPyList,
+			int length) {
+				fsdk::Image frames [length];
+				for (size_t i = 0; i < length; ++i) {
+					frames[i] = framesPyList[i].cast<fsdk::Image>();
+				}
+				double score = 0.0;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(small, frames, length, score);
+				return std::make_tuple(FSDKErrorResult(err), score); })
+					;
+
+	py::class_<fsdk::IEyeEstimatorPtr>(f, "IEyeEstimatorPtr")
+		.def("estimate",[](
+			const fsdk::IEyeEstimatorPtr& est,
+			const fsdk::Image& warp,
+			const fsdk::Landmarks5& landmarks5) {
+				fsdk::EyesEstimation out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, landmarks5, out);
+				return std::make_tuple(FSDKErrorResult(err), out); })
+					;
+
+	py::class_<fsdk::IEmotionsEstimatorPtr>(f, "IEmotionsEstimatorPtr")
+		.def("estimate",[](
+			const fsdk::IEmotionsEstimatorPtr& est,
+			const fsdk::Image& warp) {
+				fsdk::EmotionsEstimation out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+				return std::make_tuple(FSDKErrorResult(err), out); })
+					;
+
+	py::class_<fsdk::IGazeEstimatorPtr>(f, "IGazeEstimatorPtr")
+		.def("estimate",[](
+			const fsdk::IGazeEstimatorPtr& est,
+			const fsdk::HeadPoseEstimation& angles,
+			const fsdk::EyesEstimation& eyesEstimation) {
+				fsdk::GazeEstimation out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(angles, eyesEstimation, out);
+				return std::make_tuple(FSDKErrorResult(err), out); })
+					;
 
 
 	py::class_<fsdk::ILSHTablePtr>(f, "ILSHTablePtr");
@@ -752,7 +833,7 @@ PYBIND11_MODULE(fe, f) {
 						+ ", value = " + std::to_string(err.value)
 						+ ", what = " + err.what + "'>";
 			 })
-		;
+			;
 
 	py::class_<FSDKErrorValueMatching>(f, "FSDKErrorValueMatching")
 		.def_readonly("isOk", &FSDKErrorValueMatching::isOk)
@@ -856,8 +937,10 @@ PYBIND11_MODULE(fe, f) {
 			;
 
 	py::class_<fsdk::EyesEstimation::EyeAttributes>(f, "EyeAttributes")
-//		.def_property_readonly_static("irisLandmarksCount", &fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount)
-//		.def_property_readonly_static("eyelidLandmarksCount", &fsdk::EyesEstimation::EyeAttributes::eyelidLandmarksCount)
+		.def_property_readonly_static("irisLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& v)
+			{return v.irisLandmarksCount; })
+		.def_property_readonly_static("irisLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& v)
+			{return v.eyelidLandmarksCount; })
 		.def_readwrite("state", &fsdk::EyesEstimation::EyeAttributes::state)
 		.def_readwrite("iris", &fsdk::EyesEstimation::EyeAttributes::iris)
 		.def_readwrite("eyelid", &fsdk::EyesEstimation::EyeAttributes::eyelid)
