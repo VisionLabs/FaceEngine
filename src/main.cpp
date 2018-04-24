@@ -196,6 +196,23 @@ struct FSDKErrorValueFloat {
 
 };
 
+struct FSDKErrorValueMatching {
+	bool isOk;
+	bool isError;
+	fsdk::FSDKError fsdkError;
+	const char* what;
+	fsdk::MatchingResult value;
+
+	FSDKErrorValueMatching(fsdk::ResultValue<fsdk::FSDKError, fsdk::MatchingResult> err) :
+		isOk(err.isOk()),
+		isError(err.isError()),
+		fsdkError(err.getError()),
+		what(err.what()),
+		value(err.getValue())
+	{};
+
+};
+
 PYBIND11_MAKE_OPAQUE(fsdk::Landmarks5);
 PYBIND11_MAKE_OPAQUE(fsdk::Landmarks68);
 
@@ -439,7 +456,64 @@ PYBIND11_MODULE(fe, f) {
 				return tempDict; })
 					;
 
-	py::class_<fsdk::IDescriptorMatcherPtr>(f, "IDescriptorMatcherPtr");
+	py::class_<fsdk::IDescriptorMatcherPtr>(f, "IDescriptorMatcherPtr")
+		.def("match",[](
+			const fsdk::IDescriptorMatcherPtr& matcherPtr,
+			const fsdk::IDescriptorPtr& first,
+			const fsdk::IDescriptorPtr& second) {
+			fsdk::ResultValue<fsdk::FSDKError, fsdk::MatchingResult> err =
+				matcherPtr->match(first, second);
+				return FSDKErrorValueMatching(err); })
+		.def("match",[](
+			const fsdk::IDescriptorMatcherPtr& matcherPtr,
+			const fsdk::IDescriptorPtr& reference,
+			const fsdk::IDescriptorBatchPtr& candidates) {
+			fsdk::MatchingResult results[candidates->getCount()];
+			fsdk::Result<fsdk::FSDKError> err =
+				matcherPtr->match(reference, candidates, results);
+				auto resultsPyList = py::list();
+				for (const auto& it: results) {
+					resultsPyList.append(it);
+				}
+				return std::make_tuple(FSDKErrorResult(err), resultsPyList); })
+		.def("match",[](
+			const fsdk::IDescriptorMatcherPtr& matcherPtr,
+			const fsdk::IDescriptorPtr reference,
+			const fsdk::IDescriptorBatchPtr& candidates,
+			py::list indicesPyList) {
+				const int indicesCount = py::len(indicesPyList);
+				int indices[indicesCount];
+				for (size_t i = 0; i < indicesCount; ++i) {
+					indices[i] = indicesPyList[i].cast<int>();
+				}
+				fsdk::MatchingResult results[candidates->getCount()];
+				fsdk::Result<fsdk::FSDKError> err =
+					matcherPtr->match(reference, candidates, indices, indicesCount, results);
+				auto resultsPyList = py::list();
+				for (const auto& it: results) {
+					resultsPyList.append(it);
+				}
+				return std::make_tuple(FSDKErrorResult(err), resultsPyList); })
+		.def("matchCompact",[](
+			const fsdk::IDescriptorMatcherPtr& matcherPtr,
+			const fsdk::IDescriptorPtr reference,
+			const fsdk::IDescriptorBatchPtr& candidates,
+			py::list indicesPyList) {
+				const int indicesCount = py::len(indicesPyList);
+				int indices[indicesCount];
+				for (size_t i = 0; i < indicesCount; ++i) {
+					indices[i] = indicesPyList[i].cast<int>();
+				}
+				fsdk::MatchingResult results[indicesCount];
+				fsdk::Result<fsdk::FSDKError> err =
+					matcherPtr->matchCompact(reference, candidates, indices, indicesCount, results);
+				auto resultsPyList = py::list();
+				for (const auto& it: results) {
+					resultsPyList.append(it);
+				}
+				return std::make_tuple(FSDKErrorResult(err), resultsPyList); })
+			;
+
 	py::class_<fsdk::ILSHTablePtr>(f, "ILSHTablePtr");
 
 	py::class_<fsdk::MatchingResult>(f, "MatchingResult")
@@ -597,6 +671,24 @@ PYBIND11_MODULE(fe, f) {
 						+ ", isError = " + std::to_string(err.isError)
 						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
 						+ ", value = " + std::to_string(err.value)
+						+ ", what = " + err.what + "'>";
+			 })
+		;
+
+	py::class_<FSDKErrorValueMatching>(f, "FSDKErrorValueMatching")
+		.def_readonly("isOk", &FSDKErrorValueMatching::isOk)
+		.def_readonly("isError", &FSDKErrorValueMatching::isError)
+		.def_readonly("FSDKError", &FSDKErrorValueMatching::fsdkError)
+		.def_readonly("what", &FSDKErrorValueMatching::what)
+		.def_readonly("value", &FSDKErrorValueMatching::value)
+		.def("__repr__",
+			 [](const FSDKErrorValueMatching &err) {
+				 return "<example.FSDKErrorValueFloat: "
+							"isOk = " + std::to_string(err.isOk)
+						+ ", isError = " + std::to_string(err.isError)
+						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ",value: (distance = " + std::to_string(err.value.distance) +
+					 		", similarity =" + std::to_string(err.value.similarity) + ")"
 						+ ", what = " + err.what + "'>";
 			 })
 		;

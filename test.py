@@ -106,7 +106,8 @@ print("warperResult2 with Landmarks68 = ", warperResult3)
 
 
 # descriptor, creating objects
-descriptor = faceEnginePtr.createDescriptor()
+descriptor1 = faceEnginePtr.createDescriptor()
+descriptor2 = faceEnginePtr.createDescriptor()
 aggregation = faceEnginePtr.createDescriptor()
 batchSize = 2
 descriptorBatch = faceEnginePtr.createDescriptorBatch(batchSize)
@@ -120,10 +121,11 @@ images[0].load("testData/warp1.ppm")
 images[1].load("testData/warp2.ppm")
 print(images)
 print(type(extractor))
-print("Descriptor test", descriptor.getModelVersion(), descriptor.getDescriptorLength())
-ext = extractor.extractFromWarpedImage(images[0], descriptor)
-
-print(ext)
+print("Descriptor test befor = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
+ext1 = extractor.extractFromWarpedImage(images[0], descriptor1)
+ext2 = extractor.extractFromWarpedImage(images[1], descriptor2)
+print("Descriptor test after = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
+print("extractor result =", ext2[1])
 
 print("Descriptor batch test befor", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
       descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
@@ -135,13 +137,16 @@ print(ext_batch1)
 print(ext_batch2)
 print("Descriptor batch test after", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
       descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
-print(descriptor)
+print(descriptor1)
 print(descriptorBatch)
 print(extractor)
 print(matcher)
 print(table)
 
+# matcher test
 
+result = matcher.match(descriptor1, descriptor2)
+print(result)
 # IFaceEnginePtr faceEngine = acquire(fsdk::createFaceEngine(dataPath.c_str()));
 #
 # IDescriptorExtractorPtr extractor = acquire(faceEngine->createExtractor());

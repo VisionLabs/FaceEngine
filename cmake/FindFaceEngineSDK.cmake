@@ -7,7 +7,6 @@
 # This is the directory where the Face SDK is located.
 # By default FSDKDIR environment variable value is taken.
 set(FSDK_ROOT "$ENV{FSDKDIR}" CACHE PATH "Vision Labs Face SDK root directory.")
-message("MSD" ${FSDK_INCLUDE_DIRS})
 message("$ENV{FSDKDIR}")
 
 # Look for headers.

@@ -34,7 +34,8 @@ class CMakeBuild(build_ext):
 
     def build_extension(self, ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
-        cmake_args = ['-DFSDK_ROOT=~/Desktop/luna-sdk','-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
+        # please pass cmake args here
+        cmake_args = ['-DFSDK_ROOT=/home/parallels/Desktop/luna-sdk','-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
 
         cfg = 'Debug' if self.debug else 'Release'
