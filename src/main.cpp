@@ -75,10 +75,11 @@ public:
 		return fsdk::acquire(faceEnginePtr->createEthnicityEstimator());
 	}
 
+//	warper
 	fsdk::IWarperPtr createWarper() {
 		return fsdk::acquire(faceEnginePtr->createWarper());
 	}
-
+//	descriptor
 	fsdk::IDescriptorPtr createDescriptor() {
 		return fsdk::acquire(faceEnginePtr->createDescriptor());
 	}
@@ -99,6 +100,42 @@ public:
 		return fsdk::acquire(faceEnginePtr->createLSHTable(batch));
 	}
 
+//	second part of estimators
+	fsdk::IHeadPoseEstimatorPtr createHeadPoseEstimator() {
+		return fsdk::acquire(faceEnginePtr->createHeadPoseEstimator());
+	}
+
+	fsdk::Ref<fsdk::IBlackWhiteEstimator> createBlackWhiteEstimator() {
+		return fsdk::acquire(faceEnginePtr->createBlackWhiteEstimator());
+	}
+
+	fsdk::ILivenessDepthEstimatorPtr createDepthEstimator() {
+		return fsdk::acquire(faceEnginePtr->createDepthEstimator());
+	}
+
+	fsdk::ILivenessIREstimatorPtr createIREstimator() {
+		return fsdk::acquire(faceEnginePtr->createIREstimator());
+	}
+
+	fsdk::ISmileEstimatorPtr createSmileEstimator() {
+		return fsdk::acquire(faceEnginePtr->createSmileEstimator());
+	}
+
+	fsdk::ILivenessFlowEstimatorPtr createFaceFlowEstimator() {
+		return fsdk::acquire(faceEnginePtr->createFaceFlowEstimator());
+	}
+
+	fsdk::IEyeEstimatorPtr createEyeEstimator() {
+		return fsdk::acquire(faceEnginePtr->createEyeEstimator());
+	}
+
+	fsdk::IEmotionsEstimatorPtr createEmotionsEstimator() {
+		return fsdk::acquire(faceEnginePtr->createEmotionsEstimator());
+	}
+
+	fsdk::IGazeEstimatorPtr createGazeEstimator() {
+		return fsdk::acquire(faceEnginePtr->createGazeEstimator());
+	}
 };
 
 class PyISettingsProvider {
@@ -234,7 +271,18 @@ PYBIND11_MODULE(fe, f) {
 		.def("createExtractor", &PyIFaceEngine::createExtractor)
 		.def("createMatcher", &PyIFaceEngine::createMatcher)
 		.def("createLSHTable", &PyIFaceEngine::createLSHTable)
+
+		.def("createHeadPoseEstimator", &PyIFaceEngine::createHeadPoseEstimator)
+		.def("createBlackWhiteEstimator", &PyIFaceEngine::createBlackWhiteEstimator)
+		.def("createDepthEstimator", &PyIFaceEngine::createDepthEstimator)
+		.def("createIREstimator", &PyIFaceEngine::createIREstimator)
+		.def("createSmileEstimator", &PyIFaceEngine::createSmileEstimator)
+		.def("createFaceFlowEstimator", &PyIFaceEngine::createFaceFlowEstimator)
+		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator)
+		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator)
+		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator)
 			;
+
 
 	py::class_<PyISettingsProvider>(f, "PyISettingsProvider")
 		;
@@ -276,26 +324,26 @@ PYBIND11_MODULE(fe, f) {
 			;
 
 	py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr")
-	.def("detect",[](
-		const fsdk::IDetectorPtr& det,
-		const fsdk::Image& image,
-		const fsdk::Rect& rect,
-		int maxCount) {
-			fsdk::Detection detections[maxCount];
-			fsdk::Landmarks5 landmarks[maxCount];
-			fsdk::Landmarks68 landmarks68[maxCount];
-			fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(image, rect, detections, landmarks, landmarks68, maxCount);
-			auto detResultPy = py::list();
-			for (size_t i = 0; i < maxCount; ++i) {
-				auto tempDict = py::dict();
-				tempDict["errorValue"] = FSDKErrorValueInt(err);
-				tempDict["Detection"] = detections[i];
-				tempDict["Landmarks5"] = landmarks[i];
-				tempDict["Landmarks68"] = landmarks68[i];
-				detResultPy.append(tempDict);
-			}
-			return detResultPy; })
-		;
+		.def("detect",[](
+			const fsdk::IDetectorPtr& det,
+			const fsdk::Image& image,
+			const fsdk::Rect& rect,
+			int maxCount) {
+				fsdk::Detection detections[maxCount];
+				fsdk::Landmarks5 landmarks[maxCount];
+				fsdk::Landmarks68 landmarks68[maxCount];
+				fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(image, rect, detections, landmarks, landmarks68, maxCount);
+				auto detResultPy = py::list();
+				for (size_t i = 0; i < maxCount; ++i) {
+					auto tempDict = py::dict();
+					tempDict["errorValue"] = FSDKErrorValueInt(err);
+					tempDict["Detection"] = detections[i];
+					tempDict["Landmarks5"] = landmarks[i];
+					tempDict["Landmarks68"] = landmarks68[i];
+					detResultPy.append(tempDict);
+				}
+				return detResultPy; })
+			;
 
 	;
 	py::class_<fsdk::IWarperPtr>(f, "IWarperPtr")
@@ -513,6 +561,17 @@ PYBIND11_MODULE(fe, f) {
 				}
 				return std::make_tuple(FSDKErrorResult(err), resultsPyList); })
 			;
+//	second part of estimators
+	py::class_<fsdk::IHeadPoseEstimatorPtr>(f, "IHeadPoseEstimatorPtr");
+	py::class_<fsdk::Ref<fsdk::IBlackWhiteEstimator>>(f, "IBlackWhiteEstimatorPtr");
+	py::class_<fsdk::ILivenessDepthEstimatorPtr>(f, "ILivenessDepthEstimatorPtr");
+	py::class_<fsdk::ILivenessIREstimatorPtr>(f, "ILivenessIREstimatorPtr");
+	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr");
+	py::class_<fsdk::ILivenessFlowEstimatorPtr>(f, "ILivenessFlowEstimatorPtr");
+	py::class_<fsdk::IEyeEstimatorPtr>(f, "IEyeEstimatorPtr");
+	py::class_<fsdk::IEmotionsEstimatorPtr>(f, "IEmotionsEstimatorPtr");
+	py::class_<fsdk::IGazeEstimatorPtr>(f, "IGazeEstimatorPtr");
+
 
 	py::class_<fsdk::ILSHTablePtr>(f, "ILSHTablePtr");
 
@@ -532,10 +591,10 @@ PYBIND11_MODULE(fe, f) {
 	py::class_<fsdk::Landmarks5>(f, "Landmarks5")
 		.def(py::init<>())
 		.def("__len__", [](const fsdk::Landmarks5 &v) { return v.landmarkCount; })
-//		.def("__getitem__", [](const fsdk::Landmarks5 &s, size_t i) {
-//			if (i >= s.landmarkCount) throw py::index_error();
-//			return s.landmarks[i];
-//		})
+		.def("__getitem__", [](const fsdk::Landmarks5 &s, size_t i) {
+			if (i >= s.landmarkCount) throw py::index_error();
+			return s.landmarks[i];
+		})
 //		.def("__setitem__", [](fsdk::Landmarks68 &s, size_t i, float value) {
 //			if (i >= s.landmarkCount) throw py::index_error();
 //				s.landmarks[i] = value;
@@ -546,38 +605,38 @@ PYBIND11_MODULE(fe, f) {
 			return s.landmarks[i];
 		})
 
-		.def("setX", [](fsdk::Landmarks5 &s, size_t i, float value) {
-			if (i >= s.landmarkCount) throw py::index_error();
-			s.landmarks[i].x = value;
-		})
-
-		.def("setY", [](fsdk::Landmarks5 &s, size_t i, float value) {
-			if (i >= s.landmarkCount) throw py::index_error();
-			s.landmarks[i].y = value;
-		})
+//		.def("setX", [](fsdk::Landmarks5 &s, size_t i, float value) {
+//			if (i >= s.landmarkCount) throw py::index_error();
+//			s.landmarks[i].x = value;
+//		})
+//
+//		.def("setY", [](fsdk::Landmarks5 &s, size_t i, float value) {
+//			if (i >= s.landmarkCount) throw py::index_error();
+//			s.landmarks[i].y = value;
+//		})
 			;
 
 	py::class_<fsdk::Landmarks68>(f, "Landmarks68")
 		.def(py::init<>())
 		.def("__len__", [](const fsdk::Landmarks68 &v) { return v.landmarkCount; })
-//		.def("__getitem__", [](const fsdk::Landmarks68 &s, size_t i) {
-//			if (i >= s.landmarkCount) throw py::index_error();
-//			return s.landmarks[i];
-//		})
-		.def("getItem", [](fsdk::Landmarks68 &s, size_t i)  {
+		.def("__getitem__", [](const fsdk::Landmarks68 &s, size_t i) {
 			if (i >= s.landmarkCount) throw py::index_error();
 			return s.landmarks[i];
 		})
+//		.def("getItem", [](fsdk::Landmarks68 &s, size_t i)  {
+//			if (i >= s.landmarkCount) throw py::index_error();
+//			return s.landmarks[i];
+//		})
 
-		.def("setX", [](fsdk::Landmarks68 &s, size_t i, float value) {
-			if (i >= s.landmarkCount) throw py::index_error();
-			s.landmarks[i].x = value;
-		})
-
-		.def("setY", [](fsdk::Landmarks68 &s, size_t i, float value) {
-			if (i >= s.landmarkCount) throw py::index_error();
-			s.landmarks[i].y = value;
-		})
+//		.def("setX", [](fsdk::Landmarks68 &s, size_t i, float value) {
+//			if (i >= s.landmarkCount) throw py::index_error();
+//			s.landmarks[i].x = value;
+//		})
+//
+//		.def("setY", [](fsdk::Landmarks68 &s, size_t i, float value) {
+//			if (i >= s.landmarkCount) throw py::index_error();
+//			s.landmarks[i].y = value;
+//		})
 			;
 
 	py::class_<fsdk::Vector2<float>>(f, "Vector2f")
@@ -746,8 +805,83 @@ PYBIND11_MODULE(fe, f) {
 		.def("getEthnicityScore", &fsdk::EthnicityEstimation::getEthnicityScore)
 		.def("getPredominantEthnicity", &fsdk::EthnicityEstimation::getPredominantEthnicity)
 			;
+	py::class_<fsdk::HeadPoseEstimation>(f, "HeadPoseEstimation")
+		.def_readwrite("pitch", &fsdk::HeadPoseEstimation::pitch)
+		.def_readwrite("yaw", &fsdk::HeadPoseEstimation::yaw)
+		.def_readwrite("roll", &fsdk::HeadPoseEstimation::roll)
+		.def("getFrontalFaceType", &fsdk::HeadPoseEstimation::getFrontalFaceType)
+			;
+	py::enum_<fsdk::HeadPoseEstimation::FrontalFaceType>(f, "FrontalFaceType", py::arithmetic())
+		.value("FrontalFace0", fsdk::HeadPoseEstimation::FrontalFace0)
+		.value("FrontalFace1", fsdk::HeadPoseEstimation::FrontalFace1)
+		.value("FrontalFace2", fsdk::HeadPoseEstimation::FrontalFace2)
+			;
 
-	py::enum_<fsdk::EthnicityEstimation::Ethnicities >(f, "Ethnicity")
+	py::class_<fsdk::DepthRange>(f, "DepthRange")
+		.def_readwrite("min", &fsdk::DepthRange::min)
+		.def_readwrite("max", &fsdk::DepthRange::max)
+		.def("isOk", &fsdk::DepthRange::isOk)
+			;
+
+	py::class_<fsdk::SmileEstimation>(f, "SmileEstimation")
+		.def_readwrite("mouth", &fsdk::SmileEstimation::mouth)
+		.def_readwrite("smile", &fsdk::SmileEstimation::smile)
+		.def_readwrite("occlusion", &fsdk::SmileEstimation::occlusion)
+			;
+
+//	EyeEstimation
+	py::class_<fsdk::EyesEstimation>(f, "EyesEstimation")
+		.def_readwrite("leftEye", &fsdk::EyesEstimation::leftEye)
+		.def_readwrite("rightEye", &fsdk::EyesEstimation::rightEye)
+			;
+	py::enum_<fsdk::EyesEstimation::EyeAttributes::State>(f, "State")
+		.value("Closed", fsdk::EyesEstimation::EyeAttributes::State::Closed)
+		.value("Open", fsdk::EyesEstimation::EyeAttributes::State::Open)
+		.value("Occluded", fsdk::EyesEstimation::EyeAttributes::State::Occluded)
+			;
+
+	py::class_<fsdk::EyesEstimation::EyeAttributes>(f, "EyeAttributes")
+//		.def_readonly_static("irisLandmarksCount", &fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount)
+//		.def_readonly_static("eyelidLandmarksCount", &fsdk::EyesEstimation::EyeAttributes::eyelidLandmarksCount)
+		.def_readwrite("state", &fsdk::EyesEstimation::EyeAttributes::state)
+//		.def_readwrite("iris", &fsdk::EyesEstimation::EyeAttributes::iris)
+//		.def_readwrite("eyelid", &fsdk::EyesEstimation::EyeAttributes::eyelid)
+			;
+
+	py::class_<fsdk::EmotionsEstimation>(f, "EmotionsEstimation")
+		.def_readwrite("anger", &fsdk::EmotionsEstimation::anger)
+		.def_readwrite("disgust", &fsdk::EmotionsEstimation::disgust)
+		.def_readwrite("fear", &fsdk::EmotionsEstimation::fear)
+		.def_readwrite("happiness", &fsdk::EmotionsEstimation::happiness)
+		.def_readwrite("sadness", &fsdk::EmotionsEstimation::sadness)
+		.def_readwrite("surprise", &fsdk::EmotionsEstimation::surprise)
+		.def_readwrite("neutral", &fsdk::EmotionsEstimation::neutral)
+		.def("getPredominantEmotion", &fsdk::EmotionsEstimation::getPredominantEmotion)
+		.def("getEmotionScore", &fsdk::EmotionsEstimation::getEmotionScore)
+			;
+
+	py::enum_<fsdk::EmotionsEstimation::Emotions>(f, "Emotions", py::arithmetic())
+		.value("Anger", fsdk::EmotionsEstimation::Anger)
+		.value("Disgust", fsdk::EmotionsEstimation::Disgust)
+		.value("Fear", fsdk::EmotionsEstimation::Fear)
+		.value("Happiness", fsdk::EmotionsEstimation::Happiness)
+		.value("Sadness", fsdk::EmotionsEstimation::Sadness)
+		.value("Surprise", fsdk::EmotionsEstimation::Surprise)
+		.value("Neutral", fsdk::EmotionsEstimation::Neutral)
+		.value("Count", fsdk::EmotionsEstimation::Count)
+			;
+
+	py::class_<fsdk::GazeEstimation>(f, "GazeEstimation")
+		.def_readwrite("leftEye", &fsdk::GazeEstimation::leftEye)
+		.def_readwrite("rightEye", &fsdk::GazeEstimation::rightEye)
+			;
+
+	py::class_<fsdk::GazeEstimation::EyeAngles>(f, "EyeAngles")
+		.def_readwrite("yaw", &fsdk::GazeEstimation::EyeAngles::yaw)
+		.def_readwrite("pitch", &fsdk::GazeEstimation::EyeAngles::pitch)
+			;
+
+	py::enum_<fsdk::EthnicityEstimation::Ethnicities>(f, "Ethnicity")
 		.value("AfricanAmerican", fsdk::EthnicityEstimation::AfricanAmerican)
 		.value("Indian", fsdk::EthnicityEstimation::Indian)
 		.value("Asian", fsdk::EthnicityEstimation::Asian)

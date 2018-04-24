@@ -81,9 +81,13 @@ print("Image error = ", err)
 
 detector = faceEnginePtr.createDetector(f.ODT_MTCNN)
 detector_result = detector.detect(image_det, image_det.getRect(), maxDetections)
+test = detector_result[0]["Landmarks5"]
+print("Landmarks test {0}".format(test[0]))
+print("Landmarks test {0}".format(test[0]))
 
 for i, item in enumerate(detector_result, 1):
     print(i, item)
+
 
 # warper test and example
 warper = faceEnginePtr.createWarper()
@@ -157,31 +161,28 @@ print(result1)
 print(result2)
 print(result3)
 print(result4)
-# IFaceEnginePtr faceEngine = acquire(fsdk::createFaceEngine(dataPath.c_str()));
-#
-# IDescriptorExtractorPtr extractor = acquire(faceEngine->createExtractor());
-# IDescriptorMatcherPtr matcher = acquire(faceEngine->createMatcher());
-#
-# IDescriptorPtr descriptor = acquire(faceEngine->createDescriptor());
-# IDescriptorPtr aggregation = acquire(faceEngine->createDescriptor());
-#
-# const int batchSize = 2;
-# IDescriptorBatchPtr descriptorBatch = acquire(faceEngine->createDescriptorBatch(batchSize));
-#
-# fsdk::Image images[batchSize];
-# for (int i = 0; i < batchSize; i++)
-# images[i].load((testDataPath + "/warp1.ppm").c_str());
-#
-# float garbages [batchSize];
-#
-# ASSERT_TRUE(extractor->extractFromWarpedImage(images[0],descriptor));
-# ASSERT_TRUE(extractor->extractFromWarpedImageBatch(images,descriptorBatch,aggregation,garbages,batchSize));
-#
-# auto assertMatchingResult = [](const MatchingResult& result)->void{
-#     ASSERT_EQ(result.similarity,1.0);
-# ASSERT_EQ(result.distance,0.0);
-# };
 
+# test of second part estimators
+
+headPoseEstimator = faceEnginePtr.createHeadPoseEstimator()
+blackWhiteEstimator = faceEnginePtr.createBlackWhiteEstimator()
+depthEstimator = faceEnginePtr.createDepthEstimator()
+iREstimator = faceEnginePtr.createIREstimator()
+smileEstimator = faceEnginePtr.createSmileEstimator()
+faceFlowEstimator = faceEnginePtr.createFaceFlowEstimator()
+eyeEstimator = faceEnginePtr.createEyeEstimator()
+emotionsPoseEstimator = faceEnginePtr.createEmotionsEstimator()
+gazeEstimator = faceEnginePtr.createGazeEstimator()
+
+print(headPoseEstimator)
+print(blackWhiteEstimator)
+print(depthEstimator)
+print(iREstimator)
+print(smileEstimator)
+print(faceFlowEstimator)
+print(eyeEstimator)
+print(emotionsPoseEstimator)
+print(gazeEstimator)
 # for i in enumerate(detector_result):
 #     print(detector_result[i])
 
@@ -190,11 +191,10 @@ print(result4)
 # attr.glasses = 1
 # attr.age = 0.3
 # print(attr)
-# landmarks5 = f.Landmarks5()
-# landmarks68 = f.Landmarks68()
-# # landmarks5[3] = f.Vector2(5, 3)
-# landmarks5.setX(3, 10)
-# landmarks5.setY(3, 65)
+landmarks5 = f.Landmarks5()
+landmarks68 = f.Landmarks68()
+# landmarks5[3] = f.Vector2(5, 3)
+
 # print("verify assigning", landmarks5.getitem(3))
 #
 # print(landmarks5.getitem)
