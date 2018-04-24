@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
-project(FaceEngine)
+project(FaceEnginePythonBinding)
 
 set(CMAKE_MODULE_PATH
-		${CMAKE_MODULE_PATH}
-		"${CMAKE_SOURCE_DIR}/cmake/"
-		)
+	${CMAKE_MODULE_PATH}
+	"${CMAKE_SOURCE_DIR}/cmake/"
+	)
 
 if (MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
@@ -14,7 +14,7 @@ else ()
 endif ()
 
 
-set(FSDK_ROOT ~/Desktop/luna-sdk)
+#set(FSDK_ROOT ~/Desktop/luna-sdk)
 
 find_package(FaceEngineSDK REQUIRED)
 include_directories(${FSDK_INCLUDE_DIRS})

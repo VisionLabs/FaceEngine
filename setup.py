@@ -4,6 +4,7 @@ import sys
 import platform
 import subprocess
 
+
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
@@ -33,7 +34,7 @@ class CMakeBuild(build_ext):
 
     def build_extension(self, ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
-        cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
+        cmake_args = ['-DFSDK_ROOT=~/Desktop/luna-sdk','-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
 
         cfg = 'Debug' if self.debug else 'Release'
@@ -55,13 +56,14 @@ class CMakeBuild(build_ext):
             os.makedirs(self.build_temp)
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
+        print(cmake_args)
 
 setup(
     name='fe',
     version='0.0.1',
-    author='Dean Moldovan',
-    author_email='dean0x7d@gmail.com',
-    description='A test project using pybind11 and CMake',
+    author='Marina Safina',
+    author_email='m.safina@visionlabs.ru',
+    description='Python bindings of FaceEngine using pybind11 and CMake',
     long_description='',
     ext_modules=[CMakeExtension('fe')],
     cmdclass=dict(build_ext=CMakeBuild),
