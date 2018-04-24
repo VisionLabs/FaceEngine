@@ -599,12 +599,10 @@ PYBIND11_MODULE(fe, f) {
 //			if (i >= s.landmarkCount) throw py::index_error();
 //				s.landmarks[i] = value;
 //		})
-
-		.def("getItem", [](fsdk::Landmarks5 &s, size_t i)  {
-			if (i >= s.landmarkCount) throw py::index_error();
-			return s.landmarks[i];
-		})
-
+//		.def("getItem", [](fsdk::Landmarks5 &s, size_t i)  {
+//			if (i >= s.landmarkCount) throw py::index_error();
+//			return s.landmarks[i];
+//		})
 //		.def("setX", [](fsdk::Landmarks5 &s, size_t i, float value) {
 //			if (i >= s.landmarkCount) throw py::index_error();
 //			s.landmarks[i].x = value;
@@ -627,17 +625,34 @@ PYBIND11_MODULE(fe, f) {
 //			if (i >= s.landmarkCount) throw py::index_error();
 //			return s.landmarks[i];
 //		})
-
 //		.def("setX", [](fsdk::Landmarks68 &s, size_t i, float value) {
 //			if (i >= s.landmarkCount) throw py::index_error();
 //			s.landmarks[i].x = value;
 //		})
-//
 //		.def("setY", [](fsdk::Landmarks68 &s, size_t i, float value) {
 //			if (i >= s.landmarkCount) throw py::index_error();
 //			s.landmarks[i].y = value;
 //		})
 			;
+
+	py::class_<fsdk::EyesEstimation::EyeAttributes::IrisLandmarks>(f, "IrisLandmarks")
+		.def(py::init<>())
+		.def("__len__", [](const fsdk::EyesEstimation::EyeAttributes &v) { return v.irisLandmarksCount; })
+		.def("__getitem__", [](const fsdk::EyesEstimation::EyeAttributes::IrisLandmarks &l, size_t i) {
+			if (i >= fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount) throw py::index_error();
+			return l.landmarks[i];
+		})
+			;
+
+	py::class_<fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks>(f, "EyelidLandmarks")
+		.def(py::init<>())
+		.def("__len__", [](const fsdk::EyesEstimation::EyeAttributes &v) { return v.eyelidLandmarksCount; })
+		.def("__getitem__", [](const fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks &l, size_t i) {
+			if (i >= fsdk::EyesEstimation::EyeAttributes::eyelidLandmarksCount) throw py::index_error();
+			return l.landmarks[i];
+		})
+			;
+
 
 	py::class_<fsdk::Vector2<float>>(f, "Vector2f")
 		.def(py::init<>())
@@ -841,11 +856,11 @@ PYBIND11_MODULE(fe, f) {
 			;
 
 	py::class_<fsdk::EyesEstimation::EyeAttributes>(f, "EyeAttributes")
-//		.def_readonly_static("irisLandmarksCount", &fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount)
-//		.def_readonly_static("eyelidLandmarksCount", &fsdk::EyesEstimation::EyeAttributes::eyelidLandmarksCount)
+//		.def_property_readonly_static("irisLandmarksCount", &fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount)
+//		.def_property_readonly_static("eyelidLandmarksCount", &fsdk::EyesEstimation::EyeAttributes::eyelidLandmarksCount)
 		.def_readwrite("state", &fsdk::EyesEstimation::EyeAttributes::state)
-//		.def_readwrite("iris", &fsdk::EyesEstimation::EyeAttributes::iris)
-//		.def_readwrite("eyelid", &fsdk::EyesEstimation::EyeAttributes::eyelid)
+		.def_readwrite("iris", &fsdk::EyesEstimation::EyeAttributes::iris)
+		.def_readwrite("eyelid", &fsdk::EyesEstimation::EyeAttributes::eyelid)
 			;
 
 	py::class_<fsdk::EmotionsEstimation>(f, "EmotionsEstimation")
