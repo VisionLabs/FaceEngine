@@ -290,7 +290,7 @@ PYBIND11_MODULE(fe, f) {
 	py::class_<fsdk::IFaceEnginePtr>(f, "IFaceEnginePtr");
 	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr")
 		.def("estimate",[](
-			fsdk::IQualityEstimatorPtr est,
+			const fsdk::IQualityEstimatorPtr& est,
 			const fsdk::Image &warp) {
 				fsdk::Quality out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
@@ -366,10 +366,10 @@ PYBIND11_MODULE(fe, f) {
 					landmarks,
 					transformation,
 					transformedLandmarks);
-				auto warpResultPy = py::dict();
-				warpResultPy["FSDKErrorResult"] = FSDKErrorResult(error);
-				warpResultPy["transformedLandmarks"] = transformedLandmarks;
-				return warpResultPy; })
+				auto warpResultPyDict = py::dict();
+				warpResultPyDict["FSDKErrorResult"] = FSDKErrorResult(error);
+				warpResultPyDict["transformedLandmarks5"] = transformedLandmarks;
+				return warpResultPyDict; })
 		.def("warp",[](
 			const fsdk::IWarperPtr& warper,
 			const fsdk::Landmarks68& landmarks68,
@@ -632,6 +632,13 @@ PYBIND11_MODULE(fe, f) {
 				fsdk::EyesEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, landmarks5, out);
 				return std::make_tuple(FSDKErrorResult(err), out); })
+		.def("estimate",[](
+			const fsdk::IEyeEstimatorPtr& est,
+			const fsdk::Image& warp,
+			const fsdk::Landmarks68& landmarks68) {
+				fsdk::EyesEstimation out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, landmarks68, out);
+				return std::make_tuple(FSDKErrorResult(err), out); })
 					;
 
 	py::class_<fsdk::IEmotionsEstimatorPtr>(f, "IEmotionsEstimatorPtr")
@@ -676,23 +683,6 @@ PYBIND11_MODULE(fe, f) {
 			if (i >= s.landmarkCount) throw py::index_error();
 			return s.landmarks[i];
 		})
-//		.def("__setitem__", [](fsdk::Landmarks68 &s, size_t i, float value) {
-//			if (i >= s.landmarkCount) throw py::index_error();
-//				s.landmarks[i] = value;
-//		})
-//		.def("getItem", [](fsdk::Landmarks5 &s, size_t i)  {
-//			if (i >= s.landmarkCount) throw py::index_error();
-//			return s.landmarks[i];
-//		})
-//		.def("setX", [](fsdk::Landmarks5 &s, size_t i, float value) {
-//			if (i >= s.landmarkCount) throw py::index_error();
-//			s.landmarks[i].x = value;
-//		})
-//
-//		.def("setY", [](fsdk::Landmarks5 &s, size_t i, float value) {
-//			if (i >= s.landmarkCount) throw py::index_error();
-//			s.landmarks[i].y = value;
-//		})
 			;
 
 	py::class_<fsdk::Landmarks68>(f, "Landmarks68")
@@ -702,18 +692,6 @@ PYBIND11_MODULE(fe, f) {
 			if (i >= s.landmarkCount) throw py::index_error();
 			return s.landmarks[i];
 		})
-//		.def("getItem", [](fsdk::Landmarks68 &s, size_t i)  {
-//			if (i >= s.landmarkCount) throw py::index_error();
-//			return s.landmarks[i];
-//		})
-//		.def("setX", [](fsdk::Landmarks68 &s, size_t i, float value) {
-//			if (i >= s.landmarkCount) throw py::index_error();
-//			s.landmarks[i].x = value;
-//		})
-//		.def("setY", [](fsdk::Landmarks68 &s, size_t i, float value) {
-//			if (i >= s.landmarkCount) throw py::index_error();
-//			s.landmarks[i].y = value;
-//		})
 			;
 
 	py::class_<fsdk::EyesEstimation::EyeAttributes::IrisLandmarks>(f, "IrisLandmarks")
@@ -734,7 +712,7 @@ PYBIND11_MODULE(fe, f) {
 		})
 			;
 
-
+// Vector2
 	py::class_<fsdk::Vector2<float>>(f, "Vector2f")
 		.def(py::init<>())
 		.def(py::init<float, float>())
@@ -758,6 +736,8 @@ PYBIND11_MODULE(fe, f) {
 				 return "<Vector2i: x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
 			 })
 				;
+
+//	Errors
 	py::class_<FSDKErrorResult>(f, "FSDKErrorResult")
 		.def_readonly("isOk", &FSDKErrorResult::isOk)
 		.def_readonly("isError", &FSDKErrorResult::isError)
@@ -828,10 +808,10 @@ PYBIND11_MODULE(fe, f) {
 			 [](const FSDKErrorValueFloat &err) {
 				 return "<example.FSDKErrorValueFloat: "
 							"isOk = " + std::to_string(err.isOk)
-						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
-						+ ", value = " + std::to_string(err.value)
-						+ ", what = " + err.what + "'>";
+					+ ", isError = " + std::to_string(err.isError)
+					+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+					+ ", value = " + std::to_string(err.value)
+					+ ", what = " + err.what + "'>";
 			 })
 			;
 
@@ -853,6 +833,7 @@ PYBIND11_MODULE(fe, f) {
 			 })
 		;
 
+// Attribute
 	py::class_<fsdk::AttributeEstimation>(f, "AttributeEstimation")
 		.def(py::init<>())
 		.def_readwrite("gender", &fsdk::AttributeEstimation::gender)
@@ -867,6 +848,7 @@ PYBIND11_MODULE(fe, f) {
 		 })
 			;
 
+//	Quality
 	py::class_<fsdk::Quality>(f, "Quality")
 		.def(py::init<>())
 		.def_readwrite("light", &fsdk::Quality::light)
@@ -884,6 +866,7 @@ PYBIND11_MODULE(fe, f) {
 		.def("getQuality", &fsdk::Quality::getQuality)
 			;
 
+//	Ethnicity
 	py::class_<fsdk::EthnicityEstimation>(f, "EthnicityEstimation")
 		.def(py::init<>())
 		.def_readwrite("africanAmerican", &fsdk::EthnicityEstimation::africanAmerican)
@@ -891,22 +874,31 @@ PYBIND11_MODULE(fe, f) {
 		.def_readwrite("asian", &fsdk::EthnicityEstimation::asian)
 		.def_readwrite("caucasian", &fsdk::EthnicityEstimation::caucasian)
 		.def("__repr__",
-			 [](const fsdk::EthnicityEstimation &a) {
+			 [](const fsdk::EthnicityEstimation &e) {
 				 return "<example.EthnicityEstimation: "
-						", africanAmerican = " + std::to_string(a.africanAmerican)
-						+ ", indian = " + std::to_string(a.indian)
-						+ ", asian = " + std::to_string(a.asian)
-						+ ", caucasian = " + std::to_string(a.caucasian) +  "'>";
+						", africanAmerican = " + std::to_string(e.africanAmerican)
+						+ ", indian = " + std::to_string(e.indian)
+						+ ", asian = " + std::to_string(e.asian)
+						+ ", caucasian = " + std::to_string(e.caucasian) +  "'>";
 			 })
 		.def("getEthnicityScore", &fsdk::EthnicityEstimation::getEthnicityScore)
 		.def("getPredominantEthnicity", &fsdk::EthnicityEstimation::getPredominantEthnicity)
 			;
+
+//	HeadPose
 	py::class_<fsdk::HeadPoseEstimation>(f, "HeadPoseEstimation")
 		.def_readwrite("pitch", &fsdk::HeadPoseEstimation::pitch)
 		.def_readwrite("yaw", &fsdk::HeadPoseEstimation::yaw)
 		.def_readwrite("roll", &fsdk::HeadPoseEstimation::roll)
 		.def("getFrontalFaceType", &fsdk::HeadPoseEstimation::getFrontalFaceType)
-			;
+		.def("__repr__",
+			 [](const fsdk::HeadPoseEstimation &h) {
+				 return "<example.HeadPoseEstimation: "
+						", pitch = " + std::to_string(h.pitch)
+						+ ", yaw = " + std::to_string(h.yaw)
+						+ ", roll = " + std::to_string(h.roll) +  "'>";
+			 })
+				;
 	py::enum_<fsdk::HeadPoseEstimation::FrontalFaceType>(f, "FrontalFaceType", py::arithmetic())
 		.value("FrontalFace0", fsdk::HeadPoseEstimation::FrontalFace0)
 		.value("FrontalFace1", fsdk::HeadPoseEstimation::FrontalFace1)
@@ -917,13 +909,26 @@ PYBIND11_MODULE(fe, f) {
 		.def_readwrite("min", &fsdk::DepthRange::min)
 		.def_readwrite("max", &fsdk::DepthRange::max)
 		.def("isOk", &fsdk::DepthRange::isOk)
-			;
+		.def("__repr__",
+			 [](const fsdk::DepthRange &h) {
+				 return "<example.DepthRange: "
+						", min = " + std::to_string(h.min)
+						+ ", max = " + std::to_string(h.max) +  "'>";
+			 })
+				;
 
 	py::class_<fsdk::SmileEstimation>(f, "SmileEstimation")
 		.def_readwrite("mouth", &fsdk::SmileEstimation::mouth)
 		.def_readwrite("smile", &fsdk::SmileEstimation::smile)
 		.def_readwrite("occlusion", &fsdk::SmileEstimation::occlusion)
-			;
+		.def("__repr__",
+			 [](const fsdk::SmileEstimation &s) {
+				 return "<example.SmileEstimation: "
+						", mouth = " + std::to_string(s.mouth)
+						+ ", smile = " + std::to_string(s.smile)
+						+ ", occlusion = " + std::to_string(s.occlusion) +  "'>";
+			 })
+				;
 
 //	EyeEstimation
 	py::class_<fsdk::EyesEstimation>(f, "EyesEstimation")
@@ -937,15 +942,16 @@ PYBIND11_MODULE(fe, f) {
 			;
 
 	py::class_<fsdk::EyesEstimation::EyeAttributes>(f, "EyeAttributes")
-		.def_property_readonly_static("irisLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& v)
-			{return v.irisLandmarksCount; })
-		.def_property_readonly_static("irisLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& v)
-			{return v.eyelidLandmarksCount; })
+		.def_property_readonly_static("irisLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& e)
+			{return e.irisLandmarksCount; })
+		.def_property_readonly_static("eyelidLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& e)
+			{return e.eyelidLandmarksCount; })
 		.def_readwrite("state", &fsdk::EyesEstimation::EyeAttributes::state)
 		.def_readwrite("iris", &fsdk::EyesEstimation::EyeAttributes::iris)
 		.def_readwrite("eyelid", &fsdk::EyesEstimation::EyeAttributes::eyelid)
 			;
 
+// Emotions
 	py::class_<fsdk::EmotionsEstimation>(f, "EmotionsEstimation")
 		.def_readwrite("anger", &fsdk::EmotionsEstimation::anger)
 		.def_readwrite("disgust", &fsdk::EmotionsEstimation::disgust)
@@ -956,6 +962,17 @@ PYBIND11_MODULE(fe, f) {
 		.def_readwrite("neutral", &fsdk::EmotionsEstimation::neutral)
 		.def("getPredominantEmotion", &fsdk::EmotionsEstimation::getPredominantEmotion)
 		.def("getEmotionScore", &fsdk::EmotionsEstimation::getEmotionScore)
+		.def("__repr__",
+			 [](const fsdk::EmotionsEstimation &e) {
+				 return "<example.EmotionsEstimation: "
+						" anger = " + std::to_string(e.anger)
+						+ ", disgust = " + std::to_string(e.disgust)
+						+ ", fear = " + std::to_string(e.fear)
+						+ ", happiness = " + std::to_string(e.happiness)
+						+ ", sadness = " + std::to_string(e.sadness)
+						+ ", surprise = " + std::to_string(e.surprise)
+						+ ", neutral = " + std::to_string(e.neutral) + "'>";
+			 })
 			;
 
 	py::enum_<fsdk::EmotionsEstimation::Emotions>(f, "Emotions", py::arithmetic())
@@ -969,16 +986,32 @@ PYBIND11_MODULE(fe, f) {
 		.value("Count", fsdk::EmotionsEstimation::Count)
 			;
 
+// Gaze
 	py::class_<fsdk::GazeEstimation>(f, "GazeEstimation")
 		.def_readwrite("leftEye", &fsdk::GazeEstimation::leftEye)
 		.def_readwrite("rightEye", &fsdk::GazeEstimation::rightEye)
-			;
+		.def("__repr__",
+			 [](const fsdk::GazeEstimation &g) {
+				 return "<example.GazeEstimation: "
+						", leftEye: yaw = " + std::to_string(g.leftEye.yaw) +
+						", pitch = " + std::to_string(g.leftEye.pitch) +
+						", rightEye: yaw = " + std::to_string(g.rightEye.yaw) +
+						", pitch = " + std::to_string(g.rightEye.pitch)  +  "'>";
+			 })
+				;
 
 	py::class_<fsdk::GazeEstimation::EyeAngles>(f, "EyeAngles")
 		.def_readwrite("yaw", &fsdk::GazeEstimation::EyeAngles::yaw)
 		.def_readwrite("pitch", &fsdk::GazeEstimation::EyeAngles::pitch)
+		.def("__repr__",
+			 [](const fsdk::GazeEstimation::EyeAngles &e) {
+				 return "<example.EyeAngles: "
+						", yaw = " + std::to_string(e.yaw)
+						+ ", pitch = " + std::to_string(e.pitch) +  "'>";
+			})
 			;
 
+//	Ethnicity
 	py::enum_<fsdk::EthnicityEstimation::Ethnicities>(f, "Ethnicity")
 		.value("AfricanAmerican", fsdk::EthnicityEstimation::AfricanAmerican)
 		.value("Indian", fsdk::EthnicityEstimation::Indian)
@@ -987,7 +1020,8 @@ PYBIND11_MODULE(fe, f) {
 		.value("Count", fsdk::EthnicityEstimation::Count)
 			.export_values();
 			;
-	
+
+//	Transformation
 	py::class_<fsdk::Transformation>(f, "Transformation")
 		.def(py::init<>())
 		.def_readwrite("angleDeg", &fsdk::Transformation::angleDeg)
@@ -995,15 +1029,15 @@ PYBIND11_MODULE(fe, f) {
 		.def_readwrite("centerP", &fsdk::Transformation::centerP)
 		.def_readwrite("detectionTopLeft", &fsdk::Transformation::detectionTopLeft)
 		.def("__repr__", [](const fsdk::Transformation &t) {
-				 return "<example.Transformation: "
-						" angleDeg= " + std::to_string(t.angleDeg)
-						+ ", scale = " + std::to_string(t.scale)
-						+ ", centerP: x = " + std::to_string(t.centerP.x) + " y = " + std::to_string(t.centerP.y)
-						+ ", detectionTopLeft: x = " + std::to_string(t.detectionTopLeft.x)
-						+ " y = " + std::to_string(t.detectionTopLeft.y) + "'>";
+			 return "<example.Transformation: "
+					" angleDeg= " + std::to_string(t.angleDeg)
+					+ ", scale = " + std::to_string(t.scale)
+					+ ", centerP: x = " + std::to_string(t.centerP.x) + " y = " + std::to_string(t.centerP.y)
+					+ ", detectionTopLeft: x = " + std::to_string(t.detectionTopLeft.x)
+					+ " y = " + std::to_string(t.detectionTopLeft.y) + "'>";
 			 })
 			;
-
+// Image type and format
 	py::enum_<fsdk::Format::Type>(f, "Type")
 		.value("Unknown", fsdk::Format::Unknown)
 		.value("B8G8R8X8", fsdk::Format::B8G8R8X8)
@@ -1013,8 +1047,6 @@ PYBIND11_MODULE(fe, f) {
 		.value("R8", fsdk::Format::R8)
 		.value("R16", fsdk::Format::R16)
 			;
-
-
 
 	py::class_<fsdk::Format>(f, "Format")
 		.def(py::init<>())
