@@ -109,61 +109,59 @@ print("warperResult2 with Landmarks5 = ", warperResult2)
 print("warperResult2 with Landmarks68 = ", warperResult3)
 
 
-# descriptor, creating objects
-descriptor1 = faceEnginePtr.createDescriptor()
-descriptor2 = faceEnginePtr.createDescriptor()
-aggregation = faceEnginePtr.createDescriptor()
+# # descriptor, creating objects
+# descriptor1 = faceEnginePtr.createDescriptor()
+# descriptor2 = faceEnginePtr.createDescriptor()
+# aggregation = faceEnginePtr.createDescriptor()
+#
+#
+# images = [f.Image(), f.Image(), f.Image()]
+# # for i in range(2):
+# images[0].load("testData/warp1.ppm")
+# images[1].load("testData/warp2.ppm")
+# images[2].load("testData/photo_2017-03-30_14-47-43_p.ppm")
 
-
-images = [f.Image(), f.Image(), f.Image()]
-# for i in range(2):
-images[0].load("testData/warp1.ppm")
-images[1].load("testData/warp2.ppm")
-images[2].load("testData/photo_2017-03-30_14-47-43_p.ppm")
-
-batchSize = len(images)
-descriptorBatch = faceEnginePtr.createDescriptorBatch(batchSize)
-extractor = faceEnginePtr.createExtractor()
-matcher = faceEnginePtr.createMatcher()
-table = faceEnginePtr.createLSHTable(descriptorBatch)
-
-print(images)
-print(type(extractor))
-print("Descriptor test befor = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
-ext1 = extractor.extractFromWarpedImage(images[0], descriptor1)
-ext2 = extractor.extractFromWarpedImage(images[1], descriptor2)
-print("Descriptor test after = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
-print("extractor result =", ext2[1])
-
-print("Descriptor batch test befor", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
-      descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
-ext_batch1 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation, batchSize)
-# print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
-# ext_batch2 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, batchSize)
-
-print("Batch result = ", ext_batch1)
-# print(ext_batch2)
-print("Descriptor batch test after", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
-      descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
-print(descriptor1)
-print(descriptorBatch)
-print(extractor)
-print(matcher)
-print(table)
-
-# matcher test
-
-result1 = matcher.match(descriptor1, descriptor2)
-result2 = matcher.match(descriptor1, descriptorBatch)
-result3 = matcher.match(descriptor1, descriptorBatch, [0,])
-result4 = matcher.matchCompact(descriptor1, descriptorBatch, [1])
-print(result1)
-print(result2)
-print(result3)
-print(result4)
+# batchSize = len(images)
+# descriptorBatch = faceEnginePtr.createDescriptorBatch(batchSize)
+# extractor = faceEnginePtr.createExtractor()
+# matcher = faceEnginePtr.createMatcher()
+# table = faceEnginePtr.createLSHTable(descriptorBatch)
+#
+# print(images)
+# print(type(extractor))
+# print("Descriptor test befor = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
+# ext1 = extractor.extractFromWarpedImage(images[0], descriptor1)
+# ext2 = extractor.extractFromWarpedImage(images[1], descriptor2)
+# print("Descriptor test after = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
+# print("extractor result =", ext2[1])
+#
+# print("Descriptor batch test befor", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
+#       descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
+# ext_batch1 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation, batchSize)
+# # print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
+# # ext_batch2 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, batchSize)
+#
+# print("Batch result = ", ext_batch1)
+# # print(ext_batch2)
+# print("Descriptor batch test after", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
+#       descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
+# print(descriptor1)
+# print(descriptorBatch)
+# print(extractor)
+# print(matcher)
+# print(table)
+#
+# # matcher test
+# result1 = matcher.match(descriptor1, descriptor2)
+# result2 = matcher.match(descriptor1, descriptorBatch)
+# result3 = matcher.match(descriptor1, descriptorBatch, [0,])
+# result4 = matcher.matchCompact(descriptor1, descriptorBatch, [1])
+# print(result1)
+# print(result2)
+# print(result3)
+# print(result4)
 
 # test of second part estimators
-
 headPoseEstimator = faceEnginePtr.createHeadPoseEstimator()
 blackWhiteEstimator = faceEnginePtr.createBlackWhiteEstimator()
 depthEstimator = faceEnginePtr.createDepthEstimator()
@@ -186,8 +184,6 @@ print(eyeEstimator)
 print(emotionsEstimator)
 print(gazeEstimator)
 
-
-# print(attr)
 landmarks5 = f.Landmarks5()
 landmarks68 = f.Landmarks68()
 landmarks5 = detector_result[0]["Landmarks5"]
@@ -234,6 +230,7 @@ print(eyesEstimation.rightEye.state, eyesEstimation.rightEye.iris, eyesEstimatio
 print(emotionsEstimator.estimate(warpImage))
 
 print(gazeEstimator.estimate(headPoseEstimation, eyesEstimation))
+
 
 # vector2f = f.Vector2f(5, 3)
 #
