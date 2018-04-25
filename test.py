@@ -198,7 +198,8 @@ print(headPoseEstimator.estimate(landmarks68))
 # blackWhite
 print(blackWhiteEstimator.estimate(image))
 # depth
-print(depthEstimator.estimate(image))
+depthImage = f.loadImage("testData/warp.depth")
+print("Depth estimation result = {0}".format(depthEstimator.estimate(depthImage)))
 # ir
 irImage = f.Image()
 irImage.load("testData/irWarp.ppm")
