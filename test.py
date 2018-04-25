@@ -20,10 +20,11 @@ print(ethnicityEstimator)
 
 
 image = f.Image()
-print(f.Type.R8)
+image = f.Image()
+print(f.FormatType.R8)
 print(f.Format())
 print(image.load("testData/warp1.ppm"))
-print(image.load("testData/warp2.ppm", f.Format(f.Type.R8G8B8)))
+print(image.load("testData/warp2.ppm", f.Format(f.FormatType.R8G8B8)))
 # print(image.load_as("testData/warp1.ppm", f.Format_Type.R8))
 print(image)
 print("image width {0}".format(image.getWidth()))
@@ -33,7 +34,7 @@ print("image is valid {0}".format(image.isValid()))
 attribute_result = attributeEstimator.estimate(image)
 quality_result = qualityEstimator.estimate(image)
 ethnicity_result = ethnicityEstimator.estimate(image)
-ethn = ethnicity_result['EthnicityEstimation']
+ethn = ethnicity_result
 print(f.Ethnicity.Indian)
 
 print(ethnicity_result)
@@ -189,7 +190,7 @@ landmarks68 = f.Landmarks68()
 landmarks5 = detector_result[0]["Landmarks5"]
 landmarks68 = detector_result[0]["Landmarks68"]
 # headPose
-headPoseEstimation = headPoseEstimator.estimate(landmarks68)[1]
+headPoseEstimation = headPoseEstimator.estimate(landmarks68)
 print(headPoseEstimator.estimate(landmarks68))
 # blackWhite
 print(blackWhiteEstimator.estimate(image))
@@ -222,7 +223,7 @@ faceFlowResult = faceFlowEstimator.estimate(faceFlowImage, sequence, len(sequenc
 print("faceFlowResult {0}".format(faceFlowResult))
 # eyes
 eyeEstimationResult = eyeEstimator.estimate(warpImage, warperResult2['transformedLandmarks5'])
-eyesEstimation = eyeEstimationResult[1]
+eyesEstimation = eyeEstimationResult
 print(eyeEstimationResult)
 print(eyesEstimation.leftEye.state, eyesEstimation.leftEye.iris, eyesEstimation.leftEye.eyelid)
 print(eyesEstimation.rightEye.state, eyesEstimation.rightEye.iris, eyesEstimation.rightEye.eyelid)
@@ -253,3 +254,7 @@ print(gazeEstimator.estimate(headPoseEstimation, eyesEstimation))
 
 # a = f.createSettingsProvider("data/faceengine.conf")
 # print(a)
+
+settingsProvider = f.createSettingsProviderPtr("data/faceengine.conf")
+path = settingsProvider.getDefaultPath()
+print(path)
