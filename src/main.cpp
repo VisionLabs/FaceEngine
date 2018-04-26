@@ -377,13 +377,33 @@ PYBIND11_MODULE(fe, f) {
 		.def(py::init<const fsdk::Rect&>())
 		.def(py::init<bool>())
 		.def("asFloat", &fsdk::ISettingsProvider::Value::asFloat, py::arg("defaultValue") = 0.f)
-//		.def("asPoint2f", &fsdk::ISettingsProvider::Value::asPoint2f, py::arg("defaultValue") = fsdk::Point2f())
 		.def("asBool", &fsdk::ISettingsProvider::Value::asBool, py::arg("defaultValue") = false)
 		.def("asInt", &fsdk::ISettingsProvider::Value::asInt, py::arg("defaultValue") = 0)
-//		.def("asSize", &fsdk::ISettingsProvider::Value::asSize, py::arg("defaultValue") = fsdk::Size())
-//		.def("asPoint2i", &fsdk::ISettingsProvider::Value::asPoint2i, py::arg("defaultValue") = fsdk::Point2i())
-//		.def("asRect", &fsdk::ISettingsProvider::Value::asRect, py::arg("asRect") = fsdk::Rect())
 		.def("asString", &fsdk::ISettingsProvider::Value::asString, py::arg("defaultValue") = "")
+		.def("asRect", [](
+			const fsdk::ISettingsProvider::Value& v) {
+					return v.asRect(); })
+		.def("asRect", [](
+			const fsdk::ISettingsProvider::Value& v, const fsdk::Rect& r) {
+				return v.asRect(r); })
+		.def("asPoint2f", [](
+			const fsdk::ISettingsProvider::Value& v) {
+				return v.asPoint2f(); })
+		.def("asPoint2f", [](
+			const fsdk::ISettingsProvider::Value& v, const fsdk::Point2f& r) {
+				return v.asPoint2f(r); })
+		.def("asPoint2i", [](
+			const fsdk::ISettingsProvider::Value& v) {
+				return v.asPoint2i(); })
+		.def("asPoint2i", [](
+			const fsdk::ISettingsProvider::Value& v, const fsdk::Point2i& r) {
+				return v.asPoint2i(r); })
+		.def("asSize", [](
+			const fsdk::ISettingsProvider::Value& v) {
+				return v.asSize(); })
+		.def("asSize", [](
+			const fsdk::ISettingsProvider::Value& v, const fsdk::Size& s) {
+				return v.asSize(s); })
 			;
 
 	py::class_<fsdk::IFaceEnginePtr>(f, "IFaceEnginePtr");
@@ -494,7 +514,8 @@ PYBIND11_MODULE(fe, f) {
 				return desc->getModelVersion(); })
 		.def("getDescriptorLength",[]( const fsdk::IDescriptorPtr& desc) {
 			return desc->getDescriptorLength(); })
-		.def("getDescriptor",[]( const fsdk::IDescriptorPtr& desc, uint8_t* buffer) {
+		.def("getDescriptor",[]( const fsdk::IDescriptorPtr& desc) {
+			uint8_t* buffer = new uint8_t[33];
 			return desc->getDescriptor(buffer); })
 				;
 	py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr")

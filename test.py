@@ -264,22 +264,34 @@ print(path)
 def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print("extractor_test_aggregation")
     config = f.createSettingsProviderPtr("data/faceengine.conf")
-    # configPath = settingsProvider.getDefaultPath()
+    configPath = settingsProvider.getDefaultPath()
     config.setValue("DescriptorFactory::Settings", "model", f.SettingsProviderValue(version))
     config.setValue("DescriptorFactory::Settings", "useMobileNet", f.SettingsProviderValue(use_mobile_net))
     config.setValue("flower", "deviceClass", f.SettingsProviderValue(device))
     config.setValue("system", "cpuClass", f.SettingsProviderValue(cpu_type))
     config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
-    config.setValue("CNNDescriptorExtractor", "expLight", f.SettingsProviderValue(0.00200007, 1.92726878, 0.62728513))
-
-    val = config.getValue("MTCNNDetector::Settings", "PNetThreshold")
-    val = config.getValue("QualityEstimator::Settings", "expDark")
-
-
-    s = val.asFloat()
-
-    print("deviceClass = {0}".format(s))
+    # config.setValue("QualityEstimator::Settings", "logGray", f.SettingsProviderValue(0.05, 3.3, 0.05, 0.012))
     faceEnginePtr.setSettingsProvider(config)
+    # try to test settingsProvider
+    val = config.getValue("QualityEstimator::Settings", "platt")
+    print(val.asPoint2f())
+
+    val = config.getValue("QualityEstimator::Settings", "expBlur")
+    print(val.asPoint2f())
+    print(val.asPoint2i())
+    print(val.asSize())
+    print(val.asRect())
+    print(val.asBool())
+    print(val.asInt())
+    print(val.asFloat())
+    print(val.asString())
+
+
+    faceEnginePtr.setSettingsProvider(config)
+    val = config.getValue("MTCNNDetector::Settings", "scaleFactor")
+    print(val.asFloat())
+
+    # print("msd config test = {0}".format(s))
 
     warps = [f.Image(), f.Image()]
 
