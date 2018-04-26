@@ -51,6 +51,60 @@
 
 namespace py = pybind11;
 
+struct SettingsProviderResult {
+	bool isOk;
+	bool isError;
+	fsdk::ISettingsProvider::Error settingsProviderError;
+	const char* what;
+
+	SettingsProviderResult(fsdk::Result<fsdk::ISettingsProvider::Error> err) :
+		isOk(err.isOk()),
+		isError(err.isError()),
+		settingsProviderError(err.getError()),
+		what(err.what())
+	{};
+};
+
+class PyISettingsProvider {
+public:
+	fsdk::ISettingsProviderPtr settingsProviderPtr;
+
+	PyISettingsProvider(const char* path = nullptr) {
+		settingsProviderPtr = fsdk::acquire(fsdk::createSettingsProvider(path));
+	}
+
+	const char* getDefaultPath() {
+		settingsProviderPtr->getDefaultPath();
+	}
+
+	SettingsProviderResult load(const char* path) {
+		return SettingsProviderResult(settingsProviderPtr->load(path));
+	}
+
+	bool save(const char* path) {
+		return settingsProviderPtr->save(path);
+	}
+
+	void clear() {
+		settingsProviderPtr->clear();
+	}
+
+	void isEmpty() {
+		settingsProviderPtr->isEmpty();
+	}
+
+	void setValue(
+		const char* section,
+		const char* parameter,
+		const fsdk::ISettingsProvider::Value& value) {
+		settingsProviderPtr->setValue(section, parameter, value);
+	}
+
+	fsdk::ISettingsProvider::Value getValue(const char* section, const char* parameter) {
+		return settingsProviderPtr->getValue(section, parameter);
+	}
+};
+
 class PyIFaceEngine {
 public:
 	fsdk::IFaceEnginePtr faceEnginePtr;
@@ -137,64 +191,10 @@ public:
 	fsdk::IGazeEstimatorPtr createGazeEstimator() {
 		return fsdk::acquire(faceEnginePtr->createGazeEstimator());
 	}
-};
 
-struct SettingsProviderResult {
-	bool isOk;
-	bool isError;
-	fsdk::ISettingsProvider::Error settingsProviderError;
-	const char* what;
-
-	SettingsProviderResult(fsdk::Result<fsdk::ISettingsProvider::Error> err) :
-	isOk(err.isOk()),
-	isError(err.isError()),
-	settingsProviderError(err.getError()),
-	what(err.what())
-	{};
-};
-
-class PyISettingsProvider {
-public:
-	fsdk::ISettingsProviderPtr settingsProviderPtr;
-	
-	PyISettingsProvider(const char* path = nullptr) {
-		settingsProviderPtr = fsdk::acquire(fsdk::createSettingsProvider(path));
+	void setSettingsProvider(PyISettingsProvider& provider) {
+		faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 	}
-
-	const char* getDefaultPath() {
-		settingsProviderPtr->getDefaultPath();
-	}
-
-	SettingsProviderResult load(const char* path) {
-		return SettingsProviderResult(settingsProviderPtr->load(path));
-	}
-
-	bool save(const char* path) {
-		return settingsProviderPtr->save(path);
-	}
-
-	void clear() {
-		settingsProviderPtr->clear();
-	}
-
-	void isEmpty() {
-		settingsProviderPtr->isEmpty();
-	}
-
-
-	void setValue(
-		const char* section,
-		const char* parameter,
-		const fsdk::ISettingsProvider::Value& value) {
-			settingsProviderPtr->setValue(section, parameter, value);
-		}
-
-	fsdk::ISettingsProvider::Value getValue(const char* section, const char* parameter) {
-		return settingsProviderPtr->getValue(section, parameter);
-	}
-
-
-	
 };
 
 PyIFaceEngine createPyFaceEnginePtr(const char* dataPath = nullptr, const char* configPath = nullptr) {
@@ -340,6 +340,7 @@ PYBIND11_MODULE(fe, f) {
 		.def("createExtractor", &PyIFaceEngine::createExtractor)
 		.def("createMatcher", &PyIFaceEngine::createMatcher)
 		.def("createLSHTable", &PyIFaceEngine::createLSHTable)
+		.def("setSettingsProvider", &PyIFaceEngine::setSettingsProvider)
 
 		.def("createHeadPoseEstimator", &PyIFaceEngine::createHeadPoseEstimator)
 		.def("createBlackWhiteEstimator", &PyIFaceEngine::createBlackWhiteEstimator)
@@ -362,7 +363,7 @@ PYBIND11_MODULE(fe, f) {
 		.def("setValue", &PyISettingsProvider::setValue)
 		.def("getValue", &PyISettingsProvider::getValue)
 			;
-	py::class_<fsdk::ISettingsProvider::Value>(f, "SettingsProvider::Value")
+	py::class_<fsdk::ISettingsProvider::Value>(f, "SettingsProviderValue")
 		.def(py::init<>())
 		.def(py::init<int>())
 		.def(py::init<int, int>())
@@ -375,6 +376,7 @@ PYBIND11_MODULE(fe, f) {
 		.def(py::init<const char*>())
 		.def(py::init<const fsdk::Rect&>())
 		.def(py::init<bool>())
+		.def("str", &fsdk::ISettingsProvider::Value::asString, py::arg("defaultValue") = "")
 			;
 
 	py::class_<fsdk::IFaceEnginePtr>(f, "IFaceEnginePtr");
@@ -512,7 +514,7 @@ PYBIND11_MODULE(fe, f) {
 			return fsdk::acquire(descriptorBatchPtr->getDescriptorFast(index)); })
 				;
 
-	py::enum_<fsdk::IDescriptorBatch::Error >(f, "DescriptorBatchError")
+	py::enum_<fsdk::IDescriptorBatch::Error>(f, "DescriptorBatchError")
 		.value("Ok", fsdk::IDescriptorBatch::Error::Ok)
 		.value("InvalidInput", fsdk::IDescriptorBatch::Error::InvalidInput)
 		.value("BatchFull", fsdk::IDescriptorBatch::Error::BatchFull)

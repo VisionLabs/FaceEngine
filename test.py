@@ -258,3 +258,112 @@ print(gazeEstimator.estimate(headPoseEstimation, eyesEstimation))
 settingsProvider = f.createSettingsProviderPtr("data/faceengine.conf")
 path = settingsProvider.getDefaultPath()
 print(path)
+
+def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
+    print("extractor_test_aggregation")
+    config = f.createSettingsProviderPtr("data/faceengine.conf")
+    configPath = settingsProvider.getDefaultPath()
+    config.setValue("DescriptorFactory::Settings", "model", f.SettingsProviderValue(version))
+    config.setValue("DescriptorFactory::Settings", "useMobileNet", f.SettingsProviderValue(use_mobile_net))
+    config.setValue("flower", "deviceClass", f.SettingsProviderValue(device))
+    config.setValue("system", "cpuClass", f.SettingsProviderValue(cpu_type))
+    config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
+    config.setValue("CNNDescriptorExtractor", "expLight", f.SettingsProviderValue(0.00200007, 1.92726878, 0.62728513))
+    val = config.getValue("DescriptorFactory::Settings", "useMobileNet")
+    cpuClassString = config.getValue("system", "cpuClass").str("cpu")
+    print("cpuClassString = {0}".format(cpuClassString))
+    s = str()
+    m = val.str(s)
+    print("val.str = ", s, m)
+    faceEnginePtr.setSettingsProvider(config)
+
+    warps = [f.Image(), f.Image()]
+
+    warps[0].load("testData/warp1.ppm")
+    warps[1].load("testData/warp2.ppm")
+    batchSize = len(warps)
+    descriptorExtractor = faceEnginePtr.createExtractor()
+    batch = faceEnginePtr.createDescriptorBatch(batchSize)
+    descriptor = faceEnginePtr.createDescriptor()
+    aggregation = faceEnginePtr.createDescriptor()
+
+    result1 = descriptorExtractor.extractFromWarpedImageBatch(warps, batch, aggregation, batchSize)
+    print(result1)
+    print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
+    result2 = descriptorExtractor.extractFromWarpedImage(warps[0], descriptor)
+    print(result2)
+    print(descriptor.getModelVersion() == batch.getModelVersion())
+    print(batch.getMaxCount())
+    print(batch.getCount())
+    print(batch.getDescriptorSize())
+
+extractor_test_aggregation(46, True, "cpu", "cpu")
+
+# batchSize = len(images)
+# descriptorBatch = faceEnginePtr.createDescriptorBatch(batchSize)
+# extractor = faceEnginePtr.createExtractor()
+# matcher = faceEnginePtr.createMatcher()
+# table = faceEnginePtr.createLSHTable(descriptorBatch)
+#
+# print(images)
+# print(type(extractor))
+# print("Descriptor test befor = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
+# ext1 = extractor.extractFromWarpedImage(images[0], descriptor1)
+# ext2 = extractor.extractFromWarpedImage(images[1], descriptor2)
+# print("Descriptor test after = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
+# print("extractor result =", ext2[1])
+#
+# print("Descriptor batch test befor", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
+#       descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
+# ext_batch1 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation, batchSize)
+
+# void extractorTestAggregation(int version, const bool useMobileNet, std::string cpuType, std::string device) {
+#     char str[100];
+# sprintf(str, "%d", version);
+# std::string versionString = std::string(str);
+#
+# std::string configPath = dataPath + "/faceengine.conf";
+#
+# // Create FaceEngine main object
+# fsdk::Ref<fsdk::IFaceEngine> faceEngine = acquire(fsdk::createFaceEngine(dataPath.c_str()));
+# fsdk::ISettingsProviderPtr config;
+# config.acquire(fsdk::createSettingsProvider(configPath.c_str()));
+# config->setValue("DescriptorFactory::Settings", "model", version);
+# config->setValue("DescriptorFactory::Settings", "useMobileNet", useMobileNet ? 1 : 0);
+# config->setValue("flower", "deviceClass", device.c_str());
+# config->setValue("system", "cpuClass", cpuType.c_str());
+# config->setValue("system", "verboseLogging", 5);
+# faceEngine->setSettingsProvider(config);
+#
+# // Read warp
+# Image warps[2];
+#
+# warps[0].load((testDataPath + "/warp1.ppm").c_str());
+# warps[1].load((testDataPath + "/warp1.ppm").c_str());
+# // Create descriptor
+# fsdk::Ref<fsdk::IDescriptorExtractor> descriptorExtractor = acquire(faceEngine->createExtractor());
+# fsdk::Ref<fsdk::IDescriptorBatch> batch = acquire(faceEngine->createDescriptorBatch(2));
+# fsdk::Ref<fsdk::IDescriptor> descriptor = acquire(faceEngine->createDescriptor());
+# fsdk::Ref<fsdk::IDescriptor> aggr = acquire(faceEngine->createDescriptor());
+#
+# // Extract descriptor
+# float GS[2];
+# {
+#     Result<FSDKError> resBatch = descriptorExtractor->extractFromWarpedImageBatch(warps, nullptr, aggr, GS, 1);
+# ASSERT_FALSE(resBatch.isError());
+# Result<FSDKError> res = descriptorExtractor->extractFromWarpedImageBatch(warps, batch, aggr, GS, 1);
+# ASSERT_FALSE(res.isError());
+# }
+#
+# // Load reference descriptor
+# ResultValue<FSDKError, float> res = descriptorExtractor->extractFromWarpedImage(warps[0], descriptor);
+# ASSERT_FALSE(res.isError());
+#
+# // Compare descriptors
+# ASSERT_EQ(descriptor->getModelVersion(), batch->getModelVersion());
+# const uint8_t *dataExpected = descriptor.as<fsdk_internal::CNNDescriptor>()->getData();
+# const uint8_t *dataActualDesc1 = batch.as<fsdk_internal::CNNDescriptorBatch>()->m_buffer.getData();
+# for (int i = 0; i < descriptor->getDescriptorLength(); i++) {
+#     EXPECT_EQ(dataExpected[i], dataActualDesc1[i]);
+# }
+# }
