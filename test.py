@@ -1,4 +1,6 @@
 import fe as f
+import sys
+
 
 faceEnginePtr = f.createPyFaceEnginePtr("data",
                                       "data/faceengine.conf")
@@ -262,19 +264,21 @@ print(path)
 def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print("extractor_test_aggregation")
     config = f.createSettingsProviderPtr("data/faceengine.conf")
-    configPath = settingsProvider.getDefaultPath()
+    # configPath = settingsProvider.getDefaultPath()
     config.setValue("DescriptorFactory::Settings", "model", f.SettingsProviderValue(version))
     config.setValue("DescriptorFactory::Settings", "useMobileNet", f.SettingsProviderValue(use_mobile_net))
     config.setValue("flower", "deviceClass", f.SettingsProviderValue(device))
     config.setValue("system", "cpuClass", f.SettingsProviderValue(cpu_type))
     config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
     config.setValue("CNNDescriptorExtractor", "expLight", f.SettingsProviderValue(0.00200007, 1.92726878, 0.62728513))
-    val = config.getValue("DescriptorFactory::Settings", "useMobileNet")
-    cpuClassString = config.getValue("system", "cpuClass").str("cpu")
-    print("cpuClassString = {0}".format(cpuClassString))
-    s = str()
-    m = val.str(s)
-    print("val.str = ", s, m)
+
+    val = config.getValue("MTCNNDetector::Settings", "PNetThreshold")
+    val = config.getValue("QualityEstimator::Settings", "expDark")
+
+
+    s = val.asFloat()
+
+    print("deviceClass = {0}".format(s))
     faceEnginePtr.setSettingsProvider(config)
 
     warps = [f.Image(), f.Image()]

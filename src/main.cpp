@@ -376,7 +376,14 @@ PYBIND11_MODULE(fe, f) {
 		.def(py::init<const char*>())
 		.def(py::init<const fsdk::Rect&>())
 		.def(py::init<bool>())
-		.def("str", &fsdk::ISettingsProvider::Value::asString, py::arg("defaultValue") = "")
+		.def("asFloat", &fsdk::ISettingsProvider::Value::asFloat, py::arg("defaultValue") = 0.f)
+//		.def("asPoint2f", &fsdk::ISettingsProvider::Value::asPoint2f, py::arg("defaultValue") = fsdk::Point2f())
+		.def("asBool", &fsdk::ISettingsProvider::Value::asBool, py::arg("defaultValue") = false)
+		.def("asInt", &fsdk::ISettingsProvider::Value::asInt, py::arg("defaultValue") = 0)
+//		.def("asSize", &fsdk::ISettingsProvider::Value::asSize, py::arg("defaultValue") = fsdk::Size())
+//		.def("asPoint2i", &fsdk::ISettingsProvider::Value::asPoint2i, py::arg("defaultValue") = fsdk::Point2i())
+//		.def("asRect", &fsdk::ISettingsProvider::Value::asRect, py::arg("asRect") = fsdk::Rect())
+		.def("asString", &fsdk::ISettingsProvider::Value::asString, py::arg("defaultValue") = "")
 			;
 
 	py::class_<fsdk::IFaceEnginePtr>(f, "IFaceEnginePtr");
