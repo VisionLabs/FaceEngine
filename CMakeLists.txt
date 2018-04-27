@@ -22,7 +22,7 @@ message(${FSDK_INCLUDE_DIRS})
 add_subdirectory(pybind11)
 
 #set_target_properties(${FSDK_LIBRARIES}  PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-pybind11_add_module(FaceEngine src/FaceEngine.cpp)
+pybind11_add_module(FaceEngine src/FaceEngine.cpp src/FaceEngineAdapter.cpp src/SettingsProviderAdapter.cpp)
 target_link_libraries(FaceEngine PRIVATE pybind11::module ${FSDK_LIBRARIES})
 
 # install(TARGETS FaceEngine
