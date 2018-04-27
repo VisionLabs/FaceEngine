@@ -60,13 +60,13 @@ class CMakeBuild(build_ext):
         print(cmake_args)
 
 setup(
-    name='fe',
+    name='FaceEngine',
     version='0.0.1',
     author='Marina Safina',
     author_email='m.safina@visionlabs.ru',
     description='Python bindings of FaceEngine using pybind11 and CMake',
     long_description='',
-    ext_modules=[CMakeExtension('fe')],
+    ext_modules=[CMakeExtension('FaceEngine')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
 )
