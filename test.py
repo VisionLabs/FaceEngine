@@ -149,10 +149,10 @@ print("Descriptor batch test befor", descriptorBatch.getMaxCount(), descriptorBa
       descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
 ext_batch1 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation, batchSize)
 # print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
-# ext_batch2 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, batchSize)
+ext_batch2 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, batchSize)
 
-print("Batch result = ", ext_batch1)
-# print(ext_batch2)
+print("Garbage score list1 = ", ext_batch1)
+print("Garbage score list2 = ", ext_batch2)
 print("Descriptor batch test after", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
       descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
 print(descriptor1)
@@ -240,29 +240,6 @@ print(emotionsEstimator.estimate(warpImage))
 
 print(gazeEstimator.estimate(headPoseEstimation, eyesEstimation))
 
-
-# vector2f = f.Vector2f(5, 3)
-#
-# transformation = f.Transformation()
-#
-# transformation.angleDeg = 10.0
-# transformation.scale = 1.1
-# transformation.centerP = f.Vector2f(500.0, 10.0)
-# transformation.detectionTopLeft = f.Vector2i(10, 5)
-# print(transformation.detectionTopLeft)
-#
-# print("transformation = ", transformation)
-#
-# quality = f.Quality()
-# quality.light = 7
-# print(quality)
-# print(quality.getQuality())
-# print(len(landmarks5))
-# print(len(landmarks68))
-
-# a = f.createSettingsProvider("data/faceengine.conf")
-# print(a)
-
 settingsProvider = f.createSettingsProviderPtr("data/faceengine.conf")
 path = settingsProvider.getDefaultPath()
 print(path)
@@ -293,7 +270,7 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print(val.asString())
 
 
-    faceEnginePtr.setSettingsProvider(config)
+    faceEnginePtr.setSettingsProvider(configf)
     val = config.getValue("MTCNNDetector::Settings", "scaleFactor")
     print(val.asFloat())
 
@@ -315,6 +292,10 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
     result2 = descriptorExtractor.extractFromWarpedImage(warps[0], descriptor)
     result3 = descriptorExtractor.extractFromWarpedImage(warps[1], descriptor2)
+    # # test of error
+    # print("Image is valid = {0}".format(warps[2].isValid()))
+    # result4 = descriptorExtractor.extractFromWarpedImage(warps[2], descriptor2)
+    # print("test of return error", result4)
     print(result2)
     print(result3)
     print(descriptor.getModelVersion() == batch.getModelVersion())
@@ -325,21 +306,27 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     desc2 = descriptor2.getDescriptor()
 
     desc_from_batch = batch.getDescriptorSlow(1).getDescriptor()
-    desc_dict = {}
     for i, element in enumerate(desc1):
         print(i, ")", desc1[i], desc_from_batch[i])
 
-
-
-
 extractor_test_aggregation(46, True, "cpu", "cpu")
 
-
-# // Compare descriptors
-# ASSERT_EQ(descriptor->getModelVersion(), batch->getModelVersion());
-# const uint8_t *dataExpected = descriptor.as<fsdk_internal::CNNDescriptor>()->getData();
-# const uint8_t *dataActualDesc1 = batch.as<fsdk_internal::CNNDescriptorBatch>()->m_buffer.getData();
-# for (int i = 0; i < descriptor->getDescriptorLength(); i++) {
-#     EXPECT_EQ(dataExpected[i], dataActualDesc1[i]);
-# }
-# }
+# transformation test
+# vector2f = f.Vector2f(5, 3)
+#
+# transformation = f.Transformation()
+#
+# transformation.angleDeg = 10.0
+# transformation.scale = 1.1
+# transformation.centerP = f.Vector2f(500.0, 10.0)
+# transformation.detectionTopLeft = f.Vector2i(10, 5)
+# print(transformation.detectionTopLeft)
+#
+# print("transformation = ", transformation)
+#
+# quality = f.Quality()
+# quality.light = 7
+# print(quality)
+# print(quality.getQuality())
+# print(len(landmarks5))
+# print(len(landmarks68))

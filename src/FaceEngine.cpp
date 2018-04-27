@@ -472,7 +472,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				auto detectionResultPyList = py::list();
 				if (err.isOk()) {
 					for (size_t i = 0; i < maxCount; ++i) {
-						detectionResultPyList.append(py::make_tuple(detections[i], landmarks[i], landmarks68[i]));
+						detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i], landmarks68[i]));
 						std::cout << i << std::endl;
 					}
 					return detectionResultPyList;
@@ -570,6 +570,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getDescriptorSize",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
 			return descriptorBatchPtr->getDescriptorSize(); })
 		.def("getDescriptorSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
+			if (index < 0 || index >= descriptorBatchPtr->getCount()) throw py::index_error();
 			return fsdk::acquire(descriptorBatchPtr->getDescriptorSlow(index)); })
 		.def("getDescriptorFast",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
 			return fsdk::acquire(descriptorBatchPtr->getDescriptorFast(index)); })
@@ -1301,7 +1302,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			return ImageErrorResult(error);
 			})
 				;
-
 
 	py::enum_<fsdk::Image::Type>(f, "ImageType")
 		.value("BMP", fsdk::Image::Type::BMP)
