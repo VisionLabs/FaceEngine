@@ -29,9 +29,9 @@ void PyISettingsProvider::isEmpty() {
 }
 
 void PyISettingsProvider::setValue(
-const char* section,
-const char* parameter,
-const fsdk::ISettingsProvider::Value& value) {
+		const char* section,
+		const char* parameter,
+		const fsdk::ISettingsProvider::Value& value) {
 	settingsProviderPtr->setValue(section, parameter, value);
 }
 
