@@ -319,6 +319,16 @@ fsdk::Image loadImage(const char* name) {
 	return image;
 };
 
+struct DetectionResult {
+	fsdk::Detection detection;
+	fsdk::Landmarks5 landmarks5;
+	fsdk::Landmarks68 landmarks68;
+	DetectionResult(const fsdk::Detection &detection,
+					const fsdk::Landmarks5& landmarks5,
+					const fsdk::Landmarks68&) :
+		detection(detection), landmarks5(landmarks5), landmarks68(landmarks68) {}
+};
+
 PYBIND11_MAKE_OPAQUE(fsdk::Landmarks5);
 PYBIND11_MAKE_OPAQUE(fsdk::Landmarks68);
 
@@ -452,21 +462,32 @@ PYBIND11_MODULE(FaceEngine, f) {
 				fsdk::Detection detections[maxCount];
 				fsdk::Landmarks5 landmarks[maxCount];
 				fsdk::Landmarks68 landmarks68[maxCount];
-				fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(image, rect, detections,
-																		  landmarks, landmarks68, maxCount);
-				auto detResultPy = py::list();
-				for (size_t i = 0; i < maxCount; ++i) {
-					auto tempDict = py::dict();
-					tempDict["errorValue"] = FSDKErrorValueInt(err);
-					tempDict["Detection"] = detections[i];
-					tempDict["Landmarks5"] = landmarks[i];
-					tempDict["Landmarks68"] = landmarks68[i];
-					detResultPy.append(tempDict);
+				fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
+					image,
+					rect,
+					detections,
+					landmarks,
+					landmarks68,
+					maxCount);
+				auto detectionResultPyList = py::list();
+				if (err.isOk()) {
+					for (size_t i = 0; i < maxCount; ++i) {
+						detectionResultPyList.append(py::make_tuple(detections[i], landmarks[i], landmarks68[i]));
+						std::cout << i << std::endl;
+					}
+					return detectionResultPyList;
 				}
-				return detResultPy; })
+				else {
+					detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
+					return detectionResultPyList; } })
+					;
+
+	py::class_<DetectionResult>(f, "DetectionResult")
+		.def_readwrite("detection", &DetectionResult::detection)
+		.def_readwrite("landmarks5", &DetectionResult::landmarks5)
+		.def_readwrite("landmarks68", &DetectionResult::landmarks68)
 			;
 
-	;
 	py::class_<fsdk::IWarperPtr>(f, "IWarperPtr")
 		.def("warp",[](
 			const fsdk::IWarperPtr& warper,
@@ -474,34 +495,35 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::Transformation& transformation) {
 				fsdk::Image transformedImage;
 				fsdk::Result<fsdk::FSDKError> error = warper->warp(image, transformation, transformedImage);
-				auto warpResultPy = py::dict();
-				warpResultPy["FSDKErrorResult"] = FSDKErrorResult(error);
-				warpResultPy["transformedImage"] = transformedImage;
-				return warpResultPy; })
+				if (error.isOk())
+					return py::cast(transformedImage);
+				else
+					return py::cast(FSDKErrorResult(error)); })
 		.def("warp",[](
 			const fsdk::IWarperPtr& warper,
 			const fsdk::Landmarks5& landmarks,
 			const fsdk::Transformation& transformation) {
-				fsdk::Landmarks5 transformedLandmarks;
+				fsdk::Landmarks5 transformedLandmarks5;
 				fsdk::Result<fsdk::FSDKError> error = warper->warp(
 					landmarks,
 					transformation,
-					transformedLandmarks);
-				auto warpResultPyDict = py::dict();
-				warpResultPyDict["FSDKErrorResult"] = FSDKErrorResult(error);
-				warpResultPyDict["transformedLandmarks5"] = transformedLandmarks;
-				return warpResultPyDict; })
+					transformedLandmarks5);
+				if (error.isOk())
+					return py::cast(transformedLandmarks5);
+				else
+					return py::cast(FSDKErrorResult(error)); })
 		.def("warp",[](
 			const fsdk::IWarperPtr& warper,
 			const fsdk::Landmarks68& landmarks68,
 			const fsdk::Transformation& transformation) {
 				fsdk::Landmarks68 transformedLandmarks68;
 				fsdk::Result<fsdk::FSDKError> error = warper->warp(landmarks68,
-																	transformation, transformedLandmarks68);
-				auto warpResultPy = py::dict();
-				warpResultPy["FSDKErrorResult"] = FSDKErrorResult(error);
-				warpResultPy["transformedLandmarks68"] = transformedLandmarks68;
-				return warpResultPy; })
+																	transformation,
+																   transformedLandmarks68);
+				if (error.isOk())
+					return py::cast(transformedLandmarks68);
+				else
+					return py::cast(FSDKErrorResult(error)); })
 		.def("createTransformation",[](
 			const fsdk::IWarperPtr& warper,
 			const fsdk::Detection& detection,
@@ -531,7 +553,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
 			const fsdk::IDescriptorPtr& desc) {
 				fsdk::Result<fsdk::IDescriptorBatch::Error> error = descriptorBatchPtr->add(desc);
-				return std::make_tuple(DescriptorBatchResult(error), desc); })
+			if (error.isOk())
+				return py::cast(desc);
+			else
+				return py::cast(DescriptorBatchResult(error)); })
 		.def("removeFast",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
 				return descriptorBatchPtr->removeFast(index); })
 		.def("removeSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
@@ -569,18 +594,19 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::IDescriptorPtr& descriptor) {
 			fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extract(image, detection,
 																			   landmarks, descriptor);
-				auto tempDict = py::dict();
-				tempDict["image"] = image;
-				tempDict["FSDKErrorValueFloat"] = FSDKErrorValueFloat(err);
-//				tempDict["IDescriptorPtr"] = descriptor;
-				return tempDict; })
+				if (err.isOk())
+					return py::cast(image);
+				else
+					return py::cast(FSDKErrorValueFloat(err)); })
 		.def("extractFromWarpedImage",[](
 			const fsdk::IDescriptorExtractorPtr& extractor,
 			const fsdk::Image& image,
 			const fsdk::IDescriptorPtr& descriptor) {
 			fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extractFromWarpedImage(image, descriptor);
-				return std::make_tuple(FSDKErrorValueFloat(err), descriptor); })
-
+			if (err.isOk())
+				return py::cast(descriptor);
+			else
+				return py::cast(FSDKErrorValueFloat(err)); })
 		.def("extractFromWarpedImageBatch",[](
 			const fsdk::IDescriptorExtractorPtr& extractor,
 			py::list warpsBatchList,
@@ -598,16 +624,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 						aggregation,
 						garbageScoreBatch,
 						batchSize);
-					auto tempDict = py::dict();
-					tempDict["FSDKErrorResult"] = FSDKErrorResult(err);
-
-					auto garbagePyList = py::list();
+				auto garbagePyList = py::list();
+				if (err.isOk()) {
 					for (size_t i = 0; i < batchSize; ++i) {
 						garbagePyList.append(garbageScoreBatch[i]);
 					}
-					tempDict["garbageScoreBatch"] = garbagePyList;
-					return tempDict; })
-
+					return garbagePyList;
+				}
+				else {
+					garbagePyList.append(FSDKErrorResult(err));
+				} })
 		.def("extractFromWarpedImageBatch",[](
 			const fsdk::IDescriptorExtractorPtr& extractor,
 			py::list warpsBatchList,
@@ -623,15 +649,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 					descriptorBatch,
 					garbageScoreBatch,
 					batchSize);
-
-				auto tempDict = py::dict();
 				auto garbagePyList = py::list();
-				for (size_t i = 0; i < batchSize; ++i) {
-					garbagePyList.append(garbageScoreBatch[i]);
+				if (err.isOk()) {
+					for (size_t i = 0; i < batchSize; ++i) {
+						garbagePyList.append(garbageScoreBatch[i]);
+					}
+					return garbagePyList;
 				}
-				tempDict["FSDKErrorResult"] = FSDKErrorResult(err);
-				tempDict["garbageScoreBatch"] = garbagePyList;
-				return tempDict; })
+				else {
+					garbagePyList.append(FSDKErrorResult(err));
+					return garbagePyList; } })
 					;
 
 	py::class_<fsdk::IDescriptorMatcherPtr>(f, "IDescriptorMatcherPtr")
@@ -650,10 +677,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			fsdk::Result<fsdk::FSDKError> err =
 				matcherPtr->match(reference, candidates, results);
 				auto resultsPyList = py::list();
-				for (const auto& it: results) {
-					resultsPyList.append(it);
+				if (err.isOk()) {
+					for (const auto& it: results) {
+						resultsPyList.append(it);
+					}
+					return resultsPyList;
 				}
-				return std::make_tuple(FSDKErrorResult(err), resultsPyList); })
+				else {
+					resultsPyList.append(FSDKErrorResult(err));
+					return resultsPyList; } })
 		.def("match",[](
 			const fsdk::IDescriptorMatcherPtr& matcherPtr,
 			const fsdk::IDescriptorPtr reference,
@@ -668,10 +700,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 				fsdk::Result<fsdk::FSDKError> err =
 					matcherPtr->match(reference, candidates, indices, indicesCount, results);
 				auto resultsPyList = py::list();
-				for (const auto& it: results) {
-					resultsPyList.append(it);
+				if (err.isOk()) {
+					for (const auto& it: results) {
+						resultsPyList.append(it);
+					}
+					return resultsPyList;
 				}
-				return std::make_tuple(FSDKErrorResult(err), resultsPyList); })
+				else {
+					resultsPyList.append(FSDKErrorResult(err));
+						return resultsPyList; } })
 		.def("matchCompact",[](
 			const fsdk::IDescriptorMatcherPtr& matcherPtr,
 			const fsdk::IDescriptorPtr reference,
@@ -686,11 +723,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 				fsdk::Result<fsdk::FSDKError> err =
 					matcherPtr->matchCompact(reference, candidates, indices, indicesCount, results);
 				auto resultsPyList = py::list();
-				for (const auto& it: results) {
-					resultsPyList.append(it);
+				if (err.isOk()) {
+					for (const auto& it: results) {
+						resultsPyList.append(it);
+					}
+					return resultsPyList;
 				}
-				return std::make_tuple(FSDKErrorResult(err), resultsPyList); })
-			;
+				else {
+					resultsPyList.append(FSDKErrorResult(err));
+					return resultsPyList; } })
+				;
 //	second part of estimators
 	py::class_<fsdk::IHeadPoseEstimatorPtr>(f, "IHeadPoseEstimatorPtr")
 		.def("estimate",[](
