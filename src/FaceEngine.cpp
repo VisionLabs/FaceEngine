@@ -515,8 +515,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getDescriptorLength",[]( const fsdk::IDescriptorPtr& desc) {
 			return desc->getDescriptorLength(); })
 		.def("getDescriptor",[]( const fsdk::IDescriptorPtr& desc) {
-			uint8_t* buffer = new uint8_t[33];
-			return desc->getDescriptor(buffer); })
+			std::vector<uint8_t>buffer(264, 0);
+			bool allocated = desc->getDescriptor(&buffer.front());
+			auto l = py::list();
+			for (auto it = buffer.rbegin(); it != buffer.rend(); ++it) {
+				l.append(*it);
+			}
+			if (allocated)
+				return l;
+			else
+				return py::list(); })
 				;
 	py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr")
 		.def("add",[] (

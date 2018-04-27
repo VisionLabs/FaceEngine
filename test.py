@@ -1,6 +1,6 @@
+import sys
+sys.path.append("build")
 import FaceEngine as f
-# import sys
-
 
 faceEnginePtr = f.createPyFaceEnginePtr("data",
                                       "data/faceengine.conf")
@@ -301,17 +301,30 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     descriptorExtractor = faceEnginePtr.createExtractor()
     batch = faceEnginePtr.createDescriptorBatch(batchSize)
     descriptor = faceEnginePtr.createDescriptor()
+    descriptor2 = faceEnginePtr.createDescriptor()
     aggregation = faceEnginePtr.createDescriptor()
 
     result1 = descriptorExtractor.extractFromWarpedImageBatch(warps, batch, aggregation, batchSize)
     print(result1)
     print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
     result2 = descriptorExtractor.extractFromWarpedImage(warps[0], descriptor)
+    result3 = descriptorExtractor.extractFromWarpedImage(warps[1], descriptor2)
     print(result2)
+    print(result3)
     print(descriptor.getModelVersion() == batch.getModelVersion())
     print(batch.getMaxCount())
     print(batch.getCount())
     print(batch.getDescriptorSize())
+    desc1 = descriptor.getDescriptor()
+    desc2 = descriptor2.getDescriptor()
+
+    desc_from_batch = batch.getDescriptorSlow(1).getDescriptor()
+    desc_dict = {}
+    for i, element in enumerate(desc1):
+        print(i, ")", desc1[i], desc_from_batch[i])
+
+
+
 
 extractor_test_aggregation(46, True, "cpu", "cpu")
 
