@@ -53,9 +53,9 @@ image = f.Image()
 image = f.Image()
 print(f.FormatType.R8)
 print(f.Format())
-print(image.load("images/warp1.ppm"))
-print(image.load("images/warp2.ppm", f.Format(f.FormatType.R8G8B8)))
-# print(image.load_as("images/warp1.ppm", f.Format_Type.R8))
+print(image.load("testData/warp1.ppm"))
+print(image.load("testData/warp2.ppm", f.Format(f.FormatType.R8G8B8)))
+# print(image.load_as("testData/warp1.ppm", f.Format_Type.R8))
 print(image)
 print("image width {0}".format(image.getWidth()))
 print("image height {0}".format(image.getHeight()))
@@ -107,7 +107,7 @@ print("set={0}".format(rect4))
 # detector test and example
 maxDetections = 3
 image_det = f.Image()
-err = image_det.load("images/00205_9501_p.ppm")
+err = image_det.load("testData/00205_9501_p.ppm")
 print(image.getHeight(), image.getWidth(), image.isValid())
 print("Image error = ", err)
 
@@ -153,31 +153,31 @@ descriptor2 = faceEnginePtr.createDescriptor()
 aggregation = faceEnginePtr.createDescriptor()
 
 
-images = [f.Image(), f.Image(), f.Image()]
+testData = [f.Image(), f.Image(), f.Image()]
 # for i in range(2):
-images[0].load("images/warp1.ppm")
-images[1].load("images/warp2.ppm")
-images[2].load("images/photo_2017-03-30_14-47-43_p.ppm")
+testData[0].load("testData/warp1.ppm")
+testData[1].load("testData/warp2.ppm")
+testData[2].load("testData/photo_2017-03-30_14-47-43_p.ppm")
 
-batchSize = len(images)
+batchSize = len(testData)
 descriptorBatch = faceEnginePtr.createDescriptorBatch(batchSize)
 extractor = faceEnginePtr.createExtractor()
 matcher = faceEnginePtr.createMatcher()
 table = faceEnginePtr.createLSHTable(descriptorBatch)
 
-print(images)
+print(testData)
 print(type(extractor))
 print("Descriptor test befor = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
-ext1 = extractor.extractFromWarpedImage(images[0], descriptor1)
-ext2 = extractor.extractFromWarpedImage(images[1], descriptor2)
+ext1 = extractor.extractFromWarpedImage(testData[0], descriptor1)
+ext2 = extractor.extractFromWarpedImage(testData[1], descriptor2)
 print("Descriptor test after = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
 print("extractor result =", ext2)
 
 print("Descriptor batch test befor", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
       descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
-ext_batch1 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation, batchSize)
+ext_batch1 = extractor.extractFromWarpedImageBatch(testData, descriptorBatch, aggregation, batchSize)
 # print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
-ext_batch2 = extractor.extractFromWarpedImageBatch(images, descriptorBatch, batchSize)
+ext_batch2 = extractor.extractFromWarpedImageBatch(testData, descriptorBatch, batchSize)
 
 print("Garbage score list1 = ", ext_batch1)
 print("Garbage score list2 = ", ext_batch2)
@@ -232,28 +232,28 @@ print(headPoseEstimator.estimate(landmarks68))
 # blackWhite
 print(blackWhiteEstimator.estimate(image))
 # depth
-depthImage = f.loadImage("images/warp.depth")
+depthImage = f.loadImage("testData/warp.depth")
 print("Depth estimation result = {0}".format(depthEstimator.estimate(depthImage)))
 # ir
 irImage = f.Image()
-irImage.load("images/irWarp.ppm")
+irImage.load("testData/irWarp.ppm")
 print("iRresult = ", iREstimator.estimate(irImage))
 # smile
 smileImage = f.Image()
 overlapImage = f.Image()
-smileImage.load("images/smile.ppm")
-overlapImage.load("images/overlap.ppm")
+smileImage.load("testData/smile.ppm")
+overlapImage.load("testData/overlap.ppm")
 print(smileEstimator.estimate(smileImage))
 print(smileEstimator.estimate(overlapImage))
 
 print("transformedLandmarks5[0]", transformedLandmarks5)
 # faceFlow
 faceFlowImage = f.Image()
-faceFlowImage.load("images/small.ppm")
+faceFlowImage.load("testData/small.ppm")
 sequence = []
 for i in range(10):
     tempImate = f.Image()
-    tempImate.load("images/" + str(i) + "big.ppm")
+    tempImate.load("testData/" + str(i) + "big.ppm")
     sequence.append(tempImate)
 
 faceFlowResult = faceFlowEstimator.estimate(faceFlowImage, sequence, len(sequence))
@@ -313,8 +313,8 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
 
     warps = [f.Image(), f.Image()]
 
-    warps[0].load("images/warp1.ppm")
-    warps[1].load("images/warp2.ppm")
+    warps[0].load("testData/warp1.ppm")
+    warps[1].load("testData/warp2.ppm")
     batchSize = len(warps)
     descriptorExtractor = faceEnginePtr.createExtractor()
     batch = faceEnginePtr.createDescriptorBatch(batchSize)
