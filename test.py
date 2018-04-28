@@ -13,7 +13,6 @@ path_to_binding = args.bind_path
 print("Directory {0} with python bindings of FaceEngine was included".format(path_to_binding))
 print(sys.argv)
 
-
 sys.path.append(path_to_binding)
 import FaceEngine as f
 
@@ -44,9 +43,9 @@ image = f.Image()
 image = f.Image()
 print(f.FormatType.R8)
 print(f.Format())
-print(image.load("testData/warp1.ppm"))
-print(image.load("testData/warp2.ppm", f.Format(f.FormatType.R8G8B8)))
-# print(image.load_as("testData/warp1.ppm", f.Format_Type.R8))
+print(image.load("images/warp1.ppm"))
+print(image.load("images/warp2.ppm", f.Format(f.FormatType.R8G8B8)))
+# print(image.load_as("images/warp1.ppm", f.Format_Type.R8))
 print(image)
 print("image width {0}".format(image.getWidth()))
 print("image height {0}".format(image.getHeight()))
@@ -98,7 +97,7 @@ print("set={0}".format(rect4))
 # detector test and example
 maxDetections = 3
 image_det = f.Image()
-err = image_det.load("testData/00205_9501_p.ppm")
+err = image_det.load("images/00205_9501_p.ppm")
 print(image.getHeight(), image.getWidth(), image.isValid())
 print("Image error = ", err)
 
@@ -146,9 +145,9 @@ aggregation = faceEnginePtr.createDescriptor()
 
 images = [f.Image(), f.Image(), f.Image()]
 # for i in range(2):
-images[0].load("testData/warp1.ppm")
-images[1].load("testData/warp2.ppm")
-images[2].load("testData/photo_2017-03-30_14-47-43_p.ppm")
+images[0].load("images/warp1.ppm")
+images[1].load("images/warp2.ppm")
+images[2].load("images/photo_2017-03-30_14-47-43_p.ppm")
 
 batchSize = len(images)
 descriptorBatch = faceEnginePtr.createDescriptorBatch(batchSize)
@@ -223,17 +222,17 @@ print(headPoseEstimator.estimate(landmarks68))
 # blackWhite
 print(blackWhiteEstimator.estimate(image))
 # depth
-depthImage = f.loadImage("testData/warp.depth")
+depthImage = f.loadImage("images/warp.depth")
 print("Depth estimation result = {0}".format(depthEstimator.estimate(depthImage)))
 # ir
 irImage = f.Image()
-irImage.load("testData/irWarp.ppm")
+irImage.load("images/irWarp.ppm")
 print("iRresult = ", iREstimator.estimate(irImage))
 # smile
 smileImage = f.Image()
 overlapImage = f.Image()
-smileImage.load("testData/smile.ppm")
-overlapImage.load("testData/overlap.ppm")
+smileImage.load("images/smile.ppm")
+overlapImage.load("images/overlap.ppm")
 print(smileEstimator.estimate(smileImage))
 print(smileEstimator.estimate(overlapImage))
 
