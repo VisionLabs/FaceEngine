@@ -1,9 +1,28 @@
 import sys
-sys.path.append("build")
+import unittest
+import argparse
+import sys
+
+# if FaceEngine is not installed in system
+parser = argparse.ArgumentParser()
+parser.add_argument("-b", "--bind-path", type=str,
+                    help="path to FaceEngine*.so file - binding of luna-sdk")
+
+args = parser.parse_args()
+path_to_binding = args.bind_path
+print("Directory {0} with python bindings of FaceEngine was included".format(path_to_binding))
+print(sys.argv)
+
+
+sys.path.append(path_to_binding)
 import FaceEngine as f
 
 faceEnginePtr = f.createPyFaceEnginePtr("data",
                                       "data/faceengine.conf")
+
+# clean system arguments for test argument parsing
+del(sys.argv[1])
+del(sys.argv[1])
 
 attributeEstimator = faceEnginePtr.createAttributeEstimator()
 qualityEstimator = faceEnginePtr.createQualityEstimator()
@@ -221,11 +240,11 @@ print(smileEstimator.estimate(overlapImage))
 print("transformedLandmarks5[0]", transformedLandmarks5)
 # faceFlow
 faceFlowImage = f.Image()
-faceFlowImage.load("testData/small.ppm")
+faceFlowImage.load("images/small.ppm")
 sequence = []
 for i in range(10):
     tempImate = f.Image()
-    tempImate.load("testData/" + str(i) + "big.ppm")
+    tempImate.load("images/" + str(i) + "big.ppm")
     sequence.append(tempImate)
 
 faceFlowResult = faceFlowEstimator.estimate(faceFlowImage, sequence, len(sequence))
@@ -243,6 +262,13 @@ print(gazeEstimator.estimate(headPoseEstimation, eyesEstimation))
 settingsProvider = f.createSettingsProviderPtr("data/faceengine.conf")
 path = settingsProvider.getDefaultPath()
 print(path)
+
+def are_equal(desc1 , desc2):
+    assert(len(desc1) == len(desc2))
+    for i, _ in enumerate(desc1):
+        if desc1[i] != desc2[i]:
+            return False
+    return True
 
 def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print("extractor_test_aggregation")
@@ -270,7 +296,7 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print(val.asString())
 
 
-    faceEnginePtr.setSettingsProvider(configf)
+    faceEnginePtr.setSettingsProvider(config)
     val = config.getValue("MTCNNDetector::Settings", "scaleFactor")
     print(val.asFloat())
 
@@ -278,8 +304,8 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
 
     warps = [f.Image(), f.Image()]
 
-    warps[0].load("testData/warp1.ppm")
-    warps[1].load("testData/warp2.ppm")
+    warps[0].load("images/warp1.ppm")
+    warps[1].load("images/warp2.ppm")
     batchSize = len(warps)
     descriptorExtractor = faceEnginePtr.createExtractor()
     batch = faceEnginePtr.createDescriptorBatch(batchSize)
@@ -308,6 +334,7 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     desc_from_batch = batch.getDescriptorSlow(1).getDescriptor()
     for i, element in enumerate(desc1):
         print(i, ")", desc1[i], desc_from_batch[i])
+    print("Descritptor comparing {0}".format(are_equal(desc1, desc_from_batch)))
 
 extractor_test_aggregation(46, True, "cpu", "cpu")
 
@@ -330,3 +357,30 @@ extractor_test_aggregation(46, True, "cpu", "cpu")
 # print(quality.getQuality())
 # print(len(landmarks5))
 # print(len(landmarks68))
+
+# example of test
+class TestFaceEngine(unittest.TestCase):
+
+    def test_upper(self):
+        self.assertEqual('foo'.upper(), 'FOO')
+
+    def test_isupper(self):
+        self.assertTrue('FOO'.isupper())
+        self.assertFalse('Foo'.isupper())
+
+    def test_split(self):
+        s = 'hello world'
+        self.assertEqual(s.split(), ['hello', 'world'])
+        # check that s.split fails when the separator is not a string
+        with self.assertRaises(TypeError):
+            s.split(2)
+
+
+class ExpectedFailureTestCase(unittest.TestCase):
+    @unittest.expectedFailure
+    def test_fail(self):
+        self.assertEqual(1, 0, "broken")
+
+
+if __name__ == '__main__':
+    unittest.main()
