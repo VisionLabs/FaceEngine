@@ -2,7 +2,8 @@ import sys
 import unittest
 import argparse
 import sys
-
+import os
+import glob
 # if FaceEngine is not installed in system
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--bind-path", type=str,
@@ -10,6 +11,13 @@ parser.add_argument("-b", "--bind-path", type=str,
 
 args = parser.parse_args()
 path_to_binding = args.bind_path
+if not os.path.isdir(path_to_binding):
+    print("Directory with FaceEngine*.so was not found.")
+    exit(1)
+
+for name in glob.glob(path_to_binding + "/*"):
+    print('\t', name)
+
 print("Directory {0} with python bindings of FaceEngine was included".format(path_to_binding))
 print(sys.argv)
 
