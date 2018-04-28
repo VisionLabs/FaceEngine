@@ -19,6 +19,7 @@ del(sys.argv[1])
 del(sys.argv[1])
 
 sys.path.append(path_to_binding)
+
 import FaceEngine as f
 # correct this!!!
 faceEnginePtr = f.createPyFaceEnginePtr("../data",

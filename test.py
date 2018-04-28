@@ -23,6 +23,7 @@ print("Directory {0} with python bindings of FaceEngine was included".format(pat
 print(sys.argv)
 
 sys.path.append(path_to_binding)
+print("sys.path = ", sys.path)
 import FaceEngine as f
 
 faceEnginePtr = f.createPyFaceEnginePtr("data",
