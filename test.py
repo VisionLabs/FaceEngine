@@ -11,6 +11,7 @@ parser.add_argument("-b", "--bind-path", type=str,
 
 args = parser.parse_args()
 path_to_binding = args.bind_path
+print(path_to_binding)
 if not os.path.isdir(path_to_binding):
     print("Directory with FaceEngine*.so was not found.")
     exit(1)

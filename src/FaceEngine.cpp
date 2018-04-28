@@ -657,14 +657,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 	py::class_<ImageErrorResult>(f, "ImageErrorResult")
 		.def_readonly("isOk", &ImageErrorResult::isOk)
 		.def_readonly("isError", &ImageErrorResult::isError)
-		.def_readonly("ImageErrorResult", &ImageErrorResult::imageError)
+		.def_readonly("imageError", &ImageErrorResult::imageError)
 		.def_readonly("what", &ImageErrorResult::what)
 		.def("__repr__",
 			 [](const ImageErrorResult &err) {
 				 return "<example.ImageErrorResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", ImageError = " + fsdk::ErrorTraits<fsdk::Image::Error>::toString(err.imageError)
+						+ ", imageError = " + fsdk::ErrorTraits<fsdk::Image::Error>::toString(err.imageError)
 						+ ", what = " + err.what +  "'>"; })
 			;
 

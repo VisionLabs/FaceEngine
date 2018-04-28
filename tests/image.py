@@ -25,43 +25,50 @@ faceEnginePtr = f.createPyFaceEnginePtr("../data",
                                         "../data/faceengine.conf")
 
 image = f.Image()
-loaded_image = f.Image()
+
 load_error = image.load("../images/warp1.ppm")
 print(load_error)
 print(image.getWidth())
 print(image.getHeight())
 print(image.isValid())
 print(image.getRect())
-new_file_path = "../images/test-warp1.ppm"
-save_error = image.save(new_file_path)
 
-loaded_image.load(new_file_path)
+
+
 print(image.getWidth())
 print(image.getHeight())
 print(image.isValid())
 print(image.getRect())
-print(os.path.isfile(new_file_path))
-os.remove(new_file_path)
-print(os.path.isfile(new_file_path))
+# print(os.path.isfile(new_file_path))
+#
+# print(os.path.isfile(new_file_path))
 
 
 class TestFaceEngineImage(unittest.TestCase):
 
     def test_load(self):
-        self.assertTrue(load_error.isOk, 1)
-        self.assertFalse(load_error.isError, 0)
+        self.assertEqual(load_error.isOk, 1)
+        self.assertEqual(load_error.isError, 0)
         self.assertEqual(load_error.what, 'Ok')
 
     def test_save(self):
-        self.assertTrue('FOO'.isupper())
-        self.assertFalse('Foo'.isupper())
+        new_file_path = "../images/test-warp1.ppm"
+        save_error = image.save(new_file_path)
+        print(type(save_error.imageError))
+        print(save_error)
+        self.assertTrue(os.path.isfile(new_file_path))
+        self.assertEqual(save_error.isOk, 1)
+        self.assertEqual(save_error.isError, 0)
+        self.assertEqual(save_error.what, 'Ok')
+        self.assertEqual(save_error.imageError, f.ImageError.Ok)
+        os.remove(new_file_path)
 
-    def test_split(self):
-        s = 'hello world'
-        self.assertEqual(s.split(), ['hello', 'world'])
-        # check that s.split fails when the separator is not a string
-        with self.assertRaises(TypeError):
-            s.split(2)
+    # def test_split(self):
+    #     s = 'hello world'
+    #     self.assertEqual(s.split(), ['hello', 'world'])
+    #     # check that s.split fails when the separator is not a string
+    #     with self.assertRaises(TypeError):
+    #         s.split(2)
 
 
 class ExpectedFailureTestCase(unittest.TestCase):
@@ -71,4 +78,5 @@ class ExpectedFailureTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
+
     unittest.main()
