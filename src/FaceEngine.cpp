@@ -988,7 +988,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("load", [](fsdk::Image& image,
 						const char* path,
 						const fsdk::Format format) {
-			fsdk::Result<fsdk::Image::Error> error = image.load(path);
+			fsdk::Result<fsdk::Image::Error> error = image.load(path, format);
 			return ImageErrorResult(error);
 			})
 				;

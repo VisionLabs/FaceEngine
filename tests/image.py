@@ -27,23 +27,32 @@ faceEnginePtr = f.createPyFaceEnginePtr("../data",
 
 image = f.Image()
 
-load_error = image.load("../images/warp1.ppm")
+load_error = image.load("../testData/warp1.ppm")
 print(load_error)
 print(image.getWidth())
 print(image.getHeight())
 print(image.isValid())
 print(image.getRect())
+new_file_path = "../testData/test-warp1.ppm"
+save_error = image.save(new_file_path)
+loaded_image = f.Image()
+loaded_image.load(new_file_path)
 
-
-
-print(image.getWidth())
-print(image.getHeight())
-print(image.isValid())
-print(image.getRect())
 # print(os.path.isfile(new_file_path))
 #
 # print(os.path.isfile(new_file_path))
 
+# test load in different formats
+image2 = f.Image()
+# load_error_Unknown = image2.load("../testData/warp2.pp", f.Format(f.FormatType.Unknown))
+load_error_B8G8R8X8 = image2.load("../testData/warp2.ppm", f.Format(f.FormatType.B8G8R8X8))
+load_error_R8G8B8X8 = image2.load("../testData/warp2.ppm", f.Format(f.FormatType.R8G8B8X8))
+load_error_B8G8R8 = image2.load("../testData/warp2.ppm", f.Format(f.FormatType.B8G8R8))
+load_error_R8G8B8 = image2.load("../testData/warp2.ppm", f.Format(f.FormatType.R8G8B8))
+load_error_R8 = image2.load("../testData/warp2.ppm", f.Format(f.FormatType.R8))
+load_error_R16 = image2.load("../testData/warp2.ppm", f.Format(f.FormatType.R16))
+
+print("load_error_R16 = ", load_error_R16)
 
 class TestFaceEngineImage(unittest.TestCase):
 
@@ -51,33 +60,36 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(load_error.isOk, 1)
         self.assertEqual(load_error.isError, 0)
         self.assertEqual(load_error.what, 'Ok')
+        self.assertEqual(load_error.imageError, f.ImageError.Ok)
+
+    def test_load_format(self):
+        self.assertEqual(load_error_B8G8R8X8.isOk, 1)
+        self.assertEqual(load_error_R8G8B8X8.isOk, 1)
+        self.assertEqual(load_error_B8G8R8.isOk, 1)
+        self.assertEqual(load_error_R8G8B8.isOk, 1)
+        self.assertEqual(load_error_R16.isOk, 1)
+        self.assertEqual(load_error_R8.isOk, 1)
 
     def test_save(self):
-        new_file_path = "../images/test-warp1.ppm"
-        save_error = image.save(new_file_path)
-        print(type(save_error.imageError))
-        print(save_error)
         self.assertTrue(os.path.isfile(new_file_path))
         self.assertEqual(save_error.isOk, 1)
         self.assertEqual(save_error.isError, 0)
         self.assertEqual(save_error.what, 'Ok')
         self.assertEqual(save_error.imageError, f.ImageError.Ok)
-        os.remove(new_file_path)
 
-    # def test_split(self):
-    #     s = 'hello world'
-    #     self.assertEqual(s.split(), ['hello', 'world'])
-    #     # check that s.split fails when the separator is not a string
-    #     with self.assertRaises(TypeError):
-    #         s.split(2)
-
+    def test_identity(self):
+        self.assertEqual(image.getHeight(), loaded_image.getHeight(), 250)
+        self.assertEqual(image.getWidth(), loaded_image.getWidth(), 250)
+        self.assertEqual(image.isValid(), loaded_image.isValid())
+        self.assertEqual(image.getRect(), loaded_image.getRect())
 
 class ExpectedFailureTestCase(unittest.TestCase):
     @unittest.expectedFailure
     def test_fail(self):
-        self.assertEqual(1, 0, "broken")
+        self.assertEqual(load_error_Unknown.isOk, 0, "broken")
 
 
 if __name__ == '__main__':
 
     unittest.main()
+    os.remove(new_file_path)
