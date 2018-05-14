@@ -4,6 +4,7 @@ import argparse
 import sys
 import os
 import glob
+import logging
 
 # if FaceEngine is not installed within the system, add the directory with FaceEngine*.so to system paths
 parser = argparse.ArgumentParser()
@@ -42,7 +43,7 @@ class TestFaceEngineRect(unittest.TestCase):
         image.load("testData/warp1.ppm")
         self.assertTrue(image.isValid())
         attribute_result = attributeEstimator.estimate(image)
-        print(attribute_result)
+
         self.assertEqual(attribute_result.gender, 1)
         self.assertAlmostEqual(attribute_result.glasses, 0.0, places=3)
         self.assertEqual(attribute_result.age, 24.0)
@@ -53,23 +54,25 @@ class TestFaceEngineRect(unittest.TestCase):
         image.load("testData/warp1.ppm")
         self.assertTrue(image.isValid())
         quality_result = qualityEstimator.estimate(image)
-        print(quality_result)
         self.assertAlmostEqual(quality_result.light, 0.961, places=2)
         self.assertAlmostEqual(quality_result.dark, 0.975, places=2)
         self.assertAlmostEqual(quality_result.gray, 0.979, places=2)
         self.assertAlmostEqual(quality_result.blur, 0.955, places=2)
 
     def test_EthnicityEstimator(self):
+        logging.info("EthnicityEstimator")
         ethnicityEstimator = faceEnginePtr.createEthnicityEstimator()
         image = f.Image()
         image.load("testData/warp1.ppm")
         self.assertTrue(image.isValid())
         ethnicity_result = ethnicityEstimator.estimate(image)
-        print(ethnicity_result)
         self.assertAlmostEqual(ethnicity_result.africanAmerican, 0.0, places=2)
         self.assertAlmostEqual(ethnicity_result.indian, 0.0, places=2)
         self.assertAlmostEqual(ethnicity_result.asian, 0.0, places=2)
         self.assertAlmostEqual(ethnicity_result.caucasian, 1.0, places=2)
+
+    def test_headPoseEstimator(self):
+        headPoseEstimator = faceEnginePtr.createHeadPoseEstimator()
 
 if __name__ == '__main__':
     unittest.main()

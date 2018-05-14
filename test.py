@@ -165,7 +165,7 @@ print(result2)
 print(result3)
 print(result4)
 
-# test of second part estimators
+# test of second estimators part
 headPoseEstimator = faceEnginePtr.createHeadPoseEstimator()
 blackWhiteEstimator = faceEnginePtr.createBlackWhiteEstimator()
 depthEstimator = faceEnginePtr.createDepthEstimator()
@@ -238,12 +238,14 @@ settingsProvider = f.createSettingsProviderPtr("data/faceengine.conf")
 path = settingsProvider.getDefaultPath()
 print(path)
 
+
 def are_equal(desc1, desc2):
     assert(len(desc1) == len(desc2))
     for i, _ in enumerate(desc1):
         if desc1[i] != desc2[i]:
             return False
     return True
+
 
 def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print("extractor_test_aggregation")
