@@ -50,6 +50,7 @@ load_error_R8G8B8X8 = image2.load("../testData/warp2.ppm", f.Format(f.FormatType
 load_error_B8G8R8 = image2.load("../testData/warp2.ppm", f.Format(f.FormatType.B8G8R8))
 load_error_R8G8B8 = image2.load("../testData/warp2.ppm", f.Format(f.FormatType.R8G8B8))
 load_error_R8 = image2.load("../testData/warp2.ppm", f.Format(f.FormatType.R8))
+# error with R16
 load_error_R16 = image2.load("../testData/warp2.ppm", f.Format(f.FormatType.R16))
 
 print("load_error_R16 = ", load_error_R16)
