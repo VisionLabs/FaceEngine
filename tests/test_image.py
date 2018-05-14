@@ -25,13 +25,7 @@ faceEnginePtr = f.createPyFaceEnginePtr("data",
                                         "data/faceengine.conf")
 
 image = f.Image()
-
 load_error = image.load("testData/warp1.ppm")
-
-print(image.getWidth())
-print(image.getHeight())
-print(image.isValid())
-print(image.getRect())
 new_file_path = "testData/test-warp1.ppm"
 save_error = image.save(new_file_path)
 loaded_image = f.Image()

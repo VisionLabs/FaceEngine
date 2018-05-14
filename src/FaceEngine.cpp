@@ -604,6 +604,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def(py::init<>())
 		.def(py::init<float, float>())
 		.def(py::init<const fsdk::Vector2<float>&>())
+		.def(py::self != py::self)
+		.def(py::self == py::self)
 		.def_readwrite("x", &fsdk::Vector2<float>::x)
 		.def_readwrite("y", &fsdk::Vector2<float>::y)
 		.def("__repr__",
@@ -616,6 +618,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def(py::init<>())
 		.def(py::init<int, int>())
 		.def(py::init<const fsdk::Vector2<int>&>())
+		.def(py::self != py::self)
+		.def(py::self == py::self)
 		.def_readwrite("x", &fsdk::Vector2<int>::x)
 		.def_readwrite("y", &fsdk::Vector2<int>::y)
 		.def("__repr__",
