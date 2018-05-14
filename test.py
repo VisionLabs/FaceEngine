@@ -63,7 +63,7 @@ print("image is valid {0}".format(image.isValid()))
 
 attribute_result = attributeEstimator.estimate(image)
 quality_result = qualityEstimator.estimate(image)
-ethnicity_result = ethnicityEstimator.estimate(image)
+ethnicity_result = ethnicityEstimtator.estimate(image)
 ethn = ethnicity_result
 print(f.Ethnicity.Indian)
 

@@ -947,6 +947,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("B8G8R8", fsdk::Format::B8G8R8)
 		.value("R8G8B8", fsdk::Format::R8G8B8)
 		.value("R8", fsdk::Format::R8)
+//		R16 is used for internal transformations for depth map and cannot be saved or downloaded
 		.value("R16", fsdk::Format::R16)
 			;
 
@@ -963,7 +964,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("isBGR", &fsdk::Format::isBGR)
 		.def("isBlock", &fsdk::Format::isValid)
 			;
-
 
 	py::class_<fsdk::Image>(f, "Image")
 		.def(py::init<>())
