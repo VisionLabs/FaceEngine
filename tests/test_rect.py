@@ -22,14 +22,16 @@ print("Directory {0} with python bindings of FaceEngine was included".format(pat
 
 sys.path.append(path_to_binding)
 print("sys.path = ", sys.path)
+
 import FaceEngine as f
+
+# erase two first arguments for unittest argument parsing
+del(sys.argv[1])
+del(sys.argv[1])
 
 faceEnginePtr = f.createPyFaceEnginePtr("data",
                                         "data/faceengine.conf")
 
-# clean system arguments for test argument parsing
-del(sys.argv[1])
-del(sys.argv[1])
 
 class TestFaceEngineRect(unittest.TestCase):
 

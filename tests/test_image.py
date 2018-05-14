@@ -13,7 +13,7 @@ path_to_binding = args.bind_path
 print("Directory {0} with python bindings of FaceEngine was included".format(path_to_binding))
 print(sys.argv)
 
-# clean system arguments for test argument parsing
+# erase two first arguments for unittest argument parsing
 del(sys.argv[1])
 del(sys.argv[1])
 

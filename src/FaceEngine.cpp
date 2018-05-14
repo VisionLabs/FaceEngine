@@ -34,14 +34,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createAttributeEstimator", &PyIFaceEngine::createAttributeEstimator)
 		.def("createQualityEstimator", &PyIFaceEngine::createQualityEstimator)
 		.def("createEthnicityEstimator", &PyIFaceEngine::createEthnicityEstimator)
-		.def("createDetector", &PyIFaceEngine::createDetector)
-		.def("createWarper", &PyIFaceEngine::createWarper)
-		.def("createDescriptor", &PyIFaceEngine::createDescriptor)
-		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0)
-		.def("createExtractor", &PyIFaceEngine::createExtractor)
-		.def("createMatcher", &PyIFaceEngine::createMatcher)
-		.def("createLSHTable", &PyIFaceEngine::createLSHTable)
-		.def("setSettingsProvider", &PyIFaceEngine::setSettingsProvider)
 
 		.def("createHeadPoseEstimator", &PyIFaceEngine::createHeadPoseEstimator)
 		.def("createBlackWhiteEstimator", &PyIFaceEngine::createBlackWhiteEstimator)
@@ -52,6 +44,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator)
 		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator)
 		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator)
+
+		.def("createDetector", &PyIFaceEngine::createDetector)
+		.def("createWarper", &PyIFaceEngine::createWarper)
+		.def("createDescriptor", &PyIFaceEngine::createDescriptor)
+		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0)
+		.def("createExtractor", &PyIFaceEngine::createExtractor)
+		.def("createMatcher", &PyIFaceEngine::createMatcher)
+		.def("createLSHTable", &PyIFaceEngine::createLSHTable)
+		.def("setSettingsProvider", &PyIFaceEngine::setSettingsProvider)
 			;
 
 // ISettingsProvider

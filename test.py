@@ -38,12 +38,6 @@ qualityEstimator = faceEnginePtr.createQualityEstimator()
 ethnicityEstimator = faceEnginePtr.createEthnicityEstimator()
 detector = faceEnginePtr.createDetector(f.ODT_MTCNN)
 
-# faceEngine = f.createFaceEngine("data",
-#                    "data/faceengine.conf")
-# attributeEstimator = faceEngine.createAttributeEstimator()
-# qualityEstimator = faceEngine.createQualityEstimator()
-# ethnicityEstimator = faceEngine.createEthnicityEstimator()
-
 print(attributeEstimator)
 print(qualityEstimator)
 print(ethnicityEstimator)
@@ -244,7 +238,7 @@ settingsProvider = f.createSettingsProviderPtr("data/faceengine.conf")
 path = settingsProvider.getDefaultPath()
 print(path)
 
-def are_equal(desc1 , desc2):
+def are_equal(desc1, desc2):
     assert(len(desc1) == len(desc2))
     for i, _ in enumerate(desc1):
         if desc1[i] != desc2[i]:
