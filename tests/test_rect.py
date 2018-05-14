@@ -24,8 +24,8 @@ sys.path.append(path_to_binding)
 print("sys.path = ", sys.path)
 import FaceEngine as f
 
-faceEnginePtr = f.createPyFaceEnginePtr("../data",
-                                        "../data/faceengine.conf")
+faceEnginePtr = f.createPyFaceEnginePtr("data",
+                                        "data/faceengine.conf")
 
 # clean system arguments for test argument parsing
 del(sys.argv[1])
