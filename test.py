@@ -212,15 +212,16 @@ overlapImage.load("testData/overlap.ppm")
 print(smileEstimator.estimate(smileImage))
 print(smileEstimator.estimate(overlapImage))
 
+
 print("transformedLandmarks5[0]", transformedLandmarks5)
 # faceFlow
 faceFlowImage = f.Image()
 faceFlowImage.load("testData/small.ppm")
 sequence = []
 for i in range(10):
-    tempImate = f.Image()
-    tempImate.load("testData/" + str(i) + "big.ppm")
-    sequence.append(tempImate)
+    tempImage = f.Image()
+    tempImage.load("testData/" + str(i) + "big.ppm")
+    sequence.append(tempImage)
 
 faceFlowResult = faceFlowEstimator.estimate(faceFlowImage, sequence, len(sequence))
 print("faceFlowResult {0}".format(faceFlowResult))

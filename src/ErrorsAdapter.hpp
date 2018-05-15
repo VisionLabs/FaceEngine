@@ -71,7 +71,7 @@ struct FSDKErrorValueFloat {
 	bool isError;
 	fsdk::FSDKError fsdkError;
 	const char* what;
-	int value;
+	float value;
 
 	FSDKErrorValueFloat(fsdk::ResultValue<fsdk::FSDKError, float> err) :
 	isOk(err.isOk()),

@@ -454,8 +454,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("estimate",[](
 			const fsdk::ILivenessDepthEstimatorPtr& est,
 			const fsdk::Image& image) {
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(image);
-				return FSDKErrorResult(err); })
+			fsdk::ResultValue<fsdk::FSDKError, float> err = est->estimate(image);
+				return FSDKErrorValueFloat(err); })
 		.def("setRange",[](
 			const fsdk::ILivenessDepthEstimatorPtr& est,
 			const fsdk::DepthRange& range) {
@@ -825,15 +825,22 @@ PYBIND11_MODULE(FaceEngine, f) {
 				;
 
 	py::class_<fsdk::SmileEstimation>(f, "SmileEstimation")
+//		.def(py::init<>())
 		.def_readwrite("mouth", &fsdk::SmileEstimation::mouth)
 		.def_readwrite("smile", &fsdk::SmileEstimation::smile)
 		.def_readwrite("occlusion", &fsdk::SmileEstimation::occlusion)
 		.def("__repr__",
 			 [](const fsdk::SmileEstimation &s) {
+				 std::ostringstream mouth;
+				 std::ostringstream smile;
+				 std::ostringstream occlusion;
+				 mouth << s.mouth;
+				 smile << s.smile;
+				 occlusion << s.occlusion;
 				 return "<example.SmileEstimation: "
-						", mouth = " + std::to_string(s.mouth)
-						+ ", smile = " + std::to_string(s.smile)
-						+ ", occlusion = " + std::to_string(s.occlusion) +  "'>";
+						", mouth = " + mouth.str()
+						+ ", smile = " + smile.str()
+						+ ", occlusion = " + occlusion.str() +  "'>";
 			 })
 				;
 	f.def("loadImage", &loadImage);
