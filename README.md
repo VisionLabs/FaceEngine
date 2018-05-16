@@ -1,8 +1,5 @@
 # cmake_example for pybind11
 
-[![Build Status](https://travis-ci.org/pybind/cmake_example.svg?branch=master)](https://travis-ci.org/pybind/cmake_example)
-[![Build status](https://ci.appveyor.com/api/projects/status/57nnxfm4subeug43/branch/master?svg=true)](https://ci.appveyor.com/project/dean0x7d/cmake-example/branch/master)
-
 An example [pybind11](https://github.com/pybind/pybind11) module built with a
 CMake-based build system. This is useful for C++ codebases that have an existing
 CMake project structure.
@@ -26,9 +23,21 @@ CMake project structure.
 Just clone this repository and pip install. Note the `--recursive` option which is
 needed for the pybind11 submodule:
 
+To build as dynamic library without installing (recommended)
+
 ```bash
-git clone --recursive https://github.com/pybind/cmake_example.git
-pip install ./cmake_example
+git clone --recursive http://git.visionlabs.ru/m.safina/FaceEnginePythonBinding.git
+mkdir build
+cd build
+cmake .. -DFSDK_ROOT=<path to FSDK> -DCMAKE_INSTALL_PREFIX=./install
+cmake --build . --config Release
+```
+
+To install in system (not recommended).
+In `setup.py` please change path to LUNA SDK, by default `cmake_args = ['-DFSDK_ROOT=./..' `  
+```bash
+git clone --recursive http://git.visionlabs.ru/m.safina/FaceEnginePythonBinding.git
+pip install ./FaceEngine
 ```
 
 With the `setup.py` file included in this example, the `pip install` command will
@@ -51,19 +60,6 @@ project. It can be found [here][vs2015_runtime]. If you use the Anaconda Python
 distribution, you can add `vs2015_runtime` as a platform-dependent runtime
 requirement for you package: see the `conda.recipe/meta.yaml` file in this example.
 
-
-## Building the documentation
-
-Documentation for the example project is generated using Sphinx. Sphinx has the
-ability to automatically inspect the signatures and documentation strings in
-the extension module to generate beautiful documentation in a variety formats.
-The following command generates HTML-based reference documentation; for other
-formats please refer to the Sphinx manual:
-
- - `cd cmake_example/docs`
- - `make html`
-
-
 ## License
 
 Pybind11 is provided under a BSD-style license that can be found in the LICENSE
@@ -73,9 +69,15 @@ terms and conditions of this license.
 
 ## Test call
 
-```python
-import cmake_example
-cmake_example.add(1, 2)
+From root directory with 
+
+```bash
+python3.6 tests/test_estimators.py --bind-path build
+```
+
+```python3
+import FaceEngine as f
+faceEnginePtr = f.createPyFaceEnginePtr("data", "data/faceengine.conf")
 ```
 
 

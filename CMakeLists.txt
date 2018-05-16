@@ -25,6 +25,8 @@ add_subdirectory(pybind11)
 pybind11_add_module(FaceEngine src/FaceEngine.cpp src/FaceEngineAdapter.cpp src/SettingsProviderAdapter.cpp)
 target_link_libraries(FaceEngine PRIVATE pybind11::module ${FSDK_LIBRARIES})
 
+message(${CMAKE_INSTALL_PREFIX})
+
 install(TARGETS FaceEngine
 	LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/bindings COMPONENT libs)
 
