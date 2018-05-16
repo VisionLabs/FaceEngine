@@ -436,6 +436,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 					return py::cast(out);
 				else
 					return py::cast(FSDKErrorResult(err)); })
+		.def("estimate",[](
+			const fsdk::IHeadPoseEstimatorPtr& est,
+			const fsdk::Image& image,
+			const fsdk::Detection& detection) {
+				fsdk::HeadPoseEstimation out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, out);
+				if (err.isOk())
+					return py::cast(out);
+				else
+					return py::cast(FSDKErrorResult(err)); })
 					;
 
 	py::class_<fsdk::Ref<fsdk::IBlackWhiteEstimator>>(f, "IBlackWhiteEstimatorPtr")
@@ -564,12 +574,17 @@ PYBIND11_MODULE(FaceEngine, f) {
 						+ ", similarity = " + std::to_string(result.similarity) + "'>"; })
 			;
 
-
 	py::class_<fsdk::Landmarks5>(f, "Landmarks5")
 		.def(py::init<>())
 		.def("__len__", [](const fsdk::Landmarks5 &v) { return v.landmarkCount; })
 		.def("__getitem__", [](const fsdk::Landmarks5 &s, size_t i) {
 			if (i >= s.landmarkCount) throw py::index_error();
+			return s.landmarks[i];
+		})
+		.def("__setitem__", [](fsdk::Landmarks5 &s, size_t i, fsdk::Vector2<float> v) {
+			if (i >= s.landmarkCount) throw py::index_error();
+			s.landmarks[i].x = v.x;
+			s.landmarks[i].y = v.y;
 			return s.landmarks[i];
 		})
 			;
@@ -581,23 +596,47 @@ PYBIND11_MODULE(FaceEngine, f) {
 			if (i >= s.landmarkCount) throw py::index_error();
 			return s.landmarks[i];
 		})
+		.def("__setitem__", [](fsdk::Landmarks68 &s, size_t i, fsdk::Vector2<float> v) {
+			if (i >= s.landmarkCount) throw py::index_error();
+			s.landmarks[i].x = v.x;
+			s.landmarks[i].y = v.y;
+			return s.landmarks[i];
+		})
 			;
 
 	py::class_<fsdk::EyesEstimation::EyeAttributes::IrisLandmarks>(f, "IrisLandmarks")
 		.def(py::init<>())
-		.def("__len__", [](const fsdk::EyesEstimation::EyeAttributes &v) { return v.irisLandmarksCount; })
+		.def("__len__", [](const fsdk::EyesEstimation::EyeAttributes::IrisLandmarks &v)
+			{ return fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount; })
 		.def("__getitem__", [](const fsdk::EyesEstimation::EyeAttributes::IrisLandmarks &l, size_t i) {
 			if (i >= fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount) throw py::index_error();
 			return l.landmarks[i];
+		})
+		.def("__setitem__", [](fsdk::EyesEstimation::EyeAttributes::IrisLandmarks &s,
+							   size_t i,
+							   fsdk::Vector2<float> v) {
+			if (i >= fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount) throw py::index_error();
+			s.landmarks[i].x = v.x;
+			s.landmarks[i].y = v.y;
+			return s.landmarks[i];
 		})
 			;
 
 	py::class_<fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks>(f, "EyelidLandmarks")
 		.def(py::init<>())
-		.def("__len__", [](const fsdk::EyesEstimation::EyeAttributes &v) { return v.eyelidLandmarksCount; })
+		.def("__len__", [](const fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks &v)
+			{ return fsdk::EyesEstimation::EyeAttributes::eyelidLandmarksCount; })
 		.def("__getitem__", [](const fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks &l, size_t i) {
 			if (i >= fsdk::EyesEstimation::EyeAttributes::eyelidLandmarksCount) throw py::index_error();
 			return l.landmarks[i];
+			})
+		.def("__setitem__", [](fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks &s,
+							   size_t i,
+							   fsdk::Vector2<float> v) {
+			if (i >= fsdk::EyesEstimation::EyeAttributes::eyelidLandmarksCount) throw py::index_error();
+			s.landmarks[i].x = v.x;
+			s.landmarks[i].y = v.y;
+			return s.landmarks[i];
 		})
 			;
 
@@ -795,6 +834,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 //	HeadPose
 	py::class_<fsdk::HeadPoseEstimation>(f, "HeadPoseEstimation")
+		.def(py::init<>())
 		.def_readwrite("pitch", &fsdk::HeadPoseEstimation::pitch)
 		.def_readwrite("yaw", &fsdk::HeadPoseEstimation::yaw)
 		.def_readwrite("roll", &fsdk::HeadPoseEstimation::roll)
@@ -826,7 +866,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				;
 
 	py::class_<fsdk::SmileEstimation>(f, "SmileEstimation")
-//		.def(py::init<>())
+		.def(py::init<>())
 		.def_readwrite("mouth", &fsdk::SmileEstimation::mouth)
 		.def_readwrite("smile", &fsdk::SmileEstimation::smile)
 		.def_readwrite("occlusion", &fsdk::SmileEstimation::occlusion)
@@ -847,6 +887,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 	f.def("loadImage", &loadImage);
 //	EyeEstimation
 	py::class_<fsdk::EyesEstimation>(f, "EyesEstimation")
+		.def(py::init<>())
 		.def_readwrite("leftEye", &fsdk::EyesEstimation::leftEye)
 		.def_readwrite("rightEye", &fsdk::EyesEstimation::rightEye)
 			;
@@ -868,6 +909,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 // Emotions
 	py::class_<fsdk::EmotionsEstimation>(f, "EmotionsEstimation")
+		.def(py::init<>())
 		.def_readwrite("anger", &fsdk::EmotionsEstimation::anger)
 		.def_readwrite("disgust", &fsdk::EmotionsEstimation::disgust)
 		.def_readwrite("fear", &fsdk::EmotionsEstimation::fear)
@@ -903,6 +945,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 // Gaze
 	py::class_<fsdk::GazeEstimation>(f, "GazeEstimation")
+		.def(py::init<>())
 		.def_readwrite("leftEye", &fsdk::GazeEstimation::leftEye)
 		.def_readwrite("rightEye", &fsdk::GazeEstimation::rightEye)
 		.def("__repr__",
