@@ -133,7 +133,9 @@ class TestFaceEngineRect(unittest.TestCase):
         # depth
         # loadImage - only for depth image downloading
         depthImage = f.loadImage("../testData/warp.depth")
-        print("Depth estimation result = {0}".format(depthEstimator.estimate(depthImage)))
+        depth_result = depthEstimator.estimate(depthImage)
+        print("Depth estimation result = {0}".format(depth_result))
+        self.assertAlmostEqual(depth_result.value, 1.0, places=2)
 
     def test_IREstimator(self):
         iREstimator = faceEnginePtr.createIREstimator()
@@ -193,8 +195,8 @@ class TestFaceEngineRect(unittest.TestCase):
             tempImage = f.Image()
             tempImage.load("../testData/" + str(i) + "big.ppm")
             sequence.append(tempImage)
-        faceFlowResult = faceFlowEstimator.estimate(faceFlowImage, sequence, len(sequence))
-        print("faceFlowResult {0}".format(faceFlowResult))
+        faceFlowScore = faceFlowEstimator.estimate(faceFlowImage, sequence, len(sequence))
+        self.assertAlmostEqual(faceFlowScore, 0.9967, places=4)
 
     def test_EyeEstimator(self):
         eyeEstimator = faceEnginePtr.createEyeEstimator()
@@ -211,6 +213,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(image_happiness.isValid())
         self.assertTrue(image_anger.isValid())
         print(emotionsEstimator.estimate(image_happiness))
+        print(emotionsEstimator.estimate(image_anger))
 
     def test_GazeEstimator(self):
         gazeEstimator = faceEnginePtr.createGazeEstimator()

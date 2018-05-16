@@ -455,6 +455,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::ILivenessDepthEstimatorPtr& est,
 			const fsdk::Image& image) {
 			fsdk::ResultValue<fsdk::FSDKError, float> err = est->estimate(image);
+
 				return FSDKErrorValueFloat(err); })
 		.def("setRange",[](
 			const fsdk::ILivenessDepthEstimatorPtr& est,
