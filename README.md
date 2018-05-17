@@ -27,6 +27,7 @@ To build as dynamic library without installing (recommended)
 
 ```bash
 git clone --recursive http://git.visionlabs.ru/m.safina/FaceEnginePythonBinding.git
+cd FaceEnginePythonBinding
 mkdir build
 cd build
 cmake .. -DFSDK_ROOT=<path to FSDK> -DCMAKE_INSTALL_PREFIX=./install
