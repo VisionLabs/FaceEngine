@@ -1,0 +1,15 @@
+Performing C++ SOURCE FILE Test HAS_CPP14_FLAG failed with the following output:
+Change Dir: /home/parallels/cmake_example/build-test/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_855c8/fast"
+/usr/bin/gmake -f CMakeFiles/cmTC_855c8.dir/build.make CMakeFiles/cmTC_855c8.dir/build
+gmake[1]: Entering directory `/home/parallels/cmake_example/build-test/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_855c8.dir/src.cxx.o
+/usr/bin/c++     -std=c++11 -DHAS_CPP14_FLAG   -std=c++14 -o CMakeFiles/cmTC_855c8.dir/src.cxx.o -c /home/parallels/cmake_example/build-test/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command line option '-std=c++14'
+gmake[1]: *** [CMakeFiles/cmTC_855c8.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory `/home/parallels/cmake_example/build-test/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_855c8/fast] Error 2
+
+Source file was:
+int main() { return 0; }

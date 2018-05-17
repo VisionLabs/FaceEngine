@@ -21,7 +21,7 @@ sys.path.append(path_to_binding)
 
 import FaceEngine as f
 # correct this!!!
-faceEnginePtr = f.createPyFaceEnginePtr("data",
+faceEnginePtr = f.createFaceEngine("data",
                                         "data/faceengine.conf")
 
 image = f.Image()

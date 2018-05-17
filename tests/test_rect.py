@@ -29,7 +29,7 @@ import FaceEngine as f
 del(sys.argv[1])
 del(sys.argv[1])
 
-faceEnginePtr = f.createPyFaceEnginePtr("data",
+faceEnginePtr = f.createFaceEngine("data",
                                         "data/faceengine.conf")
 
 

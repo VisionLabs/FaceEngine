@@ -33,7 +33,7 @@ import FaceEngine as f
 del(sys.argv[1])
 del(sys.argv[1])
 
-faceEnginePtr = f.createPyFaceEnginePtr("data",
+faceEnginePtr = f.createFaceEngine("data",
                                         "data/faceengine.conf")
 
 
@@ -152,7 +152,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertAlmostEqual(ethnicity_result.caucasian, 1.0, delta=0.1)
 
     def test_HeadPoseEstimatorLandmarks(self):
-        config = f.createSettingsProviderPtr("data/faceengine.conf")
+        config = f.createSettingsProvider("data/faceengine.conf")
         config.setValue("HeadPoseEstimator::Settings","useEstimationByImage", f.SettingsProviderValue(0))
         config.setValue("HeadPoseEstimator::Settings","useEstimationByLandmarks", f.SettingsProviderValue(1))
         faceEnginePtr.setSettingsProvider(config)
@@ -175,7 +175,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertEqual(f.FrontalFaceType.FrontalFace1, expected.getFrontalFaceType())
 
     def test_HeadPoseEstimatorImage(self):
-        config = f.createSettingsProviderPtr("data/faceengine.conf")
+        config = f.createSettingsProvider("data/faceengine.conf")
         config.setValue("HeadPoseEstimator::Settings","useEstimationByImage", f.SettingsProviderValue(1))
         config.setValue("HeadPoseEstimator::Settings","useEstimationByLandmarks", f.SettingsProviderValue(0))
         faceEnginePtr.setSettingsProvider(config)

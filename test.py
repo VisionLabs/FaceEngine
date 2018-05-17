@@ -26,7 +26,7 @@ sys.path.append(path_to_binding)
 print("sys.path = ", sys.path)
 import FaceEngine as f
 
-faceEnginePtr = f.createPyFaceEnginePtr("data",
+faceEnginePtr = f.createFaceEngine("data",
                                       "data/faceengine.conf")
 
 # clean system arguments for test argument parsing
@@ -235,7 +235,7 @@ print(emotionsEstimator.estimate(warpImage))
 
 print(gazeEstimator.estimate(headPoseEstimation, eyesEstimation))
 
-settingsProvider = f.createSettingsProviderPtr("data/faceengine.conf")
+settingsProvider = f.createSettingsProvider("data/faceengine.conf")
 path = settingsProvider.getDefaultPath()
 print(path)
 
@@ -250,7 +250,7 @@ def are_equal(desc1, desc2):
 
 def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print("extractor_test_aggregation")
-    config = f.createSettingsProviderPtr("data/faceengine.conf")
+    config = f.createSettingsProvider("data/faceengine.conf")
     configPath = settingsProvider.getDefaultPath()
     config.setValue("DescriptorFactory::Settings", "model", f.SettingsProviderValue(version))
     config.setValue("DescriptorFactory::Settings", "useMobileNet", f.SettingsProviderValue(use_mobile_net))

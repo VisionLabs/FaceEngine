@@ -1,0 +1,13 @@
+/home/parallels/cmake_example/build-test/CMakeFiles/edit_cache.dir
+/home/parallels/cmake_example/build-test/CMakeFiles/rebuild_cache.dir
+/home/parallels/cmake_example/build-test/CMakeFiles/list_install_components.dir
+/home/parallels/cmake_example/build-test/CMakeFiles/install.dir
+/home/parallels/cmake_example/build-test/CMakeFiles/install/local.dir
+/home/parallels/cmake_example/build-test/CMakeFiles/install/strip.dir
+/home/parallels/cmake_example/build-test/CMakeFiles/FaceEngine.dir
+/home/parallels/cmake_example/build-test/pybind11/CMakeFiles/list_install_components.dir
+/home/parallels/cmake_example/build-test/pybind11/CMakeFiles/install.dir
+/home/parallels/cmake_example/build-test/pybind11/CMakeFiles/install/local.dir
+/home/parallels/cmake_example/build-test/pybind11/CMakeFiles/install/strip.dir
+/home/parallels/cmake_example/build-test/pybind11/CMakeFiles/edit_cache.dir
+/home/parallels/cmake_example/build-test/pybind11/CMakeFiles/rebuild_cache.dir
