@@ -1,14 +1,20 @@
 import sys
-import unittest
-import argparse
-import sys
-import os
-import glob
+
+def help():
+    print("python example.py <path to FaceEngine*.so> <path to image>")
+
+if len(sys.argv) != 3:
+    help()
+    exit(1)
 
 # pass path dir with FaceEngine*.so and add it to system directory
 sys.path.append(sys.argv[1])
 import FaceEngine as f
 
+image_path = sys.argv[2]
+
+
+# correct paths to data and faceengine.conf or put directories data and testData with example.py
 faceEnginePtr = f.createFaceEngine("data",
                                       "data/faceengine.conf")
 
@@ -22,18 +28,19 @@ print(attributeEstimator)
 print(qualityEstimator)
 print(ethnicityEstimator)
 
-
-image = f.Image()
+# image downloading example
+print("image path: {0}".format(image_path))
 image = f.Image()
 print(f.FormatType.R8)
 print(f.Format())
-print(image.load("testData/warp1.ppm"))
-print(image.load("testData/warp2.ppm", f.Format(f.FormatType.R8G8B8)))
-# print(image.load_as("testData/warp1.ppm", f.Format_Type.R8))
+err = image.load(image_path)
+print("image was downloaded {0}".format(err.isOk))
+print(image.load(image_path, f.Format(f.FormatType.R8G8B8)))
 print(image)
 print("image width {0}".format(image.getWidth()))
 print("image height {0}".format(image.getHeight()))
 print("image is valid {0}".format(image.isValid()))
+
 
 attribute_result = attributeEstimator.estimate(image)
 quality_result = qualityEstimator.estimate(image)
@@ -53,7 +60,7 @@ print(ethnicity_result)
 # detector test and example
 maxDetections = 3
 image_det = f.Image()
-err = image_det.load("testData/00205_9501_p.ppm")
+err = image_det.load(image_path)
 print(image.getHeight(), image.getWidth(), image.isValid())
 print("Image error = ", err)
 
