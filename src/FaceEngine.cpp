@@ -24,7 +24,7 @@ PYBIND11_MAKE_OPAQUE(fsdk::Landmarks5);
 PYBIND11_MAKE_OPAQUE(fsdk::Landmarks68);
 
 PYBIND11_MODULE(FaceEngine, f) {
-q
+
 	f.def("createFaceEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
 		  "Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr);
 	f.def("createSettingsProvider", &createSettingsProviderPtr, py::return_value_policy::take_ownership,
