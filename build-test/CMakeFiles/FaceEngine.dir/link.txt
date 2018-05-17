@@ -1,1 +1,0 @@
-/usr/bin/c++  -fPIC  -std=c++11  -shared  -o FaceEngine.cpython-36m-x86_64-linux-gnu.so CMakeFiles/FaceEngine.dir/src/FaceEngine.cpp.o CMakeFiles/FaceEngine.dir/src/FaceEngineAdapter.cpp.o CMakeFiles/FaceEngine.dir/src/SettingsProviderAdapter.cpp.o -flto /home/parallels/Desktop/luna-sdk/lib/gcc4/x64/libFaceEngineSDK.so -Wl,-rpath,/home/parallels/Desktop/luna-sdk/lib/gcc4/x64: 

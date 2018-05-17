@@ -1,1 +1,0 @@
-/home/parallels/cmake_example/build-test/install/bindings/FaceEngine.cpython-36m-x86_64-linux-gnu.so
