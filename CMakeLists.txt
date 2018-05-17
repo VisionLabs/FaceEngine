@@ -1,3 +1,6 @@
+
+SET(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/")
+
 cmake_minimum_required(VERSION 3.5)
 project(FaceEnginePythonBinding)
 
@@ -8,10 +11,10 @@ set(CMAKE_MODULE_PATH
 
 if (MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
-else ()
+else()
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-endif ()
+endif()
 
 find_package(FaceEngineSDK REQUIRED)
 include_directories(${FSDK_INCLUDE_DIRS})
