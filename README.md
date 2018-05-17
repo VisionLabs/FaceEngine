@@ -1,8 +1,4 @@
-# cmake_example for pybind11
-
-An example [pybind11](https://github.com/pybind/pybind11) module built with a
-CMake-based build system. This is useful for C++ codebases that have an existing
-CMake project structure.
+# FaceEngine python library
 
 
 ## Prerequisites
@@ -20,29 +16,40 @@ CMake project structure.
 
 ## Installation
 
-Just clone this repository and pip install. Note the `--recursive` option which is
-needed for the pybind11 submodule:
+1. Download FSDK to <FSDK_path>
+If you're testing on research servers, you could try
+FSDK_path = /media/grinchuk/packages/FSDK/luna-sdk_linux_rel_77e6a500693783f563274e12a3341d42d29cbb0e
 
-To build as dynamic library without installing (recommended)
+2. 
 
 ```bash
 git clone --recursive http://git.visionlabs.ru/m.safina/FaceEnginePythonBinding.git
 cd FaceEnginePythonBinding
+git submodule init
+git submodule update
+```
+3. For just python library:
+Change FSDK_ROOT in `setup.py` to path to luna-sdk (FSDK_path):
+
+```bash
+python setup.py install 
+```
+
+If you want to build from sources:
+```bash
 mkdir build
 cd build
-cmake .. -DFSDK_ROOT=<path to FSDK> -DCMAKE_INSTALL_PREFIX=./install
+cmake .. -DFSDK_ROOT=<FSDK_path> -DCMAKE_INSTALL_PREFIX=./install
 cmake --build . --config Release
 ```
 
-To install in system (not recommended).
-In `setup.py` please change path to LUNA SDK, by default `cmake_args = ['-DFSDK_ROOT=./..' `  
-```bash
-git clone --recursive http://git.visionlabs.ru/m.safina/FaceEnginePythonBinding.git
-pip install ./FaceEngine
-```
+## Usage
 
-With the `setup.py` file included in this example, the `pip install` command will
-invoke CMake and build the pybind11 module as specified in `CMakeLists.txt`.
+```bash
+import FaceEngine as f
+faceEnginePtr = f.createFaceEngine("data", "data/faceengine.conf")
+```
+Other usage examples could be found in FaceEnginePythonBinding/tests/
 
 
 ## Special notes for Windows
@@ -70,15 +77,15 @@ terms and conditions of this license.
 
 ## Test call
 
-From root directory with 
+From root directory:
 
 ```bash
-python3.6 tests/test_estimators.py --bind-path build
+python3 tests/test_estimators.py --bind-path build
 ```
 
 ```python3
 import FaceEngine as f
-faceEnginePtr = f.createPyFaceEnginePtr("data", "data/faceengine.conf")
+faceEnginePtr = f.createFaceEngine("data", "data/faceengine.conf")
 ```
 
 
