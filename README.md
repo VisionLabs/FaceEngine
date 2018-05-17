@@ -28,19 +28,20 @@ cd FaceEnginePythonBinding
 git submodule init
 git submodule update
 ```
-3. If you want to build from sources:
+3. For just python library:
+Change FSDK_ROOT in setup.py to <FSDK_path>:
+
+```bash
+python setup.py install 
+```
+
+If you want to build from sources:
 ```bash
 mkdir build
 cd build
 cmake .. -DFSDK_ROOT=<FSDK_path> -DCMAKE_INSTALL_PREFIX=./install
 cmake --build . --config Release
 ```
-For just python library:
-Change dfsdk_root in setup.py to <FSDK_path>
-```bash
-python setup.py install 
-```
-
 
 ## Usage
 
