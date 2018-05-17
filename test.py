@@ -4,34 +4,14 @@ import argparse
 import sys
 import os
 import glob
-# if FaceEngine is not installed in system
-parser = argparse.ArgumentParser()
-parser.add_argument("-b", "--bind-path", type=str,
-                    help="path to FaceEngine*.so file - binding of luna-sdk")
 
-args = parser.parse_args()
-path_to_binding = args.bind_path
-print(path_to_binding)
-if not os.path.isdir(path_to_binding):
-    print("Directory with FaceEngine*.so was not found.")
-    exit(1)
-
-for name in glob.glob(path_to_binding + "/*"):
-    print('\t', name)
-
-print("Directory {0} with python bindings of FaceEngine was included".format(path_to_binding))
-print(sys.argv)
-
-sys.path.append(path_to_binding)
-print("sys.path = ", sys.path)
+# pass path dir with FaceEngine*.so and add it to system directory
+sys.path.append(sys.argv[1])
 import FaceEngine as f
 
 faceEnginePtr = f.createFaceEngine("data",
                                       "data/faceengine.conf")
 
-# clean system arguments for test argument parsing
-del(sys.argv[1])
-del(sys.argv[1])
 
 attributeEstimator = faceEnginePtr.createAttributeEstimator()
 qualityEstimator = faceEnginePtr.createQualityEstimator()
@@ -336,29 +316,3 @@ extractor_test_aggregation(46, True, "cpu", "cpu")
 # print(len(landmarks5))
 # print(len(landmarks68))
 
-# example of test
-class TestFaceEngine(unittest.TestCase):
-
-    def test_upper(self):
-        self.assertEqual('foo'.upper(), 'FOO')
-
-    def test_isupper(self):
-        self.assertTrue('FOO'.isupper())
-        self.assertFalse('Foo'.isupper())
-
-    def test_split(self):
-        s = 'hello world'
-        self.assertEqual(s.split(), ['hello', 'world'])
-        # check that s.split fails when the separator is not a string
-        with self.assertRaises(TypeError):
-            s.split(2)
-
-
-class ExpectedFailureTestCase(unittest.TestCase):
-    @unittest.expectedFailure
-    def test_fail(self):
-        self.assertEqual(1, 0, "broken")
-
-
-if __name__ == '__main__':
-    unittest.main()

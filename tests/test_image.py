@@ -26,6 +26,9 @@ faceEnginePtr = f.createFaceEngine("data",
 
 image = f.Image()
 load_error = image.load("testData/warp1.ppm")
+data = image.getData()
+
+print("data", data)
 new_file_path = "testData/test-warp1.ppm"
 save_error = image.save(new_file_path)
 loaded_image = f.Image()

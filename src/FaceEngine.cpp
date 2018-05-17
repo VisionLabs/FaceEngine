@@ -1027,6 +1027,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getHeight", &fsdk::Image::getHeight)
 		.def("isValid", &fsdk::Image::isValid)
 		.def("getRect", &fsdk::Image::getRect)
+//		.def("getData", [](const fsdk::Image& image) {
+//			return image.getData();
+//		})
 		.def("save", [](const fsdk::Image& image, const char* path) {
 			fsdk::Result<fsdk::Image::Error> error = image.save(path);
 			return ImageErrorResult(error);
