@@ -36,7 +36,7 @@ cmake .. -DFSDK_ROOT=<FSDK_path> -DCMAKE_INSTALL_PREFIX=./install
 cmake --build . --config Release
 ```
 For just python library:
-Change FSDK_ROOT in setup.py to <FSDK_path>
+Change dfsdk_root in setup.py to <FSDK_path>
 ```bash
 python setup.py install 
 ```
