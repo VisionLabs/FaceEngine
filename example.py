@@ -67,10 +67,11 @@ print("Image error = ", err)
 detector = faceEnginePtr.createDetector(f.ODT_MTCNN)
 
 detector_result = detector.detect(image_det, image_det.getRect(), maxDetections)
-print(detector_result)
+print("detector result = ", detector_result)
 test = detector_result[0][1]
 print("Landmarks test {0}".format(test[0]))
 print("Landmarks test {0}".format(test[0]))
+
 
 for i, item in enumerate(detector_result, 1):
     print(i, item)
@@ -111,6 +112,10 @@ testData = [f.Image(), f.Image(), f.Image()]
 testData[0].load("testData/warp1.ppm")
 testData[1].load("testData/warp2.ppm")
 testData[2].load("testData/photo_2017-03-30_14-47-43_p.ppm")
+
+if not testData[0].isValid() or not testData[1].isValid() or not testData[2].isValid():
+    print("path to images for batch createing is not found")
+    exit(1)
 
 batchSize = len(testData)
 descriptorBatch = faceEnginePtr.createDescriptorBatch(batchSize)
