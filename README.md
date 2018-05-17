@@ -29,7 +29,7 @@ git submodule init
 git submodule update
 ```
 3. For just python library:
-Change FSDK_ROOT in `setup.py` to <FSDK_path>:
+Change FSDK_ROOT in `setup.py` to path to luna-sdk (FSDK_path):
 
 ```bash
 python setup.py install 
