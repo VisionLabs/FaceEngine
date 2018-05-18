@@ -1,9 +1,9 @@
 import sys
 
 def help():
-    print("example_extractor_matcher.py <path to FaceEngine*.so> <path to image>")
+    print("example_extractor_matcher.py <path to FaceEngine*.so> <path to image> <path to image> ...")
 
-if len(sys.argv) != 3:
+if len(sys.argv) <= 3:
     help()
     exit(1)
 
@@ -11,7 +11,7 @@ if len(sys.argv) != 3:
 sys.path.append(sys.argv[1])
 import FaceEngine as f
 
-image_path = sys.argv[2]
+batchSize = len(sys.argv) - 2
 
 # correct paths to data or put directories data and testData with example.py
 faceEngine = f.createFaceEngine("data",
@@ -24,17 +24,17 @@ descriptor2 = faceEngine.createDescriptor()
 aggregation = faceEngine.createDescriptor()
 
 print("Batch descriptor example")
-image_list = [f.Image(), f.Image(), f.Image()]
-# for i in range(2):
-image_list[0].load("testData/warp1.ppm")
-image_list[1].load("testData/warp2.ppm")
-image_list[2].load("testData/photo_2017-03-30_14-47-43_p.ppm")
+image_list = []
+for i in range(batchSize):
+    image = f.Image()
+    print("Adding image {0}".format(sys.argv[i+2]))
+    image.load(sys.argv[i+2])
+    if not image.isValid():
+        print("Failed list creating: one of images is not found {0}".format(sys.argv[i+2]))
+        exit(1)
+    image_list.append(image)
 
-if not image_list[0].isValid() or not image_list[1].isValid() or not image_list[2].isValid():
-    print("Failed list creatnig: one of paths to images for batch is not found")
-    exit(1)
 
-batchSize = len(image_list)
 print("batchSize {0}".format(batchSize))
 descriptorBatch = faceEngine.createDescriptorBatch(batchSize)
 extractor = faceEngine.createExtractor()
