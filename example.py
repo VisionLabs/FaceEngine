@@ -54,7 +54,7 @@ print(quality_result)
 print(ethnicity_result)
 
 # detector test and example
-print("detector test")
+print("Detector example")
 maxDetections = 3
 image_det = f.Image()
 err = image_det.load(image_path)
@@ -89,71 +89,19 @@ estimation = ethnicityEstimator.estimate(warpImage)
 print("Ethnicity estimator on warped Image", estimation)
 
 transformedLandmarks5 = warper.warp(detector_result[0][1], transformation)
-print("Gaze test")
+print("Transformed landmarks5: ")
 for i in range(len(transformedLandmarks5)):
     print(transformedLandmarks5[i])
+
 transformedLandmarks68 = warper.warp(detector_result[0][2], transformation)
+
+# print("Transformed landmarks68: ")
+# for i in range(len(transformedLandmarks5)):
+#     print(transformedLandmarks5[i])
 
 print("warperResult2 with Landmarks5 = ", transformedLandmarks5)
 print("warperResult2 with Landmarks68 = ", transformedLandmarks68)
 
-
-# descriptor, creating objects
-descriptor1 = faceEnginePtr.createDescriptor()
-descriptor2 = faceEnginePtr.createDescriptor()
-aggregation = faceEnginePtr.createDescriptor()
-
-print("Batch descriptor example")
-testData = [f.Image(), f.Image(), f.Image()]
-# for i in range(2):
-testData[0].load("testData/warp1.ppm")
-testData[1].load("testData/warp2.ppm")
-testData[2].load("testData/photo_2017-03-30_14-47-43_p.ppm")
-
-if not testData[0].isValid() or not testData[1].isValid() or not testData[2].isValid():
-    print("path to images for batch createing is not found")
-    exit(1)
-
-batchSize = len(testData)
-descriptorBatch = faceEnginePtr.createDescriptorBatch(batchSize)
-extractor = faceEnginePtr.createExtractor()
-matcher = faceEnginePtr.createMatcher()
-table = faceEnginePtr.createLSHTable(descriptorBatch)
-
-print(testData)
-print(type(extractor))
-print("Descriptor test befor = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
-ext1 = extractor.extractFromWarpedImage(testData[0], descriptor1)
-ext2 = extractor.extractFromWarpedImage(testData[1], descriptor2)
-print("Descriptor test after = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
-print("extractor result =", ext2)
-
-print("Descriptor batch test befor", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
-      descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
-ext_batch1 = extractor.extractFromWarpedImageBatch(testData, descriptorBatch, aggregation, batchSize)
-# print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
-ext_batch2 = extractor.extractFromWarpedImageBatch(testData, descriptorBatch, batchSize)
-
-print("Garbage score list1 = ", ext_batch1)
-print("Garbage score list2 = ", ext_batch2)
-print("Descriptor batch test after", descriptorBatch.getMaxCount(), descriptorBatch.getCount(),
-      descriptorBatch.getModelVersion(), descriptorBatch.getDescriptorSize())
-print(descriptor1)
-print(descriptorBatch)
-print(extractor)
-print(matcher)
-print(table)
-
-# matcher test
-print("Matcher example")
-result1 = matcher.match(descriptor1, descriptor2)
-result2 = matcher.match(descriptor1, descriptorBatch)
-result3 = matcher.match(descriptor1, descriptorBatch, [0, 1])
-result4 = matcher.matchCompact(descriptor1, descriptorBatch, [1])
-print(result1)
-print(result2)
-print(result3)
-print(result4)
 
 print("Estimators example: ")
 # test of second estimators part
@@ -200,8 +148,9 @@ print(smileEstimator.estimate(image))
 
 
 print("transformedLandmarks5[0]", transformedLandmarks5)
+
 # faceFlow
-print("FaceFlowExample")
+print("\nFaceFlowExample")
 faceFlowImage = f.Image()
 faceFlowImage.load("testData/small.ppm")
 sequence = []
@@ -213,6 +162,7 @@ for i in range(10):
 faceFlowResult = faceFlowEstimator.estimate(faceFlowImage, sequence, len(sequence))
 print("faceFlowResult {0}".format(faceFlowResult))
 # eyes
+print("\nEyesEstimation example")
 eyesEstimation = eyeEstimator.estimate(warpImage, transformedLandmarks5)
 
 print(eyesEstimation.leftEye.state, eyesEstimation.leftEye.iris, eyesEstimation.leftEye.eyelid)
@@ -236,7 +186,7 @@ def are_equal(desc1, desc2):
 
 
 def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
-    print("extractor_test_aggregation")
+    print("Extractor_test_aggregation")
     config = f.createSettingsProvider("data/faceengine.conf")
     configPath = settingsProvider.getDefaultPath()
     config.setValue("DescriptorFactory::Settings", "model", f.SettingsProviderValue(version))
@@ -247,6 +197,7 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     # config.setValue("QualityEstimator::Settings", "logGray", f.SettingsProviderValue(0.05, 3.3, 0.05, 0.012))
     faceEnginePtr.setSettingsProvider(config)
     # try to test settingsProvider
+    print("SettingProvider")
     val = config.getValue("QualityEstimator::Settings", "platt")
     print(val.asPoint2f())
     val = config.getValue("QualityEstimator::Settings", "expBlur")

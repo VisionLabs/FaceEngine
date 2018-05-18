@@ -1,7 +1,7 @@
 import sys
 
 def help():
-    print("python example_detector.py <path to FaceEngine*.so> <path to image>")
+    print("example_extractor_matcher.py <path to FaceEngine*.so> <path to image>")
 
 if len(sys.argv) != 3:
     help()
@@ -15,50 +15,7 @@ image_path = sys.argv[2]
 
 # correct paths to data or put directories data and testData with example.py
 faceEngine = f.createFaceEngine("data",
-                                   "data/faceengine.conf")
-
-print("Detector example")
-detector = faceEngine.createDetector(f.ODT_MTCNN)
-
-maxDetections = 3
-image_det = f.Image()
-err = image_det.load(image_path)
-print(image_det.getHeight(), image_det.getWidth(), image_det.isValid())
-print("Image error = ", err)
-
-# create detector
-detector = faceEngine.createDetector(f.ODT_MTCNN)
-
-# list of tuples: (detection, landmarks5, landmarks68)
-detector_result = detector.detect(image_det, image_det.getRect(), maxDetections)
-print("detector result = ", detector_result)
-test = detector_result[0][1]
-print("Landmarks test {0}".format(test[0]))
-print("Landmarks test {0}".format(test[0]))
-
-print("Detections: ")
-for i, item in enumerate(detector_result, 1):
-    print(i, item)
-
-# warper example
-print("\nWarper example: ")
-warper = faceEngine.createWarper()
-transformation = warper.createTransformation(detector_result[0][0],
-                                             detector_result[0][1])
-print("transformation = ", transformation)
-warperResult = warper.warp(image_det, transformation)
-warpImage = warperResult
-print(warpImage)
-print(warpImage.getWidth(), warpImage.getHeight(), warpImage.isValid())
-
-transformedLandmarks5 = warper.warp(detector_result[0][1], transformation)
-print("\ntransformedLandmarks:")
-for i in range(len(transformedLandmarks5)):
-    print(transformedLandmarks5[i])
-transformedLandmarks68 = warper.warp(detector_result[0][2], transformation)
-
-print("warperResult2 with Landmarks5 = ", transformedLandmarks5)
-print("warperResult2 with Landmarks68 = ", transformedLandmarks68)
+                                "data/faceengine.conf")
 
 # descriptor, creating objects
 print("Creating descriptors")
