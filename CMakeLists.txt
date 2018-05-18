@@ -32,5 +32,5 @@ target_link_libraries(FaceEngine PRIVATE pybind11::module ${FSDK_LIBRARIES})
 message(${CMAKE_INSTALL_PREFIX})
 
 install(TARGETS FaceEngine
-	LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/pythonBindings COMPONENT libs)
+	LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT libs)
 

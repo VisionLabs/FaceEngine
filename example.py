@@ -249,7 +249,6 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     # try to test settingsProvider
     val = config.getValue("QualityEstimator::Settings", "platt")
     print(val.asPoint2f())
-
     val = config.getValue("QualityEstimator::Settings", "expBlur")
     print(val.asPoint2f())
     print(val.asPoint2i())
@@ -295,7 +294,7 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print(batch.getDescriptorSize())
     desc1 = descriptor.getDescriptor()
     desc2 = descriptor2.getDescriptor()
-
+    print("Descriptor: ")
     desc_from_batch = batch.getDescriptorSlow(1).getDescriptor()
     for i, element in enumerate(desc1):
         print(i, ")", desc1[i], desc_from_batch[i])
