@@ -95,7 +95,7 @@ for i in range(len(transformedLandmarks5)):
 transformedLandmarks68 = warper.warp(detector_result[0][2], transformation)
 
 print("warperResult2 with Landmarks5 = ", transformedLandmarks5)
-print("warperResult2 with Landmarks68 = ", transformedLandmarks68 )
+print("warperResult2 with Landmarks68 = ", transformedLandmarks68)
 
 
 # descriptor, creating objects
@@ -294,7 +294,7 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print(batch.getDescriptorSize())
     desc1 = descriptor.getDescriptor()
     desc2 = descriptor2.getDescriptor()
-    print("Descriptor: ")
+    print("Descriptor")
     desc_from_batch = batch.getDescriptorSlow(1).getDescriptor()
     for i, element in enumerate(desc1):
         print(i, ")", desc1[i], desc_from_batch[i])
