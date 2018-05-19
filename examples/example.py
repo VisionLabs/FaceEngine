@@ -150,7 +150,7 @@ print(smileEstimator.estimate(image))
 print("transformedLandmarks5[0]", transformedLandmarks5)
 
 # faceFlow
-print("\nFaceFlowExample")
+print("\nFaceFlow example")
 faceFlowImage = f.Image()
 faceFlowImage.load("testData/small.ppm")
 sequence = []
