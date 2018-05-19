@@ -32,10 +32,6 @@ save_error = image.save(new_file_path)
 loaded_image = f.Image()
 loaded_image.load(new_file_path)
 
-# print(os.path.isfile(new_file_path)f)
-#
-# print(os.path.isfile(new_file_path))
-
 # test load in different formats
 image2 = f.Image()
 load_error_Unknown = image2.load("testData/warp2.pp", f.Format(f.FormatType.Unknown))

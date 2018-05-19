@@ -1,7 +1,9 @@
 import sys
 
+
 def help():
     print("python example.py <path to FaceEngine*.so> <path to image>")
+
 
 if len(sys.argv) != 3:
     help()
@@ -9,172 +11,156 @@ if len(sys.argv) != 3:
 
 # pass path dir with FaceEngine*.so and add it to system directory
 sys.path.append(sys.argv[1])
-import FaceEngine as f
-
-image_path = sys.argv[2]
-
+import FaceEngine as fe
 
 # correct paths to data or put directories data and testData with example.py
-faceEnginePtr = f.createFaceEngine("data",
+faceEngine = fe.createFaceEngine("data",
                                       "data/faceengine.conf")
 
-attributeEstimator = faceEnginePtr.createAttributeEstimator()
-qualityEstimator = faceEnginePtr.createQualityEstimator()
-ethnicityEstimator = faceEnginePtr.createEthnicityEstimator()
-
-print(attributeEstimator)
-print(qualityEstimator)
-print(ethnicityEstimator)
-
-# image downloading example
-print("image path: {0}".format(image_path))
-image = f.Image()
-print(f.FormatType.R8)
-print(f.Format())
-err = image.load(image_path)
-print("image was downloaded {0}".format(err.isOk))
-print(image.load(image_path, f.Format(f.FormatType.R8G8B8)))
-print(image)
-print("image width {0}".format(image.getWidth()))
-print("image height {0}".format(image.getHeight()))
-print("image is valid {0}".format(image.isValid()))
-
-attribute_result = attributeEstimator.estimate(image)
-quality_result = qualityEstimator.estimate(image)
-ethnicity_result = ethnicityEstimator.estimate(image)
-
-print("Detector example")
-detector = faceEnginePtr.createDetector(f.ODT_MTCNN)
-print("Ethnicity result: ", ethnicity_result)
-print("test of getEthnicityScore() {0}".format(ethnicity_result.getEthnicityScore(f.Ethnicity.Caucasian)))
-print("test of get getPredominantEthnicity() {0}".format(ethnicity_result.getPredominantEthnicity()))
-
-print("Attribute result", attribute_result)
-print(quality_result)
-print(ethnicity_result)
-
-# detector test and example
-print("Detector example")
-maxDetections = 3
-image_det = f.Image()
-err = image_det.load(image_path)
-print(image.getHeight(), image.getWidth(), image.isValid())
-print("Image error = ", err)
-
-detector = faceEnginePtr.createDetector(f.ODT_MTCNN)
-
-detector_result = detector.detect(image_det, image_det.getRect(), maxDetections)
-print("detector result = ", detector_result)
-test = detector_result[0][1]
-print("Landmarks test {0}".format(test[0]))
-print("Landmarks test {0}".format(test[0]))
-
-print("Detections: ")
-for i, item in enumerate(detector_result, 1):
-    print(i, item)
+# image loading example
+def image_load(image_path):
+    print("\nImage example")
+    print("image path: {0}".format(image_path))
+    image = fe.Image()
+    print(fe.FormatType.R8)
+    print(fe.Format())
+    err = image.load(image_path)
+    print("Image error = ", err)
+    print("image was downloaded {0}".format(err.isOk))
+    print(image.load(image_path, fe.Format(fe.FormatType.R8G8B8)))
+    print(image)
+    print("image width {0}".format(image.getWidth()))
+    print("image height {0}".format(image.getHeight()))
+    print("image is valid {0}".format(image.isValid()))
+    return image
 
 
-# warper test and example
-print("Warper example: ")
-warper = faceEnginePtr.createWarper()
-transformation = warper.createTransformation(detector_result[0][0],
-                                             detector_result[0][1])
-print("transformation = ", transformation)
-warperResult = warper.warp(image_det, transformation)
-warpImage = warperResult
-print(warpImage)
-print(warpImage.getWidth(), warpImage.getHeight(), warpImage.isValid())
-ethnicityEstimator = faceEnginePtr.createEthnicityEstimator()
-estimation = ethnicityEstimator.estimate(warpImage)
-print("Ethnicity estimator on warped Image", estimation)
-
-transformedLandmarks5 = warper.warp(detector_result[0][1], transformation)
-print("Transformed landmarks5: ")
-for i in range(len(transformedLandmarks5)):
-    print(transformedLandmarks5[i])
-
-transformedLandmarks68 = warper.warp(detector_result[0][2], transformation)
-
-# print("Transformed landmarks68: ")
-# for i in range(len(transformedLandmarks5)):
-#     print(transformedLandmarks5[i])
-
-print("warperResult2 with Landmarks5 = ", transformedLandmarks5)
-print("warperResult2 with Landmarks68 = ", transformedLandmarks68)
+def attribute_quality_ethnicity_blackWhite_smile_example(image):
+    attributeEstimator = faceEngine.createAttributeEstimator()
+    qualityEstimator = faceEngine.createQualityEstimator()
+    ethnicityEstimator = faceEngine.createEthnicityEstimator()
+    blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
+    smileEstimator = faceEngine.createSmileEstimator()
+    attribute_result = attributeEstimator.estimate(image)
+    quality_result = qualityEstimator.estimate(image)
+    ethnicity_result = ethnicityEstimator.estimate(image)
+    blackWhite_result = blackWhiteEstimator.estimate(image)
+    smile_result = smileEstimator.estimate(image)
+    print("Attribute estimation result {0}".format(attribute_result))
+    print("Quality estimation result {0}".format(quality_result))
+    print("Ethnicity estimation result {0}".format(ethnicity_result))
+    print("getEthnicityScore() {0}".format(ethnicity_result.getEthnicityScore(fe.Ethnicity.Caucasian)))
+    print("getPredominantEthnicity() {0}".format(ethnicity_result.getPredominantEthnicity()))
+    print("BlackWhite estimation result {0}".format(blackWhite_result))
+    print("Smile estimation result {0}".format(smile_result))
 
 
-print("Estimators example: ")
-# test of second estimators part
-headPoseEstimator = faceEnginePtr.createHeadPoseEstimator()
-blackWhiteEstimator = faceEnginePtr.createBlackWhiteEstimator()
-depthEstimator = faceEnginePtr.createDepthEstimator()
-iREstimator = faceEnginePtr.createIREstimator()
-smileEstimator = faceEnginePtr.createSmileEstimator()
-faceFlowEstimator = faceEnginePtr.createFaceFlowEstimator()
-eyeEstimator = faceEnginePtr.createEyeEstimator()
-emotionsEstimator = faceEnginePtr.createEmotionsEstimator()
-gazeEstimator = faceEnginePtr.createGazeEstimator()
-
-print("Estimators objects: ")
-print(headPoseEstimator)
-print(blackWhiteEstimator)
-print(depthEstimator)
-print(iREstimator)
-print(smileEstimator)
-print(faceFlowEstimator)
-print(eyeEstimator)
-print(emotionsEstimator)
-print(gazeEstimator)
-
-# unpack detector result
-(_, landmarks5, landmarks68) = detector_result[0]
-
-# headPose
-headPoseEstimation = headPoseEstimator.estimate(landmarks68)
-for i in range(len(landmarks68)):
-    print(landmarks68[i])
-print(headPoseEstimator.estimate(landmarks68))
-# blackWhite
-print(blackWhiteEstimator.estimate(image))
-# depth
-depthImage = f.loadImage("testData/warp.depth")
-print("Depth estimation result = {0}".format(depthEstimator.estimate(depthImage)))
-# ir
-irImage = f.Image()
-irImage.load("testData/irWarp.ppm")
-print("iRresult = ", iREstimator.estimate(irImage))
-# smile
-print(smileEstimator.estimate(image))
+def detector_example(image_path):
+    print("\nDetector example")
+    detector = faceEngine.createDetector(fe.ODT_MTCNN)
+    max_detections = 3
+    image_det = fe.Image()
+    err = image_det.load(image_path)
+    if not image_det.isValid():
+        print(err)
+    print("Image for detection: ", image_path, image_det.getHeight(), image_det.getWidth(), image_det.isValid())
+    detector_result = detector.detect(image_det, image_det.getRect(), max_detections)
+    print("detector result = ", detector_result)
+    test = detector_result[0][1]
+    print("Landmarks test {0}".format(test[0]))
+    print("Landmarks test {0}".format(test[0]))
+    print("Detections: ")
+    for i, item in enumerate(detector_result, 1):
+        print(i, item)
+    return detector_result
 
 
-print("transformedLandmarks5[0]", transformedLandmarks5)
+def warper_example(image_det, detection, landmarks5, landmarks68):
+    print("\nWarper example: ")
+    warper = faceEngine.createWarper()
+    transformation = warper.createTransformation(detection,
+                                                 landmarks5)
+    print("transformation = ", transformation)
+    warper_result = warper.warp(image_det, transformation)
+    warp_image = warper_result
+    print(warp_image)
+    print(warp_image.getWidth(), warp_image.getHeight(), warp_image.isValid())
+    ethnicityEstimator = faceEngine.createEthnicityEstimator()
+    estimation = ethnicityEstimator.estimate(warp_image)
+    print("Ethnicity estimator on warped Image {0}".format(estimation))
+    transformed_landmarks5 = warper.warp(landmarks5, transformation)
+    print("\nTransformed landmarks5: ")
+    for i in range(len(transformed_landmarks5)):
+        print(transformed_landmarks5[i])
+    transformed_landmarks68 = warper.warp(landmarks68, transformation)
+    print("warperResult with Landmarks5 = ", transformed_landmarks5)
+    print("warperResult with Landmarks68 = ", transformed_landmarks68)
+    return warp_image, transformed_landmarks5, transformed_landmarks68
 
-# faceFlow
-print("\nFaceFlow example")
-faceFlowImage = f.Image()
-faceFlowImage.load("testData/small.ppm")
-sequence = []
-for i in range(10):
-    tempImage = f.Image()
-    tempImage.load("testData/" + str(i) + "big.ppm")
-    sequence.append(tempImage)
 
-faceFlowResult = faceFlowEstimator.estimate(faceFlowImage, sequence, len(sequence))
-print("faceFlowResult {0}".format(faceFlowResult))
-# eyes
-print("\nEyesEstimation example")
-eyesEstimation = eyeEstimator.estimate(warpImage, transformedLandmarks5)
+def headPose_example(_landmarks68):
+    headPoseEstimator = faceEngine.createHeadPoseEstimator()
+    headPoseEstimation = headPoseEstimator.estimate(_landmarks68)
+    print("HeadPose result {0}".format(headPoseEstimation))
+    return headPoseEstimation
 
-print(eyesEstimation.leftEye.state, eyesEstimation.leftEye.iris, eyesEstimation.leftEye.eyelid)
-print(eyesEstimation.rightEye.state, eyesEstimation.rightEye.iris, eyesEstimation.rightEye.eyelid)
-# emotions
-print(emotionsEstimator.estimate(warpImage))
 
-print(gazeEstimator.estimate(headPoseEstimation, eyesEstimation))
+def depth_example(depth_image_path):
+    depthEstimator = faceEngine.createDepthEstimator()
+    # loadImage is used only for depth test
+    depth_image = fe.loadImage(depth_image_path)
+    print("Depth estimation result = {0}".format(depthEstimator.estimate(depth_image)))
 
-settingsProvider = f.createSettingsProvider("data/faceengine.conf")
-path = settingsProvider.getDefaultPath()
-print(path)
+
+def ir_example(ir_image_path):
+    iREstimator = faceEngine.createIREstimator()
+    ir_image = fe.Image()
+    err = ir_image.load(ir_image_path)
+    if not ir_image.isValid():
+        print("ir image was not found {0}".format(err))
+        exit(1)
+    ir_result = iREstimator.estimate(ir_image)
+    print("IR estimation result = {0}".format(ir_result))
+
+
+def faceFlow_example():
+    faceFlowEstimator = faceEngine.createFaceFlowEstimator()
+    face_flow_image = fe.Image()
+    face_flow_image.load("testData/small.ppm")
+    if not face_flow_image.isValid():
+        print("ir image was not found {0}".format(err))
+        exit(1)
+    sequence = []
+    for i in range(10):
+        temp_image = fe.Image()
+        temp_image.load("testData/" + str(i) + "big.ppm")
+        sequence.append(temp_image)
+    faceFlowResult = faceFlowEstimator.estimate(face_flow_image, sequence, len(sequence))
+    print("FaceFlowResult {0}".format(faceFlowResult))
+
+
+def eye_example(_warp_image, _transformed_landmarks5):
+    eyeEstimator = faceEngine.createEyeEstimator()
+    eyesEstimation = eyeEstimator.estimate(_warp_image, _transformed_landmarks5)
+    print("\nEyes estimation result: ")
+    print(eyesEstimation.leftEye.state, eyesEstimation.leftEye.iris, eyesEstimation.leftEye.eyelid)
+    print(eyesEstimation.rightEye.state, eyesEstimation.rightEye.iris, eyesEstimation.rightEye.eyelid)
+    print_landmarks(eyesEstimation.leftEye.eyelid, "eyesEstimation.leftEye.eyelid")
+    print_landmarks(eyesEstimation.rightEye.eyelid, "eyesEstimation.rightEye.eyelid")
+    return eyesEstimation
+
+
+def emotions_example(warp_image):
+    emotionsEstimator = faceEngine.createEmotionsEstimator()
+    emotions_result = emotionsEstimator.estimate(warp_image)
+    print("Emotions estimation result {0}".format(emotions_result))
+
+
+def gaze_example(_headPoseEstimation, _eyesEstimation):
+    gazeEstimator = faceEngine.createGazeEstimator()
+    print(gazeEstimator)
+    gaze_result = gazeEstimator.estimate(_headPoseEstimation, _eyesEstimation)
+    print("\nGaze estimation result {0}".format(gaze_result))
 
 
 def are_equal(desc1, desc2):
@@ -187,20 +173,22 @@ def are_equal(desc1, desc2):
 
 def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print("Extractor_test_aggregation")
-    config = f.createSettingsProvider("data/faceengine.conf")
-    configPath = settingsProvider.getDefaultPath()
-    config.setValue("DescriptorFactory::Settings", "model", f.SettingsProviderValue(version))
-    config.setValue("DescriptorFactory::Settings", "useMobileNet", f.SettingsProviderValue(use_mobile_net))
-    config.setValue("flower", "deviceClass", f.SettingsProviderValue(device))
-    config.setValue("system", "cpuClass", f.SettingsProviderValue(cpu_type))
-    config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
+    config = fe.createSettingsProvider("data/faceengine.conf")
+    configPath = config.getDefaultPath()
+    print(configPath)
+    config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
+    config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(use_mobile_net))
+    config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
+    config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpu_type))
+    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
     # config.setValue("QualityEstimator::Settings", "logGray", f.SettingsProviderValue(0.05, 3.3, 0.05, 0.012))
-    faceEnginePtr.setSettingsProvider(config)
+    faceEngine.setSettingsProvider(config)
     # try to test settingsProvider
     print("SettingProvider")
     val = config.getValue("QualityEstimator::Settings", "platt")
     print(val.asPoint2f())
     val = config.getValue("QualityEstimator::Settings", "expBlur")
+    print("Try to print value in different formats: ")
     print(val.asPoint2f())
     print(val.asPoint2i())
     print(val.asSize())
@@ -210,23 +198,20 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print(val.asFloat())
     print(val.asString())
 
-
-    faceEnginePtr.setSettingsProvider(config)
+    faceEngine.setSettingsProvider(config)
     val = config.getValue("MTCNNDetector::Settings", "scaleFactor")
     print(val.asFloat())
 
-    # print("msd config test = {0}".format(s))
-
-    warps = [f.Image(), f.Image()]
+    warps = [fe.Image(), fe.Image()]
 
     warps[0].load("testData/warp1.ppm")
     warps[1].load("testData/warp2.ppm")
     batchSize = len(warps)
-    descriptorExtractor = faceEnginePtr.createExtractor()
-    batch = faceEnginePtr.createDescriptorBatch(batchSize)
-    descriptor = faceEnginePtr.createDescriptor()
-    descriptor2 = faceEnginePtr.createDescriptor()
-    aggregation = faceEnginePtr.createDescriptor()
+    descriptorExtractor = faceEngine.createExtractor()
+    batch = faceEngine.createDescriptorBatch(batchSize)
+    descriptor = faceEngine.createDescriptor()
+    descriptor2 = faceEngine.createDescriptor()
+    aggregation = faceEngine.createDescriptor()
 
     result1 = descriptorExtractor.extractFromWarpedImageBatch(warps, batch, aggregation, batchSize)
     print(result1)
@@ -250,7 +235,33 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     for i, element in enumerate(desc1):
         print(i, ")", desc1[i], desc_from_batch[i])
     print("Descritptor comparing {0}".format(are_equal(desc1, desc_from_batch)))
+    print("are_equal(desc1, desc2){0}".format(are_equal(desc1, desc2)))
 
-extractor_test_aggregation(46, True, "cpu", "cpu")
+def print_landmarks(landmarks, message=""):
+    print(message)
+    for i in range(len(landmarks)):
+        print(landmarks[i])
 
 
+if __name__ == "__main__":
+    image_path = sys.argv[2]
+    image = image_load(image_path)
+    attribute_quality_ethnicity_blackWhite_smile_example(image)
+    # unpack detector result - list of tuples
+    (detection, landmarks5, landmarks68) = detector_example(image_path)[0]
+    print_landmarks(landmarks5, "landmarks5: ")
+    # print_landmarks(landmarks68, "landmarks68: ")
+    (warp_image, transformed_landmarks5, transformed_landmarks68) = \
+        warper_example(image, detection, landmarks5, landmarks68)
+    print("transformedLandmarks5[0]", transformed_landmarks5)
+
+    # examples with hardcoded images
+    depth_example("testData/warp.depth")
+    ir_example("testData/irWarp.ppm")
+    faceFlow_example()
+
+    emotions_example(warp_image)
+    headPoseEstimation = headPose_example(landmarks68)
+    eyesEstimation = eye_example(warp_image, transformed_landmarks5)
+    gaze_example(headPoseEstimation, eyesEstimation)
+    extractor_test_aggregation(46, True, "cpu", "cpu")
