@@ -203,6 +203,11 @@ if __name__ == "__main__":
                                      "data/faceengine.conf")
     image_path = sys.argv[2]
     image = image_load(image_path)
+    data = image.getData()
+    # print(data)
+    # print(len(data))
+    # print(data[240])
+    # print(data[10][12])
     attribute_quality_ethnicity_blackWhite_smile_example(image)
     # unpack detector result - list of tuples
     (detection, landmarks5, landmarks68) = detector_example(image)[0]

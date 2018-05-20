@@ -19,7 +19,7 @@ def detector_example(_image_det):
     print("\nDetector example")
     detector = faceEngine.createDetector(fe.ODT_MTCNN)
     max_detections = 3
-    print("Image for detection: ", image_path, _image_det.getHeight(), _image_det.getWidth(), _image_det.isValid())
+    print("Image for detection: ", _image_det.getHeight(), _image_det.getWidth(), _image_det.isValid())
     detector_result = detector.detect(_image_det, _image_det.getRect(), max_detections)
     print("detector result = ", detector_result)
     test = detector_result[0][1]
@@ -94,8 +94,8 @@ if __name__ == "__main__":
     (warp_image, transformed_landmarks5, transformed_landmarks68) = \
         warper_example(image, detection, landmarks5, landmarks68)
     print("warp_image = ", warp_image.getWidth(), warp_image.getHeight(), warp_image.isValid())
-    (_, landmarks5_warp, _) = detector_example(warp_image)[0]
 
+    (_, landmarks5_warp, _) = detector_example(warp_image)[0]
     print_landmarks(landmarks5, "landmarks5: ")
     print_landmarks(transformed_landmarks5, "transformedLandmarks5: ")
     print_landmarks(landmarks5_warp, "landmarks5_warp: ")
