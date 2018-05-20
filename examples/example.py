@@ -13,7 +13,7 @@ if len(sys.argv) != 3:
 sys.path.append(sys.argv[1])
 import FaceEngine as fe
 
-# correct paths to data or put directories data and testData with example.py
+# correct paths to data or put directories data and images with example.py
 faceEngine = fe.createFaceEngine("data",
                                       "data/faceengine.conf")
 
@@ -25,10 +25,9 @@ def image_load(image_path):
     print(fe.FormatType.R8)
     print(fe.Format())
     err = image.load(image_path)
+    # image.load(image_path, fe.Format(fe.FormatType.R8G8B8))
     print("Image error = ", err)
     print("image was downloaded {0}".format(err.isOk))
-    print(image.load(image_path, fe.Format(fe.FormatType.R8G8B8)))
-    print(image)
     print("image width {0}".format(image.getWidth()))
     print("image height {0}".format(image.getHeight()))
     print("image is valid {0}".format(image.isValid()))
@@ -126,14 +125,14 @@ def ir_example(ir_image_path):
 def faceFlow_example():
     faceFlowEstimator = faceEngine.createFaceFlowEstimator()
     face_flow_image = fe.Image()
-    face_flow_image.load("testData/small.ppm")
+    face_flow_image.load("images/small.ppm")
     if not face_flow_image.isValid():
         print("ir image was not found {0}".format(err))
         exit(1)
     sequence = []
     for i in range(10):
         temp_image = fe.Image()
-        temp_image.load("testData/" + str(i) + "big.ppm")
+        temp_image.load("images/" + str(i) + "big.ppm")
         sequence.append(temp_image)
     faceFlowResult = faceFlowEstimator.estimate(face_flow_image, sequence, len(sequence))
     print("FaceFlowResult {0}".format(faceFlowResult))
@@ -204,8 +203,8 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
 
     warps = [fe.Image(), fe.Image()]
 
-    warps[0].load("testData/warp1.ppm")
-    warps[1].load("testData/warp2.ppm")
+    warps[0].load("images/warp1.ppm")
+    warps[1].load("images/warp2.ppm")
     batchSize = len(warps)
     descriptorExtractor = faceEngine.createExtractor()
     batch = faceEngine.createDescriptorBatch(batchSize)
@@ -256,8 +255,8 @@ if __name__ == "__main__":
     print("transformedLandmarks5[0]", transformed_landmarks5)
 
     # examples with hardcoded images
-    depth_example("testData/warp.depth")
-    ir_example("testData/irWarp.ppm")
+    depth_example("images/warp.depth")
+    ir_example("images/irWarp.ppm")
     faceFlow_example()
 
     emotions_example(warp_image)
