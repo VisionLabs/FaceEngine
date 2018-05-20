@@ -12,9 +12,7 @@ if len(sys.argv) <= 3:
 
 # if FaceEngine is not installed pass the path to dir with FaceEngine*.so and add it to system paths
 sys.path.append(sys.argv[1])
-# if FaceEngine is installed only
-import FaceEngine as f
-
+import FaceEngine as fe
 
 def extractor_example(_image_list, _batch_size):
     print("Batch descriptor example")
@@ -22,18 +20,21 @@ def extractor_example(_image_list, _batch_size):
     print("batchSize {0}".format(_batch_size))
     descriptor_batch = faceEngine.createDescriptorBatch(_batch_size)
     extractor = faceEngine.createExtractor()
-    table = faceEngine.createLSHTable(descriptor_batch)
+    print(extractor)
+    # table = faceEngine.createLSHTable(descriptor_batch)
     # descriptor, creating objects
     print("Creating descriptors")
     descriptor1 = faceEngine.createDescriptor()
     descriptor2 = faceEngine.createDescriptor()
+    print(descriptor1, descriptor2)
     aggregation = faceEngine.createDescriptor()
-    print(_image_list)
+    print("image_list = ", _image_list)
     print(type(extractor))
     print("Descriptor test befor = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
     ext1 = extractor.extractFromWarpedImage(_image_list[0], descriptor1)
     ext2 = extractor.extractFromWarpedImage(_image_list[1], descriptor2)
     print("Descriptor test after = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
+    print("extractor result =", ext1)
     print("extractor result =", ext2)
 
     print("Descriptor batch test befor: ", descriptor_batch.getMaxCount(), descriptor_batch.getCount(),
@@ -70,7 +71,7 @@ def matcher_example(_descriptor1, _descriptor2, _descriptor_batch):
 def load_list_of_images(_batch_size, _sys_argv):
     image_list = []
     for i in range(_batch_size):
-        image = f.Image()
+        image = fe.Image()
         print("Adding image {0}".format(_sys_argv[i + 2]))
         image.load(_sys_argv[i + 2])
         if not image.isValid():
@@ -86,11 +87,23 @@ def print_descriptor(descriptor):
         print(item_descriptor)
 
 
+def set_logging(value):
+    config = fe.createSettingsProvider("data/faceengine.conf")
+    configPath = config.getDefaultPath()
+    print("Config settings: DefaultPath {0}".format(configPath))
+    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(value))
+    faceEngine.setSettingsProvider(config)
+    val = config.getValue("system", "verboseLogging")
+    print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val.asInt()))
+
+
 if __name__ == "__main__":
     batch_size = len(sys.argv) - 2
     # correct path or put directory "data" with example.py
-    faceEngine = f.createFaceEngine("data","data/faceengine.conf")
+    faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+    # more detailed about config see luna-sdk/doc/ConfigurationGuide.pdf
+    set_logging(1)
     image_list = load_list_of_images(batch_size, sys.argv)
     (descriptor1, descriptor2, descriptor_batch) = extractor_example(image_list, batch_size)
     matcher_example(descriptor1, descriptor2, descriptor_batch)
-    print_descriptor(descriptor1)
+    # print_descriptor(descriptor1)
