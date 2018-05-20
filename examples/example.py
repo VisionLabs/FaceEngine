@@ -13,7 +13,7 @@ if len(sys.argv) != 3:
 sys.path.append(sys.argv[1])
 import FaceEngine as fe
 
-# correct paths to data or put directories data and images with example.py
+# correct path or put directory "data" with example.py
 faceEngine = fe.createFaceEngine("data",
                                       "data/faceengine.conf")
 
