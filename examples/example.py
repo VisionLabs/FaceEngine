@@ -1,6 +1,6 @@
 import sys
-import numpy as np
-from example_detector_warper import detector_example, warper_example
+# import numpy as np
+from example_detectofr_warper import detector_example, warper_example
 
 def help():
     print("python example.py <path to FaceEngine*.so> <path to image>")
@@ -205,11 +205,12 @@ if __name__ == "__main__":
     image_path = sys.argv[2]
     image = image_load(image_path)
     data = image.getDataAsList()
-    data_np = image.getData()
-    print(data_np.shape)
-    # print(data)
-    # print(len(data))
-    # print(data[240])
+    # only with numpy
+    # data_np = image.getData()
+    # print(data_np.shape)
+    print(data)
+    print(len(data))
+    print(data[240])
     # print(data[10][12])
     attribute_quality_ethnicity_blackWhite_smile_example(image)
     # unpack detector result - list of tuples
