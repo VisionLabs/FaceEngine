@@ -12,7 +12,9 @@ CMake but we advise for it.
 Currently we support Linux. On Windows everything should work with
 Visual Studio 2015 but we do not test this platform. On Linux we tested this code with GCC 4.8.5.
 Other versions may work as well. Note, that the SDK is officially supported on RedHat
-Linux families (RHEL, CentOS, Fedora, Ubuntu 14).
+Linux families (RHEL, CentOS, Fedora).
+
+Only basic methods and classes of LUNA SDK were binded.
 
 **On Unix (Linux, Ubuntu 14)**
 
@@ -115,7 +117,7 @@ import FaceEngine as fe
 
 Other usage examples could be found in `pythonBindings/tests` and `pythonBindings/examples`.
 
-## Test call
+## Running tests
 
 From `FSDK_ROOT/pythonBindings`:
 
@@ -143,15 +145,14 @@ $ python3 pythonBindings/examples/example_detector_warper.py pythonBindings/buil
 import FaceEngine as fe
 faceEnginePtr = fe.createFaceEngine("data", "data/faceengine.conf")
 ```
+
 ## Special notes for Windows
 
 **Compiler requirements**
 
 PythonBindings for Windows were not tested.
 Pybind11 requires a C++11 compliant compiler, i.e Visual Studio 2015 on Windows.
-This applies to all Python versions, including 2.7. Unlike regular C extension
-modules, it's perfectly fine to compile a pybind11 module with a VS version newer
-than the target Python's VS version. See the [FAQ] for more details.
+This applies to all Python versions, including 2.7. 
 
 ## About pybind11
 PythonBindings use pybind11. pybind11 is a lightweight header-only library that exposes C++ types in Python and vice versa, mainly to create Python bindings of existing C++ code. Its goals and syntax are similar to the excellent Boost.Python library by David Abrahams: to minimize boilerplate code in traditional extension modules by inferring type information using compile-time introspection. Think of this library as a tiny self-contained version of Boost.Python with everything stripped away that isn't relevant for binding generation. Without comments, the core header files only require ~4K lines of code and depend on Python (2.7 or 3.x) and the C++ standard library. This compact implementation was possible thanks to some of the new C++11 language features (specifically: tuples, lambda functions and variadic templates). Since its creation, this library has grown beyond Boost.Python in many ways, leading to dramatically simpler binding code in many common situations.
@@ -159,12 +160,149 @@ PythonBindings use pybind11. pybind11 is a lightweight header-only library that 
 Tutorial and reference documentation is provided at [doc](http://pybind11.readthedocs.org/en/master). A PDF version of the manual is available [here](https://media.readthedocs.org/pdf/pybind11/master/pybind11.pdf).
 
 ## pybind11 license
+
 pybind11 is provided under a BSD-style license that can be found in the LICENSE
 file. By using, distributing, or contributing to this project, you agree to the
 terms and conditions of this license.
 
+## Examples of code
+As described befor first you need to create main object of FaceEngine:
 
+```python
+# if FaceEngine was not installed pass path to directory with FaceEngine*.so and add it to system paths
+sys.path.append(sys.argv[1])
+import FaceEngine as fe
 
+```
+Using of basic methods you can see in examples or tests. More detailed information about methods and classes you can see in `src/FaceEngine.cpp`.
 
+```c++
+py::class_<fsdk::IEthnicityEstimatorPtr>(f, "IEthnicityEstimatorPtr")
+	.def("estimate",[](
+		const fsdk::IEthnicityEstimatorPtr& est,
+		const fsdk::Image &warp) {
+			fsdk::EthnicityEstimation out;
+			fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+			if (err.isOk())
+				return py::cast(out);
+			else
+				return py::cast(FSDKErrorResult(err)); })
+			;
+```
+
+Here you can see class `fsdk::IEthnicityEstimatorPtr`, method `estimate`, its specification. You should pass image warp, the result will be `ethnicityEstimation` struct or error. 
+How to use this from python, see `example.py`:
+
+```python
+import FaceEngine as fe
+faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+image = fe.Image()
+image.load("testData/Warp1.ppm")
+ethnicityEstimator = faceEngine.createEthnicityEstimator()
+ethnicity_result = ethnicityEstimator.estimate(image)
+print("Ethnicity estimation result {0}".format(ethnicity_result))
+```
+
+###Creating of basic objects
+
+```python
+config = fe.createSettingsProvider("data/faceengine.conf")
+attributeEstimator = faceEngine.createAttributeEstimator()
+qualityEstimator = faceEngine.createQualityEstimator()
+ethnicityEstimator = faceEngine.createEthnicityEstimator()
+blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
+smileEstimator = faceEngine.createSmileEstimator()
+detector = faceEngine.createDetector(fe.ODT_MTCNN)
+warper = faceEngine.createWarper()
+descriptor = faceEngine.createDescriptor()
+descriptorExtractor = faceEngine.createExtractor()
+```
+and so on.
+
+###Landmarks
+
+Landmarks are special classes binded to python. They are similar on python lists. It is possible to use some standard python built-in functions for them: `__len__`, `__getitem__`. The method `__setitem__` is used only for testing purposes. The length of definity type of landmarks is always fixed. For example len(landmarks5) is 5.
+
+```python
+for i in range(len(landmarks)):
+        print(landmarks[i])
+```
+
+###Arrays
+
+In some cases C++ arrays are casted to python lists.
+For example:
+```C++
+py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr")
+	.def("detect",[](
+		const fsdk::IDetectorPtr& det,
+		const fsdk::Image& image,
+		const fsdk::Rect& rect,
+		int maxCount) {
+			fsdk::Detection detections[maxCount];
+			fsdk::Landmarks5 landmarks[maxCount];
+			fsdk::Landmarks68 landmarks68[maxCount];
+			fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
+				image,
+				rect,
+				detections,
+				landmarks,
+				landmarks68,
+				maxCount);
+			auto detectionResultPyList = py::list();
+			if (err.isOk()) {
+				for (size_t i = 0; i < maxCount; ++i) {
+					detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i], landmarks68[i]));
+				}
+				return detectionResultPyList;
+			}
+			else {
+				detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
+				return detectionResultPyList; } })
+				;
+```
+**usage example**
+```python
+    detector = faceEngine.createDetector(fe.ODT_MTCNN)
+    max_detections = 3
+    print("Image for detection: ", _image_det.getHeight(), _image_det.getWidth(), _image_det.isValid())
+    detector_result = detector.detect(_image_det, _image_det.getRect(), max_detections)
+    print("detector result = ", detector_result)
+    print("Detections: ")
+    for i, item in enumerate(detector_result, 1):
+        print(i, item)
+```
+
+###Enums
+```c++
+py::enum_<fsdk::Format::Type>(f, "FormatType")
+	.value("Unknown", fsdk::Format::Unknown)
+	.value("B8G8R8X8", fsdk::Format::B8G8R8X8)
+	.value("R8G8B8X8", fsdk::Format::R8G8B8X8)
+	.value("B8G8R8", fsdk::Format::B8G8R8)
+	.value("R8G8B8", fsdk::Format::R8G8B8)
+	.value("R8", fsdk::Format::R8)
+	.value("R16", fsdk::Format::R16)
+		;
+```
+**usage example**
+```python
+print(fe.FormatType.R8)
+```
+
+###SettingsProvider
+SettingsProvider has quite difficult structure. 
+Usage example you can see in `example_detector_warper.py`
+
+```python
+    config = fe.createSettingsProvider("data/faceengine.conf")
+    config_path = config.getDefaultPath()
+    print("Config settings: DefaultPath {0}".format(config_path))
+    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(value))
+    faceEngine.setSettingsProvider(config)
+    val = config.getValue("system", "verboseLogging")
+    print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val.asInt()))
+
+```
 
 
