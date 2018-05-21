@@ -50,7 +50,6 @@ def extractor_example(_image_list, _batch_size):
     print(descriptor1)
     print(descriptor_batch)
     print(extractor)
-    print(table)
     return descriptor1, descriptor2, descriptor_batch
 
 
