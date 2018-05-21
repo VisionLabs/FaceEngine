@@ -204,8 +204,8 @@ if __name__ == "__main__":
                                      "data/faceengine.conf")
     image_path = sys.argv[2]
     image = image_load(image_path)
-    data = image.getData()
-    data_np = image.getDataNp()
+    data = image.getDataAsList()
+    data_np = image.getData()
     print(data_np.shape)
     # print(data)
     # print(len(data))
@@ -222,7 +222,7 @@ if __name__ == "__main__":
 
     # examples with hardcoded images
     depth_example("images/warp.depth")
-    ir_example("images/irWarp.ppm")
+    ir_example("testData/irWarp.ppm")
     faceFlow_example()
 
     emotions_example(warp_image)

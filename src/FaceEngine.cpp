@@ -1028,9 +1028,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getHeight", &fsdk::Image::getHeight)
 		.def("isValid", &fsdk::Image::isValid)
 		.def("getRect", &fsdk::Image::getRect)
-		.def("getData", [](const fsdk::Image& image) {
-			py::list py_matr;
+		.def("getDataAsList", [](const fsdk::Image& image) {
 			std::cout << "This method was not tested" << std::endl;
+			py::list py_matr;
 			for (int i = 0; i < image.getHeight(); ++i) {
 				const auto* const data_str = image.getScanLineAs<uint32_t>(i);
 				py::list py_str;
@@ -1041,7 +1041,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			}
 			return py_matr;
 		})
-		.def("getDataNp", [](const fsdk::Image& image) {
+		.def("getData", [](const fsdk::Image& image) {
 			std::cout << "This method was not tested" << std::endl;
 			const auto* const data_uint = image.getDataAs<uint8_t>();
 			std::vector<uint8_t> data(data_uint, data_uint + image.getDataSize());
