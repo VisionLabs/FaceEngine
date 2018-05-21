@@ -1,6 +1,6 @@
 import sys
 # import numpy as np
-from example_detectofr_warper import detector_example, warper_example
+from example_detector_warper import detector_example, warper_example
 
 def help():
     print("python example.py <path to FaceEngine*.so> <path to image>")
