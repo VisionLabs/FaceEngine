@@ -29,6 +29,7 @@ From source files of pythonBindings generated a shared library `FaceEngine*.so`.
 This library can be installed in system or used without installing.
  
 You should do such steps:
+
 1. Download LUNA SDK.
 
 2. Choose directory with pythonBindings within LUNA SDK.
@@ -125,6 +126,7 @@ $ python3 pythonBindings/tests/test_estimators.py --bind-path pythonBindings/bui
 ```
 ## Running examples
 Note: data folder must be at \<LUNA_SDK_root\>/data on Windows and on Linux.
+
 ```
 # Extracting, Matching
 $ python3 pythonBindings/examples/example_extractor_matcher.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm testData/warp1.ppm testData/warp2.ppm
@@ -135,11 +137,12 @@ $ python3 pythonBindings/examples/example.py pythonBindings/build testData/photo
 # Detecting and warping
 $ python3 pythonBindings/examples/example_detector_warper.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm
 ```
-**usage of FaceEngine module example**
+**usage of FaceEngine, example**
+
 ```python
 import FaceEngine as fe
 faceEnginePtr = fe.createFaceEngine("data", "data/faceengine.conf")
-
+```
 ## Special notes for Windows
 
 **Compiler requirements**
@@ -161,7 +164,7 @@ file. By using, distributing, or contributing to this project, you agree to the
 terms and conditions of this license.
 
 
-```
+
 
 
 
