@@ -203,7 +203,7 @@ ethnicity_result = ethnicityEstimator.estimate(image)
 print("Ethnicity estimation result {0}".format(ethnicity_result))
 ```
 
-###Creating of basic objects
+### Creating of basic objects
 
 ```python
 config = fe.createSettingsProvider("data/faceengine.conf")
@@ -219,7 +219,7 @@ descriptorExtractor = faceEngine.createExtractor()
 ```
 and so on.
 
-###Landmarks
+### Landmarks
 
 Landmarks are special classes binded to python. They are similar on python lists. It is possible to use some standard python built-in functions for them: `__len__`, `__getitem__`. The method `__setitem__` is used only for testing purposes. The length of definity type of landmarks is always fixed. For example len(landmarks5) is 5.
 
@@ -228,7 +228,7 @@ for i in range(len(landmarks)):
         print(landmarks[i])
 ```
 
-###Arrays
+### Arrays
 
 In some cases C++ arrays are casted to python lists.
 For example:
@@ -273,7 +273,7 @@ py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr")
         print(i, item)
 ```
 
-###Enums
+### Enums
 ```c++
 py::enum_<fsdk::Format::Type>(f, "FormatType")
 	.value("Unknown", fsdk::Format::Unknown)
@@ -290,7 +290,7 @@ py::enum_<fsdk::Format::Type>(f, "FormatType")
 print(fe.FormatType.R8)
 ```
 
-###SettingsProvider
+### SettingsProvider
 SettingsProvider has quite difficult structure. 
 Usage example you can see in `example_detector_warper.py`
 
