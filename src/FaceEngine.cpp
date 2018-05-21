@@ -1031,16 +1031,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getData", [](const fsdk::Image& image) {
 			py::list py_matr;
 			for (int i = 0; i < image.getHeight(); ++i) {
-				const auto* const data_str = image.getScanLineAs<uint8_t>(i);
+				const auto* const data_str = image.getScanLineAs<uint32_t>(i);
 				py::list py_str;
 				for (int j = 0; j < image.getWidth(); ++j) {
 					py_str.append(data_str[j]);
 				}
 				py_matr.append(py_str);
 			}
-//			return py::array_t<uint32_t>({image.getWidth(), image.getHeight()}, image.getDataAs<uint32_t>(), obj);
-//			return py::array({image.getWidth(), image.getHeight()}, // shape
-//			{image.getWidth() * 8, image.getHeight() * 8}, image.getDataAs<uint32_t>());
 			return py_matr;
 		})
 		.def("save", [](const fsdk::Image& image, const char* path) {
