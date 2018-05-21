@@ -1030,6 +1030,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getRect", &fsdk::Image::getRect)
 		.def("getData", [](const fsdk::Image& image) {
 			py::list py_matr;
+			std::cout << "This method was not tested" << std::endl;
 			for (int i = 0; i < image.getHeight(); ++i) {
 				const auto* const data_str = image.getScanLineAs<uint32_t>(i);
 				py::list py_str;
@@ -1039,6 +1040,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 				py_matr.append(py_str);
 			}
 			return py_matr;
+		})
+		.def("getDataNp", [](const fsdk::Image& image) {
+			std::cout << "This method was not tested" << std::endl;
+			const auto* const data_uint = image.getDataAs<uint8_t>();
+			std::vector<uint8_t> data(data_uint, data_uint + image.getDataSize());
+			std::vector<ssize_t> shape { image.getWidth(), image.getHeight() };
+			auto ptr = data.data();
+			return py::array(shape, ptr);
+
 		})
 		.def("save", [](const fsdk::Image& image, const char* path) {
 			fsdk::Result<fsdk::Image::Error> error = image.save(path);

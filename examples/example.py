@@ -1,4 +1,5 @@
 import sys
+import numpy as np
 from example_detector_warper import detector_example, warper_example
 
 def help():
@@ -204,6 +205,8 @@ if __name__ == "__main__":
     image_path = sys.argv[2]
     image = image_load(image_path)
     data = image.getData()
+    data_np = image.getDataNp()
+    print(data_np.shape)
     # print(data)
     # print(len(data))
     # print(data[240])
