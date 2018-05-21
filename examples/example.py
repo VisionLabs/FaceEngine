@@ -220,7 +220,7 @@ if __name__ == "__main__":
         warper_example(image, detection, landmarks5, landmarks68)
     print("transformedLandmarks5[0]", transformed_landmarks5)
 
-    # examples with hardcoded testData
+    # examples with hardcoded paths to images
     depth_example("testData/warp.depth")
     ir_example("testData/irWarp.ppm")
     faceFlow_example()
