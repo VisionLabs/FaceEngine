@@ -80,14 +80,14 @@ def ir_example(ir_image_path):
 def faceFlow_example():
     faceFlowEstimator = faceEngine.createFaceFlowEstimator()
     face_flow_image = fe.Image()
-    face_flow_image.load("images/small.ppm")
+    face_flow_image.load("testData/small.ppm")
     if not face_flow_image.isValid():
         print("ir image was not found {0}".format(err))
         exit(1)
     sequence = []
     for i in range(10):
         temp_image = fe.Image()
-        temp_image.load("images/" + str(i) + "big.ppm")
+        temp_image.load("testData/" + str(i) + "big.ppm")
         sequence.append(temp_image)
     faceFlowResult = faceFlowEstimator.estimate(face_flow_image, sequence, len(sequence))
     print("FaceFlowResult {0}".format(faceFlowResult))
@@ -158,8 +158,8 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
 
     warps = [fe.Image(), fe.Image()]
 
-    warps[0].load("images/warp1.ppm")
-    warps[1].load("images/warp2.ppm")
+    warps[0].load("testData/warp1.ppm")
+    warps[1].load("testData/warp2.ppm")
     batchSize = len(warps)
     descriptorExtractor = faceEngine.createExtractor()
     batch = faceEngine.createDescriptorBatch(batchSize)
@@ -220,8 +220,8 @@ if __name__ == "__main__":
         warper_example(image, detection, landmarks5, landmarks68)
     print("transformedLandmarks5[0]", transformed_landmarks5)
 
-    # examples with hardcoded images
-    depth_example("images/warp.depth")
+    # examples with hardcoded testData
+    depth_example("testData/warp.depth")
     ir_example("testData/irWarp.ppm")
     faceFlow_example()
 
