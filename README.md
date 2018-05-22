@@ -12,7 +12,11 @@ CMake but we advise for it.
 Currently we support Linux. On Windows everything should work with
 Visual Studio 2015 but we do not test this platform. On Linux we tested this code with GCC 4.8.5.
 Other versions may work as well. Note, that the SDK is officially supported on RedHat
-Linux families (RHEL, CentOS, Fedora).
+Linux families (RHEL, CentOS, Fedora). 
+
+**Python version**
+PythonBindings were tested with python 3.4 and python 3.6.
+Other versions may work as well(2.7 and higher). 
 
 Only basic methods and classes of LUNA SDK were binded.
 
@@ -42,7 +46,7 @@ cd pythonBindings
 3. **For library building and installing**:
 
 ```bash
-$ python setup.py install 
+$ python3 setup.py install 
 ```
 Library `FaceEngine*.so` will be generated and installed in system.
 
@@ -51,7 +55,7 @@ to uninstall it:
 ```bash
 $ pip uinstall FaceEngine 
 ```
-Possible you'll need sudo rights or use python3 and pip3.
+Possible you'll need **sudo** rights or use python3 and pip3.
 
 3. **For library building without installing**:
 
@@ -64,20 +68,21 @@ $ cmake .. -DFSDK_ROOT=<path_to_LUNA_SDK>
 $ cmake --build . --config Release
 ```
 
-If you want to point not default version of python or custom path to LUNA SDK you can write for python 2.7:
+If you want to point not default version of python or custom path to LUNA SDK you can write 
 
-**Example of building command (from FSDK_ROOT/build):**
-
-```bash
-$ cmake .. -DFSDK_ROOT=<FSDK_path> -DCMAKE_INSTALL_PREFIX=./install -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python
--DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.lib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7
-```
-**Example building command (from FSDK_ROOT/build):**
-or for `python 3.6`:
+**Example building command (from FSDK_ROOT/pythonBindings/build):**
+for `python 3.6` for example:
 
 ```bash
 $ cmake .. -DFSDK_ROOT=<FSDK_path> -DCMAKE_INSTALL_PREFIX=./install -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3.6
 -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython3.6.lib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python3.6
+```
+**Example of building command (from FSDK_ROOT/pythonBindings/build):**
+for python 2.7 for example:
+
+```bash
+$ cmake .. -DFSDK_ROOT=<FSDK_path> -DCMAKE_INSTALL_PREFIX=./install -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python
+-DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.lib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7
 ```
 
 ## Usage
@@ -87,7 +92,7 @@ $ cmake .. -DFSDK_ROOT=<FSDK_path> -DCMAKE_INSTALL_PREFIX=./install -DPYTHON_EXE
 **run a script**:
 
 ```bash
-$ python script.py
+$ python3 script.py
 ```
 
 **usage example**
@@ -102,7 +107,7 @@ faceEnginePtr = f.createFaceEngine("data", "data/faceengine.conf")
 **run a script**:
 
 ```bash
-$ python script.py <path to FaceEngine*.so>
+$ python3 script.py <path to FaceEngine*.so>
 ```
 
 If FaceEngine*.so was built from sources by CMake pass the path to directory with FaceEngine*.so and add it to system paths:
@@ -177,18 +182,18 @@ import FaceEngine as fe
 ```
 Using of basic methods you can see in examples or tests. More detailed information about methods and classes you can see in `src/FaceEngine.cpp`.
 
-```c++
+```
 py::class_<fsdk::IEthnicityEstimatorPtr>(f, "IEthnicityEstimatorPtr")
-	.def("estimate",[](
-		const fsdk::IEthnicityEstimatorPtr& est,
-		const fsdk::Image &warp) {
-			fsdk::EthnicityEstimation out;
-			fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
-			if (err.isOk())
-				return py::cast(out);
-			else
-				return py::cast(FSDKErrorResult(err)); })
-			;
+.def("estimate",[](
+	const fsdk::IEthnicityEstimatorPtr& est,
+	const fsdk::Image &warp) {
+		fsdk::EthnicityEstimation out;
+		fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+		if (err.isOk())
+			return py::cast(out);
+		else
+			return py::cast(FSDKErrorResult(err)); })
+		;
 ```
 
 Here you can see class `fsdk::IEthnicityEstimatorPtr`, method `estimate`, its specification. You should pass image warp, the result will be `ethnicityEstimation` struct or error. 
@@ -233,35 +238,37 @@ for i in range(len(landmarks)):
 
 In some cases C++ arrays are casted to python lists.
 For example:
-```C++
-py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr")
-	.def("detect",[](
-		const fsdk::IDetectorPtr& det,
-		const fsdk::Image& image,
-		const fsdk::Rect& rect,
-		int maxCount) {
-			fsdk::Detection detections[maxCount];
-			fsdk::Landmarks5 landmarks[maxCount];
-			fsdk::Landmarks68 landmarks68[maxCount];
-			fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
-				image,
-				rect,
-				detections,
-				landmarks,
-				landmarks68,
-				maxCount);
-			auto detectionResultPyList = py::list();
-			if (err.isOk()) {
-				for (size_t i = 0; i < maxCount; ++i) {
-					detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i], landmarks68[i]));
-				}
-				return detectionResultPyList;
-			}
-			else {
-				detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
-				return detectionResultPyList; } })
-				;
+
 ```
+py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr")
+.def("detect",[](
+	const fsdk::IDetectorPtr& det,
+	const fsdk::Image& image,
+	const fsdk::Rect& rect,
+	int maxCount) {
+		fsdk::Detection detections[maxCount];
+		fsdk::Landmarks5 landmarks[maxCount];
+		fsdk::Landmarks68 landmarks68[maxCount];
+		fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
+			image,
+			rect,
+			detections,
+			landmarks,
+			landmarks68,
+			maxCount);
+		auto detectionResultPyList = py::list();
+		if (err.isOk()) {
+			for (size_t i = 0; i < maxCount; ++i) {
+				detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i], landmarks68[i]));
+			}
+			return detectionResultPyList;
+		}
+		else {
+			detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
+			return detectionResultPyList; } })
+			;
+```
+
 **usage example**
 ```python
     detector = faceEngine.createDetector(fe.ODT_MTCNN)
