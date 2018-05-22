@@ -102,7 +102,7 @@ faceEnginePtr = f.createFaceEngine("data", "data/faceengine.conf")
 **run a script**:
 
 ```bash
-$ python script.py <path to FSDK_ROOT>
+$ python script.py <path to FaceEngine*.so>
 ```
 
 If FaceEngine*.so was built from sources by CMake pass the path to directory with FaceEngine*.so and add it to system paths:
