@@ -131,7 +131,7 @@ Note: data folder must be at \<LUNA_SDK_root\>/data on Windows and on Linux.
 From `FSDK_ROOT`:
 
 ```
-# Extracting, Matching
+# Extracting, Matching, this example only for full version (not for front-edition) of LUNS SDK
 $ python3 pythonBindings/examples/example_extractor_matcher.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm testData/warp1.ppm testData/warp2.ppm
 
 # Detecting, Landmarks, Estimating (Attributes, Quality, Eyes, Head pose and so on)
