@@ -119,7 +119,7 @@ Other usage examples could be found in `pythonBindings/tests` and `pythonBinding
 
 ## Running tests
 
-From `FSDK_ROOT/pythonBindings`:
+From `FSDK_ROOT`:
 
 ```bash
 $ python3 pythonBindings/tests/test_image.py --bind-path pythonBindings/build
@@ -128,6 +128,7 @@ $ python3 pythonBindings/tests/test_estimators.py --bind-path pythonBindings/bui
 ```
 ## Running examples
 Note: data folder must be at \<LUNA_SDK_root\>/data on Windows and on Linux.
+From `FSDK_ROOT`:
 
 ```
 # Extracting, Matching
