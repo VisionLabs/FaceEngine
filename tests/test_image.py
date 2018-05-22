@@ -3,6 +3,7 @@ import unittest
 import argparse
 import sys
 import os
+# import numpy as np
 
 # if FaceEngine is not instaflled in system
 parser = argparse.ArgumentParser()
@@ -61,20 +62,32 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(load_error_R16.what, "Requiered conversion not implemented")
         self.assertEqual(load_error_Unknown.what, "Unsupported type")
 
+    def test_identity(self):
+        self.assertEqual(image.getHeight(), loaded_image.getHeight(), 250)
+        self.assertEqual(image.getWidth(), loaded_image.getWidth(), 250)
+        self.assertEqual(image.isValid(), loaded_image.isValid())
+        self.assertEqual(image.getRect(), loaded_image.getRect())
+        list1 = image.getDataAsList()
+        list2 = loaded_image.getDataAsList()
+        self.assertEqual(len(list1), len(list2))
+        for i in range(len(list1)):
+            for j in range(len(list1[i])):
+                self.assertEqual(list1[i][j], list2[i][j])
+                if list1[i][j] != list2[i][j]:
+                    print(i, ", ", j, ") ", list1[i][j], list2[i][j])
+
+        # list_np1 = image.getData()
+        # list_np2 = loaded_image.getData()
+        # self.assertTrue(np.array_equal(list_np1, list_np2))
+
     def test_save(self):
         self.assertTrue(os.path.isfile(new_file_path))
         self.assertEqual(save_error.isOk, 1)
         self.assertEqual(save_error.isError, 0)
         self.assertEqual(save_error.what, 'Ok')
         self.assertEqual(save_error.imageError, f.ImageError.Ok)
-        print("deleting of saved {0}".format(new_file_path))
+        # print("deleting of saved {0}".format(new_file_path))
         os.remove(new_file_path)
-
-    def test_identity(self):
-        self.assertEqual(image.getHeight(), loaded_image.getHeight(), 250)
-        self.assertEqual(image.getWidth(), loaded_image.getWidth(), 250)
-        self.assertEqual(image.isValid(), loaded_image.isValid())
-        self.assertEqual(image.getRect(), loaded_image.getRect())
 
 class ExpectedFailureTestCase(unittest.TestCase):
     @unittest.expectedFailure
