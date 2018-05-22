@@ -73,8 +73,7 @@ class TestFaceEngineImage(unittest.TestCase):
         for i in range(len(list1)):
             for j in range(len(list1[i])):
                 self.assertEqual(list1[i][j], list2[i][j])
-                if list1[i][j] != list2[i][j]:
-                    print(i, ", ", j, ") ", list1[i][j], list2[i][j])
+
 
         # list_np1 = image.getData()
         # list_np2 = loaded_image.getData()

@@ -19,8 +19,7 @@ def image_load(image_path):
     print("\nImage example")
     print("image path: {0}".format(image_path))
     image = fe.Image()
-    print(fe.FormatType.R8)
-    print(fe.Format())
+    # print(fe.FormatType.R8)
     err = image.load(image_path)
     # image.load(image_path, fe.Format(fe.FormatType.R8G8B8))
     if not image.isValid():
@@ -99,8 +98,8 @@ def eye_example(_warp_image, _transformed_landmarks5):
     print("\nEyes estimation result: ")
     print(eyesEstimation.leftEye.state, eyesEstimation.leftEye.iris, eyesEstimation.leftEye.eyelid)
     print(eyesEstimation.rightEye.state, eyesEstimation.rightEye.iris, eyesEstimation.rightEye.eyelid)
-    print_landmarks(eyesEstimation.leftEye.eyelid, "eyesEstimation.leftEye.eyelid")
-    print_landmarks(eyesEstimation.rightEye.eyelid, "eyesEstimation.rightEye.eyelid")
+    # print_landmarks(eyesEstimation.leftEye.eyelid, "eyesEstimation.leftEye.eyelid")
+    # print_landmarks(eyesEstimation.rightEye.eyelid, "eyesEstimation.rightEye.eyelid")
     return eyesEstimation
 
 
@@ -112,7 +111,6 @@ def emotions_example(warp_image):
 
 def gaze_example(_headPoseEstimation, _eyesEstimation):
     gazeEstimator = faceEngine.createGazeEstimator()
-    print(gazeEstimator)
     gaze_result = gazeEstimator.estimate(_headPoseEstimation, _eyesEstimation)
     print("\nGaze estimation result {0}".format(gaze_result))
 
@@ -134,7 +132,7 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(use_mobile_net))
     config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
     config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpu_type))
-    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(1))
     # config.setValue("QualityEstimator::Settings", "logGray", f.SettingsProviderValue(0.05, 3.3, 0.05, 0.012))
     faceEngine.setSettingsProvider(config)
     # try to test settingsProvider
@@ -143,14 +141,6 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print(val.asPoint2f())
     val = config.getValue("QualityEstimator::Settings", "expBlur")
     print("Try to print value in different formats: ")
-    print(val.asPoint2f())
-    print(val.asPoint2i())
-    print(val.asSize())
-    print(val.asRect())
-    print(val.asBool())
-    print(val.asInt())
-    print(val.asFloat())
-    print(val.asString())
 
     faceEngine.setSettingsProvider(config)
     val = config.getValue("MTCNNDetector::Settings", "scaleFactor")
@@ -186,8 +176,8 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     desc2 = descriptor2.getDescriptor()
     print("Descriptor")
     desc_from_batch = batch.getDescriptorSlow(1).getDescriptor()
-    for i, element in enumerate(desc1):
-        print(i, ")", desc1[i], desc_from_batch[i])
+    # for i, element in enumerate(desc1):
+    #     print(i, ")", desc1[i], desc_from_batch[i])
     print("Descritptor comparing {0}".format(are_equal(desc1, desc_from_batch)))
     print("are_equal(desc1, desc2){0}".format(are_equal(desc1, desc2)))
 
@@ -208,14 +198,10 @@ if __name__ == "__main__":
     # only with numpy
     # data_np = image.getData()
     # print(data_np.shape)
-    print(data)
-    print(len(data))
-    print(data[240])
-    # print(data[10][12])
     attribute_quality_ethnicity_blackWhite_smile_example(image)
     # unpack detector result - list of tuples
     (detection, landmarks5, landmarks68) = detector_example(image)[0]
-    print_landmarks(landmarks5, "landmarks5: ")
+    # print_landmarks(landmarks5, "landmarks5: ")
     # print_landmarks(landmarks68, "landmarks68: ")
     (warp_image, transformed_landmarks5, transformed_landmarks68) = \
         warper_example(image, detection, landmarks5, landmarks68)

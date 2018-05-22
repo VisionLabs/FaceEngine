@@ -49,14 +49,11 @@ def detect(image_det, max_detections):
 max_detections = 3
 image_det = f.Image()
 err = image_det.load("testData/00205_9501_p.ppm")
-print(image_det.getHeight(), image_det.getWidth(), image_det.isValid())
-print("Image error = ", err)
 
 (detection, landmarks5, landmarks68) = detect(image_det, 3)[0]
 
 warper = faceEnginePtr.createWarper()
 transformation = warper.createTransformation(detection, landmarks5)
-print(transformation)
 warpedImage = warper.warp(image_det, transformation)
 
 transformedLandmarks5 = warper.warp(landmarks5, transformation)
@@ -83,7 +80,6 @@ def readHeadPoseEstimation(fileReader):
 
 def readLandmarks68(fileReader):
     landmarks68 = f.Landmarks68()
-    print("len of landmarks68 = {0}".format(len(landmarks68)))
     for i in range(len(landmarks68)):
         landmarks68[i] = f.Vector2f(struct.unpack('<f', fileReader.read(4))[0],
                                     struct.unpack('<f', fileReader.read(4))[0])
@@ -93,7 +89,6 @@ def readLandmarks68(fileReader):
 
 def readLandmarks5(fileReader):
     landmarks5 = f.Landmarks5()
-    print("len of landmarks5 = {0}".format(len(landmarks5)))
     for i in range(len(landmarks5)):
         landmarks5[i] = f.Vector2f(struct.unpack('<f', fileReader.read(4))[0],
                                     struct.unpack('<f', fileReader.read(4))[0])
@@ -103,7 +98,6 @@ def readLandmarks5(fileReader):
 
 def readIrisLandmarks(fileReader):
     irisLandmarks = f.IrisLandmarks()
-    print("len of irisLandmarks = {0}".format(len(irisLandmarks)))
     for i in range(len(irisLandmarks)):
         irisLandmarks[i] = f.Vector2f(struct.unpack('<f', fileReader.read(4))[0],
                                    struct.unpack('<f', fileReader.read(4))[0])
@@ -163,7 +157,6 @@ class TestFaceEngineRect(unittest.TestCase):
         (detection, landmarks5, landmarks68) = detect(image, 3)[0]
         headPoseEstimator = faceEnginePtr.createHeadPoseEstimator()
         headPoseEstimation = headPoseEstimator.estimate(landmarks68)
-        print(headPoseEstimation)
         expected = f.HeadPoseEstimation()
         expected.roll = 0.3891
         expected.yaw = -2.3956
@@ -171,7 +164,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertAlmostEqual(headPoseEstimation.roll, expected.roll, delta=3.0)
         self.assertAlmostEqual(headPoseEstimation.yaw, expected.yaw, delta=3.0)
         self.assertAlmostEqual(headPoseEstimation.pitch, expected.pitch, delta=3.0)
-        print("Actual values headPoseEstimation by landmarks: {0}".format(headPoseEstimation))
+        # print("Actual values headPoseEstimation by landmarks: {0}".format(headPoseEstimation))
         self.assertEqual(f.FrontalFaceType.FrontalFace1, expected.getFrontalFaceType())
 
     def test_HeadPoseEstimatorImage(self):
@@ -193,7 +186,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertAlmostEqual(headPoseEstimation.roll, expected.roll, delta=3.0)
         self.assertAlmostEqual(headPoseEstimation.yaw, expected.yaw, delta=3.0)
         self.assertAlmostEqual(headPoseEstimation.pitch, expected.pitch, delta=3.0)
-        print("Actual values headPoseEstimation by image: {0}".format(headPoseEstimation))
+        # print("Actual values headPoseEstimation by image: {0}".format(headPoseEstimation))
         self.assertEqual(f.FrontalFaceType.FrontalFace1, expected.getFrontalFaceType())
 
     def test_BlackWhiteEstimator(self):
@@ -202,7 +195,6 @@ class TestFaceEngineRect(unittest.TestCase):
         image.load("testData/warp1.ppm")
         self.assertTrue(image.isValid())
         isBlack = blackWhiteEstimator.estimate(image)
-        print("blackWhiteEstimator = {0}".format(isBlack))
         self.assertFalse(isBlack)
 
     def test_DepthEstimator(self):
@@ -211,7 +203,7 @@ class TestFaceEngineRect(unittest.TestCase):
         # loadImage - only for depth image downloading
         depthImage = f.loadImage("testData/warp.depth")
         depth_result = depthEstimator.estimate(depthImage)
-        print("Depth estimation result = {0}".format(depth_result))
+        # print("Depth estimation result = {0}".format(depth_result))
         self.assertAlmostEqual(depth_result.value, 1.0, delta=0.01)
 
     def test_IREstimator(self):
@@ -220,7 +212,7 @@ class TestFaceEngineRect(unittest.TestCase):
         irImage.load("testData/irWarp.ppm")
         self.assertTrue(irImage.isValid())
         irRestult = iREstimator.estimate(irImage)
-        print("irResult = ", irRestult)
+        # print("irResult = ", irRestult)
         self.assertFalse(irRestult.isError)
         self.assertAlmostEqual(irRestult.value, 1.0, delta=0.01)
 
@@ -369,8 +361,8 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertAlmostEqual(emotionsEstimation.surprise, reference.surprise, delta=acceptable_diff)
             self.assertAlmostEqual(emotionsEstimation.sadness, reference.sadness, delta=acceptable_diff)
             self.assertAlmostEqual(emotionsEstimation.neutral, reference.neutral, delta=acceptable_diff)
-            print("Emotions {0}".format(emotionsEstimation))
-            print("Best: {0}".format(emotionsEstimation.getPredominantEmotion()))
+            # print("Emotions {0}".format(emotionsEstimation))
+            # print("Best: {0}".format(emotionsEstimation.getPredominantEmotion()))
             self.assertEqual(emotionsEstimation.getPredominantEmotion(), predominant)
         reference1 = f.EmotionsEstimation()
         reference2 = f.EmotionsEstimation()
@@ -413,7 +405,7 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertAlmostEqual(actual.leftEye.pitch, expected.leftEye.pitch, delta=0.01)
             self.assertAlmostEqual(actual.rightEye.yaw, expected.rightEye.yaw, delta=0.01)
             self.assertAlmostEqual(actual.rightEye.pitch, expected.rightEye.pitch, delta=0.01)
-            print("GazeEstimation actual = {0}".format(actual))
+            # print("GazeEstimation actual = {0}".format(actual))
 
 if __name__ == '__main__':
     unittest.main()

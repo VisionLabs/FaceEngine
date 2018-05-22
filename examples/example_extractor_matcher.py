@@ -20,16 +20,12 @@ def extractor_example(_image_list, _batch_size):
     print("batchSize {0}".format(_batch_size))
     descriptor_batch = faceEngine.createDescriptorBatch(_batch_size)
     extractor = faceEngine.createExtractor()
-    print(extractor)
     # table = faceEngine.createLSHTable(descriptor_batch)
     # descriptor, creating objects
     print("Creating descriptors")
     descriptor1 = faceEngine.createDescriptor()
     descriptor2 = faceEngine.createDescriptor()
-    print(descriptor1, descriptor2)
     aggregation = faceEngine.createDescriptor()
-    print("image_list = ", _image_list)
-    print(type(extractor))
     print("Descriptor test befor = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
     ext1 = extractor.extractFromWarpedImage(_image_list[0], descriptor1)
     ext2 = extractor.extractFromWarpedImage(_image_list[1], descriptor2)
@@ -47,16 +43,12 @@ def extractor_example(_image_list, _batch_size):
     print("Garbage score list2 = ", ext_batch2)
     print("Descriptor batch test after", descriptor_batch.getMaxCount(), descriptor_batch.getCount(),
           descriptor_batch.getModelVersion(), descriptor_batch.getDescriptorSize())
-    print(descriptor1)
-    print(descriptor_batch)
-    print(extractor)
     return descriptor1, descriptor2, descriptor_batch
 
 
 def matcher_example(_descriptor1, _descriptor2, _descriptor_batch):
     print("\nMatcher example")
     matcher = faceEngine.createMatcher()
-    print(matcher)
     result1 = matcher.match(_descriptor1, _descriptor2)
     result2 = matcher.match(_descriptor1, _descriptor_batch)
     result3 = matcher.match(_descriptor1, _descriptor_batch, [0, 1])
