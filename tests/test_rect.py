@@ -21,7 +21,6 @@ if not os.path.isdir(path_to_binding):
 print("Directory {0} with python bindings of FaceEngine was included".format(path_to_binding))
 
 sys.path.append(path_to_binding)
-print("sys.path = ", sys.path)
 
 import FaceEngine as f
 
