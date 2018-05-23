@@ -24,7 +24,6 @@ print("Directory {0} with python bindings of FaceEngine was included".format(pat
 print(sys.argv)
 
 sys.path.append(path_to_binding)
-print("sys.path = ", sys.path)
 
 # if FaceEngine is installed only this string of code is required for module importing
 import FaceEngine as f
