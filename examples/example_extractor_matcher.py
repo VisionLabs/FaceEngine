@@ -26,15 +26,9 @@ def extractor_example(_image_list, _batch_size):
     descriptor1 = faceEngine.createDescriptor()
     descriptor2 = faceEngine.createDescriptor()
     aggregation = faceEngine.createDescriptor()
-    print("Descriptor test befor = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
     ext1 = extractor.extractFromWarpedImage(_image_list[0], descriptor1)
     ext2 = extractor.extractFromWarpedImage(_image_list[1], descriptor2)
-    print("Descriptor test after = ", descriptor1.getModelVersion(), descriptor1.getDescriptorLength())
-    print("extractor result =", ext1)
-    print("extractor result =", ext2)
 
-    print("Descriptor batch test befor: ", descriptor_batch.getMaxCount(), descriptor_batch.getCount(),
-          descriptor_batch.getModelVersion(), descriptor_batch.getDescriptorSize())
     ext_batch1 = extractor.extractFromWarpedImageBatch(_image_list, descriptor_batch, aggregation, _batch_size)
     print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
     ext_batch2 = extractor.extractFromWarpedImageBatch(_image_list, descriptor_batch, _batch_size)
@@ -98,3 +92,4 @@ if __name__ == "__main__":
     (descriptor1, descriptor2, descriptor_batch) = extractor_example(image_list, batch_size)
     matcher_example(descriptor1, descriptor2, descriptor_batch)
     # print_descriptor(descriptor1)
+    # print_descriptor(descriptor2)

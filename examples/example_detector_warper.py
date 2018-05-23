@@ -15,19 +15,13 @@ import FaceEngine as fe
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
 
-def detector_example(_image_det):
+def detector_example(_image_det, max_detections):
     print("\nDetector example")
     detector = faceEngine.createDetector(fe.ODT_MTCNN)
-    max_detections = 3
-    print("Image for detection: ", _image_det.getHeight(), _image_det.getWidth(), _image_det.isValid())
     detector_result = detector.detect(_image_det, _image_det.getRect(), max_detections)
-    print("detector result = ", detector_result)
     test = detector_result[0][1]
-    print("Landmarks test {0}".format(test[0]))
-    print("Landmarks test {0}".format(test[0]))
-    print("Detections: ")
     for i, item in enumerate(detector_result, 1):
-        print(i, item)
+        print(item[0])
     return detector_result
 
 
@@ -36,19 +30,13 @@ def warper_example(image_det, _detection, _landmarks5, _landmarks68):
     warper = faceEngine.createWarper()
     transformation = warper.createTransformation(_detection,
                                                  _landmarks5)
-    print("transformation = ", transformation)
+    print(transformation)
     warp_image = warper.warp(image_det, transformation)
-    print(warp_image.getWidth(), warp_image.getHeight(), warp_image.isValid())
-    ethnicityEstimator = faceEngine.createEthnicityEstimator()
-    estimation = ethnicityEstimator.estimate(warp_image)
-    print("Ethnicity estimator on warped Image {0}".format(estimation))
     _transformed_landmarks5 = warper.warp(_landmarks5, transformation)
     print("\nTransformed landmarks5: ")
     for i in range(len(_transformed_landmarks5)):
         print(_transformed_landmarks5[i])
     _transformed_landmarks68 = warper.warp(_landmarks68, transformation)
-    print("warperResult with Landmarks5 = ", _transformed_landmarks5)
-    print("warperResult with Landmarks68 = ", _transformed_landmarks68)
     return (warp_image, _transformed_landmarks5, _transformed_landmarks68)
 
 
@@ -88,14 +76,13 @@ if __name__ == "__main__":
     if not image.isValid():
         print("Image error = ", err)
     # unpack detector result - list of tuples
-    (detection, landmarks5, landmarks68) = detector_example(image)[0]
+    (detection, landmarks5, landmarks68) = detector_example(image, 1)[0]
 
     # print_landmarks(landmarks68, "landmarks68: ")
     (warp_image, transformed_landmarks5, transformed_landmarks68) = \
         warper_example(image, detection, landmarks5, landmarks68)
-    print("warp_image = ", warp_image.getWidth(), warp_image.getHeight(), warp_image.isValid())
 
-    (_, landmarks5_warp, _) = detector_example(warp_image)[0]
+    (_, landmarks5_warp, _) = detector_example(warp_image, 1)[0]
     print_landmarks(landmarks5, "landmarks5: ")
     print_landmarks(transformed_landmarks5, "transformedLandmarks5: ")
     print_landmarks(landmarks5_warp, "landmarks5_warp: ")

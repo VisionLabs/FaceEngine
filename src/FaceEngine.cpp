@@ -570,9 +570,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("similarity", &fsdk::MatchingResult::similarity)
 		.def("__repr__",
 			 [](const fsdk::MatchingResult &result) {
-				 return "<example.MatchingResult: "
-							"distance = " + std::to_string(result.distance)
-						+ ", similarity = " + std::to_string(result.similarity) + "'>"; })
+				 return "distance = " + std::to_string(result.distance)
+						+ ", similarity = " + std::to_string(result.similarity); })
 			;
 
 	py::class_<fsdk::Landmarks5>(f, "Landmarks5")
@@ -652,7 +651,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("y", &fsdk::Vector2<float>::y)
 		.def("__repr__",
 			 [](const fsdk::Vector2<float> &v) {
-				 return "<Vector2f: x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
+				 return "x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y);
 		 	})
 				;
 
@@ -666,7 +665,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("y", &fsdk::Vector2<int>::y)
 		.def("__repr__",
 			 [](const fsdk::Vector2<int> &v) {
-				 return "<Vector2i: x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y) + ">";
+				 return "x = " + std::to_string(v.x) + ", y = " + std::to_string(v.y);
 			 })
 				;
 
@@ -678,11 +677,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readonly("what", &FSDKErrorResult::what)
 		.def("__repr__",
 			 [](const FSDKErrorResult &err) {
-				 return "<example.FSDKErrorResult: "
+				 return "FSDKErrorResult: "
 					"isOk = " + std::to_string(err.isOk)
 					+ ", isError = " + std::to_string(err.isError)
 					+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
-					+ ", what = " + err.what +  "'>"; })
+					+ ", what = " + err.what; })
 			;
 
 	py::class_<DescriptorBatchResult>(f, "DescriptorBatchResult")
@@ -692,12 +691,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readonly("what", &DescriptorBatchResult::what)
 		.def("__repr__",
 			 [](const DescriptorBatchResult &err) {
-				 return "<example.DescriptorBatchResult: "
+				 return "DescriptorBatchResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
 						+ ", DescriptorBatchError = " +
 				 fsdk::ErrorTraits<fsdk::IDescriptorBatch::Error>::toString(err.descriptorBatchError)
-						+ ", what = " + err.what +  "'>"; })
+						+ ", what = " + err.what; })
 			;
 
 	py::class_<ImageErrorResult>(f, "ImageErrorResult")
@@ -707,11 +706,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readonly("what", &ImageErrorResult::what)
 		.def("__repr__",
 			 [](const ImageErrorResult &err) {
-				 return "<example.ImageErrorResult: "
+				 return "ImageErrorResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
 						+ ", imageError = " + fsdk::ErrorTraits<fsdk::Image::Error>::toString(err.imageError)
-						+ ", what = " + err.what +  "'>"; })
+						+ ", what = " + err.what; })
 			;
 
 	py::class_<SettingsProviderResult>(f, "SettingsProviderResult")
@@ -721,13 +720,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readonly("what", &SettingsProviderResult::what)
 		.def("__repr__",
 			 [](const SettingsProviderResult &err) {
-				 return "<example.SettingsProviderResult: "
+				 return "SettingsProviderResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
 						+ ", SettingsProviderError = " +
 				 			fsdk::ErrorTraits<fsdk::ISettingsProvider::Error>::
 							 toString(err.settingsProviderError)
-						+ ", what = " + err.what +  "'>"; })
+						+ ", what = " + err.what; })
 				;
 
 	py::class_<FSDKErrorValueInt>(f, "FSDKErrorValueInt")
@@ -738,12 +737,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readonly("value", &FSDKErrorValueInt::value)
 		.def("__repr__",
 			 [](const FSDKErrorValueInt &err) {
-				 return "<example.FSDKErrorValueInt: "
+				 return "FSDKErrorValueInt: "
 					"isOk = " + std::to_string(err.isOk)
 					+ ", isError = " + std::to_string(err.isError)
 					+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
 					+ ", value = " + std::to_string(err.value)
-					+ ", what = " + err.what + "'>"; })
+					+ ", what = " + err.what; })
 			;
 
 	py::class_<FSDKErrorValueFloat>(f, "FSDKErrorValueFloat")
@@ -754,12 +753,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readonly("value", &FSDKErrorValueFloat::value)
 		.def("__repr__",
 			 [](const FSDKErrorValueFloat &err) {
-				 return "<example.FSDKErrorValueFloat: "
+				 return "FSDKErrorValueFloat: "
 							"isOk = " + std::to_string(err.isOk)
 					+ ", isError = " + std::to_string(err.isError)
 					+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
 					+ ", value = " + std::to_string(err.value)
-					+ ", what = " + err.what + "'>";
+					+ ", what = " + err.what;
 			 })
 				;
 
@@ -771,13 +770,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readonly("value", &FSDKErrorValueMatching::value)
 		.def("__repr__",
 			 [](const FSDKErrorValueMatching &err) {
-				 return "<example.FSDKErrorValueMatching: "
+				 return "FSDKErrorValueMatching: "
 							"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
 						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
 						+ ",value: (distance = " + std::to_string(err.value.distance) +
 					 		", similarity = " + std::to_string(err.value.similarity) + ")"
-						+ ", what = " + err.what + "'>";
+						+ ", what = " + err.what;
 			 })
 				;
 
@@ -789,10 +788,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("age", &fsdk::AttributeEstimation::age)
 		.def("__repr__",
 		 [](const fsdk::AttributeEstimation &a) {
-			 return "<example.AttributeEstimation: "
+			 return "AttributeEstimation: "
 				"gender = " + std::to_string(a.gender) +
 			 	", glasses = " + std::to_string(a.glasses) +
-			 	", age = " + std::to_string(a.age)  + "'>";
+			 	", age = " + std::to_string(a.age);
 		 })
 			;
 
@@ -805,11 +804,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("blur", &fsdk::Quality::blur)
 		.def("__repr__",
 		 [](const fsdk::Quality &q) {
-			 return "<example.Quality: "
-					", light = " + std::to_string(q.light)
+			 return "Quality: "
+					"light = " + std::to_string(q.light)
 					+ ", dark = " + std::to_string(q.dark)
 					+ ", gray = " + std::to_string(q.gray)
-					+ ", blur = " + std::to_string(q.blur) +  "'>";
+					+ ", blur = " + std::to_string(q.blur);
 		 })
 		.def("getQuality", &fsdk::Quality::getQuality)
 			;
@@ -823,11 +822,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("caucasian", &fsdk::EthnicityEstimation::caucasian)
 		.def("__repr__",
 			 [](const fsdk::EthnicityEstimation &e) {
-				 return "<example.EthnicityEstimation: "
-						", africanAmerican = " + std::to_string(e.africanAmerican)
+				 return "EthnicityEstimation: "
+						"africanAmerican = " + std::to_string(e.africanAmerican)
 						+ ", indian = " + std::to_string(e.indian)
 						+ ", asian = " + std::to_string(e.asian)
-						+ ", caucasian = " + std::to_string(e.caucasian) +  "'>";
+						+ ", caucasian = " + std::to_string(e.caucasian);
 			 })
 		.def("getEthnicityScore", &fsdk::EthnicityEstimation::getEthnicityScore)
 		.def("getPredominantEthnicity", &fsdk::EthnicityEstimation::getPredominantEthnicity)
@@ -842,10 +841,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getFrontalFaceType", &fsdk::HeadPoseEstimation::getFrontalFaceType)
 		.def("__repr__",
 			 [](const fsdk::HeadPoseEstimation &h) {
-				 return "<example.HeadPoseEstimation: "
-						", pitch = " + std::to_string(h.pitch)
+				 return "HeadPoseEstimation: "
+						"pitch = " + std::to_string(h.pitch)
 						+ ", yaw = " + std::to_string(h.yaw)
-						+ ", roll = " + std::to_string(h.roll) +  "'>";
+						+ ", roll = " + std::to_string(h.roll);
 			 })
 				;
 	py::enum_<fsdk::HeadPoseEstimation::FrontalFaceType>(f, "FrontalFaceType", py::arithmetic())
@@ -860,9 +859,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("isOk", &fsdk::DepthRange::isOk)
 		.def("__repr__",
 			 [](const fsdk::DepthRange &h) {
-				 return "<example.DepthRange: "
+				 return "<DepthRange: "
 						", min = " + std::to_string(h.min)
-						+ ", max = " + std::to_string(h.max) +  "'>";
+						+ ", max = " + std::to_string(h.max);
 			 })
 				;
 
@@ -879,10 +878,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 mouth << s.mouth;
 				 smile << s.smile;
 				 occlusion << s.occlusion;
-				 return "<example.SmileEstimation: "
-						", mouth = " + mouth.str()
+				 return "SmileEstimation: "
+						"mouth = " + mouth.str()
 						+ ", smile = " + smile.str()
-						+ ", occlusion = " + occlusion.str() +  "'>";
+						+ ", occlusion = " + occlusion.str();
 			 })
 				;
 	f.def("loadImage", &loadImage);
@@ -922,14 +921,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getEmotionScore", &fsdk::EmotionsEstimation::getEmotionScore)
 		.def("__repr__",
 			 [](const fsdk::EmotionsEstimation &e) {
-				 return "<example.EmotionsEstimation: "
+				 return "EmotionsEstimation: "
 						" anger = " + std::to_string(e.anger)
 						+ ", disgust = " + std::to_string(e.disgust)
 						+ ", fear = " + std::to_string(e.fear)
 						+ ", happiness = " + std::to_string(e.happiness)
 						+ ", sadness = " + std::to_string(e.sadness)
 						+ ", surprise = " + std::to_string(e.surprise)
-						+ ", neutral = " + std::to_string(e.neutral) + "'>";
+						+ ", neutral = " + std::to_string(e.neutral);
 			 })
 			;
 
@@ -951,11 +950,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("rightEye", &fsdk::GazeEstimation::rightEye)
 		.def("__repr__",
 			 [](const fsdk::GazeEstimation &g) {
-				 return "<example.GazeEstimation: "
-						", leftEye: yaw = " + std::to_string(g.leftEye.yaw) +
+				 return "GazeEstimation: "
+						"leftEye: yaw = " + std::to_string(g.leftEye.yaw) +
 						", pitch = " + std::to_string(g.leftEye.pitch) +
 						", rightEye: yaw = " + std::to_string(g.rightEye.yaw) +
-						", pitch = " + std::to_string(g.rightEye.pitch)  +  "'>";
+						", pitch = " + std::to_string(g.rightEye.pitch);
 			 })
 				;
 
@@ -964,9 +963,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("pitch", &fsdk::GazeEstimation::EyeAngles::pitch)
 		.def("__repr__",
 			 [](const fsdk::GazeEstimation::EyeAngles &e) {
-				 return "<example.EyeAngles: "
-						", yaw = " + std::to_string(e.yaw)
-						+ ", pitch = " + std::to_string(e.pitch) +  "'>";
+				 return "EyeAngles: "
+						"yaw = " + std::to_string(e.yaw)
+						+ ", pitch = " + std::to_string(e.pitch);
 			})
 				;
 
@@ -988,12 +987,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("centerP", &fsdk::Transformation::centerP)
 		.def_readwrite("detectionTopLeft", &fsdk::Transformation::detectionTopLeft)
 		.def("__repr__", [](const fsdk::Transformation &t) {
-			 return "<example.Transformation: "
+			 return "Transformation: "
 					" angleDeg= " + std::to_string(t.angleDeg)
 					+ ", scale = " + std::to_string(t.scale)
 					+ ", centerP: x = " + std::to_string(t.centerP.x) + " y = " + std::to_string(t.centerP.y)
 					+ ", detectionTopLeft: x = " + std::to_string(t.detectionTopLeft.x)
-					+ " y = " + std::to_string(t.detectionTopLeft.y) + "'>";
+					+ " y = " + std::to_string(t.detectionTopLeft.y);
 			 })
 			;
 // Image type and format
@@ -1126,12 +1125,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("isValid", &fsdk::Detection::isValid)
 		.def("__repr__",
 			 [](const fsdk::Detection &d) {
-				 return "<example.Detection: rect: x = " + std::to_string(d.rect.x) +
+				 return "Detection: rect: x = " + std::to_string(d.rect.x) +
 				 ", y = " + std::to_string(d.rect.y) +
 				 ", width = " + std::to_string(d.rect.width) +
 				 ", height = " + std::to_string(d.rect.height) +
 						"; score = " + std::to_string(d.score) +
-						"; isValid = " + std::to_string(d.isValid()) + ">";
+						"; isValid = " + std::to_string(d.isValid());
 			 	})
 			;
 
@@ -1163,10 +1162,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("isValid", &fsdk::Rect::isValid)
 		.def("__repr__",
 			 [](const fsdk::Rect &r) {
-				 return "<example.Rect: x = " + std::to_string(r.x) +
+				 return "x = " + std::to_string(r.x) +
 				 ", y = " + std::to_string(r.y) +
 				 ", width = " + std::to_string(r.width) +
-				 ", height = " + std::to_string(r.height) + ">";
+				 ", height = " + std::to_string(r.height);
 			 })
 				;
 
