@@ -16,7 +16,6 @@ faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
 
 def detector_example(_image_det, max_detections):
-    print("\nDetector example")
     detector = faceEngine.createDetector(fe.ODT_MTCNN)
     detector_result = detector.detect(_image_det, _image_det.getRect(), max_detections)
     test = detector_result[0][1]
@@ -26,16 +25,12 @@ def detector_example(_image_det, max_detections):
 
 
 def warper_example(image_det, _detection, _landmarks5, _landmarks68):
-    print("\nWarper example: ")
     warper = faceEngine.createWarper()
     transformation = warper.createTransformation(_detection,
                                                  _landmarks5)
     print(transformation)
     warp_image = warper.warp(image_det, transformation)
     _transformed_landmarks5 = warper.warp(_landmarks5, transformation)
-    print("\nTransformed landmarks5: ")
-    for i in range(len(_transformed_landmarks5)):
-        print(_transformed_landmarks5[i])
     _transformed_landmarks68 = warper.warp(_landmarks68, transformation)
     return (warp_image, _transformed_landmarks5, _transformed_landmarks68)
 
@@ -81,13 +76,10 @@ if __name__ == "__main__":
     # print_landmarks(landmarks68, "landmarks68: ")
     (warp_image, transformed_landmarks5, transformed_landmarks68) = \
         warper_example(image, detection, landmarks5, landmarks68)
-
     (_, landmarks5_warp, _) = detector_example(warp_image, 1)[0]
     print_landmarks(landmarks5, "landmarks5: ")
     print_landmarks(transformed_landmarks5, "transformedLandmarks5: ")
-    print_landmarks(landmarks5_warp, "landmarks5_warp: ")
-    print_landmarks(landmarks5_warp, "transformedLandmarks5: ")
-    # print_landmarks_for_comparing(transformed_landmarks5, landmarks5_warp, "Comparing landmarks")
+    # print_landmarks_for_comparing(landmarks5, landmarks5_warp, "Comparing landmarks")
 
 
 

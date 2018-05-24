@@ -47,7 +47,7 @@ def matcher_example(_descriptor1, _descriptor2, _descriptor_batch):
     result2 = matcher.match(_descriptor1, _descriptor_batch)
     result3 = matcher.match(_descriptor1, _descriptor_batch, [0, 1])
     result4 = matcher.matchCompact(_descriptor1, _descriptor_batch, [1])
-    print("Match result of different descriptors: {0}".format(result1))
+    print("Match result of different descriptors: {0}".format(result1.value))
     print("Match result of descriptor and descriptor batch: {0}".format(result2))
     print("Match result of descriptor and 2 descriptors from batch: {0}".format(result3))
     print("MatchCompact result of descriptors: {0}".format(result3))
