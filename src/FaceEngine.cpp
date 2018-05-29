@@ -26,6 +26,43 @@ PYBIND11_MAKE_OPAQUE(fsdk::Landmarks68);
 
 PYBIND11_MODULE(FaceEngine, f) {
 
+	f.doc() = R"pbdoc(
+        Python wrapper for LUNA SDK usings pybind11
+        -------------------------------------------
+
+        .. currentmodule:: FaceEngine
+
+        .. autosummary::
+           :toctree: _generate
+
+           	createFaceEngine
+           	createSettingsProvider
+           	loadImage
+           	PyIFaceEngine
+			PyIFaceEngine.createAttributeEstimator
+			PyIFaceEngine.createQualityEstimator
+			PyIFaceEngine.createEthnicityEstimator
+
+			PyIFaceEngine.createHeadPoseEstimator
+			PyIFaceEngine.createBlackWhiteEstimator
+			PyIFaceEngine.createDepthEstimator
+			PyIFaceEngine.createIREstimator
+			PyIFaceEngine.createSmileEstimator
+			PyIFaceEngine."createFaceFlowEstimator
+			PyIFaceEngine.createEyeEstimator
+			PyIFaceEngine.createEmotionsEstimator
+			PyIFaceEngine.createGazeEstimator
+
+			PyIFaceEngine.createDetector
+			PyIFaceEngine.createWarper
+			PyIFaceEngine.createDescriptor
+			PyIFaceEngine.createDescriptorBatch
+			PyIFaceEngine.createExtractor
+			PyIFaceEngine.createMatcher
+			PyIFaceEngine.createLSHTable
+			PyIFaceEngine.setSettingsProvider
+    )pbdoc";
+
 	f.def("createFaceEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
 		  "Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr);
 	f.def("createSettingsProvider", &createSettingsProviderPtr, py::return_value_policy::take_ownership,
