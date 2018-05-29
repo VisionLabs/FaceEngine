@@ -24,8 +24,8 @@ void PyISettingsProvider::clear() {
 	settingsProviderPtr->clear();
 }
 
-void PyISettingsProvider::isEmpty() {
-	settingsProviderPtr->isEmpty();
+bool PyISettingsProvider::isEmpty() {
+	return settingsProviderPtr->isEmpty();
 }
 
 void PyISettingsProvider::setValue(

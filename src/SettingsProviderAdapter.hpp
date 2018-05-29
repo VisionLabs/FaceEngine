@@ -19,7 +19,7 @@ public:
 
 	void clear();
 
-	void isEmpty();
+	bool isEmpty();
 
 	void setValue(
 			const char* section,
