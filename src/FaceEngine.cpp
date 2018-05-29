@@ -61,36 +61,60 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createMatcher
 			PyIFaceEngine.createLSHTable
 			PyIFaceEngine.setSettingsProvider
+
     )pbdoc";
 
 	f.def("createFaceEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
-		  "Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr);
+		  "Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr,
+	"Create the LUNA SDK root object\n"
+			"    Args:\n"
+			"        param1 (str): [optional] path to folder with FSDK data. Default: ./data (on windows), /opt/visionlabs/data (on linux)\n"
+			"        param2 (str): [optional] path to faceengine.conf file. Default: <dataPath>/faceengine.cong\n");
+
 	f.def("createSettingsProvider", &createSettingsProviderPtr, py::return_value_policy::take_ownership,
-		  "Create object SettingsProvider");
+		  "Create object SettingsProvider\n"
+			"    Args:\n"
+			"        param1 (str): configuration file path\n");
 
-	py::class_<PyIFaceEngine>(f, "PyIFaceEngine")
-		.def("createAttributeEstimator", &PyIFaceEngine::createAttributeEstimator)
-		.def("createQualityEstimator", &PyIFaceEngine::createQualityEstimator)
-		.def("createEthnicityEstimator", &PyIFaceEngine::createEthnicityEstimator)
+	py::class_<PyIFaceEngine>(f, "PyIFaceEngine", "Root LUNA SDK object interface")
+		.def("createAttributeEstimator", &PyIFaceEngine::createAttributeEstimator, "Creates Attribute estimator")
+		.def("createQualityEstimator", &PyIFaceEngine::createQualityEstimator, "Creates Quality estimator")
+		.def("createEthnicityEstimator", &PyIFaceEngine::createEthnicityEstimator, "Creates Ethnicity estimator")
 
-		.def("createHeadPoseEstimator", &PyIFaceEngine::createHeadPoseEstimator)
-		.def("createBlackWhiteEstimator", &PyIFaceEngine::createBlackWhiteEstimator)
-		.def("createDepthEstimator", &PyIFaceEngine::createDepthEstimator)
-		.def("createIREstimator", &PyIFaceEngine::createIREstimator)
-		.def("createSmileEstimator", &PyIFaceEngine::createSmileEstimator)
-		.def("createFaceFlowEstimator", &PyIFaceEngine::createFaceFlowEstimator)
-		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator)
-		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator)
-		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator)
+		.def("createHeadPoseEstimator", &PyIFaceEngine::createHeadPoseEstimator, "Creates Head pose estimator")
+		.def("createBlackWhiteEstimator", &PyIFaceEngine::createBlackWhiteEstimator, "Creates Black/White estimator")
+		.def("createDepthEstimator", &PyIFaceEngine::createDepthEstimator, "Creates Liveness Depth estimator")
+		.def("createIREstimator", &PyIFaceEngine::createIREstimator, "Creates Liveness Infrared estimator")
+		.def("createSmileEstimator", &PyIFaceEngine::createSmileEstimator, "Creates Smile estimator")
+		.def("createFaceFlowEstimator", &PyIFaceEngine::createFaceFlowEstimator, "Creates Liveness flow estimator. "
+			"Note: this estimator is required only for liveness detection purposes.")
+		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator, "Creates Eye estimator")
+		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator, "Creates Emotions estimator")
+		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator")
 
-		.def("createDetector", &PyIFaceEngine::createDetector)
-		.def("createWarper", &PyIFaceEngine::createWarper)
-		.def("createDescriptor", &PyIFaceEngine::createDescriptor)
-		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0)
-		.def("createExtractor", &PyIFaceEngine::createExtractor)
-		.def("createMatcher", &PyIFaceEngine::createMatcher)
-		.def("createLSHTable", &PyIFaceEngine::createLSHTable)
-		.def("setSettingsProvider", &PyIFaceEngine::setSettingsProvider)
+		.def("createDetector", &PyIFaceEngine::createDetector,
+			"Creates a detector of given type.\n"
+			"    Args:\n"
+			"        param1 (enum ObjectDetectorClassType): fixed or random order of algorithm types\n")
+		.def("createWarper", &PyIFaceEngine::createWarper, "Creates warper")
+		.def("createDescriptor", &PyIFaceEngine::createDescriptor, "Creates Descriptor")
+		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0,
+			"Creates Batch of descriptors\n"
+			"    Args:\n"
+			"        param1 (int): amount of descriptors in batch\n"
+			"        param2 (str): descriptor version in batch. If 0 - use dafault version from config\n")
+
+		.def("createExtractor", &PyIFaceEngine::createExtractor, "Creates descriptor extractor")
+		.def("createMatcher", &PyIFaceEngine::createMatcher, "Creates descriptor matcher")
+		.def("createLSHTable", &PyIFaceEngine::createLSHTable,
+			"Creates Local Sensitive Hash table (Descriptor index).\n"
+			"    Args:\n"
+			"        param1 (int): batch of descriptors to build index with\n"
+			"        note: Index is unmutable, you cant add or remove descriptors from already created index\n")
+		.def("setSettingsProvider", &PyIFaceEngine::setSettingsProvider,
+			"Sets settings provider\n"
+			"    Args:\n"
+			"        param1 (PyISettingsProvider): setting provider\n")
 			;
 
 // ISettingsProvider
@@ -104,18 +128,18 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getValue", &PyISettingsProvider::getValue)
 			;
 	py::class_<fsdk::ISettingsProvider::Value>(f, "SettingsProviderValue")
-		.def(py::init<>())
-		.def(py::init<int>())
-		.def(py::init<int, int>())
-		.def(py::init<int, int, int>())
-		.def(py::init<int, int, int, int>())
-		.def(py::init<float>())
-		.def(py::init<float, float>())
-		.def(py::init<float, float, float>())
-		.def(py::init<float, float, float, float>())
-		.def(py::init<const char*>())
-		.def(py::init<const fsdk::Rect&>())
-		.def(py::init<bool>())
+		.def(py::init<>(), "Constructor")
+		.def(py::init<int>(), "Constructor")
+		.def(py::init<int, int>(), "Constructor")
+		.def(py::init<int, int, int>(), "Constructor")
+		.def(py::init<int, int, int, int>(), "Constructor")
+		.def(py::init<float>(), "Constructor")
+		.def(py::init<float, float>(), "Constructor")
+		.def(py::init<float, float, float>(), "Constructor")
+		.def(py::init<float, float, float, float>(), "Constructor")
+		.def(py::init<const char*>(), "Constructor")
+		.def(py::init<const fsdk::Rect&>(), "Constructor")
+		.def(py::init<bool>(), "Constructor")
 		.def("asFloat", &fsdk::ISettingsProvider::Value::asFloat, py::arg("defaultValue") = 0.f)
 		.def("asBool", &fsdk::ISettingsProvider::Value::asBool, py::arg("defaultValue") = false)
 		.def("asInt", &fsdk::ISettingsProvider::Value::asInt, py::arg("defaultValue") = 0)
@@ -921,7 +945,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 						+ ", occlusion = " + occlusion.str();
 			 })
 				;
-	f.def("loadImage", &loadImage);
+	f.def("loadImage", &loadImage, "used only for depth test"
+		"");
 //	EyeEstimation
 	py::class_<fsdk::EyesEstimation>(f, "EyesEstimation")
 		.def(py::init<>())
