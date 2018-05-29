@@ -62,19 +62,36 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createLSHTable
 			PyIFaceEngine.setSettingsProvider
 
+			SettingsProviderValue
+			SettingsProviderValue.__init__
+
+			PyISettingsProvider.getDefaultPath
+			PyISettingsProvider.load
+			PyISettingsProvider.save
+			PyISettingsProvider.clear
+			PyISettingsProvider.isEmpty
+			PyISettingsProvider.setValue
+			PyISettingsProvider.getValue
+
+			IQualityEstimatorPtr
+			IQualityEstimatorPtr.estimate
+
+			IAttributeEstimatorPtr
+			IAttributeEstimatorPtr.estimate
+
     )pbdoc";
 
 	f.def("createFaceEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
 		  "Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr,
 	"Create the LUNA SDK root object\n"
-			"    Args:\n"
-			"        param1 (str): [optional] path to folder with FSDK data. Default: ./data (on windows), /opt/visionlabs/data (on linux)\n"
-			"        param2 (str): [optional] path to faceengine.conf file. Default: <dataPath>/faceengine.cong\n");
+			"\tArgs:\n"
+			"\t\tparam1 (str): [optional] path to folder with FSDK data. Default: ./data (on windows), /opt/visionlabs/data (on linux)\n"
+			"\t\tparam2 (str): [optional] path to faceengine.conf file. Default: <dataPath>/faceengine.cong\n");
 
 	f.def("createSettingsProvider", &createSettingsProviderPtr, py::return_value_policy::take_ownership,
 		  "Create object SettingsProvider\n"
-			"    Args:\n"
-			"        param1 (str): configuration file path\n");
+			"\tArgs:\n"
+			"\t\tparam1 (str): configuration file path\n");
 
 	py::class_<PyIFaceEngine>(f, "PyIFaceEngine", "Root LUNA SDK object interface")
 		.def("createAttributeEstimator", &PyIFaceEngine::createAttributeEstimator, "Creates Attribute estimator")
@@ -94,85 +111,156 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			"Creates a detector of given type.\n"
-			"    Args:\n"
-			"        param1 (enum ObjectDetectorClassType): fixed or random order of algorithm types\n")
+			"\tArgs:\n"
+			"\t\tparam1 (enum ObjectDetectorClassType): fixed or random order of algorithm types\n")
 		.def("createWarper", &PyIFaceEngine::createWarper, "Creates warper")
 		.def("createDescriptor", &PyIFaceEngine::createDescriptor, "Creates Descriptor")
 		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0,
 			"Creates Batch of descriptors\n"
-			"    Args:\n"
-			"        param1 (int): amount of descriptors in batch\n"
-			"        param2 (str): descriptor version in batch. If 0 - use dafault version from config\n")
+			"\tArgs:\n"
+			"\t\tparam1 (int): amount of descriptors in batch\n"
+			"\t\tparam2 (str): descriptor version in batch. If 0 - use dafault version from config\n")
 
 		.def("createExtractor", &PyIFaceEngine::createExtractor, "Creates descriptor extractor")
 		.def("createMatcher", &PyIFaceEngine::createMatcher, "Creates descriptor matcher")
 		.def("createLSHTable", &PyIFaceEngine::createLSHTable,
 			"Creates Local Sensitive Hash table (Descriptor index).\n"
-			"    Args:\n"
-			"        param1 (int): batch of descriptors to build index with\n"
+			"\tArgs:\n"
+			"\t\tparam1 (int): batch of descriptors to build index with\n"
 			"        note: Index is unmutable, you cant add or remove descriptors from already created index\n")
 		.def("setSettingsProvider", &PyIFaceEngine::setSettingsProvider,
 			"Sets settings provider\n"
-			"    Args:\n"
-			"        param1 (PyISettingsProvider): setting provider\n")
+			"\tArgs:\n"
+			"\t\tparam1 (PyISettingsProvider): setting provider\n")
 			;
 
-// ISettingsProvider
+// 		ISettingsProvider
 	py::class_<PyISettingsProvider>(f, "PyISettingsProvider")
-		.def("getDefaultPath", &PyISettingsProvider::getDefaultPath)
-		.def("load", &PyISettingsProvider::load)
-		.def("save", &PyISettingsProvider::save)
-		.def("clear", &PyISettingsProvider::clear)
-		.def("isEmpty", &PyISettingsProvider::isEmpty)
-		.def("setValue", &PyISettingsProvider::setValue)
-		.def("getValue", &PyISettingsProvider::getValue)
-			;
-	py::class_<fsdk::ISettingsProvider::Value>(f, "SettingsProviderValue")
-		.def(py::init<>(), "Constructor")
-		.def(py::init<int>(), "Constructor")
-		.def(py::init<int, int>(), "Constructor")
-		.def(py::init<int, int, int>(), "Constructor")
-		.def(py::init<int, int, int, int>(), "Constructor")
-		.def(py::init<float>(), "Constructor")
-		.def(py::init<float, float>(), "Constructor")
-		.def(py::init<float, float, float>(), "Constructor")
-		.def(py::init<float, float, float, float>(), "Constructor")
-		.def(py::init<const char*>(), "Constructor")
-		.def(py::init<const fsdk::Rect&>(), "Constructor")
-		.def(py::init<bool>(), "Constructor")
-		.def("asFloat", &fsdk::ISettingsProvider::Value::asFloat, py::arg("defaultValue") = 0.f)
-		.def("asBool", &fsdk::ISettingsProvider::Value::asBool, py::arg("defaultValue") = false)
-		.def("asInt", &fsdk::ISettingsProvider::Value::asInt, py::arg("defaultValue") = 0)
-		.def("asString", &fsdk::ISettingsProvider::Value::asString, py::arg("defaultValue") = "")
+		.def("getDefaultPath", &PyISettingsProvider::getDefaultPath, "Get settings path this provider is bound to.\n"
+			"This is the same path that was given to load().\n"
+			"Returns path string.")
+
+		.def("load", &PyISettingsProvider::load, "Load settings from given path.\n"
+			"if `path` is null, load from the default path; @see getDefaultPath().\n"
+			"Returns result with error code specified by ISettingsProvider")
+
+		.def("save", &PyISettingsProvider::save, "Save settings values using the default path.\n"
+			"Path may be null, in this case a path from getDefaultPath() will be used.\n"
+			"Returns true if succeded, false otherwise.\n")
+
+		.def("clear", &PyISettingsProvider::clear, "Clear settings.\n"
+			"Returns true if succeded, false otherwise.")
+
+		.def("isEmpty", &PyISettingsProvider::isEmpty, "Check if there are loaded settings.\n"
+			"Returns true if provider is empty.\n")
+
+		.def("setValue", &PyISettingsProvider::setValue, "Set parameter value.\n"
+			"Lookup parameter by key. Creates a parameter if it does not already exist.\n"
+			"Sets settings provider\n"
+			"\tArgs:\n"
+			"\t\tparam1 (str): parameter section\n"
+			"\t\tparam2 (str): parameter name\n"
+			"\t\tparam3 (value): parameter value\n")
+
+		.def("getValue", &PyISettingsProvider::getValue,
+			 "Get parameter value. Lookup parameter by key. Return empty value if the parameters does not exist.\n"
+			 "\tArgs:\n"
+			 "\t\tparam1 (str): parameter section\n"
+			 "\t\tparam2 (str): parameter name\n")
+				; // PyISettingsProvider
+
+	py::class_<fsdk::ISettingsProvider::Value>(f, "SettingsProviderValue", "Configuration parameter value.")
+		.def(py::init<>(), "Initialize an empty value. Value type will be set to `Undefined`")
+		.def(py::init<int>(), "Initialize an integer value")
+		.def(py::init<int, int>(), "Initialize a 2d integer value")
+		.def(py::init<int, int, int>(), "Initialize a 3d integer value")
+		.def(py::init<int, int, int, int>(), "Initialize a 4d integer value")
+		.def(py::init<float>(), "Initialize a float value")
+		.def(py::init<float, float>(), "Initialize a 2d float value")
+		.def(py::init<float, float, float>(), "Initialize a 3d float value")
+		.def(py::init<float, float, float, float>(), "Initialize a 4d float value")
+		.def(py::init<const char*>(), "Initialize a string value. Note: only short strings (<15 chars) are supported.")
+		.def(py::init<const fsdk::Rect&>(), "Initialize a rect value")
+		.def(py::init<bool>(), "Initialize a bool value")
+
+		.def("asFloat", &fsdk::ISettingsProvider::Value::asFloat, py::arg("defaultValue") = 0.f,
+			"Safely get a float. If actual value type is float, the value is returned; "
+			"if not a fallback value is returned"
+				"\tArgs:\n"
+				"\t\tparam1 (float): [optional] fallback value\n")
+
+		.def("asBool", &fsdk::ISettingsProvider::Value::asBool, py::arg("defaultValue") = false,
+			 "Safely get a boolean. If actual value type is convertible to bool, "
+				 "the value is returned; if not a fallback value is returned.\n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (bool): [optional] fallback value\n")
+
+		.def("asInt", &fsdk::ISettingsProvider::Value::asInt, py::arg("defaultValue") = 0,
+			 "Safely get an integer. If actual value type is Int, the value is returned; "
+				 "if not a fallback value is returned.\n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (int): [optional] fallback value\n")
+
+		.def("asString", &fsdk::ISettingsProvider::Value::asString, py::arg("defaultValue") = "",
+			 "Safely get a string. If actual value type is String, the value is returned; "
+				 "if not a fallback value is returned. Note: doesn't allocate or copy memory.\n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (int): [optional] fallback value\n")
+
 		.def("asRect", [](
 			const fsdk::ISettingsProvider::Value& v) {
 					return v.asRect(); })
 		.def("asRect", [](
 			const fsdk::ISettingsProvider::Value& v, const fsdk::Rect& r) {
-				return v.asRect(r); })
+				return v.asRect(r); },
+			"Safely get a Rect. If actual value type is convertible to Rect, the value is returned; "
+			"if not a fallback value is returned\n"
+				"\tArgs:\n"
+				"\t\tparam1 (rect): [optional] fallback value\n")
+
 		.def("asPoint2f", [](
 			const fsdk::ISettingsProvider::Value& v) {
 				return v.asPoint2f(); })
 		.def("asPoint2f", [](
 			const fsdk::ISettingsProvider::Value& v, const fsdk::Point2f& r) {
-				return v.asPoint2f(r); })
+				return v.asPoint2f(r); },
+			 "Safely get a Point2f. If actual value type is convertible to Point2f, the value is returned; "
+				 "if not a fallback value is returned.\n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (Vector2f): [optional] fallback value\n")
+
 		.def("asPoint2i", [](
 			const fsdk::ISettingsProvider::Value& v) {
 				return v.asPoint2i(); })
 		.def("asPoint2i", [](
 			const fsdk::ISettingsProvider::Value& v, const fsdk::Point2i& r) {
-				return v.asPoint2i(r); })
+				return v.asPoint2i(r); },
+			"Safely get a Point2i. If actual value type is convertible to Point2i, the value is returned; "
+				"if not a fallback value is returned.\n"
+				"\tArgs:\n"
+				"\t\tparam1 (Vector2i): [optional] fallback value\n")
+
 		.def("asSize", [](
 			const fsdk::ISettingsProvider::Value& v) {
 				return v.asSize(); })
 		.def("asSize", [](
 			const fsdk::ISettingsProvider::Value& v, const fsdk::Size& s) {
-				return v.asSize(s); })
-			;
+				return v.asSize(s); },
+			 "Safely get a Size. If actual value type is convertible to Size, the value is returned; "
+				 "if not a fallback value is returned."
+				 "\tArgs:\n"
+				 "\t\tparam1 (Vector2i): [optional] fallback value\n")
+			; // SettingsProviderValue
 
 	py::class_<fsdk::IFaceEnginePtr>(f, "IFaceEnginePtr");
 
-	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr")
+	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr", "Image quality estimator interface.\n"
+		"Note: this estimator is designed to work with a person face image; you should pass a warped face detection image.\n"
+		"Quality estimator detects the same attributes as all the other estimators:\n"
+		"\tover/under exposure;\n"
+		"\tblurriness;\n"
+		"\tnatural/unnatural colors;\n"
+)
 		.def("estimate",[](
 			const fsdk::IQualityEstimatorPtr& est,
 			const fsdk::Image &warp) {
@@ -181,10 +269,20 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (err.isOk())
 					return py::cast(out);
 				else
-					return py::cast(FSDKErrorResult(err)); })
+					return py::cast(FSDKErrorResult(err)); },
+			 "Estimate the quality. If success returns quality output structure with quality params, else error code "
+				 "(see FSDKErrorResult for details) \n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (Image): image with warped face. Format must be R8G8B8")
 				;
 
-	py::class_<fsdk::IAttributeEstimatorPtr>(f, "IAttributeEstimatorPtr")
+	py::class_<fsdk::IAttributeEstimatorPtr>(f, "IAttributeEstimatorPtr",
+	"Face image attribute estimator interface. This estimator is designed to work with a person face image; "
+		"you should pass a warped face detection image. Estimated attributes are: \n"
+		"\tage;\n"
+		"\tgender;\n"
+		"\tglasses;\n"
+	)
 		.def("estimate", [](
 			const fsdk::IAttributeEstimatorPtr& est,
 			const fsdk::Image &warp) {
@@ -193,8 +291,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (err.isOk())
 					return py::cast(out);
 				else
-					return py::cast(FSDKErrorResult(err)); })
+					return py::cast(FSDKErrorResult(err)); },
+			 "Estimate the attributes. If success returns attribute output structure with params, else error code "
+				 "(see FSDKErrorResult for details) \n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (Image): image with warped face. Format must be R8G8B8")
 					;
+
 	py::class_<fsdk::IEthnicityEstimatorPtr>(f, "IEthnicityEstimatorPtr")
 		.def("estimate",[](
 			const fsdk::IEthnicityEstimatorPtr& est,
