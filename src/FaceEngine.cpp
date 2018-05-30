@@ -88,6 +88,37 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IWarperPtr
 			IWarperPtr.warp
 			IWarperPtr.createTransformation
+
+			IDescriptorPtr
+			IDescriptorPtr.getModelVersion
+			IDescriptorPtr.getDescriptorLength
+			IDescriptorPtr.getDescriptor
+
+			IDescriptorBatchPtr
+			IDescriptorBatchPtr.add
+			IDescriptorBatchPtr.removeFast
+			IDescriptorBatchPtr.removeSlow
+			IDescriptorBatchPtr.getMaxCount
+			IDescriptorBatchPtr.getCount
+			IDescriptorBatchPtr.getModelVersion
+			IDescriptorBatchPtr.getDescriptorSize
+			IDescriptorBatchPtr.getDescriptorSlow
+			IDescriptorBatchPtr.getDescriptorFast
+
+			DescriptorBatchError
+
+			IDescriptorExtractorPtr
+			IDescriptorExtractorPtr.extract
+			IDescriptorExtractorPtr.extractFromWarpedImage
+			IDescriptorExtractorPtr.extractFromWarpedImageBatch
+
+
+			IDescriptorMatcherPtr
+			IDescriptorMatcherPtr.match
+			IDescriptorMatcherPtr.matchCompact
+			IDescriptorMatcherPtr.matchCompact
+
+
     )pbdoc";
 
 	f.def("createFaceEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
@@ -254,7 +285,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("asSize", [](
 			const fsdk::ISettingsProvider::Value& v, const fsdk::Size& s) {
 				return v.asSize(s); },
-			 "Safely get a Size. If actual value type is convertible to Size, the value is returned; "
+			 "Safely get a Size. If actual value type is convertible to Size, the value is returned;\n"
 				 "if not a fallback value is returned."
 				 "\tArgs:\n"
 				 "\t\tparam1 (Vector2i): [optional] fallback value\n")
@@ -263,7 +294,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 	py::class_<fsdk::IFaceEnginePtr>(f, "IFaceEnginePtr");
 
 	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr", "Image quality estimator interface.\n"
-		"Note: this estimator is designed to work with a person face image; you should pass a warped face detection image.\n"
+		"This estimator is designed to work with a person face image; you should pass a warped face detection image.\n"
 		"Quality estimator detects the same attributes as all the other estimators:\n"
 		"\tover/under exposure;\n"
 		"\tblurriness;\n"
@@ -352,14 +383,17 @@ PYBIND11_MODULE(FaceEngine, f) {
 				}
 				else {
 					detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
-					return detectionResultPyList; }}, "Detect faces and landmarks on the image\n"
-			"\tArgs:\n"
-			"\t\tparam1 (Image): input image. Format must be R8G8B8\n"
-			"\t\tparam2 (Rect): rect of interest inside of the image\n"
-			"\t\tparam3 (int): length of `detections` and `landmarks` arrays\n"
-			"\tReturns:\n"
-			"\t\t([(Detection, Landmarks5, Landmarks68)]): if success - list of tuples of Detection, Landmarks5, Landmarks68,\n"
-			"\t\t([FSDKErrorValueInt]): else - error code and number of detections wrapped in list, see FSDKErrorValueInt\n")
+					return detectionResultPyList; }},
+				"Detect faces and landmarks on the image\n"
+				"\tArgs:\n"
+				"\t\tparam1 (Image): input image. Format must be R8G8B8\n"
+				"\t\tparam2 (Rect): rect of interest inside of the image\n"
+				"\t\tparam3 (int): length of `detections` and `landmarks` arrays\n"
+				"\tReturns:\n"
+				"\t\t(list of tuples from Detection, Landmarks5, Landmarks68): if success - list of tuples of Detection, "
+				"Landmarks5, Landmarks68,\n"
+				"\t\t(FSDKErrorValueInt wrapped in list): else - error code and number of detections wrapped in list, "
+				"see FSDKErrorValueInt\n")
 					;
 
 //	py::class_<DetectionResult>(f, "DetectionResult")
@@ -382,13 +416,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 					return py::cast(transformedImage);
 				else
 					return py::cast(FSDKErrorResult(error)); },
-			 "Warp image\n"
-				 "\tArgs:\n"
-				 "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
-				 "\t\tparam2 (Transformation): transformation data\n"
-				 "\tReturns:\n"
-				 "\t\t(Image): if success - output transformed image,\n"
-				 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
+					 "Warp image\n"
+					 "\tArgs:\n"
+					 "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
+					 "\t\tparam2 (Transformation): transformation data\n"
+					 "\tReturns:\n"
+					 "\t\t(Image): if success - output transformed image,\n"
+					 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
 
 		.def("warp",[](
 			const fsdk::IWarperPtr& warper,
@@ -403,13 +437,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 					return py::cast(transformedLandmarks5);
 				else
 					return py::cast(FSDKErrorResult(error)); },
-			 "Warp landmarks of size 5\n"
-				 "\tArgs:\n"
-				 "\t\tparam1 (Landmarks5): landmarks array of size 5\n"
-				 "\t\tparam2 (Transformation): transformation data\n"
-				 "\tReturns:\n"
-				 "\t\t(Landmarks5): if success - output transformed image,\n"
-				 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
+					 "Warp landmarks of size 5\n"
+					 "\tArgs:\n"
+					 "\t\tparam1 (Landmarks5): landmarks array of size 5\n"
+					 "\t\tparam2 (Transformation): transformation data\n"
+					 "\tReturns:\n"
+					 "\t\t(Landmarks5): if success - output transformed image,\n"
+					 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
 
 		.def("warp",[](
 			const fsdk::IWarperPtr& warper,
@@ -423,7 +457,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 					return py::cast(transformedLandmarks68);
 				else
 					return py::cast(FSDKErrorResult(error)); },
-			 "Warp landmarks of size 68\n"
+				 "Warp landmarks of size 68\n"
 				 "\tArgs:\n"
 				 "\t\tparam1 (Landmarks68): landmarks array of size 68\n"
 				 "\t\tparam2 (Transformation): transformation data\n"
@@ -436,19 +470,30 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::Detection& detection,
 			const fsdk::Landmarks5& landmarks) {
 				return warper->createTransformation(detection, landmarks); },
-			 "Create transformation data struct.\n"
+				 "Create transformation data struct.\n"
 				 "\tArgs:\n"
 				 "\t\tparam1 (Detection): detection rect where landmarks are.\n"
 				 "\t\tparam2 (Landmarks5): landmarks to calculate warping angles\n"
 				 "\tReturns:\n"
 				 "\t\t(Transformation): Transformation obj,\n")
 					;
-	// descriptor
-	py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr")
+
+			// descriptor
+	py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Used for matching.")
+
 		.def("getModelVersion",[]( const fsdk::IDescriptorPtr& desc) {
-				return desc->getModelVersion(); })
+				return desc->getModelVersion(); },
+				"Get algorithm model version this descriptor was created with.\n"
+				"\tReturns:\n"
+				"\t\t(int): Version as integral number.")
+
 		.def("getDescriptorLength",[]( const fsdk::IDescriptorPtr& desc) {
-			return desc->getDescriptorLength(); })
+			return desc->getDescriptorLength(); },
+				 "Return size of descriptor in bytes.\n"
+				 "This method is thread safe."
+				 "\tReturns:\n"
+				 "\t\t(int): size of descriptor in bytes.")
+
 		.def("getDescriptor",[]( const fsdk::IDescriptorPtr& desc) {
 			std::vector<uint8_t>buffer(264, 0);
 			bool allocated = desc->getDescriptor(&buffer.front());
@@ -459,37 +504,101 @@ PYBIND11_MODULE(FaceEngine, f) {
 			if (allocated)
 				return l;
 			else
-				return py::list(); })
-				;
-	py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr")
+				return py::list(); },
+				 "Copy descriptor data to python list.\n "
+				 "This method is thread safe"
+				 "\tReturns:\n"
+				 "\t\t(list): list of uint8_t if is ok (length of list is 264), empty list if ERROR")
+				; // descriptor
+
+	// DescriptorBatch
+	py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batch interface. "
+			"Used for matching large continuous sets of descriptors")
 		.def("add",[] (
 			const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
 			const fsdk::IDescriptorPtr& desc) {
 				fsdk::Result<fsdk::IDescriptorBatch::Error> error = descriptorBatchPtr->add(desc);
-			if (error.isOk())
-				return py::cast(desc);
-			else
-				return py::cast(DescriptorBatchResult(error)); })
-		.def("removeFast",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
-				return descriptorBatchPtr->removeFast(index); })
+				return DescriptorBatchResult(error);
+			 },
+				"Add a descriptor to the batch.\n"
+				"When adding the first descriptor to an empty batch, the initial internal parameters (like version,\n"
+				"etc) of the batch are set to correspond ones of the descriptor. This means that incompatible descriptors\n"
+				"added later will be rejected. See getModelVersion() to check whether a descriptor can be added to the batch.\n"
+				"\tArgs:\n"
+				"\t\tparam1 (IDescriptorPtr): descriptor to add. Descriptor data is copied and to internal reference is held,\n"
+				"\t\tthus it is safe to release the source descriptor object later.\n"
+				"\tReturns:\n"
+				"\t\t(DescriptorBatchResult): One of the error codes specified by DescriptorBatchError.\n")
+
+		.def("removeFast",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, const int index) {
+			fsdk::Result<fsdk::IDescriptorBatch::Error> error = descriptorBatchPtr->removeFast(index);
+				return DescriptorBatchResult(error); },
+				"Remove a descriptor from batch. \nRemove descriptor by swapping it with the last descriptor in batch.\n"
+				"This preserves descriptor order.\n"
+				"\tArgs:\n"
+				"\t\tparam1 (int): descriptor index\n"
+				"\tReturns:\n"
+				"\t\t(DescriptorBatchResult): One of the error codes specified by DescriptorBatchError.")
+
 		.def("removeSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
-				return descriptorBatchPtr->removeSlow(index); })
+			if (index < 0 || index >= descriptorBatchPtr->getCount()) throw py::index_error();
+				fsdk::Result<fsdk::IDescriptorBatch::Error> error = descriptorBatchPtr->removeSlow(index);
+					return  DescriptorBatchResult(error);},
+					 "Remove a descriptor from batch.\n"
+					 "\tRemove descriptor by shifting all the following descriptors back. This preserves descriptor order.\n"
+					 "\tArgs:\n"
+					 "\t\tparam1 (int): descriptor index\n"
+					 "\tReturns:\n"
+					 "\t\t(DescriptorBatchResult): One of the error codes specified by DescriptorBatchError." )
+
 		.def("getMaxCount",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
-			return descriptorBatchPtr->getMaxCount(); })
+			return descriptorBatchPtr->getMaxCount(); },
+				"Get maximum number of descriptors in this batch.\n"
+				"\tReturns:\n"
+				"\t\t(int): maximum number of descriptors in this batch.")
+
 		.def("getCount",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
-			return descriptorBatchPtr->getCount(); })
+			return descriptorBatchPtr->getCount(); },
+			"Get actual number of descriptors in this batch.\n"
+			"\tReturns:\n"
+			"\t\t(int):actual number of descriptors in this batch.")
+
 		.def("getModelVersion",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
-			return descriptorBatchPtr->getModelVersion(); })
+			return descriptorBatchPtr->getModelVersion(); },
+			"Get algorithm model version the descriptors in this batch were created with.\n"
+			"This function only makes sense when there is at least one descriptor in the batch. It will return 0 if\n"
+			"the batch is empty."
+			"\tReturns:\n"
+			"\t\t(int): Version as integral number.")
+
 		.def("getDescriptorSize",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
-			return descriptorBatchPtr->getDescriptorSize(); })
+			return descriptorBatchPtr->getDescriptorSize(); },
+			"Get length of one descriptor. Specified by version of descriptors in batch."
+			"\tReturns:\n"
+			"\t\t(int): Length of one descriptor in batch.")
+
 		.def("getDescriptorSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
 			if (index < 0 || index >= descriptorBatchPtr->getCount()) throw py::index_error();
-			return fsdk::acquire(descriptorBatchPtr->getDescriptorSlow(index)); })
+			return fsdk::acquire(descriptorBatchPtr->getDescriptorSlow(index)); },
+			"Create descriptor from batch by index with copying\n"
+			"\tArgs:\n"
+			"\t\tparam1 (int):  index required descriptor in batch\n"
+			"\tReturns:\n"
+			"\t\t(IDescriptorPtr): valid object if succeeded.")
+
 		.def("getDescriptorFast",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
-			return fsdk::acquire(descriptorBatchPtr->getDescriptorFast(index)); })
+			if (index < 0 || index >= descriptorBatchPtr->getCount()) throw py::index_error();
+			return fsdk::acquire(descriptorBatchPtr->getDescriptorFast(index)); },
+			"Create descriptor from batch by index without copying\n"
+			"\tArgs:\n"
+			"\t\tparam1 (int):  index required descriptor in batch\n"
+			"\tReturns:\n"
+			"\t\t(IDescriptorPtr): valid object if succeeded.")
 				;
 
-	py::enum_<fsdk::IDescriptorBatch::Error>(f, "DescriptorBatchError")
+	py::enum_<fsdk::IDescriptorBatch::Error>(f, "DescriptorBatchError",
+			"Descriptor batch error enumeration.\n"
+			"\tUsed for descriptor batch related errors indication.")
 		.value("Ok", fsdk::IDescriptorBatch::Error::Ok)
 		.value("InvalidInput", fsdk::IDescriptorBatch::Error::InvalidInput)
 		.value("BatchFull", fsdk::IDescriptorBatch::Error::BatchFull)
@@ -499,7 +608,17 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("OutOfRange", fsdk::IDescriptorBatch::Error::OutOfRange)
 			;
 
-	py::class_<fsdk::IDescriptorExtractorPtr>(f, "IDescriptorExtractorPtr")
+//		"Te.\n"
+//		"\tTe.\n"
+//		"\tArgs\n"
+//		"\t\tparam1 (t): te\n"
+//		"\t\tparam2 (t): te\n"
+//		"\tReturns:\n"
+//		"\t\t(t): te"
+
+	py::class_<fsdk::IDescriptorExtractorPtr>(f, "IDescriptorExtractorPtr",
+			"Descriptor extractor interface.\n"
+			"\t Extracts face descriptors from images. The descriptors can be later used for face matching.")
 		.def("extract",[](
 			const fsdk::IDescriptorExtractorPtr& extractor,
 			fsdk::Image& image,
@@ -508,19 +627,40 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::IDescriptorPtr& descriptor) {
 			fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extract(image, detection,
 																			   landmarks, descriptor);
-				if (err.isOk())
-					return py::cast(image);
-				else
-					return py::cast(FSDKErrorValueFloat(err)); })
+			return py::cast(FSDKErrorValueFloat(err)); },
+			"Extract a face descriptor from an image.\n"
+			"\tThis method accepts arbitrary images that have size at least 250x250 pixels and R8G8B8 pixel format.\n"
+			"\tThe input image is warped internally using an assigned warper (@see IWarper). The descriptor extractor is\n"
+			"\tcreated with a proper warped assigned by default so no additional setup is required, unless this behaviour\n"
+			"\tis overriden with `defaultWarper` flag upon extractor creation.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (Image):  source image. Format must be R8G8B8\n"
+			"\t\tparam2 (Detection): face detection\n"
+			"\t\tparam3 (Landmarks5): face feature set\n"
+			"\t\tparam4 (IDescriptorPtr): descriptor to fill with data.\n"
+			"\tReturns:\n"
+			"\t\t(FSDKErrorValueFloat): ResultValue with error code specified by FSDKError and score of descriptor normalized in range [0, 1]\n"
+			"\t\t1 - face on the input warp; 0 - garbage on the input detection.\n"
+			"\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
+			"\t\tSee FSDKErrorValueFloat.")
+
 		.def("extractFromWarpedImage",[](
 			const fsdk::IDescriptorExtractorPtr& extractor,
 			const fsdk::Image& image,
 			const fsdk::IDescriptorPtr& descriptor) {
 			fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extractFromWarpedImage(image, descriptor);
-			if (err.isOk())
-				return py::cast(descriptor);
-			else
-				return py::cast(FSDKErrorValueFloat(err)); })
+			return py::cast(FSDKErrorValueFloat(err)); },
+			"Extract descriptor from a warped image.\n"
+			"\tThe input image should be warped; see IWarper.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (Image): image source warped image, should be a valid 250x250 image in R8G8B8 format.\n"
+			"\t\tparam2 (IDescriptorPtr): descriptor to fill with data\n"
+			"\tReturns:\n"
+			"\t\t(FSDKErrorValueFloat): ResultValue with error code specified by FSDKError and score of descriptor normalized in range [0, 1]\n"
+			"\t\t1 - face on the input warp; 0 - garbage on the input detection.\n"
+			"\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
+			"\t\tSee FSDKErrorValueFloat.")
+
 		.def("extractFromWarpedImageBatch",[](
 			const fsdk::IDescriptorExtractorPtr& extractor,
 			py::list warpsBatchList,
@@ -547,7 +687,20 @@ PYBIND11_MODULE(FaceEngine, f) {
 				}
 				else {
 					garbagePyList.append(FSDKErrorResult(err));
-				} })
+				} },
+				 "Extract batch of descriptors from a batch of images and perform aggregation.\n"
+				 "\tThe input images should be warped; see IWarper.\n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (list):  input array of warped images, images should be in R8G8B8 format , with size 250x250\n"
+				 "\t\tparam2 (IDescriptorBatchPtr):  descriptorBatch descriptor batch to fill with data.\n"
+				 "\t\tparam3 (IDescriptorPtr): descriptor with aggregation based on descriptor batch.\n"
+				 "\t\tparam4 (int): size of the batch.\n"
+				 "\tReturns:\n"
+				 "\t\t(list): if OK - list of descriptor scores normalized in range [0, 1]\n"
+				 "\t\t 1 - face on the input warp; 0 - garbage on the input warp.\n"
+				 "\t\t Score is fake if extractor uses mobile net version of extraction model.\n"
+				 "\t\t(FSDKErrorResult): else - result with error code specified by FSDKError\n See FSDKErrorResult.")
+
 		.def("extractFromWarpedImageBatch",[](
 			const fsdk::IDescriptorExtractorPtr& extractor,
 			py::list warpsBatchList,
@@ -572,17 +725,45 @@ PYBIND11_MODULE(FaceEngine, f) {
 				}
 				else {
 					garbagePyList.append(FSDKErrorResult(err));
-					return garbagePyList; } })
+					return garbagePyList; } },
+				 "Extract batch of descriptors from a batch of images.\n"
+				 "\tThe input images should be warped; see IWarperPtr.\n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (list): input list of warped images.Images should be in R8G8B8 format , with size 250x250\n"
+				 "\t\tparam2 (IDescriptorBatchPtr) [out]: \n"
+				 "\t\tparam3 (int): size of the batch\n"
+				 "\tReturns:\n"
+				 "\t\t(list): if OK - list of descriptor scores normalized in range [0, 1]\n"
+				 "\t\t 1 - face on the input warp; 0 - garbage on the input warp.\n"
+				 "\t\t Score is fake if extractor uses mobile net version of extraction model.\n"
+				 "\t\t(FSDKErrorResult): else - result with error code specified by FSDKError\n See FSDKErrorResult.")
 					;
 
-	py::class_<fsdk::IDescriptorMatcherPtr>(f, "IDescriptorMatcherPtr")
+	py::class_<fsdk::IDescriptorMatcherPtr>(f, "IDescriptorMatcherPtr",
+		"Descriptor matcher interface.\n"
+		"\tMatches descriptors 1:1 and 1:M (@see IDescriptor and IDescriptorBatch interfaces).\n"
+		"\tAs a result of the matching process the calling site gets a MatchingResult (or several of them in case of 1:M\n"
+		"\tmatching). The MatchingResult structure contains distance and similarity metrics.\n"
+		"\t\n"
+		"\tDistance is measured in abstract units and tends to 0 for similar descriptors and to infinity for different ones.\n"
+		"\tSimilarity is the opposite metric and shows probability of two descriptors belonging to the same person; therfore\n"
+		"\tit is normalized to [0..1] range")
+
 		.def("match",[](
 			const fsdk::IDescriptorMatcherPtr& matcherPtr,
 			const fsdk::IDescriptorPtr& first,
 			const fsdk::IDescriptorPtr& second) {
 			fsdk::ResultValue<fsdk::FSDKError, fsdk::MatchingResult> err =
 				matcherPtr->match(first, second);
-				return FSDKErrorValueMatching(err); })
+				return FSDKErrorValueMatching(err); },
+				 "Match descriptors 1:1.\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (IDescriptorPtr): first descriptor\n"
+				 "\t\tparam2 (IDescriptorPtr): second descriptor\n"
+				 "\tReturns:\n"
+				 "\t\t(FSDKErrorValueMatching): Value with error code specified by FSDKError and matching result. "
+				 "See FSDKErrorValueMatching.")
+
 		.def("match",[](
 			const fsdk::IDescriptorMatcherPtr& matcherPtr,
 			const fsdk::IDescriptorPtr& reference,
@@ -599,7 +780,19 @@ PYBIND11_MODULE(FaceEngine, f) {
 				}
 				else {
 					resultsPyList.append(FSDKErrorResult(err));
-					return resultsPyList; } })
+					return resultsPyList; } },
+				 "Match descriptors 1:M.\n"
+				 "\tMatches a reference descriptor to a batch of candidate descriptors. The results are layed out in the\n"
+				 "\tsame order as the candidate descriptors in the batch.\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
+				 "\t\tparam2 (IDescriptorPtr): the candidate descriptor batch to match with the reference\n"
+				 "\tReturns:\n"
+				 "\t\t(list): if OK matchig result list.\n"
+				 "\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
+				 "\t\tIDescriptorBatchPtr::getMaxCount()\n"
+				 "\t\t(FSDKErrorResult wrapped in list): Result with error specified by FSDKErrorResult.")
+
 		.def("match",[](
 			const fsdk::IDescriptorMatcherPtr& matcherPtr,
 			const fsdk::IDescriptorPtr reference,
@@ -622,7 +815,21 @@ PYBIND11_MODULE(FaceEngine, f) {
 				}
 				else {
 					resultsPyList.append(FSDKErrorResult(err));
-						return resultsPyList; } })
+						return resultsPyList; } },
+			 "Match descriptors 1:M.\n"
+			 "\tMatches a reference descriptor to a batch of candidate descriptors. The results are layed out in the\n"
+			 "\tsame order as the candidate descriptors in the batch.\n"
+			 "\tArgs\n"
+			 "\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
+			 "\t\tparam2 (IDescriptorBatch): the candidate descriptor batch to match with the reference\n"
+			 "\t\tparam3 (list): the list of candidate descriptor indices within the batch to be matched.\n"
+			 "\tReturns:\n"
+			 "\t\t(list): if OK matchig result list.\n"
+			 "\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
+			 "\t\tIDescriptorBatchPtr::getMaxCount()"
+			 "\t\t(FSDKErrorResult wrapped in list): Result with error specified by FSDKErrorResult."
+
+		)
 		.def("matchCompact",[](
 			const fsdk::IDescriptorMatcherPtr& matcherPtr,
 			const fsdk::IDescriptorPtr reference,
@@ -645,7 +852,18 @@ PYBIND11_MODULE(FaceEngine, f) {
 				}
 				else {
 					resultsPyList.append(FSDKErrorResult(err));
-					return resultsPyList; } })
+					return resultsPyList; } },
+			 "Match descriptors 1:M using a subset of candidate descriptors in a batch.\n"
+				 "\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
+				 "\t\tparam2 (IDescriptorBatchPtr): the candidate descriptor batch to match with the reference\n"
+				 "\t\tparam3 (list): list of candidate descriptor indices within the batch to be matched\n"
+				 "\tReturns:\n"
+				 "\t\t(list): if OK -matchig result array.\n"
+				 "\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
+				 "\t\tIDescriptorBatchPtr::getMaxCount()"
+				 "\t\t(FSDKErrorResult wrapped in list): Result with error specified by FSDKErrorResult.")
 				;
 //	second part of estimators
 	py::class_<fsdk::IHeadPoseEstimatorPtr>(f, "IHeadPoseEstimatorPtr")
