@@ -79,6 +79,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IAttributeEstimatorPtr
 			IAttributeEstimatorPtr.estimate
 
+			IEthnicityEstimatorPtr
+			IEthnicityEstimatorPtr.estimate
+
+			IDetectorPtr
+			IDetectorPtr.detect
+
+			IWarperPtr
+			IWarperPtr.warp
+			IWarperPtr.createTransformation
     )pbdoc";
 
 	f.def("createFaceEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
@@ -148,8 +157,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"Path may be null, in this case a path from getDefaultPath() will be used.\n"
 			"Returns true if succeded, false otherwise.\n")
 
-		.def("clear", &PyISettingsProvider::clear, "Clear settings.\n"
-			"Returns true if succeded, false otherwise.")
+		.def("clear", &PyISettingsProvider::clear, "Clear settings.\n")
 
 		.def("isEmpty", &PyISettingsProvider::isEmpty, "Check if there are loaded settings.\n"
 			"Returns true if provider is empty.\n")
@@ -277,7 +285,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				;
 
 	py::class_<fsdk::IAttributeEstimatorPtr>(f, "IAttributeEstimatorPtr",
-	"Face image attribute estimator interface. This estimator is designed to work with a person face image; "
+	"Face image attribute estimator interface. This estimator is designed to work with a person face image; \n"
 		"you should pass a warped face detection image. Estimated attributes are: \n"
 		"\tage;\n"
 		"\tgender;\n"
@@ -292,13 +300,17 @@ PYBIND11_MODULE(FaceEngine, f) {
 					return py::cast(out);
 				else
 					return py::cast(FSDKErrorResult(err)); },
-			 "Estimate the attributes. If success returns attribute output structure with params, else error code "
+			 "Estimate the attributes. If success returns AttributeEstimation output structure with params, else error code "
 				 "(see FSDKErrorResult for details) \n"
 				 "\tArgs:\n"
 				 "\t\tparam1 (Image): image with warped face. Format must be R8G8B8")
 					;
 
-	py::class_<fsdk::IEthnicityEstimatorPtr>(f, "IEthnicityEstimatorPtr")
+	py::class_<fsdk::IEthnicityEstimatorPtr>(f, "IEthnicityEstimatorPtr",
+		"Ethnicity estimator interface. This estimator is designed to work with a person face image; \n"
+		"you should pass a warped face detection image obtained from IWarper. \n"
+			"See EthnicityEstimation for output details"
+	)
 		.def("estimate",[](
 			const fsdk::IEthnicityEstimatorPtr& est,
 			const fsdk::Image &warp) {
@@ -307,10 +319,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (err.isOk())
 					return py::cast(out);
 				else
-					return py::cast(FSDKErrorResult(err)); })
+					return py::cast(FSDKErrorResult(err)); },
+			 "Ethnicity estimator interface. If success returns EthnicityEstimation structure with params, else error code. \n"
+				 "See FSDKErrorResult for details. This estimator is designed to work with a person face image; \n"
+				 "you should pass a warped face detection image obtained from IWarper\n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (Image): image with warped face. Format must be R8G8B8")
 				;
 
-	py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr")
+	py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr", "Face detector interface")
 		.def("detect",[](
 			const fsdk::IDetectorPtr& det,
 			const fsdk::Image& image,
@@ -335,16 +352,26 @@ PYBIND11_MODULE(FaceEngine, f) {
 				}
 				else {
 					detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
-					return detectionResultPyList; } })
+					return detectionResultPyList; }}, "Detect faces and landmarks on the image\n"
+			"\tArgs:\n"
+			"\t\tparam1 (Image): input image. Format must be R8G8B8\n"
+			"\t\tparam2 (Rect): rect of interest inside of the image\n"
+			"\t\tparam3 (int): length of `detections` and `landmarks` arrays\n"
+			"\tReturns:\n"
+			"\t\t([(Detection, Landmarks5, Landmarks68)]): if success - list of tuples of Detection, Landmarks5, Landmarks68,\n"
+			"\t\t([FSDKErrorValueInt]): else - error code and number of detections wrapped in list, see FSDKErrorValueInt\n")
 					;
 
-	py::class_<DetectionResult>(f, "DetectionResult")
-		.def_readwrite("detection", &DetectionResult::detection)
-		.def_readwrite("landmarks5", &DetectionResult::landmarks5)
-		.def_readwrite("landmarks68", &DetectionResult::landmarks68)
-			;
+//	py::class_<DetectionResult>(f, "DetectionResult")
+//		.def_readwrite("detection", &DetectionResult::detection)
+//		.def_readwrite("landmarks5", &DetectionResult::landmarks5)
+//		.def_readwrite("landmarks68", &DetectionResult::landmarks68)
+//			;
 
-	py::class_<fsdk::IWarperPtr>(f, "IWarperPtr")
+	py::class_<fsdk::IWarperPtr>(f, "IWarperPtr",
+		"Face detection area warper interface.\n"
+		"\tPerform affine transformations on an image to properly align depicted face for descriptor extraction.")
+
 		.def("warp",[](
 			const fsdk::IWarperPtr& warper,
 			const fsdk::Image& image,
@@ -354,7 +381,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (error.isOk())
 					return py::cast(transformedImage);
 				else
-					return py::cast(FSDKErrorResult(error)); })
+					return py::cast(FSDKErrorResult(error)); },
+			 "Warp image\n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
+				 "\t\tparam2 (Transformation): transformation data\n"
+				 "\tReturns:\n"
+				 "\t\t(Image): if success - output transformed image,\n"
+				 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
+
 		.def("warp",[](
 			const fsdk::IWarperPtr& warper,
 			const fsdk::Landmarks5& landmarks,
@@ -367,7 +402,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (error.isOk())
 					return py::cast(transformedLandmarks5);
 				else
-					return py::cast(FSDKErrorResult(error)); })
+					return py::cast(FSDKErrorResult(error)); },
+			 "Warp landmarks of size 5\n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (Landmarks5): landmarks array of size 5\n"
+				 "\t\tparam2 (Transformation): transformation data\n"
+				 "\tReturns:\n"
+				 "\t\t(Landmarks5): if success - output transformed image,\n"
+				 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
+
 		.def("warp",[](
 			const fsdk::IWarperPtr& warper,
 			const fsdk::Landmarks68& landmarks68,
@@ -379,12 +422,26 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (error.isOk())
 					return py::cast(transformedLandmarks68);
 				else
-					return py::cast(FSDKErrorResult(error)); })
+					return py::cast(FSDKErrorResult(error)); },
+			 "Warp landmarks of size 68\n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (Landmarks68): landmarks array of size 68\n"
+				 "\t\tparam2 (Transformation): transformation data\n"
+				 "\tReturns:\n"
+				 "\t\t(Landmarks68): if success - transformed landmarks of size 68,\n"
+				 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
+
 		.def("createTransformation",[](
 			const fsdk::IWarperPtr& warper,
 			const fsdk::Detection& detection,
 			const fsdk::Landmarks5& landmarks) {
-				return warper->createTransformation(detection, landmarks); })
+				return warper->createTransformation(detection, landmarks); },
+			 "Create transformation data struct.\n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (Detection): detection rect where landmarks are.\n"
+				 "\t\tparam2 (Landmarks5): landmarks to calculate warping angles\n"
+				 "\tReturns:\n"
+				 "\t\t(Transformation): Transformation obj,\n")
 					;
 	// descriptor
 	py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr")

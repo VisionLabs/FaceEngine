@@ -100,15 +100,15 @@ struct FSDKErrorValueMatching {
 
 };
 
-struct DetectionResult {
-	fsdk::Detection detection;
-	fsdk::Landmarks5 landmarks5;
-	fsdk::Landmarks68 landmarks68;
-	DetectionResult(const fsdk::Detection &detection,
-					const fsdk::Landmarks5& landmarks5,
-					const fsdk::Landmarks68&) :
-	detection(detection), landmarks5(landmarks5), landmarks68(landmarks68) {}
-};
+//struct DetectionResult {
+//	fsdk::Detection detection;
+//	fsdk::Landmarks5 landmarks5;
+//	fsdk::Landmarks68 landmarks68;
+//	DetectionResult(const fsdk::Detection &detection,
+//					const fsdk::Landmarks5& landmarks5,
+//					const fsdk::Landmarks68&) :
+//	detection(detection), landmarks5(landmarks5), landmarks68(landmarks68) {}
+//};
 
 struct SettingsProviderResult {
 	bool isOk;

@@ -54,3 +54,13 @@ print(fe.IQualityEstimatorPtr.estimate.__doc__)
 
 print(fe.IAttributeEstimatorPtr.__doc__)
 print(fe.IAttributeEstimatorPtr.estimate.__doc__)
+
+print(fe.IEthnicityEstimatorPtr.__doc__)
+print(fe.IEthnicityEstimatorPtr.estimate.__doc__)
+
+print(fe.IDetectorPtr.__doc__)
+print(fe.IDetectorPtr.detect.__doc__)
+
+print(fe.IWarperPtr.__doc__)
+print(fe.IWarperPtr.warp.__doc__)
+print(fe.IWarperPtr.createTransformation.__doc__)
