@@ -118,6 +118,43 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IDescriptorMatcherPtr.matchCompact
 			IDescriptorMatcherPtr.matchCompact
 
+			IHeadPoseEstimatorPtr
+			IHeadPoseEstimatorPtr.estimate
+
+			IBlackWhiteEstimatorPtr
+			IBlackWhiteEstimatorPtr.estimate
+
+			ILivenessDepthEstimatorPtr
+			ILivenessDepthEstimatorPtr.estimate
+			ILivenessDepthEstimatorPtr.setRange
+
+			ILivenessIREstimatorPtr
+			ILivenessIREstimatorPtr.estimate
+
+			ISmileEstimatorPtr
+			ISmileEstimatorPtr.estimate
+
+			ILivenessFlowEstimatorPtr
+			ILivenessFlowEstimatorPtr.estimate
+
+			IEyeEstimatorPtr
+			IEyeEstimatorPtr.estimate
+
+			IEmotionsEstimatorPtr
+			IEmotionsEstimatorPtr.estimate
+
+			IGazeEstimatorPtr
+			IGazeEstimatorPtr.estimate
+
+			ILSHTablePtr
+
+			MatchingResult
+
+			Landmarks5
+			Landmarks68
+			IrisLandmarks
+			EyelidLandmarks
+
 
     )pbdoc";
 
@@ -640,8 +677,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\tparam4 (IDescriptorPtr): descriptor to fill with data.\n"
 			"\tReturns:\n"
 			"\t\t(FSDKErrorValueFloat): ResultValue with error code specified by FSDKError and score of descriptor normalized in range [0, 1]\n"
-			"\t\t1 - face on the input warp; 0 - garbage on the input detection.\n"
-			"\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
+			"\t\t\t1 - face on the input warp; 0 - garbage on the input detection.\n"
+			"\t\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
 			"\t\tSee FSDKErrorValueFloat.")
 
 		.def("extractFromWarpedImage",[](
@@ -657,8 +694,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\tparam2 (IDescriptorPtr): descriptor to fill with data\n"
 			"\tReturns:\n"
 			"\t\t(FSDKErrorValueFloat): ResultValue with error code specified by FSDKError and score of descriptor normalized in range [0, 1]\n"
-			"\t\t1 - face on the input warp; 0 - garbage on the input detection.\n"
-			"\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
+			"\t\t\t1 - face on the input warp; 0 - garbage on the input detection.\n"
+			"\t\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
 			"\t\tSee FSDKErrorValueFloat.")
 
 		.def("extractFromWarpedImageBatch",[](
@@ -697,8 +734,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\t\tparam4 (int): size of the batch.\n"
 				 "\tReturns:\n"
 				 "\t\t(list): if OK - list of descriptor scores normalized in range [0, 1]\n"
-				 "\t\t 1 - face on the input warp; 0 - garbage on the input warp.\n"
-				 "\t\t Score is fake if extractor uses mobile net version of extraction model.\n"
+				 "\t\t\t1 - face on the input warp; 0 - garbage on the input warp.\n"
+				 "\t\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
 				 "\t\t(FSDKErrorResult): else - result with error code specified by FSDKError\n See FSDKErrorResult.")
 
 		.def("extractFromWarpedImageBatch",[](
@@ -734,8 +771,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\t\tparam3 (int): size of the batch\n"
 				 "\tReturns:\n"
 				 "\t\t(list): if OK - list of descriptor scores normalized in range [0, 1]\n"
-				 "\t\t 1 - face on the input warp; 0 - garbage on the input warp.\n"
-				 "\t\t Score is fake if extractor uses mobile net version of extraction model.\n"
+				 "\t\t\t1 - face on the input warp; 0 - garbage on the input warp.\n"
+				 "\t\t\t Score is fake if extractor uses mobile net version of extraction model.\n"
 				 "\t\t(FSDKErrorResult): else - result with error code specified by FSDKError\n See FSDKErrorResult.")
 					;
 
@@ -789,8 +826,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\t\tparam2 (IDescriptorPtr): the candidate descriptor batch to match with the reference\n"
 				 "\tReturns:\n"
 				 "\t\t(list): if OK matchig result list.\n"
-				 "\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
-				 "\t\tIDescriptorBatchPtr::getMaxCount()\n"
+				 "\t\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
+				 "\t\t\tIDescriptorBatchPtr::getMaxCount()\n"
 				 "\t\t(FSDKErrorResult wrapped in list): Result with error specified by FSDKErrorResult.")
 
 		.def("match",[](
@@ -825,8 +862,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\t\tparam3 (list): the list of candidate descriptor indices within the batch to be matched.\n"
 			 "\tReturns:\n"
 			 "\t\t(list): if OK matchig result list.\n"
-			 "\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
-			 "\t\tIDescriptorBatchPtr::getMaxCount()"
+			 "\t\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
+			 "\t\t\tIDescriptorBatchPtr::getMaxCount()\n"
 			 "\t\t(FSDKErrorResult wrapped in list): Result with error specified by FSDKErrorResult."
 
 		)
@@ -861,12 +898,21 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\t\tparam3 (list): list of candidate descriptor indices within the batch to be matched\n"
 				 "\tReturns:\n"
 				 "\t\t(list): if OK -matchig result array.\n"
-				 "\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
-				 "\t\tIDescriptorBatchPtr::getMaxCount()"
+				 "\t\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
+				 "\t\t\tIDescriptorBatchPtr::getMaxCount()\n"
 				 "\t\t(FSDKErrorResult wrapped in list): Result with error specified by FSDKErrorResult.")
 				;
 //	second part of estimators
-	py::class_<fsdk::IHeadPoseEstimatorPtr>(f, "IHeadPoseEstimatorPtr")
+	py::class_<fsdk::IHeadPoseEstimatorPtr>(f, "IHeadPoseEstimatorPtr",
+		"Head pose angles estimator interface.\n"
+		"\tThis estimator is designed to work with 68 landmark points extracted from photo using face detector;\n"
+		"\tsee IDetector for details.\n"
+		"\tdetails Estimated angles are:\n"
+		"\t\tpitch;\n"
+		"\t\tyaw;\n"
+		"\t\troll.\n"
+		"\tsee HeadPoseEstimation structure for details about how exactly the estimations are reported")
+
 		.def("estimate",[](
 			const fsdk::IHeadPoseEstimatorPtr& est,
 			const fsdk::Landmarks68& landmarks68) {
@@ -885,10 +931,19 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (err.isOk())
 					return py::cast(out);
 				else
-					return py::cast(FSDKErrorResult(err)); })
+					return py::cast(FSDKErrorResult(err)); },
+				 "Estimate the angles.\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (Landmarks68) [in]: landmarks Landmarks68 structure.\n"
+				 "\tReturns:\n"
+				 "\t\t(HeadPoseEstimation): if OK - output estimation; see AngleEstimation.\n"
+				 "\t\t(FSDKErrorResult): else - Result with error specified by FSDKErrorResult.")
 					;
 
-	py::class_<fsdk::Ref<fsdk::IBlackWhiteEstimator>>(f, "IBlackWhiteEstimatorPtr")
+	py::class_<fsdk::Ref<fsdk::IBlackWhiteEstimator>>(f, "IBlackWhiteEstimatorPtr",
+		"Grayscale image estimator interface.\n"
+		"\tThis estimator is indifferent to image content and dimensions; you can pass both face crops (including\n"
+		"\twarped images) and full frames.")
 		.def("estimate",[](
 			const fsdk::Ref<fsdk::IBlackWhiteEstimator>& est,
 			const fsdk::Image& image) {
@@ -897,31 +952,68 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (err.isOk())
 					return py::cast(outIsGrayscale);
 				else
-					return py::cast(FSDKErrorResult(err)); })
+					return py::cast(FSDKErrorResult(err)); },
+				 "Check if image is grayscale or colo.\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (Image) [in]: image source image. Format must be R8G8B8.\n"
+				 "\tReturns:\n"
+				 "\t\t(FSDKErrorResult): estimation result; true if image is grayscale, false if not.")
 					;
 
-	py::class_<fsdk::ILivenessDepthEstimatorPtr>(f, "ILivenessDepthEstimatorPtr")
+	py::class_<fsdk::ILivenessDepthEstimatorPtr>(f, "ILivenessDepthEstimatorPtr",
+		"Depth estimator interface.\n"
+		"\tThis estimator is designed for face analysis using depth map. It works with 16 bit depth map of face warp.\n"
+		"\tSee IWarper for details")
 		.def("estimate",[](
 			const fsdk::ILivenessDepthEstimatorPtr& est,
 			const fsdk::Image& image) {
 			fsdk::ResultValue<fsdk::FSDKError, float> err = est->estimate(image);
 
-				return FSDKErrorValueFloat(err); })
+				return FSDKErrorValueFloat(err); },
+				 "Check whether or not depth map corresponds to the real person..\n"
+				 "\tTe.\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (Image): warped depth image with R16 format.\n"
+				 "\tReturns:\n"
+				 "\t\t(FSDKErrorValueFloat): ResultValue with error code and score of estimation.\n"
+				 "\t\t\testimation score normalized between 0.0 and 1.0,\n"
+				 "\t\t\twhere 1.0 equals to 100% confidence that person on image is alive, and 0.0 equals to 0%.")
+
 		.def("setRange",[](
 			const fsdk::ILivenessDepthEstimatorPtr& est,
 			const fsdk::DepthRange& range) {
-				return est->setRange(range); })
+				return est->setRange(range); },
+				"Set depth range for estimator.\n"
+				"\tArgs\n"
+				"\t\tparam1 (DepthRange): range see DepthRange.\n"
+				"\tReturns:\n"
+				"\t\t(bool): true if range was set, otherwise - false.\n"
+				"\t\t\tif !range.isOk() range is not set.")
 					;
 
-	py::class_<fsdk::ILivenessIREstimatorPtr>(f, "ILivenessIREstimatorPtr")
+	py::class_<fsdk::ILivenessIREstimatorPtr>(f, "ILivenessIREstimatorPtr",
+		"Infra red liveness estimator interface.\n"
+		"\tThis estimator is designed for face analysis using infra red facial warp (8-bit 1 channel) image.\n"
+		"\tIWarper for details.")
+
 		.def("estimate",[](
 			const fsdk::ILivenessIREstimatorPtr& est,
 			const fsdk::Image& irWarp) {
 			fsdk::ResultValue<fsdk::FSDKError,float> err = est->estimate(irWarp);
-				return FSDKErrorValueFloat(err); })
+				return FSDKErrorValueFloat(err); },
+				"Check whether or not infrared warp corresponds to the real person..\n"
+				"\tArgs\n"
+				"\t\tparam1 (Image) [in]: irWarp infra red face warp\n"
+				"\tReturns:\n"
+				"\t\t(FSDKErrorValueFloat): ResultValue with error code and score of estimation.\n"
+				"\t\t\testimation score normalized between 0.0 and 1.0,\n"
+				"\t\t\twhere 1.0 equals to 100% confidence that person on image is alive, and 0.0 equals to 0%.")
 					;
 
-	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr")
+	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr",
+		"Smile estimator interface.\n"
+		"\tThis estimator is designed for smile/mouth/mouth overlap detection.\n"
+		"\tIt works with warped image see IWarper for details.")
 		.def("estimate",[](
 			const fsdk::ISmileEstimatorPtr& est,
 			const fsdk::Image& image) {
@@ -930,15 +1022,27 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (err.isOk())
 					return py::cast(out);
 				else
-					return py::cast(FSDKErrorResult(err)); })
+					return py::cast(FSDKErrorResult(err)); },
+					"Estimate SmileEstimation probabilities.\n"
+					"\tArgs\n"
+					"\t\tparam1 (Image) [in]: face warped image.\n"
+					"\tReturns:\n"
+					"\t\t(SmileEstimation): if OK - estimation\n"
+					"\t\t(FSDKErrorResult): else - Error code.")
 					;
 
-	py::class_<fsdk::ILivenessFlowEstimatorPtr>(f, "ILivenessFlowEstimatorPtr")
+	py::class_<fsdk::ILivenessFlowEstimatorPtr>(f, "ILivenessFlowEstimatorPtr",
+		"Liveness flow estimator interface.\n"
+		"\tThis estimator is designed for liveness detection. It works with 1 close-range face crop\n"
+		"\tand 10 long-range face crops estimating correctness of optical flow between theese frames.\n"
+		"\tRequired input images - 96x96 face warp central crops.\n"
+		"\tsee IWarper for details.")
+
 		.def("estimate",[](
 			const fsdk::ILivenessFlowEstimatorPtr& est,
 			const fsdk::Image& small,
-			py::list framesPyList,
-			int length) {
+			py::list framesPyList) {
+			int length = py::len(framesPyList);
 				fsdk::Image frames [length];
 				for (size_t i = 0; i < length; ++i) {
 					frames[i] = framesPyList[i].cast<fsdk::Image>();
@@ -948,10 +1052,25 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (err.isOk())
 					return py::cast(score);
 				else
-					return py::cast(FSDKErrorResult(err)); })
+					return py::cast(FSDKErrorResult(err)); },
+				 "Check if correct optical flow can be calculated from input images..\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (Image): small face crop\n"
+				 "\t\tparam2 (list): list with big face crops.\n"
+				 "\tReturns:\n"
+				 "\t\t(double): if OK - score.\n"
+				 "\t\t(FSDKErrorResult): else - error code")
 					;
 
-	py::class_<fsdk::IEyeEstimatorPtr>(f, "IEyeEstimatorPtr")
+	py::class_<fsdk::IEyeEstimatorPtr>(f, "IEyeEstimatorPtr",
+		"Eye estimator interface.\n"
+		"This estimator is designed to work with a person face image; you should pass a warped face detection image.\n"
+		"Eye estimator detects:\n"
+		"\teyes state;\n"
+		"\tlandmarks describing iris.\n"
+		"See EyeEstimation for output details."
+		"More detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+
 		.def("estimate",[](
 			const fsdk::IEyeEstimatorPtr& est,
 			const fsdk::Image& warp,
@@ -961,7 +1080,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (err.isOk())
 					return py::cast(out);
 				else
-					return py::cast(FSDKErrorResult(err)); })
+					return py::cast(FSDKErrorResult(err)); },
+			 "Estimate the attributes.\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (Image): warp source image. Format must be R8G8B8. Must be warped!\n"
+				 "\t\tparam2 (Landmarks5): landmarks5 landmark of size 5 used to warp image, must be in warped image coordinates. @see IWarper\n"
+				 "\tReturns:\n"
+				 "\t\t(EyeEstimation): if OK - return eye estimation\n"
+				 "\t\t(FSDKErrorResult): else - Error code")
+
 		.def("estimate",[](
 			const fsdk::IEyeEstimatorPtr& est,
 			const fsdk::Image& warp,
@@ -971,10 +1098,22 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (err.isOk())
 					return py::cast(out);
 				else
-					return py::cast(FSDKErrorResult(err)); })
+					return py::cast(FSDKErrorResult(err)); },
+				 "Estimate the attributes.\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (Image): warp source image. Format must be R8G8B8. Must be warped!\n"
+				 "\t\tparam2 (Landmarks68): landmark of size 68 used to warp image, must be in warped image coordinates.\n"
+				 "\tReturns:\n"
+				 "\t\t(EyeEstimation): if OK - return eye estimation"
+				 "\t\t(FSDKErrorResult): else - Error code")
 					;
 
-	py::class_<fsdk::IEmotionsEstimatorPtr>(f, "IEmotionsEstimatorPtr")
+	py::class_<fsdk::IEmotionsEstimatorPtr>(f, "IEmotionsEstimatorPtr",
+		"Emotions estimator interface.\n"
+		"\tThis estimator is designed to work with a person face image; you should pass a warped face detection image obtained from IWarper.\n"
+		"\tsee IWarper for details.\n"
+		"\tEmotions estimator detects set of emotions depiceted on given face.\n"
+		"\tsee EmotionsEstimation for output details.")
 		.def("estimate",[](
 			const fsdk::IEmotionsEstimatorPtr& est,
 			const fsdk::Image& warp) {
@@ -983,10 +1122,23 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (err.isOk())
 					return py::cast(out);
 				else
-					return py::cast(FSDKErrorResult(err)); })
+					return py::cast(FSDKErrorResult(err)); },
+			 ".\n"
+				 "\tEstimate the attributes.\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (Image) [in]: warp source image. If format is not R8 it would be converted to R8. Must be warped!\n"
+				 "\tReturns:\n"
+				 "\t\t(EmotionsEstimation): if OK - estimation of emotions. see EmotionsEstimation for details\n"
+				 "\t\t(FSDKErrorResult): else - Error code")
 					;
 
-	py::class_<fsdk::IGazeEstimatorPtr>(f, "IGazeEstimatorPtr")
+	py::class_<fsdk::IGazeEstimatorPtr>(f, "IGazeEstimatorPtr",
+		"Gaze estimator interface.\n"
+		"\tThis estimator is designed to work with 68 facial landmarks, HeadPoseEstimation\n"
+		"\t(see IHeadPoseEstimator) and EyeEstimations of both eyes (@see IEyeEstimator).\n"
+		"\tsee GazeEstimation structure for details about how exactly the estimations are reported.\n"
+		"\tInput points should be relative to the same coordinate system. Best results are achieved\n"
+		"\tif coordinate system is tied to image on which input data was retrieved.")
 		.def("estimate",[](
 			const fsdk::IGazeEstimatorPtr& est,
 			const fsdk::HeadPoseEstimation& angles,
@@ -996,15 +1148,32 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (err.isOk())
 					return py::cast(out);
 				else
-					return py::cast(FSDKErrorResult(err)); })
+					return py::cast(FSDKErrorResult(err)); },
+			 "Estimate the eye angles.\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (HeadPoseEstimation): HeadPoseEstimation calculated using landmarks68.\n"
+				 "\t\tparam2 (EyeEstimation): EyeEstimation of eyes.\n"
+				 "\tReturns:\n"
+				 "\t\t(GazeEstimation): if OK - output estimation; @see GazeEstimation.\n"
+				 "\t\t(FSDKErrorResult): else - error code")
 					;
 
+	py::class_<fsdk::ILSHTablePtr>(f, "ILSHTablePtr",
+	   "LSH (Local Sensitive Hashing) table interface.\n"
+	   "\tThe LSH tables allow to pick a given number of nearest neighbors, i.e. ones having the closest distance\n"
+	   "\tto the user provided reference descritpor from a batch.\n"
+	   "\tEach LSH table is tied to one descriptor batch. LSH tables are immutable objects and therefore should be rebuilt\n"
+	   "\tif the corresponding batch is changed.\n"
+	   "\tLSH table methods are not thread safe; users should create a table per thread if parallel processing is\n"
+	   "\trequired.\n");
 
-	py::class_<fsdk::ILSHTablePtr>(f, "ILSHTablePtr");
-
-	py::class_<fsdk::MatchingResult>(f, "MatchingResult")
-		.def(py::init<>())
-		.def(py::init<float, float>())
+	py::class_<fsdk::MatchingResult>(f, "MatchingResult", "Result of descriptor matching.")
+		.def(py::init<>(), "Initializes result to default values.")
+		.def(py::init<float, float>(),
+			 "Initializes result.\n"
+			"\tArgs\n"
+			"\t\tparam1 (float) [in]: distance value.\n"
+			"\t\tparam2 (float) [in]: imilarity value.\n")
 		.def_readwrite("distance", &fsdk::MatchingResult::distance)
 		.def_readwrite("similarity", &fsdk::MatchingResult::similarity)
 		.def("__repr__",
@@ -1013,7 +1182,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 						+ ", similarity = " + std::to_string(result.similarity); })
 			;
 
-	py::class_<fsdk::Landmarks5>(f, "Landmarks5")
+	py::class_<fsdk::Landmarks5>(f, "Landmarks5",
+		"Face landmarks, length is fixed and equal to5.\n"
+		"\tMTCNN face detector is capable of face landmarks detection. "
+		"\tLandmarks are special classes binded to python. \n"
+		"\tThey are similar on python lists. It is possible to use some standard python built-in functions for them: \n"
+		"\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and research purposes with class Vector2f. \n"
+		"\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+
 		.def(py::init<>())
 		.def("__len__", [](const fsdk::Landmarks5 &v) { return v.landmarkCount; })
 		.def("__getitem__", [](const fsdk::Landmarks5 &s, size_t i) {
@@ -1028,7 +1204,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 		})
 			;
 
-	py::class_<fsdk::Landmarks68>(f, "Landmarks68")
+	py::class_<fsdk::Landmarks68>(f, "Landmarks68",
+			  "Face landmarks, length is fixed and equal to 68.\n"
+			  "\tMTCNN face detector is capable of face landmarks detection. "
+			  "\tLandmarks are special classes binded to python. \n"
+			  "\tThey are similar on python lists. It is possible to use some standard python built-in functions for them: \n"
+			  "\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and research purposes with class Vector2f. \n"
+			  "\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+
 		.def(py::init<>())
 		.def("__len__", [](const fsdk::Landmarks68 &v) { return v.landmarkCount; })
 		.def("__getitem__", [](const fsdk::Landmarks68 &s, size_t i) {
@@ -1043,7 +1226,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 		})
 			;
 
-	py::class_<fsdk::EyesEstimation::EyeAttributes::IrisLandmarks>(f, "IrisLandmarks")
+	py::class_<fsdk::EyesEstimation::EyeAttributes::IrisLandmarks>(f, "IrisLandmarks",
+		   "Iris landmarks, length is fixed and equal to 32.\n"
+		   "\tMTCNN face detector is capable of face landmarks detection. "
+		   "\tLandmarks are special classes binded to python. \n"
+		   "\tThey are similar on python lists. It is possible to use some standard python built-in functions for them: \n"
+		   "\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and research purposes with class Vector2f. \n"
+		   "\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 		.def(py::init<>())
 		.def("__len__", [](const fsdk::EyesEstimation::EyeAttributes::IrisLandmarks &v)
 			{ return fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount; })
@@ -1061,7 +1250,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 		})
 			;
 
-	py::class_<fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks>(f, "EyelidLandmarks")
+	py::class_<fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks>(f, "EyelidLandmarks",
+			 "Iris landmarks, length is fixed and equal to 32.\n"
+			 "\tMTCNN face detector is capable of face landmarks detection. "
+			 "\tLandmarks are special classes binded to python. \n"
+			 "\tThey are similar on python lists. It is possible to use some standard python built-in functions for them: \n"
+			 "\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and research purposes with class Vector2f. \n"
+			 "\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 		.def(py::init<>())
 		.def("__len__", [](const fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks &v)
 			{ return fsdk::EyesEstimation::EyeAttributes::eyelidLandmarksCount; })

@@ -83,7 +83,7 @@ def faceFlow_example():
         temp_image = fe.Image()
         temp_image.load("testData/" + str(i) + "big.ppm")
         sequence.append(temp_image)
-    faceFlowResult = faceFlowEstimator.estimate(face_flow_image, sequence, len(sequence))
+    faceFlowResult = faceFlowEstimator.estimate(face_flow_image, sequence)
     print("FaceFlowResult: {0}".format(faceFlowResult))
 
 
