@@ -1878,7 +1878,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("isValid", &fsdk::Image::isValid)
 		.def("getRect", &fsdk::Image::getRect,
 			"Image rectangle.\n"
-			"\tResulting rectangle top left corner is lways at (0, 0).")
+			"\tResulting rectangle top left corner is always at (0, 0).")
 //		.def("getDataAsList", [](const fsdk::Image& image) {
 //			py::list py_matr;
 //			for (int i = 0; i < image.getHeight(); ++i) {
