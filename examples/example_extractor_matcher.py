@@ -139,6 +139,5 @@ if __name__ == "__main__":
         # as test
         extractor_test_aggregation(46, True, "cpu", "cpu")
     except RuntimeError:
-        print("RuntimeError")
         exit(1)
 
