@@ -170,7 +170,6 @@ if __name__ == "__main__":
                                      "data/faceengine.conf")
     image_path = sys.argv[2]
     image = image_load(image_path)
-    data = image.getDataAsList()
     # only with numpy
     # data_np = image.getData()
     # print(data_np.shape)
