@@ -307,16 +307,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\tArgs:\n"
 			"\t\tparam1 (enum ObjectDetectorClassType): fixed or random order of algorithm types\n")
 		.def("createWarper", &PyIFaceEngine::createWarper, "Creates warper\n")
-		.def("createDescriptor", [](PyIFaceEngine f) {
+		.def("createDescriptor", [](PyIFaceEngine& f) {
 			fsdk::IDescriptorPtr descriptorPtr = f.createDescriptor();
 			if (!descriptorPtr) {
-				std::cerr << "Failed to create descriptor instance, possible you use front-edition verstion!" << std::endl;
+				std::cerr << "\nFailed to create descriptor instance, possible you use front-edition verstion!" << std::endl;
 				throw py::cast_error();
 			}
-//					py::pybind11_fail("Cannot create descriptor, possible it is front-edition vertion");
 			return descriptorPtr;
 		}, "Creates Descriptor\n")
-		.def("createDescriptorBatch", [](PyIFaceEngine f, int32_t size, int32_t version = 0) {
+		.def("createDescriptorBatch", [](PyIFaceEngine &f, int32_t size, int32_t version = 0) {
 				 fsdk::IDescriptorBatchPtr descriptorBatchPtr = f.createDescriptorBatch(size, version);
 				 if (!descriptorBatchPtr) {
 					 std::cerr << "Failed to create descriptor batch instance, possible you use front-edition verstion!" << std::endl;

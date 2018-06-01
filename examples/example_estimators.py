@@ -116,10 +116,6 @@ def are_equal(desc1, desc2):
             return False
     return True
 
-
-
-
-
 def print_landmarks(landmarks, message=""):
     print(message)
     for i in range(len(landmarks)):
