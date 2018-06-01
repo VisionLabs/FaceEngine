@@ -1583,11 +1583,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"\tEach estimation is given in normalized [0, 1] range. Parameter meanings:\n"
 		"\t\tgender: 1 - male, 0 - female;\n"
 		"\t\tglasses: 1 - person wears glasses, 0 - person doesn't wear glasses;\n"
-		"\t\tage: estimated age (in years).\n"
-		"\tglasses parameter estimation does not differentiate between shaded or medical glasses; it just tells\n"
-		"\tthat any type of glasses is present as a probability of the estimation.\n"
-		"\tage parameter estimation typical error is about ±5 years depending on age group. Age classifier is trained\n"
-		"\tto work best for ages in range 18 to 60 years.")
+		"\t\tage: estimated age (in years).\n")
 		.def(py::init<>())
 		.def_readwrite("gender", &fsdk::AttributeEstimation::gender)
 		.def_readwrite("glasses", &fsdk::AttributeEstimation::glasses)
