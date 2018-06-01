@@ -49,7 +49,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createDepthEstimator
 			PyIFaceEngine.createIREstimator
 			PyIFaceEngine.createSmileEstimator
-			PyIFaceEngine."createFaceFlowEstimator
+			PyIFaceEngine.createFaceFlowEstimator
 			PyIFaceEngine.createEyeEstimator
 			PyIFaceEngine.createEmotionsEstimator
 			PyIFaceEngine.createGazeEstimator
@@ -822,7 +822,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\t(FSDKErrorValueFloat): ResultValue with error code specified by FSDKError and score of descriptor normalized in range [0, 1]\n"
 			"\t\t\t1 - face on the input warp; 0 - garbage on the input detection.\n"
 			"\t\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
-			"\t\tSee FSDKErrorValueFloat.")
+			"\t\tSee FSDKErrorValueFloat.\n")
 
 		.def("extractFromWarpedImageBatch",[](
 			const fsdk::IDescriptorExtractorPtr& extractor,
@@ -862,7 +862,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\t\t(list): if OK - list of descriptor scores normalized in range [0, 1]\n"
 				 "\t\t\t1 - face on the input warp; 0 - garbage on the input warp.\n"
 				 "\t\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
-				 "\t\t(FSDKErrorResult): else - result with error code specified by FSDKError\n See FSDKErrorResult.")
+				 "\t\t(FSDKErrorResult): else - result with error code specified by FSDKError\n See FSDKErrorResult.\n")
 
 		.def("extractFromWarpedImageBatch",[](
 			const fsdk::IDescriptorExtractorPtr& extractor,
