@@ -27,6 +27,7 @@ PYBIND11_MAKE_OPAQUE(fsdk::Landmarks68);
 PYBIND11_MODULE(FaceEngine, f) {
 
 	f.doc() = R"pbdoc(
+
         Python wrapper for LUNA SDK usings pybind11
         -------------------------------------------
 
@@ -258,8 +259,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Rect
 
 			ObjectDetectorClassType
-
-			ObjectDetectorClassType.
 			ObjectDetectorClassType.ODT_MTCNN
 			ObjectDetectorClassType.ODT_COUNT
 
@@ -270,12 +269,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			DepthRange.__repr__
 			loadImage
 			EyeAngles
-
-
-
-
-
-
 
 
     )pbdoc";
@@ -292,36 +285,36 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\tArgs:\n"
 			"\t\tparam1 (str): configuration file path\n");
 
-	py::class_<PyIFaceEngine>(f, "PyIFaceEngine", "Root LUNA SDK object interface")
-		.def("createAttributeEstimator", &PyIFaceEngine::createAttributeEstimator, "Creates Attribute estimator")
-		.def("createQualityEstimator", &PyIFaceEngine::createQualityEstimator, "Creates Quality estimator")
-		.def("createEthnicityEstimator", &PyIFaceEngine::createEthnicityEstimator, "Creates Ethnicity estimator")
+	py::class_<PyIFaceEngine>(f, "PyIFaceEngine", "Root LUNA SDK object interface\n")
+		.def("createAttributeEstimator", &PyIFaceEngine::createAttributeEstimator, "Creates Attribute estimator\n")
+		.def("createQualityEstimator", &PyIFaceEngine::createQualityEstimator, "Creates Quality estimator\n")
+		.def("createEthnicityEstimator", &PyIFaceEngine::createEthnicityEstimator, "Creates Ethnicity estimator\n")
 
-		.def("createHeadPoseEstimator", &PyIFaceEngine::createHeadPoseEstimator, "Creates Head pose estimator")
-		.def("createBlackWhiteEstimator", &PyIFaceEngine::createBlackWhiteEstimator, "Creates Black/White estimator")
-		.def("createDepthEstimator", &PyIFaceEngine::createDepthEstimator, "Creates Liveness Depth estimator")
-		.def("createIREstimator", &PyIFaceEngine::createIREstimator, "Creates Liveness Infrared estimator")
-		.def("createSmileEstimator", &PyIFaceEngine::createSmileEstimator, "Creates Smile estimator")
-		.def("createFaceFlowEstimator", &PyIFaceEngine::createFaceFlowEstimator, "Creates Liveness flow estimator. "
-			"Note: this estimator is required only for liveness detection purposes.")
-		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator, "Creates Eye estimator")
-		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator, "Creates Emotions estimator")
-		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator")
+		.def("createHeadPoseEstimator", &PyIFaceEngine::createHeadPoseEstimator, "Creates Head pose estimator\n")
+		.def("createBlackWhiteEstimator", &PyIFaceEngine::createBlackWhiteEstimator, "Creates Black/White estimator\n")
+		.def("createDepthEstimator", &PyIFaceEngine::createDepthEstimator, "Creates Liveness Depth estimator\n")
+		.def("createIREstimator", &PyIFaceEngine::createIREstimator, "Creates Liveness Infrared estimator\n")
+		.def("createSmileEstimator", &PyIFaceEngine::createSmileEstimator, "Creates Smile estimator\n")
+		.def("createFaceFlowEstimator", &PyIFaceEngine::createFaceFlowEstimator, "Creates Liveness flow estimator. \n"
+			"Note: this estimator is required only for liveness detection purposes.\n")
+		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator, "Creates Eye estimator\n")
+		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator, "Creates Emotions estimator\n")
+		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n")
 
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			"Creates a detector of given type.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (enum ObjectDetectorClassType): fixed or random order of algorithm types\n")
-		.def("createWarper", &PyIFaceEngine::createWarper, "Creates warper")
-		.def("createDescriptor", &PyIFaceEngine::createDescriptor, "Creates Descriptor")
+		.def("createWarper", &PyIFaceEngine::createWarper, "Creates warper\n")
+		.def("createDescriptor", &PyIFaceEngine::createDescriptor, "Creates Descriptor\n")
 		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0,
 			"Creates Batch of descriptors\n"
 			"\tArgs:\n"
 			"\t\tparam1 (int): amount of descriptors in batch\n"
 			"\t\tparam2 (str): descriptor version in batch. If 0 - use dafault version from config\n")
 
-		.def("createExtractor", &PyIFaceEngine::createExtractor, "Creates descriptor extractor")
-		.def("createMatcher", &PyIFaceEngine::createMatcher, "Creates descriptor matcher")
+		.def("createExtractor", &PyIFaceEngine::createExtractor, "Creates descriptor extractor\n")
+		.def("createMatcher", &PyIFaceEngine::createMatcher, "Creates descriptor matcher\n")
 		.def("createLSHTable", &PyIFaceEngine::createLSHTable,
 			"Creates Local Sensitive Hash table (Descriptor index).\n"
 			"\tArgs:\n"
@@ -336,12 +329,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 // 		ISettingsProvider
 	py::class_<PyISettingsProvider>(f, "PyISettingsProvider")
 		.def("getDefaultPath", &PyISettingsProvider::getDefaultPath, "Get settings path this provider is bound to.\n"
-			"This is the same path that was given to load().\n"
+			"\tThis is the same path that was given to load().\n"
 			"\tReturns path string.")
 
 		.def("load", &PyISettingsProvider::load, "Load settings from given path.\n"
 			"if `path` is null, load from the default path; @see getDefaultPath().\n"
-			"\tReturns result with error code specified by ISettingsProvider")
+			"\tReturns result with error code specified by ISettingsProvider\n")
 
 		.def("save", &PyISettingsProvider::save, "Save settings values using the default path.\n"
 			"Path may be null, in this case a path from getDefaultPath() will be used.\n"
@@ -493,10 +486,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 					return py::cast(out);
 				else
 					return py::cast(FSDKErrorResult(err)); },
-			 "Estimate the attributes. If success returns AttributeEstimation output structure with params, else error code "
-				 "(see FSDKErrorResult for details) \n"
+			 "Estimate the attributes. If success returns AttributeEstimation output structure with params, else error code.\n"
+				 "(see FSDKErrorResult for details)\n"
 				 "\tArgs:\n"
-				 "\t\tparam1 (Image): image with warped face. Format must be R8G8B8"
+				 "\t\tparam1 (Image): image with warped face. Format must be R8G8B8\n"
 				 "\tReturns:\n"
 				 "\t\t(AttributeEstimation): if success - AttributeEstimation,\n"
 				 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
@@ -647,7 +640,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return desc->getModelVersion(); },
 				"Get algorithm model version this descriptor was created with.\n"
 				"\tReturns:\n"
-				"\t\t(int): Version as integral number.")
+				"\t\t(int): Version as integral number.\n")
 
 		.def("getDescriptorLength",[]( const fsdk::IDescriptorPtr& desc) {
 			return desc->getDescriptorLength(); },
@@ -729,15 +722,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			return descriptorBatchPtr->getModelVersion(); },
 			"Get algorithm model version the descriptors in this batch were created with.\n"
 			"This function only makes sense when there is at least one descriptor in the batch. It will return 0 if\n"
-			"the batch is empty."
+			"the batch is empty.\n"
 			"\tReturns:\n"
-			"\t\t(int): Version as integral number.")
+			"\t\t(int): Version as integral number.\n")
 
 		.def("getDescriptorSize",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
 			return descriptorBatchPtr->getDescriptorSize(); },
-			"Get length of one descriptor. Specified by version of descriptors in batch."
+			"Get length of one descriptor. Specified by version of descriptors in batch.\n"
 			"\tReturns:\n"
-			"\t\t(int): Length of one descriptor in batch.")
+			"\t\t(int): Length of one descriptor in batch.\n")
 
 		.def("getDescriptorSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
 			if (index < 0 || index >= descriptorBatchPtr->getCount()) throw py::index_error();
@@ -746,7 +739,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\tArgs:\n"
 			"\t\tparam1 (int):  index required descriptor in batch\n"
 			"\tReturns:\n"
-			"\t\t(IDescriptorPtr): valid object if succeeded.")
+			"\t\t(IDescriptorPtr): valid object if succeeded.\n")
 
 		.def("getDescriptorFast",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
 			if (index < 0 || index >= descriptorBatchPtr->getCount()) throw py::index_error();
@@ -755,7 +748,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\tArgs:\n"
 			"\t\tparam1 (int):  index required descriptor in batch\n"
 			"\tReturns:\n"
-			"\t\t(IDescriptorPtr): valid object if succeeded.")
+			"\t\t(IDescriptorPtr): valid object if succeeded.\n")
 				;
 
 	py::enum_<fsdk::IDescriptorBatch::Error>(f, "DescriptorBatchError",
@@ -772,7 +765,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 	py::class_<fsdk::IDescriptorExtractorPtr>(f, "IDescriptorExtractorPtr",
 			"Descriptor extractor interface.\n"
-			"\tExtracts face descriptors from images. The descriptors can be later used for face matching.")
+			"\tExtracts face descriptors from images. The descriptors can be later used for face matching.\n")
 		.def("extract",[](
 			const fsdk::IDescriptorExtractorPtr& extractor,
 			fsdk::Image& image,
@@ -796,7 +789,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\t(FSDKErrorValueFloat): ResultValue with error code specified by FSDKError and score of descriptor normalized in range [0, 1]\n"
 			"\t\t\t1 - face on the input warp; 0 - garbage on the input detection.\n"
 			"\t\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
-			"\t\tSee FSDKErrorValueFloat.")
+			"\t\tSee FSDKErrorValueFloat.\n")
 
 		.def("extractFromWarpedImage",[](
 			const fsdk::IDescriptorExtractorPtr& extractor,
