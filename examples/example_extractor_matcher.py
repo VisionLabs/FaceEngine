@@ -81,6 +81,48 @@ def set_logging(value):
     val = config.getValue("system", "verboseLogging")
     print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val.asInt()))
 
+def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
+    print("Extractor_test_aggregation")
+    config = fe.createSettingsProvider("data/faceengine.conf")
+    configPath = config.getDefaultPath()
+    print("Default path = ", configPath)
+    config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
+    config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(use_mobile_net))
+    config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
+    config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpu_type))
+    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(1))
+    # config.setValue("QualityEstimator::Settings", "logGray", f.SettingsProviderValue(0.05, 3.3, 0.05, 0.012))
+    faceEngine.setSettingsProvider(config)
+    # val = config.getValue("QualityEstimator::Settings", "platt")
+    # val = config.getValue("QualityEstimator::Settings", "expBlur")
+
+    faceEngine.setSettingsProvider(config)
+    val = config.getValue("MTCNNDetector::Settings", "scaleFactor")
+    print(val.asFloat())
+
+    warps = [fe.Image(), fe.Image()]
+
+    warps[0].load("testData/warp1.ppm")
+    warps[1].load("testData/warp2.ppm")
+    batchSize = len(warps)
+    descriptorExtractor = faceEngine.createExtractor()
+    batch = faceEngine.createDescriptorBatch(batchSize)
+    descriptor = faceEngine.createDescriptor()
+    descriptor2 = faceEngine.createDescriptor()
+    aggregation = faceEngine.createDescriptor()
+
+    result1 = descriptorExtractor.extractFromWarpedImageBatch(warps, batch, aggregation, batchSize)
+    print("GarbageScore: ", result1)
+    result2 = descriptorExtractor.extractFromWarpedImage(warps[0], descriptor)
+    result3 = descriptorExtractor.extractFromWarpedImage(warps[1], descriptor2)
+    print("Result value 2: ", result2.value)
+    print("Result value 3: ", result3.value)
+    # print("Result2 value: ", result2.value)
+    desc = descriptor.getDescriptor()
+
+    # for i, element in enumerate(desc1):
+    #     print(i, ")", desc[i], desc_from_batch[i])
+    # print("Descriptors are equal {0}".format(are_equal(desc1, desc2)))
 
 if __name__ == "__main__":
     batch_size = len(sys.argv) - 2
@@ -93,3 +135,5 @@ if __name__ == "__main__":
     matcher_example(descriptor1, descriptor2, descriptor_batch)
     # print_descriptor(descriptor1)
     # print_descriptor(descriptor2)
+    # as test
+    extractor_test_aggregation(46, True, "cpu", "cpu")

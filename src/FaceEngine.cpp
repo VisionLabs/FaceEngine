@@ -249,6 +249,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Image.isValid
 			Image.save
 			Image.load
+			Image.getRect
 
 			ImageType
 
@@ -306,8 +307,23 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\tArgs:\n"
 			"\t\tparam1 (enum ObjectDetectorClassType): fixed or random order of algorithm types\n")
 		.def("createWarper", &PyIFaceEngine::createWarper, "Creates warper\n")
-		.def("createDescriptor", &PyIFaceEngine::createDescriptor, "Creates Descriptor\n")
-		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0,
+		.def("createDescriptor", [](PyIFaceEngine f) {
+			fsdk::IDescriptorPtr descriptorPtr = f.createDescriptor();
+			if (!descriptorPtr) {
+				std::cerr << "Failed to create descriptor instance, possible you use front-edition verstion!" << std::endl;
+				throw py::cast_error();
+			}
+//					py::pybind11_fail("Cannot create descriptor, possible it is front-edition vertion");
+			return descriptorPtr;
+		}, "Creates Descriptor\n")
+		.def("createDescriptorBatch", [](PyIFaceEngine f, int32_t size, int32_t version = 0) {
+				 fsdk::IDescriptorBatchPtr descriptorBatchPtr = f.createDescriptorBatch(size, version);
+				 if (!descriptorBatchPtr) {
+					 std::cerr << "Failed to create descriptor batch instance, possible you use front-edition verstion!" << std::endl;
+					 throw py::cast_error();
+				 }
+				 return descriptorBatchPtr;
+			 }, py::arg("size"), py::arg("version") = 0,
 			"Creates Batch of descriptors\n"
 			"\tArgs:\n"
 			"\t\tparam1 (int): amount of descriptors in batch\n"
@@ -1860,7 +1876,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getWidth", &fsdk::Image::getWidth)
 		.def("getHeight", &fsdk::Image::getHeight)
 		.def("isValid", &fsdk::Image::isValid)
-		.def("getRect", &fsdk::Image::getRect)
+		.def("getRect", &fsdk::Image::getRect,
+			"Image rectangle.\n"
+			"\tResulting rectangle top left corner is lways at (0, 0).")
 //		.def("getDataAsList", [](const fsdk::Image& image) {
 //			py::list py_matr;
 //			for (int i = 0; i < image.getHeight(); ++i) {

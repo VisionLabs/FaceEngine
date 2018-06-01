@@ -137,7 +137,7 @@ From `FSDK_ROOT`:
 $ python3 pythonBindings/examples/example_extractor_matcher.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm testData/warp1.ppm testData/warp2.ppm
 
 # Detecting, Landmarks, Estimating (Attributes, Quality, Eyes, Head pose and so on)
-$ python3 pythonBindings/examples/example.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm
+$ python3 pythonBindings/examples/example_estimators.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm
  
 # Detecting and warping
 $ python3 pythonBindings/examples/example_detector_warper.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm
