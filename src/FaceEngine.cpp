@@ -151,10 +151,32 @@ PYBIND11_MODULE(FaceEngine, f) {
 			MatchingResult
 
 			Landmarks5
-			Landmarks68
-			IrisLandmarks
-			EyelidLandmarks
+			Landmarks5.__len__
+			Landmarks5.__getitem__
+			Landmarks5.__setitem__
 
+			Landmarks68
+			Landmarks68.__len__
+			Landmarks68.__getitem__
+			Landmarks68.__setitem__
+
+			IrisLandmarks
+			IrisLandmarks.__len__
+			IrisLandmarks.__getitem__
+			IrisLandmarks.__setitem__
+
+			EyelidLandmarks
+			EyelidLandmarks.__len__
+			EyelidLandmarks.__getitem__
+			EyelidLandmarks.__setitem__
+
+			Vector2f
+			Vector2f.__init__
+			Vector2f.__repr__
+
+			Vector2i
+			Vector2i.__init__
+			Vector2i.__repr__
 
     )pbdoc";
 
@@ -433,12 +455,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 				"see FSDKErrorValueInt\n")
 					;
 
-//	py::class_<DetectionResult>(f, "DetectionResult")
-//		.def_readwrite("detection", &DetectionResult::detection)
-//		.def_readwrite("landmarks5", &DetectionResult::landmarks5)
-//		.def_readwrite("landmarks68", &DetectionResult::landmarks68)
-//			;
-
 	py::class_<fsdk::IWarperPtr>(f, "IWarperPtr",
 		"Face detection area warper interface.\n"
 		"\tPerform affine transformations on an image to properly align depicted face for descriptor extraction.")
@@ -644,14 +660,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("IoError", fsdk::IDescriptorBatch::Error::IoError)
 		.value("OutOfRange", fsdk::IDescriptorBatch::Error::OutOfRange)
 			;
-
-//		"Te.\n"
-//		"\tTe.\n"
-//		"\tArgs\n"
-//		"\t\tparam1 (t): te\n"
-//		"\t\tparam2 (t): te\n"
-//		"\tReturns:\n"
-//		"\t\t(t): te"
 
 	py::class_<fsdk::IDescriptorExtractorPtr>(f, "IDescriptorExtractorPtr",
 			"Descriptor extractor interface.\n"
@@ -934,7 +942,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 					return py::cast(FSDKErrorResult(err)); },
 				 "Estimate the angles.\n"
 				 "\tArgs\n"
-				 "\t\tparam1 (Landmarks68) [in]: landmarks Landmarks68 structure.\n"
+				 "\t\tparam1 (Image) [in]: image source image. Format must be R8G8B8.\n"
+				 "\t\tparam2 (Detection) [in]: detection.\n"
 				 "\tReturns:\n"
 				 "\t\t(HeadPoseEstimation): if OK - output estimation; see AngleEstimation.\n"
 				 "\t\t(FSDKErrorResult): else - Result with error specified by FSDKErrorResult.")
@@ -970,8 +979,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			fsdk::ResultValue<fsdk::FSDKError, float> err = est->estimate(image);
 
 				return FSDKErrorValueFloat(err); },
-				 "Check whether or not depth map corresponds to the real person..\n"
-				 "\tTe.\n"
+				 "Check whether or not depth map corresponds to the real person.\n"
 				 "\tArgs\n"
 				 "\t\tparam1 (Image): warped depth image with R16 format.\n"
 				 "\tReturns:\n"
@@ -1191,18 +1199,25 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 
 		.def(py::init<>())
-		.def("__len__", [](const fsdk::Landmarks5 &v) { return v.landmarkCount; })
+		.def("__len__", [](const fsdk::Landmarks5 &v) { return v.landmarkCount; },
+			 "Called to implement the built-in function len(). Should return the length of the object, an integer >= 0.\n"
+			 "\tExample: len(landmarks)")
 		.def("__getitem__", [](const fsdk::Landmarks5 &s, size_t i) {
 			if (i >= s.landmarkCount) throw py::index_error();
-			return s.landmarks[i];
-		})
+			return s.landmarks[i]; },
+			 "Called to implement evaluation of self[key]. The accepted keys should be integers.\n "
+			 "\tExample: lanmarks[3]")
+
 		.def("__setitem__", [](fsdk::Landmarks5 &s, size_t i, fsdk::Vector2<float> v) {
 			if (i >= s.landmarkCount) throw py::index_error();
 			s.landmarks[i].x = v.x;
 			s.landmarks[i].y = v.y;
 			return s.landmarks[i];
-		})
-			;
+		},
+			 "Called to implement assignment to self[key]. \n"
+			"\tThe method `__setitem__` is used only for test and research purposes with class Vector2f.\n "
+			"\tExample: lanmarks[i] = FaceEngine.Vector2f(10.0, 20.0)")
+			; //Landmarks5
 
 	py::class_<fsdk::Landmarks68>(f, "Landmarks68",
 			  "Face landmarks, length is fixed and equal to 68.\n"
@@ -1213,18 +1228,25 @@ PYBIND11_MODULE(FaceEngine, f) {
 			  "\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 
 		.def(py::init<>())
-		.def("__len__", [](const fsdk::Landmarks68 &v) { return v.landmarkCount; })
+		.def("__len__", [](const fsdk::Landmarks68 &v) { return v.landmarkCount; },
+		"Called to implement the built-in function len(). Should return the length of the object, an integer >= 0.\n"
+		"\tExample: len(landmarks)")
+
 		.def("__getitem__", [](const fsdk::Landmarks68 &s, size_t i) {
 			if (i >= s.landmarkCount) throw py::index_error();
-			return s.landmarks[i];
-		})
+			return s.landmarks[i]; },
+			 "Called to implement evaluation of self[key]. The accepted keys should be integers.\n "
+			 "\tExample:lanmarks[3]")
+
 		.def("__setitem__", [](fsdk::Landmarks68 &s, size_t i, fsdk::Vector2<float> v) {
 			if (i >= s.landmarkCount) throw py::index_error();
 			s.landmarks[i].x = v.x;
 			s.landmarks[i].y = v.y;
 			return s.landmarks[i];
-		})
-			;
+		}, "Called to implement assignment to self[key]. \n"
+		"\tThe method `__setitem__` is used only for test and research purposes with class Vector2f.\n "
+		"\tExample: lanmarks[i] = FaceEngine.Vector2f(10.0, 20.0)")
+			; //Landmarks68
 
 	py::class_<fsdk::EyesEstimation::EyeAttributes::IrisLandmarks>(f, "IrisLandmarks",
 		   "Iris landmarks, length is fixed and equal to 32.\n"
@@ -1233,22 +1255,30 @@ PYBIND11_MODULE(FaceEngine, f) {
 		   "\tThey are similar on python lists. It is possible to use some standard python built-in functions for them: \n"
 		   "\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and research purposes with class Vector2f. \n"
 		   "\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+
 		.def(py::init<>())
 		.def("__len__", [](const fsdk::EyesEstimation::EyeAttributes::IrisLandmarks &v)
-			{ return fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount; })
+			{ return fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount; },
+			 "Called to implement the built-in function len(). Should return the length of the object, an integer >= 0.\n"
+			 "\tExample: len(landmarks)")
+
 		.def("__getitem__", [](const fsdk::EyesEstimation::EyeAttributes::IrisLandmarks &l, size_t i) {
 			if (i >= fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount) throw py::index_error();
-			return l.landmarks[i];
-		})
+			return l.landmarks[i]; },
+			 "Called to implement evaluation of self[key]. The accepted keys should be integers.\n "
+			 "\tExample:lanmarks[3]")
+
 		.def("__setitem__", [](fsdk::EyesEstimation::EyeAttributes::IrisLandmarks &s,
 							   size_t i,
 							   fsdk::Vector2<float> v) {
 			if (i >= fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount) throw py::index_error();
 			s.landmarks[i].x = v.x;
 			s.landmarks[i].y = v.y;
-			return s.landmarks[i];
-		})
-			;
+			return s.landmarks[i]; },
+			 "Called to implement assignment to self[key]. \n"
+			"\tThe method `__setitem__` is used only for test and research purposes with class Vector2f.\n "
+			"\tExample: lanmarks[i] = FaceEngine.Vector2f(10.0, 20.0)")
+			;   //IrisLandmarks
 
 	py::class_<fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks>(f, "EyelidLandmarks",
 			 "Eyelid landmarks, length is fixed and equal to 6.\n"
@@ -1257,13 +1287,19 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\tThey are similar on python lists. It is possible to use some standard python built-in functions for them: \n"
 			 "\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and research purposes with class Vector2f. \n"
 			 "\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+
 		.def(py::init<>())
 		.def("__len__", [](const fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks &v)
-			{ return fsdk::EyesEstimation::EyeAttributes::eyelidLandmarksCount; })
+			{ return fsdk::EyesEstimation::EyeAttributes::eyelidLandmarksCount; },
+			 "Called to implement the built-in function len(). Should return the length of the object, an integer >= 0.\n"
+			 "\tExample: len(landmarks)")
+
 		.def("__getitem__", [](const fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks &l, size_t i) {
 			if (i >= fsdk::EyesEstimation::EyeAttributes::eyelidLandmarksCount) throw py::index_error();
-			return l.landmarks[i];
-			})
+			return l.landmarks[i]; },
+			 "Called to implement evaluation of self[key]. The accepted keys should be integers.\n "
+			 "\tExample:lanmarks[3]")
+
 		.def("__setitem__", [](fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks &s,
 							   size_t i,
 							   fsdk::Vector2<float> v) {
@@ -1271,9 +1307,19 @@ PYBIND11_MODULE(FaceEngine, f) {
 			s.landmarks[i].x = v.x;
 			s.landmarks[i].y = v.y;
 			return s.landmarks[i];
-		})
-			;
+		},
+			 "Called to implement assignment to self[key]. \n"
+			 "\tThe method `__setitem__` is used only for test and research purposes with class Vector2f.\n "
+			 "\tExample: lanmarks[i] = FaceEngine.Vector2f(10.0, 20.0)")
+			; //EyelidLandmarks
 
+//		"Te.\n"
+//		"\tTe.\n"
+//		"\tArgs\n"
+//		"\t\tparam1 (t): te\n"
+//		"\t\tparam2 (t): te\n"
+//		"\tReturns:\n"
+//		"\t\t(t): te"
 // Vector2
 	py::class_<fsdk::Vector2<float>>(f, "Vector2f")
 		.def(py::init<>())
@@ -1448,7 +1494,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 			;
 
 //	Ethnicity
-	py::class_<fsdk::EthnicityEstimation>(f, "EthnicityEstimation")
+	py::class_<fsdk::EthnicityEstimation>(f, "EthnicityEstimation",
+		"Ethnicity estimation structure.\n"
+		"\tEach estimation is given in normalized [0, 1] range.")
 		.def(py::init<>())
 		.def_readwrite("africanAmerican", &fsdk::EthnicityEstimation::africanAmerican)
 		.def_readwrite("indian", &fsdk::EthnicityEstimation::indian)
@@ -1462,12 +1510,19 @@ PYBIND11_MODULE(FaceEngine, f) {
 						+ ", asian = " + std::to_string(e.asian)
 						+ ", caucasian = " + std::to_string(e.caucasian);
 			 })
-		.def("getEthnicityScore", &fsdk::EthnicityEstimation::getEthnicityScore)
-		.def("getPredominantEthnicity", &fsdk::EthnicityEstimation::getPredominantEthnicity)
+		.def("getEthnicityScore", &fsdk::EthnicityEstimation::getEthnicityScore,
+			"Returns score of required ethnicity")
+		.def("getPredominantEthnicity", &fsdk::EthnicityEstimation::getPredominantEthnicity,
+			"Returns ethnicity with greatest score"
+			"\tArgs:"
+			"\t\tparam1 (Ethnicity): ethnicity")
 			;
 
 //	HeadPose
-	py::class_<fsdk::HeadPoseEstimation>(f, "HeadPoseEstimation")
+	py::class_<fsdk::HeadPoseEstimation>(f, "HeadPoseEstimation",
+		"Head pose estimation output.\n"
+		"\tThese values are produced by IHeadPoseEstimator object.\n"
+		"\tEach angle is measured in degrees and in [-180, 180] range.")
 		.def(py::init<>())
 		.def_readwrite("pitch", &fsdk::HeadPoseEstimation::pitch)
 		.def_readwrite("yaw", &fsdk::HeadPoseEstimation::yaw)
@@ -1518,21 +1573,24 @@ PYBIND11_MODULE(FaceEngine, f) {
 						+ ", occlusion = " + occlusion.str();
 			 })
 				;
-	f.def("loadImage", &loadImage, "used only for depth test"
-		"");
+	f.def("loadImage", &loadImage, "used only for depth test");
 //	EyeEstimation
-	py::class_<fsdk::EyesEstimation>(f, "EyesEstimation")
+	py::class_<fsdk::EyesEstimation>(f, "EyesEstimation",
+		"Eyes estimation output.\n"
+		"\tThese values are produced by IEyeEstimator object.")
 		.def(py::init<>())
 		.def_readwrite("leftEye", &fsdk::EyesEstimation::leftEye)
 		.def_readwrite("rightEye", &fsdk::EyesEstimation::rightEye)
 			;
-	py::enum_<fsdk::EyesEstimation::EyeAttributes::State>(f, "State")
-		.value("Closed", fsdk::EyesEstimation::EyeAttributes::State::Closed)
-		.value("Open", fsdk::EyesEstimation::EyeAttributes::State::Open)
-		.value("Occluded", fsdk::EyesEstimation::EyeAttributes::State::Occluded)
+	py::enum_<fsdk::EyesEstimation::EyeAttributes::State>(f, "State", "Enumeration of possible eye states.")
+		.value("Closed", fsdk::EyesEstimation::EyeAttributes::State::Closed, "Eye is closed.")
+		.value("Open", fsdk::EyesEstimation::EyeAttributes::State::Open, "Eye is open.")
+		.value("Occluded", fsdk::EyesEstimation::EyeAttributes::State::Occluded,
+			   "Eye is blocked by something not transparent,\n"
+			   "\tor landmark passed to estimator doesn't point to an eye.\n")
 			;
 
-	py::class_<fsdk::EyesEstimation::EyeAttributes>(f, "EyeAttributes")
+	py::class_<fsdk::EyesEstimation::EyeAttributes>(f, "EyeAttributes", "Eyes attribute structure.")
 		.def_property_readonly_static("irisLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& e)
 			{return e.irisLandmarksCount; })
 		.def_property_readonly_static("eyelidLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& e)
@@ -1543,7 +1601,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 			;
 
 // Emotions
-	py::class_<fsdk::EmotionsEstimation>(f, "EmotionsEstimation")
+	py::class_<fsdk::EmotionsEstimation>(f, "EmotionsEstimation",
+			"Emotions estimation structure.\n"
+			"\tEach estimation is given in normalized [0, 1] range.")
 		.def(py::init<>())
 		.def_readwrite("anger", &fsdk::EmotionsEstimation::anger)
 		.def_readwrite("disgust", &fsdk::EmotionsEstimation::disgust)
@@ -1552,8 +1612,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("sadness", &fsdk::EmotionsEstimation::sadness)
 		.def_readwrite("surprise", &fsdk::EmotionsEstimation::surprise)
 		.def_readwrite("neutral", &fsdk::EmotionsEstimation::neutral)
-		.def("getPredominantEmotion", &fsdk::EmotionsEstimation::getPredominantEmotion)
-		.def("getEmotionScore", &fsdk::EmotionsEstimation::getEmotionScore)
+		.def("getPredominantEmotion", &fsdk::EmotionsEstimation::getPredominantEmotion,
+			 "Returns emotion with greatest score")
+		.def("getEmotionScore", &fsdk::EmotionsEstimation::getEmotionScore,
+			"Returns score of required emotion"
+			"\tArgs\n"
+			"\t\tparam1 (emotion): emotion\n")
 		.def("__repr__",
 			 [](const fsdk::EmotionsEstimation &e) {
 				 return "EmotionsEstimation: "
@@ -1564,10 +1628,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 						+ ", sadness = " + std::to_string(e.sadness)
 						+ ", surprise = " + std::to_string(e.surprise)
 						+ ", neutral = " + std::to_string(e.neutral);
-			 })
-			;
+			 	})
+				;
 
-	py::enum_<fsdk::EmotionsEstimation::Emotions>(f, "Emotions", py::arithmetic())
+	py::enum_<fsdk::EmotionsEstimation::Emotions>(f, "Emotions", py::arithmetic(), "Emotions enum")
 		.value("Anger", fsdk::EmotionsEstimation::Anger)
 		.value("Disgust", fsdk::EmotionsEstimation::Disgust)
 		.value("Fear", fsdk::EmotionsEstimation::Fear)
@@ -1579,7 +1643,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			;
 
 // Gaze
-	py::class_<fsdk::GazeEstimation>(f, "GazeEstimation")
+	py::class_<fsdk::GazeEstimation>(f, "GazeEstimation",
+		"Gaze estimation output.\n"
+		"\tThese values are produced by IGazeEstimatorPtr object.\n"
+		"\tEach angle is measured in degrees and in [-180, 180] range.")
 		.def(py::init<>())
 		.def_readwrite("leftEye", &fsdk::GazeEstimation::leftEye)
 		.def_readwrite("rightEye", &fsdk::GazeEstimation::rightEye)
@@ -1605,7 +1672,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 				;
 
 //	Ethnicity
-	py::enum_<fsdk::EthnicityEstimation::Ethnicities>(f, "Ethnicity")
+	py::enum_<fsdk::EthnicityEstimation::Ethnicities>(f, "Ethnicity",
+			"Ethnicity enum.\n")
 		.value("AfricanAmerican", fsdk::EthnicityEstimation::AfricanAmerican)
 		.value("Indian", fsdk::EthnicityEstimation::Indian)
 		.value("Asian", fsdk::EthnicityEstimation::Asian)
@@ -1615,7 +1683,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			;
 
 //	Transformation
-	py::class_<fsdk::Transformation>(f, "Transformation")
+	py::class_<fsdk::Transformation>(f, "Transformation",
+		"Transformation data structure, used for warping.\n"
+		"\tUse this structure to perform image and landmarks transformations.\n"
+		"\tIf no circumstances should you create OR edit this structure by yourself")
 		.def(py::init<>())
 		.def_readwrite("angleDeg", &fsdk::Transformation::angleDeg)
 		.def_readwrite("scale", &fsdk::Transformation::scale)
@@ -1631,7 +1702,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 })
 			;
 // Image type and format
-	py::enum_<fsdk::Format::Type>(f, "FormatType")
+	py::enum_<fsdk::Format::Type>(f, "FormatType", "Format type enumeration.")
 		.value("Unknown", fsdk::Format::Unknown)
 		.value("B8G8R8X8", fsdk::Format::B8G8R8X8)
 		.value("R8G8B8X8", fsdk::Format::R8G8B8X8)
@@ -1642,7 +1713,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("R16", fsdk::Format::R16)
 			;
 
-	py::class_<fsdk::Format>(f, "Format")
+	py::class_<fsdk::Format>(f, "Format", "Image format.")
 		.def(py::init<>())
 		.def(py::init<fsdk::Format::Type>())
 		.def("getChannelCount", &fsdk::Format::getChannelCount)
@@ -1656,32 +1727,34 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("isBlock", &fsdk::Format::isValid)
 			;
 
-	py::class_<fsdk::Image>(f, "Image")
+	py::class_<fsdk::Image>(f, "Image"
+		"Image objects\n"
+		"More detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 		.def(py::init<>())
 		.def("getWidth", &fsdk::Image::getWidth)
 		.def("getHeight", &fsdk::Image::getHeight)
 		.def("isValid", &fsdk::Image::isValid)
 		.def("getRect", &fsdk::Image::getRect)
-		.def("getDataAsList", [](const fsdk::Image& image) {
-			py::list py_matr;
-			for (int i = 0; i < image.getHeight(); ++i) {
-				const auto* const data_str = image.getScanLineAs<uint8_t>(i);
-				py::list py_str;
-				for (int j = 0; j < image.getWidth(); ++j) {
-					py_str.append(data_str[j]);
-				}
-				py_matr.append(py_str);
-			}
-			return py_matr;
-		})
-		.def("getData", [](const fsdk::Image& image) {
-			const auto* const data_uint = image.getDataAs<uint8_t>();
-			std::vector<uint8_t> data(data_uint, data_uint + image.getDataSize());
-			std::vector<ssize_t> shape { image.getWidth(), image.getHeight() };
-			auto ptr = data.data();
-			return py::array(shape, ptr);
-
-		})
+//		.def("getDataAsList", [](const fsdk::Image& image) {
+//			py::list py_matr;
+//			for (int i = 0; i < image.getHeight(); ++i) {
+//				const auto* const data_str = image.getScanLineAs<uint8_t>(i);
+//				py::list py_str;
+//				for (int j = 0; j < image.getWidth(); ++j) {
+//					py_str.append(data_str[j]);
+//				}
+//				py_matr.append(py_str);
+//			}
+//			return py_matr;
+//		})
+//		.def("getData", [](const fsdk::Image& image) {
+//			const auto* const data_uint = image.getDataAs<uint8_t>();
+//			std::vector<uint8_t> data(data_uint, data_uint + image.getDataSize());
+//			std::vector<ssize_t> shape { image.getWidth(), image.getHeight() };
+//			auto ptr = data.data();
+//			return py::array(shape, ptr);
+//
+//		})
 		.def("save", [](const fsdk::Image& image, const char* path) {
 			fsdk::Result<fsdk::Image::Error> error = image.save(path);
 			return ImageErrorResult(error);

@@ -67,12 +67,12 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(image.getWidth(), loaded_image.getWidth(), 250)
         self.assertEqual(image.isValid(), loaded_image.isValid())
         self.assertEqual(image.getRect(), loaded_image.getRect())
-        list1 = image.getDataAsList()
-        list2 = loaded_image.getDataAsList()
-        self.assertEqual(len(list1), len(list2))
-        for i in range(len(list1)):
-            for j in range(len(list1[i])):
-                self.assertEqual(list1[i][j], list2[i][j])
+        # list1 = image.getDataAsList()
+        # list2 = loaded_image.getDataAsList()
+        # self.assertEqual(len(list1), len(list2))
+        # for i in range(len(list1)):
+        #     for j in range(len(list1[i])):
+        #         self.assertEqual(list1[i][j], list2[i][j])
 
 
         # list_np1 = image.getData()
