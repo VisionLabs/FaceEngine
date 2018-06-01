@@ -131,9 +131,14 @@ if __name__ == "__main__":
     # more detailed description of config see in luna-sdk/doc/ConfigurationGuide.pdf
     set_logging(1)
     image_list = load_list_of_images(batch_size, sys.argv)
-    (descriptor1, descriptor2, descriptor_batch) = extractor_example(image_list, batch_size)
-    matcher_example(descriptor1, descriptor2, descriptor_batch)
-    # print_descriptor(descriptor1)
-    # print_descriptor(descriptor2)
-    # as test
-    extractor_test_aggregation(46, True, "cpu", "cpu")
+    try:
+        (descriptor1, descriptor2, descriptor_batch) = extractor_example(image_list, batch_size)
+        matcher_example(descriptor1, descriptor2, descriptor_batch)
+        # print_descriptor(descriptor1)
+        # print_descriptor(descriptor2)
+        # as test
+        extractor_test_aggregation(46, True, "cpu", "cpu")
+    except RuntimeError:
+        print("RuntimeError")
+        exit(1)
+

@@ -310,7 +310,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createDescriptor", [](PyIFaceEngine& f) {
 			fsdk::IDescriptorPtr descriptorPtr = f.createDescriptor();
 			if (!descriptorPtr) {
-				std::cerr << "\nFailed to create descriptor instance, possible you use front-edition verstion!" << std::endl;
+				std::cerr << "\nFailed to create descriptor instance, possible you use front-edition version!" << std::endl;
 				throw py::cast_error();
 			}
 			return descriptorPtr;
@@ -318,7 +318,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createDescriptorBatch", [](PyIFaceEngine &f, int32_t size, int32_t version = 0) {
 				 fsdk::IDescriptorBatchPtr descriptorBatchPtr = f.createDescriptorBatch(size, version);
 				 if (!descriptorBatchPtr) {
-					 std::cerr << "Failed to create descriptor batch instance, possible you use front-edition verstion!" << std::endl;
+					 std::cerr << "Failed to create descriptor batch instance, possible you use front-edition version!" << std::endl;
 					 throw py::cast_error();
 				 }
 				 return descriptorBatchPtr;
