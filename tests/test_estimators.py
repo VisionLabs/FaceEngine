@@ -265,7 +265,7 @@ class TestFaceEngineRect(unittest.TestCase):
             tempImage = f.Image()
             tempImage.load("testData/" + str(i) + "big.ppm")
             sequence.append(tempImage)
-        faceFlowScore = faceFlowEstimator.estimate(faceFlowImage, sequence, len(sequence))
+        faceFlowScore = faceFlowEstimator.estimate(faceFlowImage, sequence)
         self.assertAlmostEqual(faceFlowScore, 0.9967, delta=0.01)
 
     def test_EyeEstimator(self):
