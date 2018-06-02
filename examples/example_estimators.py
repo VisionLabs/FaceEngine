@@ -1,6 +1,6 @@
 import sys
-import numpy as np
 # import numpy as np
+
 from example_detector_warper import detector_example, warper_example
 
 def help():
