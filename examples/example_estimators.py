@@ -1,5 +1,6 @@
 import sys
 # import numpy as np
+# from matplotlib import pyplot as plt
 
 from example_detector_warper import detector_example, warper_example
 
@@ -21,9 +22,11 @@ def image_load(image_path):
     image = fe.Image()
     # print(fe.FormatType.R8)
     err = image.load(image_path)
-    # only for numpy
-    # arr = image.getData()
-    # print(arr.shape)
+    # only for numpy and matplotlib
+    # img_np = image.getData()
+    # plt.imshow(img_np)
+    # plt.show()
+    # print(img_np.shape)
     # image.load(image_path, fe.Format(fe.FormatType.R8G8B8))
     if not image.isValid():
         print("Image error = ", err)

@@ -1887,10 +1887,17 @@ PYBIND11_MODULE(FaceEngine, f) {
 			int c = getChannelCount(type);
 			const auto* const data_uint = image.getDataAs<uint8_t>();
 			std::vector<uint8_t> data(data_uint, data_uint + image.getDataSize());
-			std::vector<ssize_t> shape { image.getWidth(), image.getHeight(), c };
+			std::vector<ssize_t> shape { image.getHeight(), image.getWidth(), c };
 			auto ptr = data.data();
 			return py::array(shape, ptr);
 		})
+//		.def("setData", [](const fsdk::Image& image, py::array npImage, fsdk::Format format) {
+//			std::clog << "This method is experimental and was not tested!" << std::endl;
+//			auto size = npImage.shape();
+//			std::cout << size[0] << size[1] << std::endl;
+//			std::vector<uint8_t> data(npImage.ptr(), npImage.ptr() + npImage.nbytes());
+//			return fsdk::Image(size[1], size[0], format, data.data(), true);
+//		})
 		.def("save", [](const fsdk::Image& image, const char* path) {
 			fsdk::Result<fsdk::Image::Error> error = image.save(path);
 			return ImageErrorResult(error);
