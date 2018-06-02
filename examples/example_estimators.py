@@ -124,7 +124,7 @@ def print_landmarks(landmarks, message=""):
 
 if __name__ == "__main__":
     # correct path or put directory "data" with example.py
-    faceEngine = fe.createFaceEngine("data1",
+    faceEngine = fe.createFaceEngine("data",
                                      "data/faceengine.conf")
     image_path = sys.argv[2]
     image = image_load(image_path)
