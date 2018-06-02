@@ -1864,26 +1864,33 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getRect", &fsdk::Image::getRect,
 			"Image rectangle.\n"
 			"\tResulting rectangle top left corner is always at (0, 0).")
-//		.def("getDataAsList", [](const fsdk::Image& image) {
-//			py::list py_matr;
-//			for (int i = 0; i < image.getHeight(); ++i) {
-//				const auto* const data_str = image.getScanLineAs<uint8_t>(i);
-//				py::list py_str;
-//				for (int j = 0; j < image.getWidth(); ++j) {
-//					py_str.append(data_str[j]);
-//				}
-//				py_matr.append(py_str);
-//			}
-//			return py_matr;
-//		})
-//		.def("getData", [](const fsdk::Image& image) {
-//			const auto* const data_uint = image.getDataAs<uint8_t>();
-//			std::vector<uint8_t> data(data_uint, data_uint + image.getDataSize());
-//			std::vector<ssize_t> shape { image.getWidth(), image.getHeight() };
-//			auto ptr = data.data();
-//			return py::array(shape, ptr);
-//
-//		})
+
+		.def("getData", [](const fsdk::Image& image) {
+			std::clog << "This method is experimental and was not tested!" << std::endl;
+			fsdk::Format type = fsdk::Format::Type(image.getFormat());
+			auto getChannelCount = [](fsdk::Format t) {
+					switch(t) {
+						case fsdk::Format::B8G8R8X8:
+							return 4;
+						case fsdk::Format::R8G8B8X8:
+							return 4;
+						case fsdk::Format::B8G8R8:
+						case fsdk::Format::R8G8B8:
+							return 3;
+						case fsdk::Format::R8:
+						case fsdk::Format::R16:
+							return 1;
+						default:
+							return 0;
+				}
+			};
+			int c = getChannelCount(type);
+			const auto* const data_uint = image.getDataAs<uint8_t>();
+			std::vector<uint8_t> data(data_uint, data_uint + image.getDataSize());
+			std::vector<ssize_t> shape { image.getWidth(), image.getHeight(), c };
+			auto ptr = data.data();
+			return py::array(shape, ptr);
+		})
 		.def("save", [](const fsdk::Image& image, const char* path) {
 			fsdk::Result<fsdk::Image::Error> error = image.save(path);
 			return ImageErrorResult(error);
