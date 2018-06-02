@@ -124,27 +124,30 @@ def print_landmarks(landmarks, message=""):
 
 if __name__ == "__main__":
     # correct path or put directory "data" with example.py
-    faceEngine = fe.createFaceEngine("data",
+    faceEngine = fe.createFaceEngine("data1",
                                      "data/faceengine.conf")
     image_path = sys.argv[2]
     image = image_load(image_path)
-    # only with numpy
-    # data_np = image.getData()
-    # print(data_np.shape)
-    attribute_quality_ethnicity_blackWhite_smile_example(image)
-    # unpack detector result - list of tuples
-    (detection, landmarks5, landmarks68) = detector_example(image, 1)[0]
-    # print_landmarks(landmarks5, "landmarks5: ")
-    # print_landmarks(landmarks68, "landmarks68: ")
-    (warp_image, transformed_landmarks5, transformed_landmarks68) = \
-        warper_example(image, detection, landmarks5, landmarks68)
+    try:
+        attribute_quality_ethnicity_blackWhite_smile_example(image)
+        # unpack detector result - list of tuples
+        (detection, landmarks5, landmarks68) = detector_example(image, 1)[0]
+        # print_landmarks(landmarks5, "landmarks5: ")
+        # print_landmarks(landmarks68, "landmarks68: ")
+        (warp_image, transformed_landmarks5, transformed_landmarks68) = \
+            warper_example(image, detection, landmarks5, landmarks68)
 
-    # examples with hardcoded paths to images
-    depth_example("testData/warp.depth")
-    ir_example("testData/irWarp.ppm")
-    faceFlow_example()
+        # examples with hardcoded paths to images
+        depth_example("testData/warp.depth")
+        ir_example("testData/irWarp.ppm")
+        faceFlow_example()
 
-    emotions_example(warp_image)
-    headPoseEstimation = headPose_example(landmarks68)
-    eyesEstimation = eye_example(warp_image, transformed_landmarks5)
-    gaze_example(headPoseEstimation, eyesEstimation)
+        emotions_example(warp_image)
+        headPoseEstimation = headPose_example(landmarks68)
+        eyesEstimation = eye_example(warp_image, transformed_landmarks5)
+        gaze_example(headPoseEstimation, eyesEstimation)
+    except Exception as ex:
+        print(type(ex).__name__, ex)
+    finally:
+        # do something here
+        pass

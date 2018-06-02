@@ -4,33 +4,37 @@
 
 #include <iostream>
 #include "FaceEngineAdapter.hpp"
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
 
 
 PyIFaceEngine::PyIFaceEngine(const char* dataPath = nullptr, const char* configPath = nullptr) {
 	faceEnginePtr = fsdk::acquire(fsdk::createFaceEngine(dataPath, configPath));
-	if (!faceEnginePtr)
-		std::cerr << "Warning: cannot create FaceEngine instance! VERIFY PATH to \"data\" directory!" << std::endl;
 }
 
 fsdk::IDetectorPtr PyIFaceEngine::createDetector(fsdk::ObjectDetectorClassType type) {
 	fsdk::IDetectorPtr detectorPtr = fsdk::acquire(faceEnginePtr->createDetector(type));
 	if (!detectorPtr)
-		std::cerr << "Warning: cannot create detector instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create detector instance! VERIFY PATH to \"data\" directory!");
+
 	return detectorPtr;
 }
 
 fsdk::IAttributeEstimatorPtr PyIFaceEngine::createAttributeEstimator() {
 	fsdk::IAttributeEstimatorPtr attributeEstimatorPtr = fsdk::acquire(faceEnginePtr->createAttributeEstimator());
 	if (!attributeEstimatorPtr)
-		std::cerr << "Warning: cannot create attribute estimator instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create attribute estimator instance! VERIFY PATH to \"data\" directory!");
+
 	return attributeEstimatorPtr;
 }
 
 fsdk::IQualityEstimatorPtr PyIFaceEngine::createQualityEstimator() {
 
 	fsdk::IQualityEstimatorPtr qualityEstimatorPtr = fsdk::acquire(faceEnginePtr->createQualityEstimator());
-	if (!qualityEstimatorPtr)
-		std::cerr << "Warning: cannot create quality estimator instance! VERIFY PATH to \"data\" directory!" << std::endl;
+	if (!qualityEstimatorPtr) {
+		throw py::cast_error("\nFailed to create quality estimator instance! VERIFY PATH to \"data\" directory!");
+	}
 	return qualityEstimatorPtr;
 
 }
@@ -38,7 +42,7 @@ fsdk::IQualityEstimatorPtr PyIFaceEngine::createQualityEstimator() {
 fsdk::IEthnicityEstimatorPtr PyIFaceEngine::createEthnicityEstimator() {
 	fsdk::IEthnicityEstimatorPtr ethnicityEstimatorPtr = fsdk::acquire(faceEnginePtr->createEthnicityEstimator());
 	if (!ethnicityEstimatorPtr)
-		std::cerr << "Warning: cannot create ethnicity estimator instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create ethnicity estimator instance! VERIFY PATH to \"data\" directory!");
 	return ethnicityEstimatorPtr;
 }
 
@@ -46,36 +50,42 @@ fsdk::IEthnicityEstimatorPtr PyIFaceEngine::createEthnicityEstimator() {
 fsdk::IWarperPtr PyIFaceEngine::createWarper() {
 	fsdk::IWarperPtr warperPtr = fsdk::acquire(faceEnginePtr->createWarper());
 	if (!warperPtr)
-		std::cerr << "Warning: cannot create warper instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create warper instance! VERIFY PATH to \"data\" directory!");
 	return warperPtr;
 }
 //	descriptor
 fsdk::IDescriptorPtr PyIFaceEngine::createDescriptor() {
-	return fsdk::acquire(faceEnginePtr->createDescriptor());
+	fsdk::IDescriptorPtr descriptorPtr = fsdk::acquire(faceEnginePtr->createDescriptor());
+	if (!descriptorPtr)
+		throw py::cast_error("\nFailed to create descriptor instance, possible you use front-edition version!");
+	return descriptorPtr;
 }
 
 fsdk::IDescriptorBatchPtr PyIFaceEngine::createDescriptorBatch(int32_t size, int32_t version = 0) {
-	return fsdk::acquire(faceEnginePtr->createDescriptorBatch(size, version));
+	fsdk::IDescriptorBatchPtr descriptorBatchPtr = fsdk::acquire(faceEnginePtr->createDescriptorBatch(size, version));
+	if (!descriptorBatchPtr)
+		throw py::cast_error("\nFailed to create descriptor batch instance, possible you use front-edition version!");
+	return descriptorBatchPtr;
 }
 
 fsdk::IDescriptorExtractorPtr PyIFaceEngine::createExtractor() {
 	fsdk::IDescriptorExtractorPtr descriptorExtractorPtr = fsdk::acquire(faceEnginePtr->createExtractor());
 	if (!descriptorExtractorPtr)
-		std::cerr << "Warning: cannot create descriptor extractor instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create descriptor extractor instance! VERIFY PATH to \"data\" directory!");
 	return descriptorExtractorPtr;
 }
 
 fsdk::IDescriptorMatcherPtr PyIFaceEngine::createMatcher() {
 	fsdk::IDescriptorMatcherPtr descriptorMatcherPtr = fsdk::acquire(faceEnginePtr->createMatcher());
 	if (!descriptorMatcherPtr)
-		std::cerr << "Warning: cannot create descriptor matcher instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create descriptor matcher instance! VERIFY PATH to \"data\" directory!");
 	return descriptorMatcherPtr;
 }
 
 fsdk::ILSHTablePtr PyIFaceEngine::createLSHTable(const fsdk::IDescriptorBatchPtr& batch) {
 	fsdk::ILSHTablePtr ilshTablePtr = fsdk::acquire(faceEnginePtr->createLSHTable(batch));
 	if (!ilshTablePtr)
-		std::cerr << "Warning: cannot create ILSHTable instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create ILSHTable instance! VERIFY PATH to \"data\" directory!");
 	return ilshTablePtr;
 }
 
@@ -83,21 +93,21 @@ fsdk::ILSHTablePtr PyIFaceEngine::createLSHTable(const fsdk::IDescriptorBatchPtr
 fsdk::IHeadPoseEstimatorPtr PyIFaceEngine::createHeadPoseEstimator() {
 	fsdk::IHeadPoseEstimatorPtr headPoseEstimatorPtr = fsdk::acquire(faceEnginePtr->createHeadPoseEstimator());
 	if (!headPoseEstimatorPtr)
-		std::cerr << "Warning: cannot create head pose estimator instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create head pose estimator instance! VERIFY PATH to \"data\" directory!");
 	return headPoseEstimatorPtr;
 }
 
 fsdk::Ref<fsdk::IBlackWhiteEstimator> PyIFaceEngine::createBlackWhiteEstimator() {
 	fsdk::Ref<fsdk::IBlackWhiteEstimator> blackWhiteEstimator = fsdk::acquire(faceEnginePtr->createBlackWhiteEstimator());
 	if (!blackWhiteEstimator)
-		std::cerr << "Warning: cannot create black white estimator instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create black white estimator instance! VERIFY PATH to \"data\" directory!");
 	return blackWhiteEstimator;
 }
 
 fsdk::ILivenessDepthEstimatorPtr PyIFaceEngine::createDepthEstimator() {
 	fsdk::ILivenessDepthEstimatorPtr livenessDepthEstimatorPtr = fsdk::acquire(faceEnginePtr->createDepthEstimator());
 	if (!livenessDepthEstimatorPtr)
-		std::cerr << "Warning: cannot create depth liveness estimator instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create depth liveness estimator instance! VERIFY PATH to \"data\" directory!");
 	return livenessDepthEstimatorPtr;
 }
 
@@ -105,42 +115,42 @@ fsdk::ILivenessIREstimatorPtr PyIFaceEngine::createIREstimator() {
 	fsdk::ILivenessIREstimatorPtr livenessIREstimatorPtr = fsdk::acquire(faceEnginePtr->createIREstimator());
 
 	if (!livenessIREstimatorPtr)
-		std::cerr << "Warning: cannot create liveness estimator instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create liveness estimator instance! VERIFY PATH to \"data\" directory!");
 	return livenessIREstimatorPtr;
 }
 
 fsdk::ISmileEstimatorPtr PyIFaceEngine::createSmileEstimator() {
 	fsdk::ISmileEstimatorPtr smileEstimatorPtr = fsdk::acquire(faceEnginePtr->createSmileEstimator());
 	if (!smileEstimatorPtr)
-		std::cerr << "Warning: cannot create smile estimator instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create smile estimator instance! VERIFY PATH to \"data\" directory!");
 	return smileEstimatorPtr;
 }
 
 fsdk::ILivenessFlowEstimatorPtr PyIFaceEngine::createFaceFlowEstimator() {
 	fsdk::ILivenessFlowEstimatorPtr livenessFlowEstimatorPtr = fsdk::acquire(faceEnginePtr->createFaceFlowEstimator());
 	if (!livenessFlowEstimatorPtr)
-		std::cerr << "Warning: cannot create liveness flow estimator instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create liveness flow estimator instance! VERIFY PATH to \"data\" directory!");
 	return livenessFlowEstimatorPtr;
 }
 
 fsdk::IEyeEstimatorPtr PyIFaceEngine::createEyeEstimator() {
 	fsdk::IEyeEstimatorPtr eyeEstimatorPtr = fsdk::acquire(faceEnginePtr->createEyeEstimator());
 	if (!eyeEstimatorPtr)
-		std::cerr << "Warning: cannot create eyes estimator instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create eyes estimator instance! VERIFY PATH to \"data\" directory!");
 	return eyeEstimatorPtr;
 }
 
 fsdk::IEmotionsEstimatorPtr PyIFaceEngine::createEmotionsEstimator() {
 	fsdk::IEmotionsEstimatorPtr emotionsEstimatorPtr = fsdk::acquire(faceEnginePtr->createEmotionsEstimator());
 	if (!emotionsEstimatorPtr)
-		std::cerr << "Warning: cannot create emotions estimator instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create emotions estimator instance! VERIFY PATH to \"data\" directory!");
 	return emotionsEstimatorPtr;
 }
 
 fsdk::IGazeEstimatorPtr PyIFaceEngine::createGazeEstimator() {
 	fsdk::IGazeEstimatorPtr gazeEstimatorPtr = fsdk::acquire(faceEnginePtr->createGazeEstimator());
 	if (!gazeEstimatorPtr)
-		std::cerr << "Warning: cannot create gaze estimator instance! VERIFY PATH to \"data\" directory!" << std::endl;
+		throw py::cast_error("\nFailed to create gaze estimator instance! VERIFY PATH to \"data\" directory!");
 	return gazeEstimatorPtr;
 }
 

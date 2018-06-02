@@ -307,22 +307,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\tArgs:\n"
 			"\t\tparam1 (enum ObjectDetectorClassType): fixed or random order of algorithm types\n")
 		.def("createWarper", &PyIFaceEngine::createWarper, "Creates warper\n")
-		.def("createDescriptor", [](PyIFaceEngine& f) {
-			fsdk::IDescriptorPtr descriptorPtr = f.createDescriptor();
-			if (!descriptorPtr) {
-				std::cerr << "\nFailed to create descriptor instance, possible you use front-edition version!" << std::endl;
-				throw py::cast_error();
-			}
-			return descriptorPtr;
-		}, "Creates Descriptor\n")
-		.def("createDescriptorBatch", [](PyIFaceEngine &f, int32_t size, int32_t version = 0) {
-				 fsdk::IDescriptorBatchPtr descriptorBatchPtr = f.createDescriptorBatch(size, version);
-				 if (!descriptorBatchPtr) {
-					 std::cerr << "Failed to create descriptor batch instance, possible you use front-edition version!" << std::endl;
-					 throw py::cast_error();
-				 }
-				 return descriptorBatchPtr;
-			 }, py::arg("size"), py::arg("version") = 0,
+		.def("createDescriptor", &PyIFaceEngine::createDescriptor, "Creates Descriptor\n")
+		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0,
 			"Creates Batch of descriptors\n"
 			"\tArgs:\n"
 			"\t\tparam1 (int): amount of descriptors in batch\n"
