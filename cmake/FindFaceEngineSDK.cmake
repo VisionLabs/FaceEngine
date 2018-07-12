@@ -7,7 +7,6 @@
 # This is the directory where the Face SDK is located.
 # By default FSDKDIR environment variable value is taken.
 set(FSDK_ROOT "$ENV{FSDKDIR}" CACHE PATH "Vision Labs Face SDK root directory.")
-message("$ENV{FSDKDIR}")
 
 # Look for headers.
 find_path(FSDK_INCLUDE_DIRS
@@ -39,6 +38,8 @@ if(NOT IOS)
 	elseif(CMAKE_COMPILER_IS_GNUCXX)
 		set(FSDK_COMPILER_NAME gcc4)
 	elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		set(FSDK_COMPILER_NAME clang)
+	elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 		set(FSDK_COMPILER_NAME clang)
 	else()
 		message(SEND_ERROR "Unsupported compiler: ${FSDK_COMPILER_NAME}")
@@ -86,7 +87,8 @@ foreach(LIB ${FSDK_LIB_NAMES})
 		HINTS $ENV{FSDKDIR}
 		PATHS ${FSDK_ROOT}
 		PATH_SUFFIXES ${FSDK_LIB_PATH_SUFFIX}
-			${FSDK_BIN_PATH_SUFFIX})
+			${FSDK_BIN_PATH_SUFFIX}
+		NO_DEFAULT_PATH)
 	list(APPEND FSDK_LIB ${LIB_PATH})
 endforeach()
 endif()
@@ -100,7 +102,8 @@ foreach(LIB ${FSDK_LIB_NAMES})
 		HINTS $ENV{FSDKDIR}
 		PATHS ${FSDK_ROOT}
 		PATH_SUFFIXES	${FSDK_LIB_PATH_SUFFIX}
-			${FSDK_BIN_PATH_SUFFIX})
+			${FSDK_BIN_PATH_SUFFIX}
+		NO_DEFAULT_PATH)
 
 	list(APPEND FSDK_LIBD ${LIB_PATH})
 endforeach()
