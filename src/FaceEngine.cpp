@@ -556,6 +556,69 @@ PYBIND11_MODULE(FaceEngine, f) {
 				"\tLandmarks5, Landmarks68,\n"
 				"\t\t(FSDKErrorValueInt wrapped in list): else - error code and number of detections wrapped in list, "
 				"see FSDKErrorValueInt\n")
+		.def("detect_light",[](
+			 const fsdk::IDetectorPtr& det,
+			 const fsdk::Image& image,
+			 const fsdk::Rect& rect,
+			 int maxCount) {
+				 fsdk::Detection detections[maxCount];
+				 fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
+				 image,
+				 rect,
+				 detections,
+				 maxCount);
+				 auto detectionResultPyList = py::list();
+				 if (err.isOk()) {
+					 for (size_t i = 0; i < maxCount; ++i) {
+						 detectionResultPyList.append(detections[i]);
+					 }
+					 return detectionResultPyList;
+				 }
+				 else {
+					 detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
+					 return detectionResultPyList; }},
+			 "Detect faces and landmarks on the image\n"
+			 "\tArgs:\n"
+			 "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
+			 "\t\tparam2 (Rect): rect of interest inside of the image\n"
+			 "\t\tparam3 (int): length of `detections` array\n"
+			 "\tReturns:\n"
+			 "\t\t(list of Detection): if success - Detection\n"
+			 "\t\t(FSDKErrorValueInt wrapped in list): else - error code and number of detections wrapped in list, "
+			 "see FSDKErrorValueInt\n")
+		.def("detect5",[](
+			 const fsdk::IDetectorPtr& det,
+			 const fsdk::Image& image,
+			 const fsdk::Rect& rect,
+			 int maxCount) {
+				 fsdk::Detection detections[maxCount];
+				 fsdk::Landmarks5 landmarks[maxCount];
+				 fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
+				 image,
+				 rect,
+				 detections,
+				 landmarks,
+				 maxCount);
+				 auto detectionResultPyList = py::list();
+				 if (err.isOk()) {
+					 for (size_t i = 0; i < maxCount; ++i) {
+						 detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i]));
+					 }
+					 return detectionResultPyList;
+				 }
+				 else {
+					 detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
+					 return detectionResultPyList; }},
+			 "Detect faces and landmarks on the image\n"
+			 "\tArgs:\n"
+			 "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
+			 "\t\tparam2 (Rect): rect of interest inside of the image\n"
+			 "\t\tparam3 (int): length of `detections` and `landmarks` arrays\n"
+			 "\tReturns:\n"
+			 "\t\t(list of tuples from Detection, Landmarks5): if success - list of tuples of Detection and "
+			 "\tLandmarks5\n"
+			 "\t\t(FSDKErrorValueInt wrapped in list): else - error code and number of detections wrapped in list, "
+			 "see FSDKErrorValueInt\n")
 					;
 
 	py::class_<fsdk::IWarperPtr>(f, "IWarperPtr",
