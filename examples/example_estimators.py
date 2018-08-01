@@ -136,14 +136,13 @@ if __name__ == "__main__":
     image_path = sys.argv[2]
     image = image_load(image_path)
     try:
-        attribute_quality_ethnicity_blackWhite_smile_example(image)
         # unpack detector result - list of tuples
         (detection, landmarks5, landmarks68) = detector_example(image, 1)[0]
         # print_landmarks(landmarks5, "landmarks5: ")
         # print_landmarks(landmarks68, "landmarks68: ")
         (warp_image, transformed_landmarks5, transformed_landmarks68) = \
             warper_example(image, detection, landmarks5, landmarks68)
-
+        attribute_quality_ethnicity_blackWhite_smile_example(warp_image)
         # examples with hardcoded paths to images
         depth_example("testData/warp.depth")
         ir_example("testData/irWarp.ppm")
