@@ -9,6 +9,33 @@
 #include "FaceEngineAdapter.hpp"
 #include "SettingsProviderAdapter.hpp"
 
+auto getChannelCount = [](fsdk::Format t) {
+	switch(t) {
+		case fsdk::Format::B8G8R8X8:
+			return 4;
+		case fsdk::Format::R8G8B8X8:
+			return 4;
+		case fsdk::Format::B8G8R8:
+		case fsdk::Format::R8G8B8:
+			return 3;
+		case fsdk::Format::R8:
+		case fsdk::Format::R16:
+			return 1;
+		default:
+			return 0;
+	}
+};
+
+static std::unordered_map <int, std::string> formatAsString = {
+	{fsdk::Format::R8G8B8, "R8G8B8"},
+	{fsdk::Format::B8G8R8, "B8G8R8"},
+	{fsdk::Format::B8G8R8X8, "B8G8R8X8"},
+	{fsdk::Format::R8G8B8X8, "R8G8B8X8"},
+	{fsdk::Format::Unknown, "Unknown"},
+	{fsdk::Format::R16, "R16"},
+	{fsdk::Format::R8, "R8"}
+};
+
 namespace py = pybind11;
 
 
@@ -525,7 +552,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::IDetectorPtr& det,
 			const fsdk::Image& image,
 			const fsdk::Rect& rect,
-			int maxCount) {
+			uint32_t maxCount) {
 				fsdk::Detection detections[maxCount];
 				fsdk::Landmarks5 landmarks[maxCount];
 				fsdk::Landmarks68 landmarks68[maxCount];
@@ -697,7 +724,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				"\t\t(DescriptorBatchResult): One of the error codes specified by DescriptorBatchError.")
 
 		.def("removeSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
-			if (index < 0 || index >= descriptorBatchPtr->getCount()) throw py::index_error();
+			if (index < 0 || index >= int(descriptorBatchPtr->getCount())) throw py::index_error();
 				fsdk::Result<fsdk::IDescriptorBatch::Error> error = descriptorBatchPtr->removeSlow(index);
 					return  DescriptorBatchResult(error);},
 					 "Remove a descriptor from batch.\n"
@@ -734,7 +761,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\t(int): Length of one descriptor in batch.\n")
 
 		.def("getDescriptorSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
-			if (index < 0 || index >= descriptorBatchPtr->getCount()) throw py::index_error();
+			if (index < 0 || index >= int(descriptorBatchPtr->getCount())) throw py::index_error();
 			return fsdk::acquire(descriptorBatchPtr->getDescriptorSlow(index)); },
 			"Create descriptor from batch by index with copying\n"
 			"\tArgs:\n"
@@ -743,7 +770,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\t(IDescriptorPtr): valid object if succeeded.\n")
 
 		.def("getDescriptorFast",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
-			if (index < 0 || index >= descriptorBatchPtr->getCount()) throw py::index_error();
+			if (index < 0 || index >= int(descriptorBatchPtr->getCount())) throw py::index_error();
 			return fsdk::acquire(descriptorBatchPtr->getDescriptorFast(index)); },
 			"Create descriptor from batch by index without copying\n"
 			"\tArgs:\n"
@@ -814,7 +841,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			py::list warpsBatchList,
 			const fsdk::IDescriptorBatchPtr& descriptorBatch,
 			const fsdk::IDescriptorPtr& aggregation,
-			int batchSize) {
+			uint32_t batchSize) {
 				float garbageScoreBatch[batchSize];
 				fsdk::Image warpsBatch [batchSize];
 				for (size_t i = 0; i < batchSize; ++i) {
@@ -835,11 +862,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 				}
 				else {
 					garbagePyList.append(FSDKErrorResult(err));
+					return garbagePyList;
 				} },
 				 "Extract batch of descriptors from a batch of images and perform aggregation.\n"
 				 "\tThe input images should be warped; see IWarper.\n"
 				 "\tArgs:\n"
-				 "\t\tparam1 (list):  input array of warped images, images should be in R8G8B8 format , with size 250x250\n"
+				 "\t\tparam1 (list):  input array of warped images, images should be in R8G8B8 format, "
+					 "with size 250x250\n"
 				 "\t\tparam2 (IDescriptorBatchPtr) [out]:  descriptorBatch descriptor batch to fill with data.\n"
 				 "\t\tparam3 (IDescriptorPtr) [out]: descriptor with aggregation based on descriptor batch.\n"
 				 "\t\tparam4 (int): size of the batch.\n"
@@ -853,7 +882,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::IDescriptorExtractorPtr& extractor,
 			py::list warpsBatchList,
 			const fsdk::IDescriptorBatchPtr& descriptorBatch,
-			int batchSize) {
+			uint32_t batchSize) {
 				float garbageScoreBatch[batchSize];
 				fsdk::Image warpsBatch [batchSize];
 				for (size_t i = 0; i < batchSize; ++i) {
@@ -890,11 +919,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 	py::class_<fsdk::IDescriptorMatcherPtr>(f, "IDescriptorMatcherPtr",
 		"Descriptor matcher interface.\n"
 		"\tMatches descriptors 1:1 and 1:M (@see IDescriptor and IDescriptorBatch interfaces).\n"
-		"\tAs a result of the matching process the calling site gets a MatchingResult (or several of them in case of 1:M\n"
+		"\tAs a result of the matching process the calling site gets a MatchingResult "
+			"(or several of them in case of 1:M\n"
 		"\tmatching). The MatchingResult structure contains distance and similarity metrics.\n"
 		"\t\n"
-		"\tDistance is measured in abstract units and tends to 0 for similar descriptors and to infinity for different ones.\n"
-		"\tSimilarity is the opposite metric and shows probability of two descriptors belonging to the same person; therfore\n"
+		"\tDistance is measured in abstract units and tends to 0 for similar descriptors "
+			"and to infinity for different ones.\n"
+		"\tSimilarity is the opposite metric and shows probability of two "
+			"descriptors belonging to the same person; therfore\n"
 		"\tit is normalized to [0..1] range")
 
 		.def("match",[](
@@ -930,7 +962,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 					resultsPyList.append(FSDKErrorResult(err));
 					return resultsPyList; } },
 				 "Match descriptors 1:M.\n"
-				 "\tMatches a reference descriptor to a batch of candidate descriptors. The results are layed out in the\n"
+				 "\tMatches a reference descriptor to a batch of candidate descriptors. "
+					 "The results are layed out in the\n"
 				 "\tsame order as the candidate descriptors in the batch.\n"
 				 "\tArgs\n"
 				 "\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
@@ -946,7 +979,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::IDescriptorPtr reference,
 			const fsdk::IDescriptorBatchPtr& candidates,
 			py::list indicesPyList) {
-				const int indicesCount = py::len(indicesPyList);
+				const uint32_t indicesCount = py::len(indicesPyList);
 				int indices[indicesCount];
 				for (size_t i = 0; i < indicesCount; ++i) {
 					indices[i] = indicesPyList[i].cast<int>();
@@ -965,7 +998,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 					resultsPyList.append(FSDKErrorResult(err));
 						return resultsPyList; } },
 			 "Match descriptors 1:M.\n"
-			 "\tMatches a reference descriptor to a batch of candidate descriptors. The results are layed out in the\n"
+			 "\tMatches a reference descriptor to a batch of candidate descriptors. "
+				 "The results are layed out in the\n"
 			 "\tsame order as the candidate descriptors in the batch.\n"
 			 "\tArgs\n"
 			 "\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
@@ -983,7 +1017,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::IDescriptorPtr reference,
 			const fsdk::IDescriptorBatchPtr& candidates,
 			py::list indicesPyList) {
-				const int indicesCount = py::len(indicesPyList);
+				const uint32_t indicesCount = py::len(indicesPyList);
 				int indices[indicesCount];
 				for (size_t i = 0; i < indicesCount; ++i) {
 					indices[i] = indicesPyList[i].cast<int>();
@@ -1153,7 +1187,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::ILivenessFlowEstimatorPtr& est,
 			const fsdk::Image& small,
 			py::list framesPyList) {
-			int length = py::len(framesPyList);
+			uint32_t length = py::len(framesPyList);
 				fsdk::Image frames [length];
 				for (size_t i = 0; i < length; ++i) {
 					frames[i] = framesPyList[i].cast<fsdk::Image>();
@@ -1195,7 +1229,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "Estimate the attributes.\n"
 				 "\tArgs\n"
 				 "\t\tparam1 (Image): warp source image. Format must be R8G8B8. Must be warped!\n"
-				 "\t\tparam2 (Landmarks5): landmarks5 landmark of size 5 used to warp image, must be in warped image coordinates. @see IWarper\n"
+				 "\t\tparam2 (Landmarks5): landmarks5 landmark of size 5 used to warp image, "
+				 "must be in warped image coordinates. @see IWarper\n"
 				 "\tReturns:\n"
 				 "\t\t(EyeEstimation): if OK - return eye estimation\n"
 				 "\t\t(FSDKErrorResult): else - Error code")
@@ -1213,7 +1248,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "Estimate the attributes.\n"
 				 "\tArgs\n"
 				 "\t\tparam1 (Image): warp source image. Format must be R8G8B8. Must be warped!\n"
-				 "\t\tparam2 (Landmarks68): landmark of size 68 used to warp image, must be in warped image coordinates.\n"
+				 "\t\tparam2 (Landmarks68): landmark of size 68 used to warp image, must be "
+					 "in warped image coordinates.\n"
 				 "\tReturns:\n"
 				 "\t\t(EyeEstimation): if OK - return eye estimation"
 				 "\t\t(FSDKErrorResult): else - Error code")
@@ -1221,7 +1257,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 	py::class_<fsdk::IEmotionsEstimatorPtr>(f, "IEmotionsEstimatorPtr",
 		"Emotions estimator interface.\n"
-		"\tThis estimator is designed to work with a person face image; you should pass a warped face detection image obtained from IWarper.\n"
+		"\tThis estimator is designed to work with a person face image; y"
+			"ou should pass a warped face detection image obtained from IWarper.\n"
 		"\tsee IWarper for details.\n"
 		"\tEmotions estimator detects set of emotions depiceted on given face.\n"
 		"\tsee EmotionsEstimation for output details.")
@@ -1236,7 +1273,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 					return py::cast(FSDKErrorResult(err)); },
 				 "\tEstimate the attributes.\n"
 				 "\tArgs\n"
-				 "\t\tparam1 (Image): warp source image. If format is not R8 it would be converted to R8. Must be warped!\n"
+				 "\t\tparam1 (Image): warp source image. If format is not R8 it would be converted to R8. "
+					 "Must be warped!\n"
 				 "\tReturns:\n"
 				 "\t\t(EmotionsEstimation): if OK - estimation of emotions. see EmotionsEstimation for details\n"
 				 "\t\t(FSDKErrorResult): else - Error code")
@@ -1272,7 +1310,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 	   "LSH (Local Sensitive Hashing) table interface.\n"
 	   "\tThe LSH tables allow to pick a given number of nearest neighbors, i.e. ones having the closest distance\n"
 	   "\tto the user provided reference descritpor from a batch.\n"
-	   "\tEach LSH table is tied to one descriptor batch. LSH tables are immutable objects and therefore should be rebuilt\n"
+	   "\tEach LSH table is tied to one descriptor batch. LSH tables are immutable objects and therefore "
+		   "should be rebuilt\n"
 	   "\tif the corresponding batch is changed.\n"
 	   "\tLSH table methods are not thread safe; users should create a table per thread if parallel processing is\n"
 	   "\trequired.\n");
@@ -1296,8 +1335,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"Face landmarks, length is fixed and equal to5.\n"
 		"\tMTCNN face detector is capable of face landmarks detection. "
 		"\tLandmarks are special classes binded to python. \n"
-		"\tThey are similar on python lists. It is possible to use some standard python built-in functions for them: \n"
-		"\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and research purposes with class Vector2f. \n"
+		"\tThey are similar on python lists. It is possible to use some standard python built-in "
+			"functions for them: \n"
+		"\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and research "
+			"purposes with class Vector2f. \n"
 		"\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 
 		.def(py::init<>())
@@ -1325,8 +1366,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			  "Face landmarks, length is fixed and equal to 68.\n"
 			  "\tMTCNN face detector is capable of face landmarks detection. "
 			  "\tLandmarks are special classes binded to python. \n"
-			  "\tThey are similar on python lists. It is possible to use some standard python built-in functions for them: \n"
-			  "\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and research purposes with class Vector2f. \n"
+			  "\tThey are similar on python lists. It is possible to use some standard python "
+				  "built-in functions for them: \n"
+			  "\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and "
+				  "research purposes with class Vector2f. \n"
 			  "\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 
 		.def(py::init<>())
@@ -1354,8 +1397,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 		   "Iris landmarks, length is fixed and equal to 32.\n"
 		   "\tMTCNN face detector is capable of face landmarks detection. "
 		   "\tLandmarks are special classes binded to python. \n"
-		   "\tThey are similar on python lists. It is possible to use some standard python built-in functions for them: \n"
-		   "\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and research purposes with class Vector2f. \n"
+		   "\tThey are similar on python lists. It is possible to use some standard "
+			   "python built-in functions for them: \n"
+		   "\t`__len__`, `__getitem__`. The method `__setitem__` is used only for "
+			   "test and research purposes with class Vector2f. \n"
 		   "\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 
 		.def(py::init<>())
@@ -1386,8 +1431,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "Eyelid landmarks, length is fixed and equal to 6.\n"
 			 "\tMTCNN face detector is capable of face landmarks detection. "
 			 "\tLandmarks are special classes binded to python. \n"
-			 "\tThey are similar on python lists. It is possible to use some standard python built-in functions for them: \n"
-			 "\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and research purposes with class Vector2f. \n"
+			 "\tThey are similar on python lists. It is possible to use some standard "
+				 "python built-in functions for them: \n"
+			 "\t`__len__`, `__getitem__`. The method `__setitem__` "
+				 "is used only for test and research purposes with class Vector2f. \n"
 			 "\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 
 		.def(py::init<>())
@@ -1519,7 +1566,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 						+ ", what = " + err.what; })
 				;
 
-	py::class_<FSDKErrorValueInt>(f, "FSDKErrorValueInt", "Wrapper for result to output some integer value aside the result.")
+	py::class_<FSDKErrorValueInt>(f, "FSDKErrorValueInt", "Wrapper for result to output some integer "
+		"value aside the result.")
 		.def_readonly("isOk", &FSDKErrorValueInt::isOk)
 		.def_readonly("isError", &FSDKErrorValueInt::isError)
 		.def_readonly("FSDKError", &FSDKErrorValueInt::fsdkError)
@@ -1535,7 +1583,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 					+ ", what = " + err.what; })
 			;
 
-	py::class_<FSDKErrorValueFloat>(f, "FSDKErrorValueFloat", "Wrapper for result to output some float value aside the result.")
+	py::class_<FSDKErrorValueFloat>(f, "FSDKErrorValueFloat", "Wrapper for result to output some "
+		"float value aside the result.")
 		.def_readonly("isOk", &FSDKErrorValueFloat::isOk)
 		.def_readonly("isError", &FSDKErrorValueFloat::isError)
 		.def_readonly("FSDKError", &FSDKErrorValueFloat::fsdkError)
@@ -1552,7 +1601,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 })
 				;
 
-	py::class_<FSDKErrorValueMatching>(f, "FSDKErrorValueMatching", "Wrapper for result to output some Matching value (distance, similarity) aside the result.")
+	py::class_<FSDKErrorValueMatching>(f, "FSDKErrorValueMatching", "Wrapper for result to output "
+		"some Matching value (distance, similarity) aside the result.")
 		.def_readonly("isOk", &FSDKErrorValueMatching::isOk)
 		.def_readonly("isError", &FSDKErrorValueMatching::isError)
 		.def_readonly("FSDKError", &FSDKErrorValueMatching::fsdkError)
@@ -1852,6 +1902,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("isPadded", &fsdk::Format::isPadded)
 		.def("isBGR", &fsdk::Format::isBGR)
 		.def("isBlock", &fsdk::Format::isValid)
+		.def("__repr__", [](const fsdk::Format &f) {
+			return formatAsString[f];
+		});
 			;
 
 	py::class_<fsdk::Image>(f, "Image",
@@ -1861,29 +1914,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getWidth", &fsdk::Image::getWidth)
 		.def("getHeight", &fsdk::Image::getHeight)
 		.def("isValid", &fsdk::Image::isValid)
+		.def("getFormat", &fsdk::Image::getFormat)
 		.def("getRect", &fsdk::Image::getRect,
 			"Image rectangle.\n"
 			"\tResulting rectangle top left corner is always at (0, 0).")
 
 		.def("getData", [](const fsdk::Image& image) {
-			std::clog << "This method is experimental and was not tested!" << std::endl;
+			std::clog << "This method is experimental!" << std::endl;
 			fsdk::Format type = fsdk::Format::Type(image.getFormat());
-			auto getChannelCount = [](fsdk::Format t) {
-					switch(t) {
-						case fsdk::Format::B8G8R8X8:
-							return 4;
-						case fsdk::Format::R8G8B8X8:
-							return 4;
-						case fsdk::Format::B8G8R8:
-						case fsdk::Format::R8G8B8:
-							return 3;
-						case fsdk::Format::R8:
-						case fsdk::Format::R16:
-							return 1;
-						default:
-							return 0;
-				}
-			};
 			int c = getChannelCount(type);
 			const auto* const data_uint = image.getDataAs<uint8_t>();
 			std::vector<uint8_t> data(data_uint, data_uint + image.getDataSize());
@@ -1891,13 +1929,35 @@ PYBIND11_MODULE(FaceEngine, f) {
 			auto ptr = data.data();
 			return py::array(shape, ptr);
 		})
-//		.def("setData", [](const fsdk::Image& image, py::array npImage, fsdk::Format format) {
-//			std::clog << "This method is experimental and was not tested!" << std::endl;
-//			auto size = npImage.shape();
-//			std::cout << size[0] << size[1] << std::endl;
-//			std::vector<uint8_t> data(npImage.ptr(), npImage.ptr() + npImage.nbytes());
-//			return fsdk::Image(size[1], size[0], format, data.data(), true);
-//		})
+		.def("getChannelCount", [](const fsdk::Image& image) {
+			std::clog << "This method is experimental!" << std::endl;
+			fsdk::Format type = fsdk::Format::Type(image.getFormat());
+
+			int c_debug = getChannelCount(type);
+			std::clog << "Debug : number of channels = "<< c_debug << std::endl;
+			return c_debug;
+		})
+		.def("setData", [](fsdk::Image& image, py::array npImage) {
+			std::clog << "This method is experimental, image should be R8G8B8 or R8!"
+					  << std::endl;
+			auto size = npImage.shape();
+			fsdk::Format type;
+			std::cout << "MSD size"<< size[0] << " " << size[1] << " " << size[2] << std::endl;
+			if (size[2] == 3)
+				type = fsdk::Format::R8G8B8;
+			else if (size[2] == 1)
+				type = fsdk::Format::R8;
+			else
+				throw py::cast_error("\nUnsupported types of image! Convert it to R8G8B8 or R8, or "
+										 "point exact format as second parameter: "
+										 "image.setData(image_np, f.Format(f.FormatType.R8G8B8X8))");
+			image.set(size[1], size[0], type, npImage.data());
+		})
+		.def("setData", [](fsdk::Image& image, py::array npImage, fsdk::Format::Type type) {
+			std::clog << "This method is experimental!" << std::endl;
+			auto size = npImage.shape();
+			image.set(size[1], size[0], fsdk::Format(type), npImage.data());
+		})
 		.def("save", [](const fsdk::Image& image, const char* path) {
 			fsdk::Result<fsdk::Image::Error> error = image.save(path);
 			return ImageErrorResult(error);
