@@ -26,16 +26,6 @@ auto getChannelCount = [](fsdk::Format t) {
 	}
 };
 
-static std::unordered_map <int, std::string> formatAsString = {
-	{fsdk::Format::R8G8B8, "R8G8B8"},
-	{fsdk::Format::B8G8R8, "B8G8R8"},
-	{fsdk::Format::B8G8R8X8, "B8G8R8X8"},
-	{fsdk::Format::R8G8B8X8, "R8G8B8X8"},
-	{fsdk::Format::Unknown, "Unknown"},
-	{fsdk::Format::R16, "R16"},
-	{fsdk::Format::R8, "R8"}
-};
-
 namespace py = pybind11;
 
 
@@ -274,6 +264,18 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Image.getWidth
 			Image.getHeight
 			Image.isValid
+			Image.getFormat
+			Image.getRect
+			Image.getData
+			Image.getChannelCount
+			Image.getChannelStep
+			Image.getBitDepth
+			Image.getByteDepth
+			Image.computePitch
+			Image.isPadded
+			Image.isBGR
+			Image.isValidFormat
+			Image.setData
 			Image.save
 			Image.load
 			Image.getRect
@@ -1887,24 +1889,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("R8G8B8", fsdk::Format::R8G8B8)
 		.value("R8", fsdk::Format::R8)
 //		R16 is used for internal transformations for depth map and cannot be saved or downloaded
-		.value("R16", fsdk::Format::R16)
-			;
-
-	py::class_<fsdk::Format>(f, "Format", "Image format.")
-		.def(py::init<>())
-		.def(py::init<fsdk::Format::Type>())
-		.def("getChannelCount", &fsdk::Format::getChannelCount)
-		.def("getChannelStep", &fsdk::Format::getChannelStep)
-		.def("getChannelSize", &fsdk::Format::getChannelSize)
-		.def("getBitDepth", &fsdk::Format::getBitDepth)
-		.def("getByteDepth", &fsdk::Format::getByteDepth)
-		.def("computePitch", &fsdk::Format::computePitch)
-		.def("isPadded", &fsdk::Format::isPadded)
-		.def("isBGR", &fsdk::Format::isBGR)
-		.def("isBlock", &fsdk::Format::isValid)
-		.def("__repr__", [](const fsdk::Format &f) {
-			return formatAsString[f];
-		});
+		.value("R16", fsdk::Format::R16, 
+			"\tUsed for internal transformations for depth map and "
+				"cannot be saved or downloaded")
 			;
 
 	py::class_<fsdk::Image>(f, "Image",
@@ -1914,13 +1901,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getWidth", &fsdk::Image::getWidth)
 		.def("getHeight", &fsdk::Image::getHeight)
 		.def("isValid", &fsdk::Image::isValid)
-		.def("getFormat", &fsdk::Image::getFormat)
+		.def("getFormat", [](const fsdk::Image& image){
+			fsdk::Format::Type type = fsdk::Format::Type(image.getFormat());
+			return type;
+		})
 		.def("getRect", &fsdk::Image::getRect,
 			"Image rectangle.\n"
 			"\tResulting rectangle top left corner is always at (0, 0).")
 
 		.def("getData", [](const fsdk::Image& image) {
-			std::clog << "This method is experimental!" << std::endl;
 			fsdk::Format type = fsdk::Format::Type(image.getFormat());
 			int c = getChannelCount(type);
 			const auto* const data_uint = image.getDataAs<uint8_t>();
@@ -1928,44 +1917,61 @@ PYBIND11_MODULE(FaceEngine, f) {
 			std::vector<ssize_t> shape { image.getHeight(), image.getWidth(), c };
 			auto ptr = data.data();
 			return py::array(shape, ptr);
-		})
+		}, "\tReturns image as numpy array.\n")
 		.def("getChannelCount", [](const fsdk::Image& image) {
-			std::clog << "This method is experimental!" << std::endl;
 			fsdk::Format type = fsdk::Format::Type(image.getFormat());
-
-			int c_debug = getChannelCount(type);
-			std::clog << "Debug : number of channels = "<< c_debug << std::endl;
-			return c_debug;
+			return getChannelCount(type);
+		}, "\tReturns channel count.\n")
+		.def("getChannelStep", [](const fsdk::Image& image) {
+			return image.getFormat().getChannelStep();
+		}, "\tGet channel step.Padding bytes are considered spare channels.")
+		.def("getChannelSize", [](const fsdk::Image& image) {
+			return image.getFormat().getChannelSize();
 		})
+		.def("getBitDepth", [](const fsdk::Image& image) {
+			return image.getFormat().getBitDepth();
+		})
+		.def("getByteDepth", [](const fsdk::Image& image) {
+			return image.getFormat().getByteDepth();
+		})
+		.def("computePitch", [](const fsdk::Image& image, int rowWidth) {
+			return image.getFormat().computePitch(rowWidth);
+		})
+		.def("isPadded", [](const fsdk::Image& image) {
+			return image.getFormat().isPadded();
+		})
+		.def("isBGR", [](const fsdk::Image& image) {
+			return image.getFormat().isBGR();
+		})
+		.def("isValidFormat", [](const fsdk::Image& image) {
+			return image.getFormat().isValid();
+		}, "\tReturns true if image format is one of valid types, i.e. not Unknown.")
 		.def("setData", [](fsdk::Image& image, py::array npImage) {
-			std::clog << "This method is experimental, image should be R8G8B8 or R8!"
-					  << std::endl;
 			auto size = npImage.shape();
 			fsdk::Format type;
-			std::cout << "MSD size"<< size[0] << " " << size[1] << " " << size[2] << std::endl;
 			if (size[2] == 3)
 				type = fsdk::Format::R8G8B8;
 			else if (size[2] == 1)
 				type = fsdk::Format::R8;
 			else
 				throw py::cast_error("\nUnsupported types of image! Convert it to R8G8B8 or R8, or "
-										 "point exact format as second parameter: "
-										 "image.setData(image_np, f.Format(f.FormatType.R8G8B8X8))");
+										 "point exact format as second parameter, example: "
+										 "image.setData(numpy_array, FaceEngine.FormatType.R8G8B8X8)");
 			image.set(size[1], size[0], type, npImage.data());
-		})
+		}, "Set image by numpy array. Convert it to R8G8B8 or R8.")
 		.def("setData", [](fsdk::Image& image, py::array npImage, fsdk::Format::Type type) {
-			std::clog << "This method is experimental!" << std::endl;
 			auto size = npImage.shape();
 			image.set(size[1], size[0], fsdk::Format(type), npImage.data());
-		})
+		}, "\n\tSet image by numpy array. Please point format. example: \n"
+			"\t\timage.setData(numpy_array, FaceEngine.FormatType.R8G8B8X8)")
 		.def("save", [](const fsdk::Image& image, const char* path) {
 			fsdk::Result<fsdk::Image::Error> error = image.save(path);
 			return ImageErrorResult(error);
 		})
 		.def("save", [](const fsdk::Image& image,
 						const char* path,
-						const fsdk::Format format) {
-				fsdk::Result<fsdk::Image::Error> error = image.save(path, format);
+						const fsdk::Format::Type type) {
+				fsdk::Result<fsdk::Image::Error> error = image.save(path, fsdk::Format(type));
 				return ImageErrorResult(error);
 			})
 		.def("load",[](fsdk::Image& image, const char* path) {
@@ -1974,8 +1980,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 		.def("load", [](fsdk::Image& image,
 						const char* path,
-						const fsdk::Format format) {
-			fsdk::Result<fsdk::Image::Error> error = image.load(path, format);
+						const fsdk::Format::Type type) {
+			fsdk::Result<fsdk::Image::Error> error = image.load(path, fsdk::Format(type));
 			return ImageErrorResult(error);
 			})
 				;

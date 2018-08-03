@@ -218,17 +218,26 @@ print(fe.Detection.__doc__)
 
 print(fe.FormatType.__doc__)
 
-print(fe.Format.__doc__)
-
 print(fe.Image.__doc__)
 print(fe.Image.__init__.__doc__)
+print(fe.Image.getFormat.__doc__)
+
+print(fe.Image.getData.__doc__)
+print(fe.Image.getChannelCount.__doc__)
+print(fe.Image.getChannelStep.__doc__)
+print(fe.Image.getBitDepth.__doc__)
+print(fe.Image.getByteDepth.__doc__)
+print(fe.Image.computePitch.__doc__)
+print(fe.Image.isPadded.__doc__)
+print(fe.Image.isBGR.__doc__)
+print(fe.Image.isValidFormat.__doc__)
+print(fe.Image.setData.__doc__)
 print(fe.Image.getWidth.__doc__)
 print(fe.Image.getHeight.__doc__)
 print(fe.Image.isValid.__doc__)
 print(fe.Image.save.__doc__)
 print(fe.Image.load.__doc__)
 print(fe.Image.getRect.__doc__)
-
 print(fe.ImageType.__doc__)
 
 print(fe.ImageError.__doc__)
