@@ -82,13 +82,6 @@ fsdk::IDescriptorMatcherPtr PyIFaceEngine::createMatcher() {
 	return descriptorMatcherPtr;
 }
 
-fsdk::ILSHTablePtr PyIFaceEngine::createLSHTable(const fsdk::IDescriptorBatchPtr& batch) {
-	fsdk::ILSHTablePtr ilshTablePtr = fsdk::acquire(faceEnginePtr->createLSHTable(batch));
-	if (!ilshTablePtr)
-		throw py::cast_error("\nFailed to create ILSHTable instance! VERIFY PATH to \"data\" directory!");
-	return ilshTablePtr;
-}
-
 //	second part of estimators
 fsdk::IHeadPoseEstimatorPtr PyIFaceEngine::createHeadPoseEstimator() {
 	fsdk::IHeadPoseEstimatorPtr headPoseEstimatorPtr = fsdk::acquire(faceEnginePtr->createHeadPoseEstimator());
