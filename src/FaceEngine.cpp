@@ -60,7 +60,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createDescriptorBatch
 			PyIFaceEngine.createExtractor
 			PyIFaceEngine.createMatcher
-			PyIFaceEngine.createLSHTable
 			PyIFaceEngine.setSettingsProvider
 
 			SettingsProviderValue
@@ -147,7 +146,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IGazeEstimatorPtr
 			IGazeEstimatorPtr.estimate
 
-			ILSHTablePtr
 
 			MatchingResult
 
@@ -316,11 +314,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 		.def("createExtractor", &PyIFaceEngine::createExtractor, "Creates descriptor extractor\n")
 		.def("createMatcher", &PyIFaceEngine::createMatcher, "Creates descriptor matcher\n")
-		.def("createLSHTable", &PyIFaceEngine::createLSHTable,
-			"Creates Local Sensitive Hash table (Descriptor index).\n"
-			"\tArgs:\n"
-			"\t\tparam1 (int): batch of descriptors to build index with\n"
-			"\tIndex is unmutable, you cant add or remove descriptors from already created index\n")
 		.def("setSettingsProvider", &PyIFaceEngine::setSettingsProvider,
 			"Sets settings provider\n"
 			"\tArgs:\n"
@@ -1267,15 +1260,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\t\t(GazeEstimation): if OK - output estimation; @see GazeEstimation.\n"
 				 "\t\t(FSDKErrorResult): else - error code")
 					;
-
-	py::class_<fsdk::ILSHTablePtr>(f, "ILSHTablePtr",
-	   "LSH (Local Sensitive Hashing) table interface.\n"
-	   "\tThe LSH tables allow to pick a given number of nearest neighbors, i.e. ones having the closest distance\n"
-	   "\tto the user provided reference descritpor from a batch.\n"
-	   "\tEach LSH table is tied to one descriptor batch. LSH tables are immutable objects and therefore should be rebuilt\n"
-	   "\tif the corresponding batch is changed.\n"
-	   "\tLSH table methods are not thread safe; users should create a table per thread if parallel processing is\n"
-	   "\trequired.\n");
 
 	py::class_<fsdk::MatchingResult>(f, "MatchingResult", "Result of descriptor matching.")
 		.def(py::init<>(), "Initializes result to default values.")

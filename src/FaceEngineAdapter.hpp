@@ -29,8 +29,6 @@ public:
 
 	fsdk::IDescriptorMatcherPtr createMatcher();
 
-	fsdk::ILSHTablePtr createLSHTable(const fsdk::IDescriptorBatchPtr& batch);
-
 //	second part of estimators
 	fsdk::IHeadPoseEstimatorPtr createHeadPoseEstimator();
 

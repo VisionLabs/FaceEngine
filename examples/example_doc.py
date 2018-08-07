@@ -35,7 +35,6 @@ print(fe.PyIFaceEngine.createDescriptor.__doc__)
 print(fe.PyIFaceEngine.createDescriptorBatch.__doc__)
 print(fe.PyIFaceEngine.createExtractor.__doc__)
 print(fe.PyIFaceEngine.createMatcher.__doc__)
-print(fe.PyIFaceEngine.createLSHTable.__doc__)
 print(fe.PyIFaceEngine.setSettingsProvider.__doc__)
 
 print(fe.SettingsProviderValue.__doc__)
@@ -130,7 +129,6 @@ print(fe.IEmotionsEstimatorPtr.estimate.__doc__)
 print(fe.IGazeEstimatorPtr.__doc__)
 print(fe.IGazeEstimatorPtr.estimate.__doc__)
 
-print(fe.ILSHTablePtr.__doc__)
 
 print(fe.MatchingResult.__doc__)
 
