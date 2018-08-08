@@ -115,8 +115,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IDescriptorMatcherPtr
 			IDescriptorMatcherPtr.match
-			IDescriptorMatcherPtr.matchCompact
-			IDescriptorMatcherPtr.matchCompact
 
 			IHeadPoseEstimatorPtr
 			IHeadPoseEstimatorPtr.estimate
@@ -933,79 +931,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\t\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
 				 "\t\t\tIDescriptorBatchPtr::getMaxCount()\n"
 				 "\t\t(FSDKErrorResult wrapped in list): else - result with error specified by FSDKErrorResult.")
-
-		.def("match",[](
-			const fsdk::IDescriptorMatcherPtr& matcherPtr,
-			const fsdk::IDescriptorPtr reference,
-			const fsdk::IDescriptorBatchPtr& candidates,
-			py::list indicesPyList) {
-				const int indicesCount = py::len(indicesPyList);
-				int indices[indicesCount];
-				for (size_t i = 0; i < indicesCount; ++i) {
-					indices[i] = indicesPyList[i].cast<int>();
-				}
-				fsdk::MatchingResult results[candidates->getCount()];
-				fsdk::Result<fsdk::FSDKError> err =
-					matcherPtr->match(reference, candidates, indices, indicesCount, results);
-				auto resultsPyList = py::list();
-				if (err.isOk()) {
-					for (const auto& it: results) {
-						resultsPyList.append(it);
-					}
-					return resultsPyList;
-				}
-				else {
-					resultsPyList.append(FSDKErrorResult(err));
-						return resultsPyList; } },
-			 "Match descriptors 1:M.\n"
-			 "\tMatches a reference descriptor to a batch of candidate descriptors. The results are layed out in the\n"
-			 "\tsame order as the candidate descriptors in the batch.\n"
-			 "\tArgs\n"
-			 "\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
-			 "\t\tparam2 (IDescriptorBatch): the candidate descriptor batch to match with the reference\n"
-			 "\t\tparam3 (list): the list of candidate descriptor indices within the batch to be matched.\n"
-			 "\tReturns:\n"
-			 "\t\t(list): If OK - matchig result list.\n"
-			 "\t\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
-			 "\t\t\tIDescriptorBatchPtr::getMaxCount()\n"
-			 "\t\t(FSDKErrorResult wrapped in list): Else - result with error specified by FSDKErrorResult."
-
-		)
-		.def("matchCompact",[](
-			const fsdk::IDescriptorMatcherPtr& matcherPtr,
-			const fsdk::IDescriptorPtr reference,
-			const fsdk::IDescriptorBatchPtr& candidates,
-			py::list indicesPyList) {
-				const int indicesCount = py::len(indicesPyList);
-				int indices[indicesCount];
-				for (size_t i = 0; i < indicesCount; ++i) {
-					indices[i] = indicesPyList[i].cast<int>();
-				}
-				fsdk::MatchingResult results[indicesCount];
-				fsdk::Result<fsdk::FSDKError> err =
-					matcherPtr->matchCompact(reference, candidates, indices, indicesCount, results);
-				auto resultsPyList = py::list();
-				if (err.isOk()) {
-					for (const auto& it: results) {
-						resultsPyList.append(it);
-					}
-					return resultsPyList;
-				}
-				else {
-					resultsPyList.append(FSDKErrorResult(err));
-					return resultsPyList; } },
-			 "Match descriptors 1:M using a subset of candidate descriptors in a batch.\n"
-				 "\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n"
-				 "\tArgs\n"
-				 "\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
-				 "\t\tparam2 (IDescriptorBatchPtr): the candidate descriptor batch to match with the reference\n"
-				 "\t\tparam3 (list): list of candidate descriptor indices within the batch to be matched\n"
-				 "\tReturns:\n"
-				 "\t\t(list): If OK - matchig result array.\n"
-				 "\t\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
-				 "\t\t\tIDescriptorBatchPtr::getMaxCount()\n"
-				 "\t\t(FSDKErrorResult wrapped in list): Else - result with error specified by FSDKErrorResult.")
-				;
+						;
+						
 //	second part of estimators
 	py::class_<fsdk::IHeadPoseEstimatorPtr>(f, "IHeadPoseEstimatorPtr",
 		"Head pose angles estimator interface.\n"

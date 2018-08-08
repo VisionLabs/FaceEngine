@@ -98,8 +98,7 @@ print(fe.IDescriptorExtractorPtr.extractFromWarpedImageBatch.__doc__)
 
 print(fe.IDescriptorMatcherPtr.__doc__)
 print(fe.IDescriptorMatcherPtr.match.__doc__)
-print(fe.IDescriptorMatcherPtr.matchCompact.__doc__)
-print(fe.IDescriptorMatcherPtr.matchCompact.__doc__)
+
 
 print(fe.IHeadPoseEstimatorPtr.__doc__)
 print(fe.IHeadPoseEstimatorPtr.estimate.__doc__)
