@@ -931,7 +931,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\t\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
 				 "\t\t\tIDescriptorBatchPtr::getMaxCount()\n"
 				 "\t\t(FSDKErrorResult wrapped in list): else - result with error specified by FSDKErrorResult.")
-
+						;
+						
 //	second part of estimators
 	py::class_<fsdk::IHeadPoseEstimatorPtr>(f, "IHeadPoseEstimatorPtr",
 		"Head pose angles estimator interface.\n"
