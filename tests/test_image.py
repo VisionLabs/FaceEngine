@@ -3,14 +3,8 @@ import unittest
 import argparse
 import sys
 import os
-import importlib
-numpy_spec = importlib.util.find_spec("numpy")
-numpy_found = numpy_spec is not None
-if numpy_found:
-    print("numpy was found")
-    import numpy as np
-else:
-    print("numpy was not found")
+import numpy as np
+
 
 
 # if FaceEngine is not instaflled in system
@@ -113,28 +107,25 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(image_temp.getWidth(), w)
         self.assertEqual(image_temp.getChannelCount(), c)
     def test_set_data(self):
-        if numpy_found:
-            print("Tests for image.setData are enabled.")
-            test_image1 = f.Image()
-            test_image2 = f.Image()
-            test_image1.load("testData/overlap_image1.jpg")
-            test_image2.load("testData/overlap_image1_copy.jpg")
-            image_np1 = test_image1.getData()
-            image_np2 = test_image2.getData()
-            self.assertTrue(np.array_equal(image_np1, image_np2))
+        print("Tests for image.setData are enabled.")
+        test_image1 = f.Image()
+        test_image2 = f.Image()
+        test_image1.load("testData/overlap_image1.jpg")
+        test_image2.load("testData/overlap_image1_copy.jpg")
+        image_np1 = test_image1.getData()
+        image_np2 = test_image2.getData()
+        self.assertTrue(np.array_equal(image_np1, image_np2))
 
-            test_image2.setData(image_np2, f.FormatType.R8G8B8X8)
-            image_np2_4_channels = test_image2.getData()
-            self.assertEqual(4, test_image2.getChannelCount())
-            self.assertEqual(f.FormatType.R8G8B8X8, test_image2.getFormat())
-            self.assertEqual("FormatType.R8G8B8X8", str(test_image2.getFormat()))
-            # by default numpy is converted to R8G8B8 or R8
-            test_image2.setData(image_np1)
-            image_np3 = test_image2.getData()
-            self.assertTrue(np.array_equal(image_np3, image_np1))
-            self.assertFalse(np.array_equal(image_np3, image_np2_4_channels))
-        else:
-            print("Tests for image.setData are disabled!!!")
+        test_image2.setData(image_np2, f.FormatType.R8G8B8X8)
+        image_np2_4_channels = test_image2.getData()
+        self.assertEqual(4, test_image2.getChannelCount())
+        self.assertEqual(f.FormatType.R8G8B8X8, test_image2.getFormat())
+        self.assertEqual("FormatType.R8G8B8X8", str(test_image2.getFormat()))
+        # by default numpy is converted to R8G8B8 or R8
+        test_image2.setData(image_np1)
+        image_np3 = test_image2.getData()
+        self.assertTrue(np.array_equal(image_np3, image_np1))
+        self.assertFalse(np.array_equal(image_np3, image_np2_4_channels))
     def test_save(self):
         self.assertTrue(os.path.isfile(new_file_path))
         self.assertEqual(save_error.isOk, 1)
