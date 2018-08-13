@@ -35,7 +35,6 @@ print(fe.PyIFaceEngine.createDescriptor.__doc__)
 print(fe.PyIFaceEngine.createDescriptorBatch.__doc__)
 print(fe.PyIFaceEngine.createExtractor.__doc__)
 print(fe.PyIFaceEngine.createMatcher.__doc__)
-print(fe.PyIFaceEngine.createLSHTable.__doc__)
 print(fe.PyIFaceEngine.setSettingsProvider.__doc__)
 
 print(fe.SettingsProviderValue.__doc__)
@@ -99,8 +98,7 @@ print(fe.IDescriptorExtractorPtr.extractFromWarpedImageBatch.__doc__)
 
 print(fe.IDescriptorMatcherPtr.__doc__)
 print(fe.IDescriptorMatcherPtr.match.__doc__)
-print(fe.IDescriptorMatcherPtr.matchCompact.__doc__)
-print(fe.IDescriptorMatcherPtr.matchCompact.__doc__)
+
 
 print(fe.IHeadPoseEstimatorPtr.__doc__)
 print(fe.IHeadPoseEstimatorPtr.estimate.__doc__)
@@ -130,7 +128,6 @@ print(fe.IEmotionsEstimatorPtr.estimate.__doc__)
 print(fe.IGazeEstimatorPtr.__doc__)
 print(fe.IGazeEstimatorPtr.estimate.__doc__)
 
-print(fe.ILSHTablePtr.__doc__)
 
 print(fe.MatchingResult.__doc__)
 
