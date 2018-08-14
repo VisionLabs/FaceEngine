@@ -3,7 +3,9 @@ import unittest
 import argparse
 import sys
 import os
-# import numpy as np
+import numpy as np
+
+
 
 # if FaceEngine is not instaflled in system
 parser = argparse.ArgumentParser()
@@ -35,14 +37,14 @@ loaded_image.load(new_file_path)
 
 # test load in different formats
 image2 = f.Image()
-load_error_Unknown = image2.load("testData/warp2.pp", f.Format(f.FormatType.Unknown))
-load_error_B8G8R8X8 = image2.load("testData/warp2.ppm", f.Format(f.FormatType.B8G8R8X8))
-load_error_R8G8B8X8 = image2.load("testData/warp2.ppm", f.Format(f.FormatType.R8G8B8X8))
-load_error_B8G8R8 = image2.load("testData/warp2.ppm", f.Format(f.FormatType.B8G8R8))
-load_error_R8G8B8 = image2.load("testData/warp2.ppm", f.Format(f.FormatType.R8G8B8))
-load_error_R8 = image2.load("testData/warp2.ppm", f.Format(f.FormatType.R8))
+load_error_Unknown = image2.load("testData/warp2.pp", f.FormatType.Unknown)
+load_error_B8G8R8X8 = image2.load("testData/warp2.ppm", f.FormatType.B8G8R8X8)
+load_error_R8G8B8X8 = image2.load("testData/warp2.ppm", f.FormatType.R8G8B8X8)
+load_error_B8G8R8 = image2.load("testData/warp2.ppm", f.FormatType.B8G8R8)
+load_error_R8G8B8 = image2.load("testData/warp2.ppm", f.FormatType.R8G8B8)
+load_error_R8 = image2.load("testData/warp2.ppm", f.FormatType.R8)
 # expected error with R16
-load_error_R16 = image2.load("testData/warp2.ppm", f.Format(f.FormatType.R16))
+load_error_R16 = image2.load("testData/warp2.ppm", f.FormatType.R16)
 
 class TestFaceEngineImage(unittest.TestCase):
 
@@ -67,18 +69,63 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(image.getWidth(), loaded_image.getWidth(), 250)
         self.assertEqual(image.isValid(), loaded_image.isValid())
         self.assertEqual(image.getRect(), loaded_image.getRect())
-        # list1 = image.getDataAsList()
-        # list2 = loaded_image.getDataAsList()
-        # self.assertEqual(len(list1), len(list2))
-        # for i in range(len(list1)):
-        #     for j in range(len(list1[i])):
-        #         self.assertEqual(list1[i][j], list2[i][j])
+    def test_get_data_identity(self):
+        image_np = image.getData()
+        w, h, c = image_np.shape
+        self.assertEqual(image.getHeight(), h)
+        self.assertEqual(image.getWidth(), w)
+        self.assertEqual(image.getChannelCount(), c)
+        image_temp = f.Image()
+        image_temp.load("testData/smile.ppm", f.FormatType.B8G8R8X8)
+        image_np = image_temp.getData()
+        w, h, c = image_np.shape
+        self.assertEqual(image_temp.getHeight(), h)
+        self.assertEqual(image_temp.getWidth(), w)
+        self.assertEqual(image_temp.getChannelCount(), c)
+        image_temp.load("testData/smile.ppm", f.FormatType.R8G8B8X8)
+        image_np = image_temp.getData()
+        w, h, c = image_np.shape
+        self.assertEqual(image_temp.getHeight(), h)
+        self.assertEqual(image_temp.getWidth(), w)
+        self.assertEqual(image_temp.getChannelCount(), c)
+        image_temp.load("testData/smile.ppm", f.FormatType.B8G8R8)
+        image_np = image_temp.getData()
+        w, h, c = image_np.shape
+        self.assertEqual(image_temp.getHeight(), h)
+        self.assertEqual(image_temp.getWidth(), w)
+        self.assertEqual(image_temp.getChannelCount(), c)
+        image_temp.load("testData/smile.ppm", f.FormatType.R8G8B8)
+        image_np = image_temp.getData()
+        w, h, c = image_np.shape
+        self.assertEqual(image_temp.getHeight(), h)
+        self.assertEqual(image_temp.getWidth(), w)
+        self.assertEqual(image_temp.getChannelCount(), c)
+        image_temp.load("testData/smile.ppm", f.FormatType.R8)
+        image_np = image_temp.getData()
+        w, h, c = image_np.shape
+        self.assertEqual(image_temp.getHeight(), h)
+        self.assertEqual(image_temp.getWidth(), w)
+        self.assertEqual(image_temp.getChannelCount(), c)
+    def test_set_data(self):
+        print("Tests for image.setData are enabled.")
+        test_image1 = f.Image()
+        test_image2 = f.Image()
+        test_image1.load("testData/overlap_image1.jpg")
+        test_image2.load("testData/overlap_image1_copy.jpg")
+        image_np1 = test_image1.getData()
+        image_np2 = test_image2.getData()
+        self.assertTrue(np.array_equal(image_np1, image_np2))
 
-
-        # list_np1 = image.getData()
-        # list_np2 = loaded_image.getData()
-        # self.assertTrue(np.array_equal(list_np1, list_np2))
-
+        test_image2.setData(image_np2, f.FormatType.R8G8B8X8)
+        image_np2_4_channels = test_image2.getData()
+        self.assertEqual(4, test_image2.getChannelCount())
+        self.assertEqual(f.FormatType.R8G8B8X8, test_image2.getFormat())
+        self.assertEqual("FormatType.R8G8B8X8", str(test_image2.getFormat()))
+        # by default numpy is converted to R8G8B8 or R8
+        test_image2.setData(image_np1)
+        image_np3 = test_image2.getData()
+        self.assertTrue(np.array_equal(image_np3, image_np1))
+        self.assertFalse(np.array_equal(image_np3, image_np2_4_channels))
     def test_save(self):
         self.assertTrue(os.path.isfile(new_file_path))
         self.assertEqual(save_error.isOk, 1)

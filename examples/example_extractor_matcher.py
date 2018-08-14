@@ -20,7 +20,6 @@ def extractor_example(_image_list, _batch_size):
     print("batchSize {0}".format(_batch_size))
     descriptor_batch = faceEngine.createDescriptorBatch(_batch_size)
     extractor = faceEngine.createExtractor()
-    # table = faceEngine.createLSHTable(descriptor_batch)
     # descriptor, creating objects
     print("Creating descriptors")
     descriptor1 = faceEngine.createDescriptor()
