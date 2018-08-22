@@ -341,7 +341,7 @@ class TestFaceEngineRect(unittest.TestCase):
                 self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
                 self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
 
-        testImage("9", f.State.Occluded, f.State.Open)
+        testImage("9", f.State.Open, f.State.Open)
 
 
     def test_EmotionsEstimator(self):
