@@ -1057,23 +1057,34 @@ PYBIND11_MODULE(FaceEngine, f) {
 				"\t\t\tif !range.isOk() range is not set.")
 					;
 
+	//	EyeEstimation
+	py::class_<fsdk::IREstimation>(f, "IREstimation",
+									 "IR estimation output.\n"
+									 "\tThese values are produced by I:ILivenessIREstimator object.")
+		.def(py::init<>())
+		.def_readwrite("isReal", &fsdk::IREstimation::isReal, "\tbool answer, the real person or not")
+		.def_readwrite("score", &fsdk::IREstimation::score, "\t score")
+			;
+
 	py::class_<fsdk::ILivenessIREstimatorPtr>(f, "ILivenessIREstimatorPtr",
-		"Infra red liveness estimator interface.\n"
+		"Infra-red liveness estimator interface.\n"
 		"\tThis estimator is designed for face analysis using infra red facial warp (8-bit 1 channel) image.\n"
 		"\tIWarper for details.")
-
 		.def("estimate",[](
 			const fsdk::ILivenessIREstimatorPtr& est,
 			const fsdk::Image& irWarp) {
-			fsdk::ResultValue<fsdk::FSDKError,float> err = est->estimate(irWarp);
-				return FSDKErrorValueFloat(err); },
-				"Check whether or not infrared warp corresponds to the real person..\n"
+			fsdk::IREstimation irEstimation;
+			fsdk::Result<fsdk::FSDKError> err = est->estimate(irWarp, irEstimation);
+			if (err.isOk())
+				return py::cast(irEstimation);
+			else
+				return py::cast(FSDKErrorResult(err)); },
+				"Check whether or not infrared warp corresponds to the real person.\n"
 				"\tArgs\n"
 				"\t\tparam1 (Image): irWarp infra red face warp\n"
 				"\tReturns:\n"
-				"\t\t(FSDKErrorValueFloat): ResultValue with error code and score of estimation.\n"
-				"\t\t\testimation score normalized between 0.0 and 1.0,\n"
-				"\t\t\twhere 1.0 equals to 100% confidence that person on image is alive, and 0.0 equals to 0%.")
+				"\t\t(IREstimation): if OK - return irEstimation\n"
+				"\t\t\t(FSDKErrorResult): else - Error code.\n")
 					;
 
 	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr",
@@ -1661,6 +1672,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 })
 				;
 	f.def("loadImage", &loadImage, "used only for depth test");
+
 //	EyeEstimation
 	py::class_<fsdk::EyesEstimation>(f, "EyesEstimation",
 		"Eyes estimation output.\n"
