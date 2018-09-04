@@ -206,7 +206,12 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertAlmostEqual(depth_result.value, 1.0, delta=0.01)
 
     def test_IREstimator(self):
+        config = f.createSettingsProvider("data/faceengine.conf")
+        
+        config.setValue("LivenessIREstimator::Settings", "cooperativeMode", f.SettingsProviderValue(1))
+        faceEnginePtr.setSettingsProvider(config)
         iREstimator = faceEnginePtr.createIREstimator()
+        
         irImage = f.Image()
         irImage.load("testData/irWarp.ppm")
         self.assertTrue(irImage.isValid())
@@ -215,10 +220,11 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(irRestult.isReal)
         self.assertAlmostEqual(irRestult.score, 1.0, delta=0.01)
 
-        config = f.createSettingsProvider("data/faceengine.conf")
+
         config.setValue("LivenessIREstimator::Settings", "cooperativeMode", f.SettingsProviderValue(0))
         faceEnginePtr.setSettingsProvider(config)
         iREstimator = faceEnginePtr.createIREstimator()
+        
         irImage.load("testData/irWarpNonCooperative.png")
         self.assertTrue(irImage.isValid())
         irRestult = iREstimator.estimate(irImage)
