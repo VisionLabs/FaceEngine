@@ -206,14 +206,30 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertAlmostEqual(depth_result.value, 1.0, delta=0.01)
 
     def test_IREstimator(self):
+        config = f.createSettingsProvider("data/faceengine.conf")
+        
+        config.setValue("LivenessIREstimator::Settings", "cooperativeMode", f.SettingsProviderValue(1))
+        faceEnginePtr.setSettingsProvider(config)
         iREstimator = faceEnginePtr.createIREstimator()
+        
         irImage = f.Image()
         irImage.load("testData/irWarp.ppm")
         self.assertTrue(irImage.isValid())
         irRestult = iREstimator.estimate(irImage)
         # print("irResult = ", irRestult)
-        self.assertFalse(irRestult.isError)
-        self.assertAlmostEqual(irRestult.value, 1.0, delta=0.01)
+        self.assertTrue(irRestult.isReal)
+        self.assertAlmostEqual(irRestult.score, 1.0, delta=0.01)
+
+
+        config.setValue("LivenessIREstimator::Settings", "cooperativeMode", f.SettingsProviderValue(0))
+        faceEnginePtr.setSettingsProvider(config)
+        iREstimator = faceEnginePtr.createIREstimator()
+        
+        irImage.load("testData/irWarpNonCooperative.png")
+        self.assertTrue(irImage.isValid())
+        irRestult = iREstimator.estimate(irImage)
+        self.assertTrue(irRestult.isReal)
+        self.assertAlmostEqual(irRestult.score, 0.9935, delta=0.001)
 
     def test_SmileEstimator(self):
         warper = faceEnginePtr.createWarper()

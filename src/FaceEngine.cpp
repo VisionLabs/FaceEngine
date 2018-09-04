@@ -1057,23 +1057,38 @@ PYBIND11_MODULE(FaceEngine, f) {
 				"\t\t\tif !range.isOk() range is not set.")
 					;
 
+	// IREstimation
+	py::class_<fsdk::IREstimation>(f, "IREstimation",
+		"IR estimation output.\n"
+		"\tThese values are produced by I:ILivenessIREstimator object.")
+		.def(py::init<>())
+		.def_readwrite("isReal", &fsdk::IREstimation::isReal, "\tbool answer, the real person or not")
+		.def_readwrite("score", &fsdk::IREstimation::score, "\t score")
+		.def("__repr__",
+			 [](const fsdk::IREstimation &result) {
+				 return "isReal = " + std::to_string(result.isReal)
+						+ ", score = " + std::to_string(result.score); })
+				;
+
 	py::class_<fsdk::ILivenessIREstimatorPtr>(f, "ILivenessIREstimatorPtr",
-		"Infra red liveness estimator interface.\n"
+		"Infra-red liveness estimator interface.\n"
 		"\tThis estimator is designed for face analysis using infra red facial warp (8-bit 1 channel) image.\n"
 		"\tIWarper for details.")
-
 		.def("estimate",[](
 			const fsdk::ILivenessIREstimatorPtr& est,
 			const fsdk::Image& irWarp) {
-			fsdk::ResultValue<fsdk::FSDKError,float> err = est->estimate(irWarp);
-				return FSDKErrorValueFloat(err); },
-				"Check whether or not infrared warp corresponds to the real person..\n"
+			fsdk::IREstimation irEstimation;
+			fsdk::Result<fsdk::FSDKError> err = est->estimate(irWarp, irEstimation);
+			if (err.isOk())
+				return py::cast(irEstimation);
+			else
+				return py::cast(FSDKErrorResult(err)); },
+				"Check whether or not infrared warp corresponds to the real person.\n"
 				"\tArgs\n"
 				"\t\tparam1 (Image): irWarp infra red face warp\n"
 				"\tReturns:\n"
-				"\t\t(FSDKErrorValueFloat): ResultValue with error code and score of estimation.\n"
-				"\t\t\testimation score normalized between 0.0 and 1.0,\n"
-				"\t\t\twhere 1.0 equals to 100% confidence that person on image is alive, and 0.0 equals to 0%.")
+				"\t\t(IREstimation): if OK - return irEstimation\n"
+				"\t\t\t(FSDKErrorResult): else - Error code.\n")
 					;
 
 	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr",
@@ -1134,7 +1149,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"Eye estimator detects:\n"
 		"\teyes state;\n"
 		"\tlandmarks describing iris.\n"
-		"See EyeEstimation for output details."
+		"See EyesEstimation for output details."
 		"More detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 
 		.def("estimate",[](
@@ -1153,7 +1168,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\t\tparam2 (Landmarks5): landmarks5 landmark of size 5 used to warp image, "
 				 "must be in warped image coordinates. @see IWarper\n"
 				 "\tReturns:\n"
-				 "\t\t(EyeEstimation): if OK - return eye estimation\n"
+				 "\t\t(EyesEstimation): if OK - return eye estimation\n"
 				 "\t\t(FSDKErrorResult): else - Error code")
 
 		.def("estimate",[](
@@ -1172,7 +1187,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\t\tparam2 (Landmarks68): landmark of size 68 used to warp image, must be "
 					 "in warped image coordinates.\n"
 				 "\tReturns:\n"
-				 "\t\t(EyeEstimation): if OK - return eye estimation"
+				 "\t\t(EyesEstimation): if OK - return eye estimation"
 				 "\t\t(FSDKErrorResult): else - Error code")
 					;
 
@@ -1204,7 +1219,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 	py::class_<fsdk::IGazeEstimatorPtr>(f, "IGazeEstimatorPtr",
 		"Gaze estimator interface.\n"
 		"\tThis estimator is designed to work with 68 facial landmarks, HeadPoseEstimation\n"
-		"\t(see IHeadPoseEstimator) and EyeEstimations of both eyes (@see IEyeEstimator).\n"
+		"\t(see IHeadPoseEstimator) and EyesEstimations of both eyes (@see IEyeEstimator).\n"
 		"\tsee GazeEstimation structure for details about how exactly the estimations are reported.\n"
 		"\tInput points should be relative to the same coordinate system. Best results are achieved\n"
 		"\tif coordinate system is tied to image on which input data was retrieved.")
@@ -1221,7 +1236,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "Estimate the eye angles.\n"
 				 "\tArgs\n"
 				 "\t\tparam1 (HeadPoseEstimation): HeadPoseEstimation calculated using landmarks68.\n"
-				 "\t\tparam2 (EyeEstimation): EyeEstimation of eyes.\n"
+				 "\t\tparam2 (EyesEstimation): EyesEstimation of eyes.\n"
 				 "\tReturns:\n"
 				 "\t\t(GazeEstimation): if OK - output estimation; @see GazeEstimation.\n"
 				 "\t\t(FSDKErrorResult): else - error code")
@@ -1661,7 +1676,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 })
 				;
 	f.def("loadImage", &loadImage, "used only for depth test");
-//	EyeEstimation
+
+	// EyesEstimation
 	py::class_<fsdk::EyesEstimation>(f, "EyesEstimation",
 		"Eyes estimation output.\n"
 		"\tThese values are produced by IEyeEstimator object.")
