@@ -286,16 +286,16 @@ class TestFaceEngineRect(unittest.TestCase):
 
     def test_EyeEstimator(self):
         eyeEstimator = faceEnginePtr.createEyeEstimator()
-        def testImage(diff, refLeftState, refRightState):
+        def testImage(landmarksCount, refLeftState, refRightState):
 
             reference = f.EyesEstimation()
-
-            lm68Path = "testData/eyes/image_06" + diff + "_wlm.txt"
-            imagePath = "testData/eyes/image_06" + diff + "_WARP.png"
-            irisLeft = "testData/eyes/image_06" + diff + "_0_iris.pts"
-            irisRight = "testData/eyes/image_06" + diff + "_1_iris.pts"
-            eyelidLeft = "testData/eyes/image_06" + diff + "_0_eyelid.pts"
-            eyelidRight = "testData/eyes/image_06" + diff + "_1_eyelid.pts"
+            landmarksCountStr = str(landmarksCount)
+            lm68Path = "testData/eyes/image_" + landmarksCountStr + "_wlm.txt"
+            imagePath = "testData/eyes/image_WARP.png"
+            irisLeft = "testData/eyes/image_" + landmarksCountStr + "_0_iris.pts"
+            irisRight = "testData/eyes/image_" + landmarksCountStr + "_1_iris.pts"
+            eyelidLeft = "testData/eyes/image_" + landmarksCountStr + "_0_eyelid.pts"
+            eyelidRight = "testData/eyes/image_" + landmarksCountStr + "_1_eyelid.pts"
 
             landmarks68_eyes = f.Landmarks68()
             warp = f.Image()
@@ -357,7 +357,7 @@ class TestFaceEngineRect(unittest.TestCase):
                 self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
                 self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
 
-        testImage("9", f.State.Open, f.State.Open)
+        testImage(68, f.State.Open, f.State.Open)
 
 
     def test_EmotionsEstimator(self):

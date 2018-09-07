@@ -1060,7 +1060,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 	// IREstimation
 	py::class_<fsdk::IREstimation>(f, "IREstimation",
 		"IR estimation output.\n"
-		"\tThese values are produced by I:ILivenessIREstimator object.")
+		"\tThese values are produced by ILivenessIREstimator object.")
 		.def(py::init<>())
 		.def_readwrite("isReal", &fsdk::IREstimation::isReal, "\tbool answer, the real person or not")
 		.def_readwrite("score", &fsdk::IREstimation::score, "\t score")
