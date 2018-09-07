@@ -2018,6 +2018,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 	py::enum_<fsdk::ObjectDetectorClassType>(f, "ObjectDetectorClassType", py::arithmetic(), "Object detector type enumeration.")
 		.value("ODT_MTCNN", fsdk::ODT_MTCNN, "MTCNN detector type")
+		.value("ODT_MTCNN_MINI", fsdk::ODT_MTCNN_MINI, "ODT_MTCNN_MINI detector type")
 		.value("ODT_COUNT", fsdk::ODT_COUNT, "Detector type count")
 		.export_values();
 			;
