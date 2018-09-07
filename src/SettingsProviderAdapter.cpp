@@ -9,7 +9,7 @@ PyISettingsProvider::PyISettingsProvider(const char* path = nullptr) {
 }
 
 const char* PyISettingsProvider::getDefaultPath() {
-	settingsProviderPtr->getDefaultPath();
+	return settingsProviderPtr->getDefaultPath();
 }
 
 SettingsProviderResult PyISettingsProvider::load(const char* path) {

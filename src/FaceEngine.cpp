@@ -1060,7 +1060,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 	// IREstimation
 	py::class_<fsdk::IREstimation>(f, "IREstimation",
 		"IR estimation output.\n"
-		"\tThese values are produced by I:ILivenessIREstimator object.")
+		"\tThese values are produced by ILivenessIREstimator object.")
 		.def(py::init<>())
 		.def_readwrite("isReal", &fsdk::IREstimation::isReal, "\tbool answer, the real person or not")
 		.def_readwrite("score", &fsdk::IREstimation::score, "\t score")
@@ -2018,6 +2018,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 	py::enum_<fsdk::ObjectDetectorClassType>(f, "ObjectDetectorClassType", py::arithmetic(), "Object detector type enumeration.")
 		.value("ODT_MTCNN", fsdk::ODT_MTCNN, "MTCNN detector type")
+		.value("ODT_MTCNN_MINI", fsdk::ODT_MTCNN_MINI, "ODT_MTCNN_MINI detector type")
 		.value("ODT_COUNT", fsdk::ODT_COUNT, "Detector type count")
 		.export_values();
 			;
