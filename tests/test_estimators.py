@@ -121,8 +121,8 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(image.isValid())
         attribute_result = attributeEstimator.estimate(image)
         self.assertEqual(attribute_result.gender, 0.0)
-        self.assertAlmostEqual(attribute_result.glasses, 0.011, delta=0.01)
-        self.assertEqual(attribute_result.age, 55.0)
+        self.assertEqual(attribute_result.glasses, 0.0)
+        self.assertAlmostEqual(attribute_result.age, 60.44, delta=0.1)
 
     def test_QualityEstimator(self):
         qualityEstimator = faceEnginePtr.createQualityEstimator()
