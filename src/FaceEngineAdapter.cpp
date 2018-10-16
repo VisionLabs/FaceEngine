@@ -147,6 +147,23 @@ fsdk::IGazeEstimatorPtr PyIFaceEngine::createGazeEstimator() {
 	return gazeEstimatorPtr;
 }
 
+fsdk::IIndexBuilderPtr PyIFaceEngine::createIndexBuilder() {
+	fsdk::IIndexBuilderPtr indexBuilderPtr = fsdk::acquire(faceEnginePtr->createIndexBuilder());
+	if (!indexBuilderPtr)
+		throw py::cast_error("\nFailed to create indexBuilder instance! VERIFY PATH to \"data\" directory!");
+	return indexBuilderPtr;
+}
+
+fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndex*> PyIFaceEngine::loadDenseIndex(
+	const char* indexPath) {
+	return faceEnginePtr->loadDenseIndex(indexPath);
+}
+
+fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndex*> PyIFaceEngine::loadDynamicIndex(
+	const char* indexPath) {
+	return faceEnginePtr->loadDynamicIndex(indexPath);
+}
+
 void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }
@@ -155,7 +172,7 @@ void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 fsdk::Image loadImage(const char* name) {
 	std::ifstream file(name, std::ios::in|std::ios::binary);
 
-	int channels =0;
+	int channels = 0;
 	int elementSize = 0;
 	int rows = 0;
 	int cols = 0;

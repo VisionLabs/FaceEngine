@@ -341,6 +341,24 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 		.def("createExtractor", &PyIFaceEngine::createExtractor, "Creates descriptor extractor\n")
 		.def("createMatcher", &PyIFaceEngine::createMatcher, "Creates descriptor matcher\n")
+
+		// Index
+		.def("createIndexBuilder", &PyIFaceEngine::createIndexBuilder, "Creates index builder.\n")
+	
+		.def("loadDenseIndex", &PyIFaceEngine::loadDenseIndex,
+			"Loads dense index.\n"
+			"\t\t Only indexes saved as dense are to be loaded as dense.\n"
+			"\tArgs:\n"
+			"\t\t param1 (str): indexPath Path to index to be loaded.\n"
+			"\t\t @Returns \n")
+
+		.def("loadDynamicIndex", &PyIFaceEngine::loadDynamicIndex,
+			 "Loads dynamic index.\n"
+			 "\t\t Only indexes saved as dynamic are to be loaded as dynamic.\n"
+			 "\tArgs:\n"
+			 "\t\t param1 (str): indexPath Path to index to be loaded.\n"
+			 "\t\t @Returns \n")
+	
 		.def("setSettingsProvider", &PyIFaceEngine::setSettingsProvider,
 			"Sets settings provider\n"
 			"\tArgs:\n"
@@ -465,7 +483,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 			; // SettingsProviderValue
 
 	py::class_<fsdk::IFaceEnginePtr>(f, "IFaceEnginePtr");
-
+	
+	// Index
+//	py::class_<fsdk::IStaticDescriptorStoragePtr>(f, "IStaticDescriptorStoragePtr");
+//	py::class_<fsdk::IDynamicDescriptorStoragePtr>(f, "IDynamicDescriptorStoragePtr");
+	py::class_<fsdk::IIndexPtr>(f, "IIndexPtr");
+	py::class_<fsdk::IDenseIndexPtr>(f, "IDenseIndexPtr");
+	py::class_<fsdk::IDynamicIndexPtr>(f, "IDynamicIndexPtr");
+	py::class_<fsdk::IIndexBuilderPtr>(f, "IIndexBuilderPtr");
+	
+	
 	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr", "Image quality estimator interface.\n"
 		"This estimator is designed to work with a person face image; you should pass a warped face detection image.\n"
 		"Quality estimator detects the same attributes as all the other estimators:\n"
@@ -1255,6 +1282,23 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 [](const fsdk::MatchingResult &result) {
 				 return "distance = " + std::to_string(result.distance)
 						+ ", similarity = " + std::to_string(result.similarity); })
+			;
+	
+	py::class_<fsdk::SearchResult>(f, "SearchResult", "Result of index search.")
+		.def(py::init<>(), "Default constructor.")
+		.def(py::init<float, float, fsdk::DescriptorId>(),
+			 "Construct structure with parameters.\n"
+			 "\tArgs\n"
+			 "\t\tparam1 (float): Distance between descriptors.\n"
+			 "\t\tparam2 (float): Similarity between descriptors.\n"
+			 "\t\tparam3 (int): Index of found descriptors in some storage.\n")
+		.def_readwrite("distance", &fsdk::SearchResult::distance)
+		.def_readwrite("similarity", &fsdk::SearchResult::similarity)
+		.def("__repr__",
+			 [](const fsdk::SearchResult &result) {
+				 return "distance = " + std::to_string(result.distance)
+						+ ", similarity = " + std::to_string(result.similarity)
+						+ ", index = " + std::to_string(result.index); })
 			;
 
 	py::class_<fsdk::Landmarks5>(f, "Landmarks5",

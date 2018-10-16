@@ -47,6 +47,15 @@ public:
 	fsdk::IEmotionsEstimatorPtr createEmotionsEstimator();
 
 	fsdk::IGazeEstimatorPtr createGazeEstimator();
+	
+	fsdk::IIndexBuilderPtr createIndexBuilder();
+	
+	fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndex*> loadDenseIndex(
+	const char* indexPath);
+	
+	fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndex*> loadDynamicIndex(
+	const char* indexPath);
+	
 
 	void setSettingsProvider(PyISettingsProvider& provider);
 };
