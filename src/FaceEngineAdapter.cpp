@@ -149,6 +149,7 @@ fsdk::IGazeEstimatorPtr PyIFaceEngine::createGazeEstimator() {
 
 fsdk::IIndexBuilderPtr PyIFaceEngine::createIndexBuilder() {
 	fsdk::IIndexBuilderPtr indexBuilderPtr = fsdk::acquire(faceEnginePtr->createIndexBuilder());
+	
 	if (!indexBuilderPtr)
 		throw py::cast_error("\nFailed to create indexBuilder instance! VERIFY PATH to \"data\" directory!");
 	return indexBuilderPtr;
@@ -172,7 +173,7 @@ void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 fsdk::Image loadImage(const char* name) {
 	std::ifstream file(name, std::ios::in|std::ios::binary);
 
-	int channels = 0;
+	int channels =0;
 	int elementSize = 0;
 	int rows = 0;
 	int cols = 0;

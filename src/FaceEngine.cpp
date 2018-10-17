@@ -344,20 +344,56 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 		// Index
 		.def("createIndexBuilder", &PyIFaceEngine::createIndexBuilder, "Creates index builder.\n")
+//		.def("estimate",[](
+//			 const fsdk::IQualityEstimatorPtr& est,
+//			 const fsdk::Image &warp) {
+//				 fsdk::Quality out;
+//				 fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+//				 if (err.isOk())
+//					 return py::cast(out);
+//				 else
+//					 return py::cast(FSDKErrorResult(err)); },
+//			 "Estimate the quality. If success returns quality output structure with quality params, else error code "
+//			 "(see FSDKErrorResult for details). \n"
+//			 "\tArgs:\n"
+//			 "\t\tparam1 (Image): image with warped face. Format must be R8G8B8"
+//			 "\tReturns:\n"
+//			 "\t\t(Quality): if success - output Quality,\n"
+//			 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
 	
-		.def("loadDenseIndex", &PyIFaceEngine::loadDenseIndex,
+		.def("loadDenseIndex", [](
+			 PyIFaceEngine& faceEngine,
+			 const char* indexPath) {
+				auto res = faceEngine.loadDenseIndex(indexPath);
+				if (res.isOk() && res.getValue())
+					return py::cast(fsdk::acquire(res.getValue()));
+				else
+					return py::cast(FSDKErrorResult(res));
+			 },
 			"Loads dense index.\n"
 			"\t\t Only indexes saved as dense are to be loaded as dense.\n"
 			"\tArgs:\n"
 			"\t\t param1 (str): indexPath Path to index to be loaded.\n"
-			"\t\t @Returns \n")
+			 "\tReturns:\n"
+			 "\t\t(dense index): if success - output dense index,\n"
+			 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
 
-		.def("loadDynamicIndex", &PyIFaceEngine::loadDynamicIndex,
+		.def("loadDynamicIndex", [](
+			 PyIFaceEngine& faceEngine,
+			 const char* indexPath) {
+				 auto res = faceEngine.loadDynamicIndex(indexPath);
+				 if (res.isOk() && res.getValue())
+					 return py::cast(fsdk::acquire(res.getValue()));
+				 else
+					 return py::cast(FSDKErrorResult(res));
+			 },
 			 "Loads dynamic index.\n"
 			 "\t\t Only indexes saved as dynamic are to be loaded as dynamic.\n"
 			 "\tArgs:\n"
 			 "\t\t param1 (str): indexPath Path to index to be loaded.\n"
-			 "\t\t @Returns \n")
+			 "\tReturns:\n"
+			 "\t\t(dynamic index): if success - output dynamic index,\n"
+			 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
 	
 		.def("setSettingsProvider", &PyIFaceEngine::setSettingsProvider,
 			"Sets settings provider\n"

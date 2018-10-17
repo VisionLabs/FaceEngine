@@ -18,13 +18,8 @@ if __name__ == "__main__":
     # correct path or put directory "data" with example.py
     faceEngine = fe.createFaceEngine("data",
                                      "data/faceengine.conf")
-    # faceEngine.createIndexBuilder()
-    faceEngine.loadDenseIndex()
-    # faceEngine.loadDynamicIndex()
-    try:
-        pass
-    except Exception as ex:
-        print(type(ex).__name__, ex)
-    finally:
-        # do something here
-        pass
+    faceEngine.createIndexBuilder()
+    # res1 = faceEngine.loadDenseIndex("")
+    # print("DenseIndex", res1)
+    res2 = faceEngine.loadDynamicIndex("")
+    print("DynamicIndex", res2)
