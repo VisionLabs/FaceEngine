@@ -558,7 +558,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 					maxCount);
 				auto detectionResultPyList = py::list();
 				if (err.isOk()) {
-					for (size_t i = 0; i < maxCount; ++i) {
+					for (size_t i = 0; i < err.getValue(); ++i) {
 						detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i], landmarks68[i]));
 					}
 					return detectionResultPyList;
@@ -581,15 +581,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 const fsdk::Image& image,
 			 const fsdk::Rect& rect,
 			 int maxCount) {
-				 fsdk::Detection detections[maxCount];
+				 std::vector<fsdk::Detection> detections(maxCount);
 				 fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
 				 image,
 				 rect,
-				 detections,
+				 detections.data() ,
 				 maxCount);
 				 auto detectionResultPyList = py::list();
 				 if (err.isOk()) {
-					 for (size_t i = 0; i < maxCount; ++i) {
+					 for (size_t i = 0; i < err.getValue(); ++i) {
 						 detectionResultPyList.append(detections[i]);
 					 }
 					 return detectionResultPyList;
@@ -611,17 +611,17 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 const fsdk::Image& image,
 			 const fsdk::Rect& rect,
 			 int maxCount) {
-				 fsdk::Detection detections[maxCount];
-				 fsdk::Landmarks5 landmarks[maxCount];
+				 std::vector<fsdk::Detection> detections(maxCount);
+				 std::vector<fsdk::Landmarks5> landmarks(maxCount);
 				 fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
 				 image,
 				 rect,
-				 detections,
-				 landmarks,
+				 detections.data(),
+				 landmarks.data(),
 				 maxCount);
 				 auto detectionResultPyList = py::list();
 				 if (err.isOk()) {
-					 for (size_t i = 0; i < maxCount; ++i) {
+					 for (size_t i = 0; i < err.getValue(); ++i) {
 						 detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i]));
 					 }
 					 return detectionResultPyList;
