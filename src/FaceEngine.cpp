@@ -546,15 +546,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::Image& image,
 			const fsdk::Rect& rect,
 			uint32_t maxCount) {
-				fsdk::Detection detections[maxCount];
-				fsdk::Landmarks5 landmarks[maxCount];
-				fsdk::Landmarks68 landmarks68[maxCount];
+				std::vector<fsdk::Detection> detections(maxCount);
+				std::vector<fsdk::Landmarks5> landmarks(maxCount);
+				std::vector<fsdk::Landmarks68> landmarks68(maxCount);
 				fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
 					image,
 					rect,
-					detections,
-					landmarks,
-					landmarks68,
+					detections.data(),
+					landmarks.data(),
+					landmarks68.data(),
 					maxCount);
 				auto detectionResultPyList = py::list();
 				if (err.isOk()) {
@@ -835,16 +835,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::IDescriptorBatchPtr& descriptorBatch,
 			const fsdk::IDescriptorPtr& aggregation,
 			uint32_t batchSize) {
-				float garbageScoreBatch[batchSize];
-				fsdk::Image warpsBatch [batchSize];
+				std::vector<float> garbageScoreBatch(batchSize);
+				std::vector<fsdk::Image> warpsBatch(batchSize);
 				for (size_t i = 0; i < batchSize; ++i) {
 					warpsBatch[i] = warpsBatchList[i].cast<fsdk::Image>();
 				}
 				fsdk::Result<fsdk::FSDKError> err = extractor->extractFromWarpedImageBatch(
-						warpsBatch,
+						warpsBatch.data(),
 						descriptorBatch,
 						aggregation,
-						garbageScoreBatch,
+						garbageScoreBatch.data(),
 						batchSize);
 				auto garbagePyList = py::list();
 				if (err.isOk()) {
@@ -876,15 +876,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			py::list warpsBatchList,
 			const fsdk::IDescriptorBatchPtr& descriptorBatch,
 			uint32_t batchSize) {
-				float garbageScoreBatch[batchSize];
-				fsdk::Image warpsBatch [batchSize];
+				std::vector<float> garbageScoreBatch(batchSize);
+				std::vector<fsdk::Image> warpsBatch(batchSize);
 				for (size_t i = 0; i < batchSize; ++i) {
 					warpsBatch[i] = warpsBatchList[i].cast<fsdk::Image>();
 				}
 				fsdk::Result<fsdk::FSDKError> err = extractor->extractFromWarpedImageBatch(
-					warpsBatch,
+					warpsBatch.data(),
 					descriptorBatch,
-					garbageScoreBatch,
+					garbageScoreBatch.data(),
 					batchSize);
 				auto garbagePyList = py::list();
 				if (err.isOk()) {
@@ -941,9 +941,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::IDescriptorMatcherPtr& matcherPtr,
 			const fsdk::IDescriptorPtr& reference,
 			const fsdk::IDescriptorBatchPtr& candidates) {
-			fsdk::MatchingResult results[candidates->getCount()];
+			std::vector<fsdk::MatchingResult> results(candidates->getCount());
 			fsdk::Result<fsdk::FSDKError> err =
-				matcherPtr->match(reference, candidates, results);
+				matcherPtr->match(reference, candidates, results.data());
 				auto resultsPyList = py::list();
 				if (err.isOk()) {
 					for (const auto& it: results) {
@@ -1124,12 +1124,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::Image& small,
 			py::list framesPyList) {
 			uint32_t length = py::len(framesPyList);
-				fsdk::Image frames [length];
+				std::vector<fsdk::Image> frames(length);
 				for (size_t i = 0; i < length; ++i) {
 					frames[i] = framesPyList[i].cast<fsdk::Image>();
 				}
 				double score = 0.0;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(small, frames, length, score);
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(small, frames.data(), length, score);
 				if (err.isOk())
 					return py::cast(score);
 				else
