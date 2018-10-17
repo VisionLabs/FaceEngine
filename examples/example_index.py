@@ -19,7 +19,7 @@ if __name__ == "__main__":
     faceEngine = fe.createFaceEngine("data",
                                      "data/faceengine.conf")
     faceEngine.createIndexBuilder()
-    # res1 = faceEngine.loadDenseIndex("")
+    res1 = faceEngine.loadDenseIndex("")
     # print("DenseIndex", res1)
     res2 = faceEngine.loadDynamicIndex("")
     print("DynamicIndex", res2)

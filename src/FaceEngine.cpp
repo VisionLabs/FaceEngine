@@ -344,22 +344,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 		// Index
 		.def("createIndexBuilder", &PyIFaceEngine::createIndexBuilder, "Creates index builder.\n")
-//		.def("estimate",[](
-//			 const fsdk::IQualityEstimatorPtr& est,
-//			 const fsdk::Image &warp) {
-//				 fsdk::Quality out;
-//				 fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
-//				 if (err.isOk())
-//					 return py::cast(out);
-//				 else
-//					 return py::cast(FSDKErrorResult(err)); },
-//			 "Estimate the quality. If success returns quality output structure with quality params, else error code "
-//			 "(see FSDKErrorResult for details). \n"
-//			 "\tArgs:\n"
-//			 "\t\tparam1 (Image): image with warped face. Format must be R8G8B8"
-//			 "\tReturns:\n"
-//			 "\t\t(Quality): if success - output Quality,\n"
-//			 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
 	
 		.def("loadDenseIndex", [](
 			 PyIFaceEngine& faceEngine,
@@ -401,7 +385,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\tparam1 (PyISettingsProvider): setting provider\n")
 			;
 
-// 		ISettingsProvider
+ 		// ISettingsProvider
 	py::class_<PyISettingsProvider>(f, "PyISettingsProvider")
 		.def("getDefaultPath", &PyISettingsProvider::getDefaultPath, "Get settings path this provider is bound to.\n"
 			"\tThis is the same path that was given to load().\n"
@@ -523,9 +507,63 @@ PYBIND11_MODULE(FaceEngine, f) {
 	// Index
 //	py::class_<fsdk::IStaticDescriptorStoragePtr>(f, "IStaticDescriptorStoragePtr");
 //	py::class_<fsdk::IDynamicDescriptorStoragePtr>(f, "IDynamicDescriptorStoragePtr");
-	py::class_<fsdk::IIndexPtr>(f, "IIndexPtr");
+	py::class_<fsdk::IIndexPtr>(f, "IIndexPtr")
+		.def("search", [](
+				const fsdk::IIndexPtr& indexPtr,
+				const fsdk::IDescriptor* reference,
+				const int maxResultsCount) {
+					std::vector<fsdk::SearchResult> searchResults(maxResultsCount);
+					fsdk::ResultValue<fsdk::FSDKError, int> err = indexPtr->search(
+						reference,
+						maxResultsCount,
+						searchResults.data());
+					auto searchResultsPyList = py::list();
+					if (err.isOk()) {
+						const uint32_t searchSize = err.getValue();
+						for (uint32_t i = 0; i < searchSize; ++i)
+							searchResultsPyList.append(searchResults[i]);
+						return searchResultsPyList;
+					} else {
+						searchResultsPyList.append(py::cast(FSDKErrorValueInt(err)));
+						return searchResultsPyList; }
+				},  "Search for descriptors with the shorter distance to passed descriptor.\n"
+		"\tArgs:\n"
+		"\t\tparam1 (IDescriptorPtr): Descriptor to match against index.\n"
+		"\t\tparam2 (int): Maximum count of results. It is upper bound value, it\n"
+		"\t\tdoes not guarantee to return exactly this amount of results.\n"
+		"\tReturns:\n"
+		"\t\t(list of SearchResults): if success - list of SearchResults\n"
+		"\t\t(FSDKErrorValueInt wrapped in list): else - error code and count of found descriptors wrapped in list, "
+		"see FSDKErrorValueInt\n")
+			;
 	py::class_<fsdk::IDenseIndexPtr>(f, "IDenseIndexPtr");
-	py::class_<fsdk::IDynamicIndexPtr>(f, "IDynamicIndexPtr");
+	
+	py::class_<fsdk::IDynamicIndexPtr>(f, "IDynamicIndexPtr")
+		.def("saveToDenseIndex", [](const fsdk::IDynamicIndexPtr& dynamicIndex, const char* path) {
+			fsdk::Result<fsdk::FSDKError> err = dynamicIndex->saveToDenseIndex(path);
+			return FSDKErrorResult(err);
+			}, "Saves index as dense. To load saved index use @see loadDenseIndex method.\n"
+			"\tDense index cannot be loaded as dynamic.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (str): Path to file to be created and filled with index data.\n"
+			"\t\tAny extension is acceptable.\n"
+			"\tReturns:\n"
+			"\t\t(FSDKErrorResult): One of the error codes specified by FSDKErrorResult\n")
+		.def("saveToDynamicIndex", [](const fsdk::IDynamicIndexPtr& indexPtr, const char* path) {
+			fsdk::Result<fsdk::FSDKError> err = indexPtr->saveToDynamicIndex(path);
+			return FSDKErrorResult(err);
+			}, "Saves index as dynamic. To load saved index use @see loadDynamicIndex method.\n"
+			 "\tDynamic index cannot be loaded as dense.\n"
+			 "\tArgs:\n"
+			 "\t\tparam1 (str): Path to file to be created and filled with index data.\n"
+			 "\t\tAny extension is acceptable.\n"
+			 "\tReturns:\n"
+			 "\t\t(FSDKErrorResult): One of the error codes specified by FSDKErrorResult\n")
+		.def("countOfIndexedDescriptors", [](const fsdk::IDynamicIndexPtr& dynamicIndex){
+				return dynamicIndex->countOfIndexedDescriptors();
+			}, "Returns count of indexed descriptors.\n"
+		"\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+				;
 	py::class_<fsdk::IIndexBuilderPtr>(f, "IIndexBuilderPtr");
 	
 	
