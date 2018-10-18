@@ -1972,6 +1972,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 			fsdk::Result<fsdk::Image::Error> error = image.load(path, fsdk::Format(type));
 			return ImageErrorResult(error);
 			})
+		.def("loadFromMemory", [](fsdk::Image& image, py::bytes bytes) {
+			uint32_t sizeInBytes = py::len(bytes);
+			const std::string str = std::string(bytes);
+			image.loadFromMemory(str.data(), sizeInBytes);
+		})
 				;
 
 	py::enum_<fsdk::Image::Type>(f, "ImageType",

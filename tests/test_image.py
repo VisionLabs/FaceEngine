@@ -3,6 +3,7 @@ import unittest
 import argparse
 import sys
 import os
+from ctypes import *
 import numpy as np
 
 
@@ -126,6 +127,20 @@ class TestFaceEngineImage(unittest.TestCase):
         image_np3 = test_image2.getData()
         self.assertTrue(np.array_equal(image_np3, image_np1))
         self.assertFalse(np.array_equal(image_np3, image_np2_4_channels))
+    def test_load_from_memory(self):
+        with open("testData/6big.ppm", 'rb') as file:
+            data = file.read()
+            test_image1 = f.Image()
+            test_image1.loadFromMemory(data)
+            test_image2 = f.Image()
+            test_image2.load("testData/6big.ppm")
+            self.assertTrue(np.array_equal(test_image1.getData(), test_image2.getData()))
+            self.assertTrue(test_image1.getWidth(), test_image2.getWidth())
+            self.assertTrue(test_image1.getHeight(), test_image2.getHeight())
+            self.assertTrue(test_image1.isValid(), test_image2.isValid())
+            self.assertTrue(np.array_equal(test_image1.getData(), test_image2.getData()))
+            file.close()
+
     def test_save(self):
         self.assertTrue(os.path.isfile(new_file_path))
         self.assertEqual(save_error.isOk, 1)

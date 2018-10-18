@@ -3,6 +3,7 @@ import re
 import sys
 import platform
 import subprocess
+from os import environ
 
 
 from setuptools import setup, Extension
@@ -34,7 +35,11 @@ class CMakeBuild(build_ext):
 
     def build_extension(self, ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
-        path_to_fsdk = os.path.split(os.path.realpath(__file__))[0] + '/..'
+	path_to_fsdk = ""
+        if environ.get('FSDK_ROOT') is not None:
+                path_to_fsdk = environ.get('FSDK_ROOT')
+        else:
+                path_to_fsdk = os.path.split(os.path.realpath(__file__))[0] + '/..'
         print("Default path to LUNA SDK: {0}, you could try to change it".format(path_to_fsdk))
         cmake_args = ['-DFSDK_ROOT=' + path_to_fsdk,'-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
