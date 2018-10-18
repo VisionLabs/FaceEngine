@@ -28,6 +28,9 @@ auto getChannelCount = [](fsdk::Format t) {
 
 namespace py = pybind11;
 
+const char* convertToChar(const char* bytes) {
+	return bytes;
+}
 
 PyIFaceEngine createPyFaceEnginePtr(const char* dataPath = nullptr, const char* configPath = nullptr) {
 	return PyIFaceEngine(dataPath, configPath);
@@ -1972,10 +1975,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			fsdk::Result<fsdk::Image::Error> error = image.load(path, fsdk::Format(type));
 			return ImageErrorResult(error);
 			})
-		.def("loadFromMemory", [](fsdk::Image& image, py::bytes bytes) {
-			uint32_t sizeInBytes = py::len(bytes);
-			const std::string str = std::string(bytes);
-			image.loadFromMemory(str.data(), sizeInBytes);
+		.def("loadFromMemory", [](fsdk::Image& image, const char* bytes, int sizeInBytes) {
+			image.loadFromMemory(bytes, sizeInBytes);
 		})
 				;
 
