@@ -350,9 +350,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 const char* indexPath) {
 				auto res = faceEngine.loadDenseIndex(indexPath);
 				 if (res.isOk())
-					 return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::acquire(res.getValue()));
+					 return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::acquire(res.getValue()));
 				 else
-					 return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::IDenseIndexPtr());
+					 return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::IDenseIndexPtr());
 			 },
 			"Loads dense index.\n"
 			"\t\t Only indexes saved as dense are to be loaded as dense.\n"
@@ -366,9 +366,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 const char* indexPath) {
 				 auto res = faceEngine.loadDynamicIndex(indexPath);
 				if (res.isOk())
-					return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::acquire(res.getValue()));
+					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::acquire(res.getValue()));
 				else
-					return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::IDynamicIndexPtr());
+					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::IDynamicIndexPtr());
 			 },
 			 "Loads dynamic index.\n"
 			 "\t\t Only indexes saved as dynamic are to be loaded as dynamic.\n"
