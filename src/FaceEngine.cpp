@@ -28,10 +28,6 @@ auto getChannelCount = [](fsdk::Format t) {
 
 namespace py = pybind11;
 
-const char* convertToChar(const char* bytes) {
-	return bytes;
-}
-
 PyIFaceEngine createPyFaceEnginePtr(const char* dataPath = nullptr, const char* configPath = nullptr) {
 	return PyIFaceEngine(dataPath, configPath);
 }
@@ -562,7 +558,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 					maxCount);
 				auto detectionResultPyList = py::list();
 				if (err.isOk()) {
-					for (size_t i = 0; i < err.getValue(); ++i) {
+					for (uint32_t i = 0; i < err.getValue(); ++i) {
 						detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i], landmarks68[i]));
 					}
 					return detectionResultPyList;
@@ -587,13 +583,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 int maxCount) {
 				 std::vector<fsdk::Detection> detections(maxCount);
 				 fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
-				 image,
-				 rect,
-				 detections.data() ,
-				 maxCount);
+					 image,
+					 rect,
+					 detections.data() ,
+					 maxCount);
 				 auto detectionResultPyList = py::list();
 				 if (err.isOk()) {
-					 for (size_t i = 0; i < err.getValue(); ++i) {
+					 for (uint32_t i = 0; i < err.getValue(); ++i) {
 						 detectionResultPyList.append(detections[i]);
 					 }
 					 return detectionResultPyList;
@@ -618,14 +614,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 std::vector<fsdk::Detection> detections(maxCount);
 				 std::vector<fsdk::Landmarks5> landmarks(maxCount);
 				 fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
-				 image,
-				 rect,
-				 detections.data(),
-				 landmarks.data(),
-				 maxCount);
+					 image,
+					 rect,
+					 detections.data(),
+					 landmarks.data(),
+					 maxCount);
 				 auto detectionResultPyList = py::list();
 				 if (err.isOk()) {
-					 for (size_t i = 0; i < err.getValue(); ++i) {
+					 for (uint32_t i = 0; i < err.getValue(); ++i) {
 						 detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i]));
 					 }
 					 return detectionResultPyList;
@@ -904,7 +900,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			uint32_t batchSize) {
 				std::vector<float> garbageScoreBatch(batchSize);
 				std::vector<fsdk::Image> warpsBatch(batchSize);
-				for (size_t i = 0; i < batchSize; ++i) {
+				for (uint32_t i = 0; i < batchSize; ++i) {
 					warpsBatch[i] = warpsBatchList[i].cast<fsdk::Image>();
 				}
 				fsdk::Result<fsdk::FSDKError> err = extractor->extractFromWarpedImageBatch(
@@ -915,7 +911,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 						batchSize);
 				auto garbagePyList = py::list();
 				if (err.isOk()) {
-					for (size_t i = 0; i < batchSize; ++i) {
+					for (uint32_t i = 0; i < batchSize; ++i) {
 						garbagePyList.append(garbageScoreBatch[i]);
 					}
 					return garbagePyList;
@@ -945,7 +941,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			uint32_t batchSize) {
 				std::vector<float> garbageScoreBatch(batchSize);
 				std::vector<fsdk::Image> warpsBatch(batchSize);
-				for (size_t i = 0; i < batchSize; ++i) {
+				for (uint32_t i = 0; i < batchSize; ++i) {
 					warpsBatch[i] = warpsBatchList[i].cast<fsdk::Image>();
 				}
 				fsdk::Result<fsdk::FSDKError> err = extractor->extractFromWarpedImageBatch(
@@ -953,9 +949,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 					descriptorBatch,
 					garbageScoreBatch.data(),
 					batchSize);
-				auto garbagePyList = py::list();
+				 py::list garbagePyList;
 				if (err.isOk()) {
-					for (size_t i = 0; i < batchSize; ++i) {
+					for (uint32_t i = 0; i < batchSize; ++i) {
 						garbagePyList.append(garbageScoreBatch[i]);
 					}
 					return garbagePyList;
@@ -1009,7 +1005,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::IDescriptorPtr& reference,
 			const fsdk::IDescriptorBatchPtr& candidates) {
 			std::vector<fsdk::MatchingResult> results(candidates->getCount());
-			fsdk::Result<fsdk::FSDKError> err =
+				fsdk::Result<fsdk::FSDKError> err =
 				matcherPtr->match(reference, candidates, results.data());
 				auto resultsPyList = py::list();
 				if (err.isOk()) {
@@ -1189,14 +1185,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("estimate",[](
 			const fsdk::ILivenessFlowEstimatorPtr& est,
 			const fsdk::Image& small,
-			py::list framesPyList) {
-			uint32_t length = py::len(framesPyList);
-				std::vector<fsdk::Image> frames(length);
-				for (size_t i = 0; i < length; ++i) {
-					frames[i] = framesPyList[i].cast<fsdk::Image>();
-				}
+			std::vector<fsdk::Image> framesPyList) {
 				double score = 0.0;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(small, frames.data(), length, score);
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(small, framesPyList.data(), framesPyList.size(), score);
 				if (err.isOk())
 					return py::cast(score);
 				else

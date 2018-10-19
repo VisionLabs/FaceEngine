@@ -70,6 +70,7 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(image.getWidth(), loaded_image.getWidth(), 250)
         self.assertEqual(image.isValid(), loaded_image.isValid())
         self.assertEqual(image.getRect(), loaded_image.getRect())
+
     def test_get_data_identity(self):
         image_np = image.getData()
         w, h, c = image_np.shape
@@ -107,6 +108,7 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(image_temp.getHeight(), h)
         self.assertEqual(image_temp.getWidth(), w)
         self.assertEqual(image_temp.getChannelCount(), c)
+
     def test_set_data(self):
         print("Tests for image.setData are enabled.")
         test_image1 = f.Image()
@@ -127,6 +129,7 @@ class TestFaceEngineImage(unittest.TestCase):
         image_np3 = test_image2.getData()
         self.assertTrue(np.array_equal(image_np3, image_np1))
         self.assertFalse(np.array_equal(image_np3, image_np2_4_channels))
+
     def test_load_from_memory(self):
         with open("testData/6big.ppm", 'rb') as file:
             data = file.read()
@@ -140,6 +143,7 @@ class TestFaceEngineImage(unittest.TestCase):
             self.assertTrue(test_image1.getHeight(), test_image2.getHeight())
             self.assertTrue(test_image1.isValid(), test_image2.isValid())
             self.assertTrue(np.array_equal(test_image1.getData(), test_image2.getData()))
+
     def test_load_from_memory_format(self):
         with open("testData/6big.ppm", 'rb') as file:
             data = file.read()
@@ -153,6 +157,7 @@ class TestFaceEngineImage(unittest.TestCase):
             self.assertTrue(test_image1.getHeight(), test_image2.getHeight())
             self.assertTrue(test_image1.isValid(), test_image2.isValid())
             self.assertTrue(np.array_equal(test_image1.getData(), test_image2.getData()))
+
     def test_save(self):
         self.assertTrue(os.path.isfile(new_file_path))
         self.assertEqual(save_error.isOk, 1)
