@@ -659,7 +659,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 					maxCount);
 				auto detectionResultPyList = py::list();
 				if (err.isOk()) {
-					for (uint32_t i = 0; i < err.getValue(); ++i) {
+					for (uint32_t i = 0; i < (uint32_t)err.getValue(); ++i) {
 						detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i], landmarks68[i]));
 					}
 					return detectionResultPyList;
@@ -690,7 +690,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 					 maxCount);
 				 auto detectionResultPyList = py::list();
 				 if (err.isOk()) {
-					 for (uint32_t i = 0; i < err.getValue(); ++i) {
+					 for (uint32_t i = 0; i < (uint32_t)err.getValue(); ++i) {
 						 detectionResultPyList.append(detections[i]);
 					 }
 					 return detectionResultPyList;
@@ -722,7 +722,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 					 maxCount);
 				 auto detectionResultPyList = py::list();
 				 if (err.isOk()) {
-					 for (uint32_t i = 0; i < err.getValue(); ++i) {
+					 for (uint32_t i = 0; i < (uint32_t)err.getValue(); ++i) {
 						 detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i]));
 					 }
 					 return detectionResultPyList;
