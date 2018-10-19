@@ -1976,7 +1976,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			return ImageErrorResult(error);
 			})
 		.def("loadFromMemory", [](fsdk::Image& image, const char* bytes, int sizeInBytes) {
-			image.loadFromMemory(bytes, sizeInBytes);
+			fsdk::Result<fsdk::Image::Error> error = image.loadFromMemory(bytes, sizeInBytes);
+			return ImageErrorResult(error);
 		})
 				;
 

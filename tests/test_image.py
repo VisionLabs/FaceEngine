@@ -131,7 +131,8 @@ class TestFaceEngineImage(unittest.TestCase):
         with open("testData/6big.ppm", 'rb') as file:
             data = file.read()
             test_image1 = f.Image()
-            test_image1.loadFromMemory(data, len(data))
+            err = test_image1.loadFromMemory(data, len(data))
+            self.assertTrue(err.isOk)
             test_image2 = f.Image()
             test_image2.load("testData/6big.ppm")
             self.assertTrue(np.array_equal(test_image1.getData(), test_image2.getData()))
