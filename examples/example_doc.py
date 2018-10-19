@@ -234,6 +234,7 @@ print(fe.Image.getHeight.__doc__)
 print(fe.Image.isValid.__doc__)
 print(fe.Image.save.__doc__)
 print(fe.Image.load.__doc__)
+print(fe.Image.loadFromMemory.__doc__)
 print(fe.Image.getRect.__doc__)
 print(fe.ImageType.__doc__)
 
