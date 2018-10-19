@@ -534,6 +534,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"\t\t(FSDKErrorValueInt wrapped in list): else - error code and count of found descriptors wrapped in list, "
 		"see FSDKErrorValueInt\n")
 			;
+	
 	py::class_<fsdk::IDenseIndexPtr>(f, "IDenseIndexPtr");
 	
 	py::class_<fsdk::IDynamicIndexPtr>(f, "IDynamicIndexPtr")
@@ -562,8 +563,29 @@ PYBIND11_MODULE(FaceEngine, f) {
 			}, "Returns count of indexed descriptors.\n"
 		"\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 				;
-	py::class_<fsdk::IIndexBuilderPtr>(f, "IIndexBuilderPtr");
 	
+	py::class_<fsdk::IIndexBuilderPtr>(f, "IIndexBuilderPtr")
+		.def("buildIndex", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr,
+					const fsdk::IProgressTracker* const progressTracker) {
+			auto res = indexBuilderPtr->buildIndex(progressTracker);
+			if (res.isOk())
+				return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::acquire(res.getValue()));
+			else
+				return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::IDynamicIndexPtr());
+		}, "")
+		.def("buildIndexAsync", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr,
+					const fsdk::IProgressTracker* const progressTracker) {
+			auto res = indexBuilderPtr->buildIndex(progressTracker);
+			if (res.isOk())
+				return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::acquire(res.getValue()));
+			else
+				return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::IDynamicIndexPtr());
+		}, "")
+			;
+	
+	py::class_<fsdk::IProgressTracker>(f, "IProgressTracker")
+		.def("progress", &fsdk::IProgressTracker::progress)
+		;
 	
 	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr", "Image quality estimator interface.\n"
 		"This estimator is designed to work with a person face image; you should pass a warped face detection image.\n"
