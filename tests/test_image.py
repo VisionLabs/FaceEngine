@@ -140,7 +140,19 @@ class TestFaceEngineImage(unittest.TestCase):
             self.assertTrue(test_image1.getHeight(), test_image2.getHeight())
             self.assertTrue(test_image1.isValid(), test_image2.isValid())
             self.assertTrue(np.array_equal(test_image1.getData(), test_image2.getData()))
-
+    def test_load_from_memory_format(self):
+        with open("testData/6big.ppm", 'rb') as file:
+            data = file.read()
+            test_image1 = f.Image()
+            err = test_image1.loadFromMemory(data, len(data), f.FormatType.R8G8B8X8)
+            self.assertTrue(err.isOk)
+            test_image2 = f.Image()
+            test_image2.load("testData/6big.ppm", f.FormatType.R8G8B8X8)
+            self.assertTrue(np.array_equal(test_image1.getData(), test_image2.getData()))
+            self.assertTrue(test_image1.getWidth(), test_image2.getWidth())
+            self.assertTrue(test_image1.getHeight(), test_image2.getHeight())
+            self.assertTrue(test_image1.isValid(), test_image2.isValid())
+            self.assertTrue(np.array_equal(test_image1.getData(), test_image2.getData()))
     def test_save(self):
         self.assertTrue(os.path.isfile(new_file_path))
         self.assertEqual(save_error.isOk, 1)

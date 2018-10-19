@@ -278,6 +278,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Image.save
 			Image.load
 			Image.getRect
+			Image.loadFromMemory
 
 			ImageType
 
@@ -1979,7 +1980,19 @@ PYBIND11_MODULE(FaceEngine, f) {
 			fsdk::Result<fsdk::Image::Error> error = image.loadFromMemory(bytes, sizeInBytes);
 			return ImageErrorResult(error);
 		})
-				;
+		.def("loadFromMemory", [](
+			fsdk::Image& image,
+			const char* bytes,
+			int sizeInBytes,
+			const fsdk::Format::Type type) {
+				fsdk::Result<fsdk::Image::Error> error = image.loadFromMemory(
+					bytes,
+					sizeInBytes,
+					fsdk::Format(type));
+				return ImageErrorResult(error);
+		})
+			;
+
 
 	py::enum_<fsdk::Image::Type>(f, "ImageType",
 		"Supported image types.")
