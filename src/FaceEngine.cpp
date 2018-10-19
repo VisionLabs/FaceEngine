@@ -28,7 +28,6 @@ auto getChannelCount = [](fsdk::Format t) {
 
 namespace py = pybind11;
 
-
 PyIFaceEngine createPyFaceEnginePtr(const char* dataPath = nullptr, const char* configPath = nullptr) {
 	return PyIFaceEngine(dataPath, configPath);
 }
@@ -275,6 +274,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Image.save
 			Image.load
 			Image.getRect
+			Image.loadFromMemory
 
 			ImageType
 
@@ -546,19 +546,19 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::Image& image,
 			const fsdk::Rect& rect,
 			uint32_t maxCount) {
-				fsdk::Detection detections[maxCount];
-				fsdk::Landmarks5 landmarks[maxCount];
-				fsdk::Landmarks68 landmarks68[maxCount];
+				std::vector<fsdk::Detection> detections(maxCount);
+				std::vector<fsdk::Landmarks5> landmarks(maxCount);
+				std::vector<fsdk::Landmarks68> landmarks68(maxCount);
 				fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
 					image,
 					rect,
-					detections,
-					landmarks,
-					landmarks68,
+					detections.data(),
+					landmarks.data(),
+					landmarks68.data(),
 					maxCount);
 				auto detectionResultPyList = py::list();
 				if (err.isOk()) {
-					for (size_t i = 0; i < maxCount; ++i) {
+					for (uint32_t i = 0; i < err.getValue(); ++i) {
 						detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i], landmarks68[i]));
 					}
 					return detectionResultPyList;
@@ -576,6 +576,69 @@ PYBIND11_MODULE(FaceEngine, f) {
 				"\tLandmarks5, Landmarks68,\n"
 				"\t\t(FSDKErrorValueInt wrapped in list): else - error code and number of detections wrapped in list, "
 				"see FSDKErrorValueInt\n")
+		.def("detect_light",[](
+			 const fsdk::IDetectorPtr& det,
+			 const fsdk::Image& image,
+			 const fsdk::Rect& rect,
+			 int maxCount) {
+				 std::vector<fsdk::Detection> detections(maxCount);
+				 fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
+					 image,
+					 rect,
+					 detections.data() ,
+					 maxCount);
+				 auto detectionResultPyList = py::list();
+				 if (err.isOk()) {
+					 for (uint32_t i = 0; i < err.getValue(); ++i) {
+						 detectionResultPyList.append(detections[i]);
+					 }
+					 return detectionResultPyList;
+				 }
+				 else {
+					 detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
+					 return detectionResultPyList; }},
+			 "Detect faces and landmarks on the image\n"
+			 "\tArgs:\n"
+			 "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
+			 "\t\tparam2 (Rect): rect of interest inside of the image\n"
+			 "\t\tparam3 (int): length of `detections` array\n"
+			 "\tReturns:\n"
+			 "\t\t(list of Detection): if success - Detection\n"
+			 "\t\t(FSDKErrorValueInt wrapped in list): else - error code and number of detections wrapped in list, "
+			 "see FSDKErrorValueInt\n")
+		.def("detect5",[](
+			 const fsdk::IDetectorPtr& det,
+			 const fsdk::Image& image,
+			 const fsdk::Rect& rect,
+			 int maxCount) {
+				 std::vector<fsdk::Detection> detections(maxCount);
+				 std::vector<fsdk::Landmarks5> landmarks(maxCount);
+				 fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
+					 image,
+					 rect,
+					 detections.data(),
+					 landmarks.data(),
+					 maxCount);
+				 auto detectionResultPyList = py::list();
+				 if (err.isOk()) {
+					 for (uint32_t i = 0; i < err.getValue(); ++i) {
+						 detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i]));
+					 }
+					 return detectionResultPyList;
+				 }
+				 else {
+					 detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
+					 return detectionResultPyList; }},
+			 "Detect faces and landmarks on the image\n"
+			 "\tArgs:\n"
+			 "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
+			 "\t\tparam2 (Rect): rect of interest inside of the image\n"
+			 "\t\tparam3 (int): length of `detections` and `landmarks` arrays\n"
+			 "\tReturns:\n"
+			 "\t\t(list of tuples from Detection, Landmarks5): if success - list of tuples of Detection and "
+			 "\tLandmarks5\n"
+			 "\t\t(FSDKErrorValueInt wrapped in list): else - error code and number of detections wrapped in list, "
+			 "see FSDKErrorValueInt\n")
 					;
 
 	py::class_<fsdk::IWarperPtr>(f, "IWarperPtr",
@@ -835,20 +898,20 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::IDescriptorBatchPtr& descriptorBatch,
 			const fsdk::IDescriptorPtr& aggregation,
 			uint32_t batchSize) {
-				float garbageScoreBatch[batchSize];
-				fsdk::Image warpsBatch [batchSize];
-				for (size_t i = 0; i < batchSize; ++i) {
+				std::vector<float> garbageScoreBatch(batchSize);
+				std::vector<fsdk::Image> warpsBatch(batchSize);
+				for (uint32_t i = 0; i < batchSize; ++i) {
 					warpsBatch[i] = warpsBatchList[i].cast<fsdk::Image>();
 				}
 				fsdk::Result<fsdk::FSDKError> err = extractor->extractFromWarpedImageBatch(
-						warpsBatch,
+						warpsBatch.data(),
 						descriptorBatch,
 						aggregation,
-						garbageScoreBatch,
+						garbageScoreBatch.data(),
 						batchSize);
 				auto garbagePyList = py::list();
 				if (err.isOk()) {
-					for (size_t i = 0; i < batchSize; ++i) {
+					for (uint32_t i = 0; i < batchSize; ++i) {
 						garbagePyList.append(garbageScoreBatch[i]);
 					}
 					return garbagePyList;
@@ -876,19 +939,19 @@ PYBIND11_MODULE(FaceEngine, f) {
 			py::list warpsBatchList,
 			const fsdk::IDescriptorBatchPtr& descriptorBatch,
 			uint32_t batchSize) {
-				float garbageScoreBatch[batchSize];
-				fsdk::Image warpsBatch [batchSize];
-				for (size_t i = 0; i < batchSize; ++i) {
+				std::vector<float> garbageScoreBatch(batchSize);
+				std::vector<fsdk::Image> warpsBatch(batchSize);
+				for (uint32_t i = 0; i < batchSize; ++i) {
 					warpsBatch[i] = warpsBatchList[i].cast<fsdk::Image>();
 				}
 				fsdk::Result<fsdk::FSDKError> err = extractor->extractFromWarpedImageBatch(
-					warpsBatch,
+					warpsBatch.data(),
 					descriptorBatch,
-					garbageScoreBatch,
+					garbageScoreBatch.data(),
 					batchSize);
-				auto garbagePyList = py::list();
+				 py::list garbagePyList;
 				if (err.isOk()) {
-					for (size_t i = 0; i < batchSize; ++i) {
+					for (uint32_t i = 0; i < batchSize; ++i) {
 						garbagePyList.append(garbageScoreBatch[i]);
 					}
 					return garbagePyList;
@@ -941,9 +1004,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::IDescriptorMatcherPtr& matcherPtr,
 			const fsdk::IDescriptorPtr& reference,
 			const fsdk::IDescriptorBatchPtr& candidates) {
-			fsdk::MatchingResult results[candidates->getCount()];
-			fsdk::Result<fsdk::FSDKError> err =
-				matcherPtr->match(reference, candidates, results);
+			std::vector<fsdk::MatchingResult> results(candidates->getCount());
+				fsdk::Result<fsdk::FSDKError> err =
+				matcherPtr->match(reference, candidates, results.data());
 				auto resultsPyList = py::list();
 				if (err.isOk()) {
 					for (const auto& it: results) {
@@ -1122,14 +1185,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("estimate",[](
 			const fsdk::ILivenessFlowEstimatorPtr& est,
 			const fsdk::Image& small,
-			py::list framesPyList) {
-			uint32_t length = py::len(framesPyList);
-				fsdk::Image frames [length];
-				for (size_t i = 0; i < length; ++i) {
-					frames[i] = framesPyList[i].cast<fsdk::Image>();
-				}
+			std::vector<fsdk::Image> framesPyList) {
 				double score = 0.0;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(small, frames, length, score);
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(small, framesPyList.data(), framesPyList.size(), score);
 				if (err.isOk())
 					return py::cast(score);
 				else
@@ -1909,7 +1967,23 @@ PYBIND11_MODULE(FaceEngine, f) {
 			fsdk::Result<fsdk::Image::Error> error = image.load(path, fsdk::Format(type));
 			return ImageErrorResult(error);
 			})
-				;
+		.def("loadFromMemory", [](fsdk::Image& image, const char* bytes, int sizeInBytes) {
+			fsdk::Result<fsdk::Image::Error> error = image.loadFromMemory(bytes, sizeInBytes);
+			return ImageErrorResult(error);
+		})
+		.def("loadFromMemory", [](
+			fsdk::Image& image,
+			const char* bytes,
+			int sizeInBytes,
+			const fsdk::Format::Type type) {
+				fsdk::Result<fsdk::Image::Error> error = image.loadFromMemory(
+					bytes,
+					sizeInBytes,
+					fsdk::Format(type));
+				return ImageErrorResult(error);
+		})
+			;
+
 
 	py::enum_<fsdk::Image::Type>(f, "ImageType",
 		"Supported image types.")

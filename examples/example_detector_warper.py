@@ -24,6 +24,18 @@ def detector_example(_image_det, max_detections):
     return detector_result
 
 
+def detector_example_light(_image_det, max_detections):
+    detector = faceEngine.createDetector(fe.ODT_MTCNN)
+    detector_result = detector.detect_light(_image_det, _image_det.getRect(), max_detections)
+    return detector_result
+
+
+def detector_example_5(_image_det, max_detections):
+    detector = faceEngine.createDetector(fe.ODT_MTCNN)
+    detector_result = detector.detect5(_image_det, _image_det.getRect(), max_detections)
+    return detector_result
+
+
 def warper_example(image_det, _detection, _landmarks5, _landmarks68):
     warper = faceEngine.createWarper()
     transformation = warper.createTransformation(_detection,
@@ -72,8 +84,10 @@ if __name__ == "__main__":
         print("Image error = ", err)
     # unpack detector result - list of tuples
     (detection, landmarks5, landmarks68) = detector_example(image, 1)[0]
-
-    # print_landmarks(landmarks68, "landmarks68: ")
+    # light version return only list of detections
+    (detection1) = detector_example_light(image, 1)[0]
+    # light version return only list of detections
+    (detection2, _) = detector_example_5(image, 1)[0]
     (warp_image, transformed_landmarks5, transformed_landmarks68) = \
         warper_example(image, detection, landmarks5, landmarks68)
     (_, landmarks5_warp, _) = detector_example(warp_image, 1)[0]
