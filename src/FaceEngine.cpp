@@ -8,6 +8,8 @@
 #include "ErrorsAdapter.hpp"
 #include "FaceEngineAdapter.hpp"
 #include "SettingsProviderAdapter.hpp"
+#include "helpers.hpp"
+
 
 auto getChannelCount = [](fsdk::Format t) {
 	switch(t) {
@@ -503,8 +505,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 	py::class_<fsdk::IFaceEnginePtr>(f, "IFaceEnginePtr");
 	
 	// Index
-//	py::class_<fsdk::IStaticDescriptorStoragePtr>(f, "IStaticDescriptorStoragePtr");
-//	py::class_<fsdk::IDynamicDescriptorStoragePtr>(f, "IDynamicDescriptorStoragePtr");
+	py::class_<fsdk::IStaticDescriptorStorage>(f, "IStaticDescriptorStoragePtr");
+	py::class_<fsdk::IDynamicDescriptorStorage>(f, "IDynamicDescriptorStoragePtr");
 	py::class_<fsdk::IIndexPtr>(f, "IIndexPtr")
 		.def("search", [](
 				const fsdk::IIndexPtr& indexPtr,
@@ -515,24 +517,24 @@ PYBIND11_MODULE(FaceEngine, f) {
 						reference,
 						maxResultsCount,
 						searchResults.data());
-					auto searchResultsPyList = py::list();
+			const uint32_t searchSize = err.getValue();
+			py::list searchResultsPyList(searchSize);
 					if (err.isOk()) {
-						const uint32_t searchSize = err.getValue();
+						
 						for (uint32_t i = 0; i < searchSize; ++i)
-							searchResultsPyList.append(searchResults[i]);
-						return searchResultsPyList;
+							searchResultsPyList[i] = searchResults[i];
+						std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
 					} else {
-						searchResultsPyList.append(py::cast(FSDKErrorValueInt(err)));
-						return searchResultsPyList; }
+						std::make_tuple(FSDKErrorResult(err), py::list());
+					}
 				},  "Search for descriptors with the shorter distance to passed descriptor.\n"
 		"\tArgs:\n"
 		"\t\tparam1 (IDescriptorPtr): Descriptor to match against index.\n"
 		"\t\tparam2 (int): Maximum count of results. It is upper bound value, it\n"
 		"\t\tdoes not guarantee to return exactly this amount of results.\n"
 		"\tReturns:\n"
-		"\t\t(list of SearchResults): if success - list of SearchResults\n"
-		"\t\t(FSDKErrorValueInt wrapped in list): else - error code and count of found descriptors wrapped in list, "
-		"see FSDKErrorValueInt\n")
+		"\t\t(tuple of FSDKErrorResult and list of SearchResults): if success - tuple with FSDKErrorResult and list of SearchResults,\n"
+		"\t\t else - FSDKErrorResult and empty list see FSDKErrorResult\n")
 			;
 	
 	py::class_<fsdk::IDenseIndexPtr>(f, "IDenseIndexPtr");
@@ -572,7 +574,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::acquire(res.getValue()));
 			else
 				return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::IDynamicIndexPtr());
-		}, "")
+		}, "Builds index with every descriptor appended. Blocks until completed.\n"
+		"\t\t Is very heavy method in terms of computing load.")
 		.def("buildIndexAsync", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr,
 					const fsdk::IProgressTracker* const progressTracker) {
 			auto res = indexBuilderPtr->buildIndex(progressTracker);
@@ -869,7 +872,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\tThis method is thread safe"
 				 "\tReturns:\n"
 				 "\t\t(list): list of uint8_t if is ok (length of list is 264), empty list if ERROR")
-				; // descriptor
+		.def("load",[]( const fsdk::IDescriptorPtr& descriptor,
+						const char* buffer,
+						uint32_t bufferSize) {
+				 std::vector<uint8_t> descriptorExpectedSerial(bufferSize);
+				 VectorArchive archiveDescriptor(descriptorExpectedSerial);
+				 descriptor->load(&archiveDescriptor);
+			 }, "Load descriptor from buffer")
+	
+	; // descriptor
 
 	// DescriptorBatch
 	py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batch interface. "
@@ -954,6 +965,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\tparam1 (int):  index required descriptor in batch\n"
 			"\tReturns:\n"
 			"\t\t(IDescriptorPtr): valid object if succeeded.\n")
+		.def("load",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
+						const char* buffer,
+						uint32_t bufferSize) {
+			std::vector<uint8_t> batchExpectedSerial(bufferSize);
+			VectorArchive archiveDescriptor(batchExpectedSerial);
+			descriptorBatchPtr->load(&archiveDescriptor, bufferSize);
+		}, "Load descriptor from buffer")
 				;
 
 	py::enum_<fsdk::IDescriptorBatch::Error>(f, "DescriptorBatchError",
@@ -1446,6 +1464,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\t\tparam3 (int): Index of found descriptors in some storage.\n")
 		.def_readwrite("distance", &fsdk::SearchResult::distance)
 		.def_readwrite("similarity", &fsdk::SearchResult::similarity)
+		.def_readwrite("index", &fsdk::SearchResult::index)
 		.def("__repr__",
 			 [](const fsdk::SearchResult &result) {
 				 return "distance = " + std::to_string(result.distance)
