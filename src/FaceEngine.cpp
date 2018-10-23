@@ -520,7 +520,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const uint32_t searchSize = err.getValue();
 			py::list searchResultsPyList(searchSize);
 					if (err.isOk()) {
-						
 						for (uint32_t i = 0; i < searchSize; ++i)
 							searchResultsPyList[i] = searchResults[i];
 						std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
@@ -580,10 +579,47 @@ PYBIND11_MODULE(FaceEngine, f) {
 					const fsdk::IProgressTracker* const progressTracker) {
 			auto res = indexBuilderPtr->buildIndex(progressTracker);
 			if (res.isOk())
-				return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::acquire(res.getValue()));
+				return std::make_tuple(FSDKErrorResult(res), fsdk::acquire(res.getValue()));
 			else
-				return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::IDynamicIndexPtr());
+				return std::make_tuple(FSDKErrorResult(res), fsdk::IDynamicIndexPtr());
 		}, "")
+		.def("appendDescriptor", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr, const fsdk::IDescriptorPtr batch){
+			fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err = indexBuilderPtr->appendDescriptor(batch);
+			return FSDKErrorValueInt(err);
+		}, "Appends batch of descriptors to internal storage.\n"
+			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+		.def("appendBatch", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr, const fsdk::IDescriptorBatchPtr batch){
+			fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err = indexBuilderPtr->appendBatch(batch);
+			return FSDKErrorValueInt(err);
+		}, "Appends batch of descriptors to internal storage.\n"
+			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+		.def("removeDescriptor", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr, const fsdk::DescriptorId index){
+			fsdk::Result<fsdk::FSDKError> err = indexBuilderPtr->removeDescriptor(index);
+			return FSDKErrorResult(err);
+		}, "Removes descriptor out of internal storage.\n"
+			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+		.def("descriptorByIndex", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr, const fsdk::DescriptorId index,
+		const fsdk::IDescriptorPtr& descriptorPtr){
+			std::cout << "MSD index = " << index << " " << descriptorPtr->getDescriptorLength() << " " << indexBuilderPtr->size() << std::endl;
+//			fsdk::IStaticDescriptorStorage* staticStorage = static_cast<fsdk::IStaticDescriptorStorage*>(indexBuilderPtr);
+			fsdk::Result<fsdk::FSDKError> err = indexBuilderPtr->descriptorByIndex(index, descriptorPtr);
+			std::vector<uint8_t> data(264, 0);
+			
+			bool allocated = descriptorPtr->getDescriptor(&data.front());
+			if (allocated) {
+				for (int i = 0; i < 264; ++i) {
+					std::cout << "descriptorByIndex test" << i << ") " << +(unsigned)data[i] << std::endl;
+				}
+			} else {
+				std::cout << "descriptorByIndex test failed!!!"<< std::endl;
+			}
+
+			if (err.isOk())
+				return std::make_tuple(FSDKErrorResult(err), descriptorPtr);
+			else
+				return std::make_tuple(FSDKErrorResult(err), fsdk::IDescriptorPtr());
+		}, "Removes descriptor out of internal storage.\n"
+			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 			;
 	
 	py::class_<fsdk::IProgressTracker>(f, "IProgressTracker")
@@ -858,11 +894,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\t\t(int): size of descriptor in bytes.")
 
 		.def("getDescriptor",[]( const fsdk::IDescriptorPtr& desc) {
-			std::vector<uint8_t>buffer(264, 0);
+			const int size = 264;
+			std::vector<uint8_t>buffer(size, 0);
 			bool allocated = desc->getDescriptor(&buffer.front());
-			auto l = py::list();
+			auto l = py::list(size);
+			int i = 0;
 			for (auto it = buffer.rbegin(); it != buffer.rend(); ++it) {
-				l.append(*it);
+				l[i] = *it;
+				++i;
 			}
 			if (allocated)
 				return l;
@@ -875,13 +914,42 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("load",[]( const fsdk::IDescriptorPtr& descriptor,
 						const char* buffer,
 						uint32_t bufferSize) {
-				 std::vector<uint8_t> descriptorExpectedSerial(bufferSize);
-				 VectorArchive archiveDescriptor(descriptorExpectedSerial);
-				 descriptor->load(&archiveDescriptor);
+				std::vector<uint8_t> descriptorExpectedSerial(bufferSize);
+				memcpy(&descriptorExpectedSerial.front(), buffer, bufferSize);
+				VectorArchive archiveDescriptor(descriptorExpectedSerial);
+				fsdk::Result<fsdk::ISerializableObject::Error> err = descriptor->load(&archiveDescriptor);
+				return SerializeErrorResult(err);
 			 }, "Load descriptor from buffer")
+				; // descriptor
 	
-	; // descriptor
-
+		py::enum_<fsdk::ISerializableObject::Error>(f, "SerializeError",
+												 "Serialization error codes.\n")
+			.value("Ok", fsdk::ISerializableObject::Error::Ok)
+			.value("Size", fsdk::ISerializableObject::Error::Size)
+			.value("Signature", fsdk::ISerializableObject::Error::Signature)
+			.value("ArchiveRead", fsdk::ISerializableObject::Error::ArchiveRead)
+			.value("InputArchive", fsdk::ISerializableObject::Error::InputArchive)
+			.value("ArchiveWrite", fsdk::ISerializableObject::Error::ArchiveWrite)
+				; // error
+	
+	//	Errors
+	py::class_<SerializeErrorResult>(f, "SerializeErrorResult",
+								"Wrapper for ISerializableObject::Error that encapsulates an action result enumeration.\n"
+								"\tAn enum should specify a result code.")
+	.def_readonly("isOk", &SerializeErrorResult::isOk)
+	.def_readonly("isError", &SerializeErrorResult::isError)
+	.def_readonly("serializeError", &SerializeErrorResult::serializeError)
+	.def_readonly("what", &SerializeErrorResult::what)
+	.def("__repr__",
+		 [](const SerializeErrorResult &err) {
+			 return "SerializeErrorResult: "
+					"isOk = " + std::to_string(err.isOk)
+					+ ", isError = " + std::to_string(err.isError)
+					+ ", serializeError = " +
+			 		fsdk::ErrorTraits<fsdk::ISerializableObject::Error>::toString(err.serializeError)
+					+ ", what = " + err.what; })
+	;
+	
 	// DescriptorBatch
 	py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batch interface. "
 			"Used for matching large continuous sets of descriptors")
@@ -949,6 +1017,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\t(int): Length of one descriptor in batch.\n")
 
 		.def("getDescriptorSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
+			std::cout << "MSD = " << index << " " << descriptorBatchPtr->getCount() << std::endl;
 			if (index < 0 || index >= int(descriptorBatchPtr->getCount())) throw py::index_error();
 			return fsdk::acquire(descriptorBatchPtr->getDescriptorSlow(index)); },
 			"Create descriptor from batch by index with copying\n"
@@ -965,12 +1034,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\tparam1 (int):  index required descriptor in batch\n"
 			"\tReturns:\n"
 			"\t\t(IDescriptorPtr): valid object if succeeded.\n")
-		.def("load",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
+		.def("load",[](const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
 						const char* buffer,
 						uint32_t bufferSize) {
 			std::vector<uint8_t> batchExpectedSerial(bufferSize);
+			memcpy(&batchExpectedSerial.front(), buffer, bufferSize);
 			VectorArchive archiveDescriptor(batchExpectedSerial);
-			descriptorBatchPtr->load(&archiveDescriptor, bufferSize);
+			fsdk::Result<fsdk::ISerializableObject::Error> err = descriptorBatchPtr->load(&archiveDescriptor, bufferSize);
+			return SerializeErrorResult(err);
+			
 		}, "Load descriptor from buffer")
 				;
 

@@ -82,6 +82,9 @@ def loadAcquiredDescriptor(_faceEngine, _fileName):
         data = file.read()
         fileDescriptorSize = len(data)
         descriptor.load(data, fileDescriptorSize)
+        l = descriptor.getDescriptor()
+        for i in l:
+            print(i)
         return descriptor
 
 
@@ -91,26 +94,36 @@ def loadAcquiredBatch(_faceEngine, _fileName):
         data = file.read()
         fileBatchSize = len(data)
         descriptorBatch.load(data, fileBatchSize)
+        print(descriptorBatch.getMaxCount())
+        print(descriptorBatch.getCount())
+        print(descriptorBatch.getModelVersion())
+        print(descriptorBatch.getDescriptorSize())
+        print(descriptorBatch.getDescriptorSize())
         return descriptorBatch
 
+
 def buildAcquiredIndexWithBatchAndDoBeforeBuild(
+        _indexBuilder,
         _faceEngine,
-        batch,
-        funcToCallBeforeBuild, checkProgress = True):
-    indexBuilder = _faceEngine.createIndexBuilder()
-    indexBuilder.appendBatch(batch)
-    if funcToCallBeforeBuild:
-        funcToCallBeforeBuild(indexBuilder)
+        _batch,
+        _indexesToRemove,
+        _funcToCallBeforeBuild,
+        _checkProgress = True):
+    print("MSD buildAcquiredIndexWithBatchAndDoBeforeBuild")
+    _indexBuilder.appendBatch(_batch)
+    if _funcToCallBeforeBuild:
+        _funcToCallBeforeBuild(_indexBuilder, _indexesToRemove, _batch, _faceEngine)
     tracker = ProgressTracker()
-    buildRes = indexBuilder.buildIndex(tracker)
+    buildRes = _indexBuilder.buildIndex(tracker)
     index = buildRes[1]
     assert(buildRes.isOk and index)
 
-    if checkProgress:
+    if _checkProgress:
         assert(tracker.sz == sizeOfBatch/100)
         for i in range(tracker.sz):
             assert(tracker.reports[i] - 0.1 * (i + 1) > 0)
     return index
+
 
 def buildAcquiredIndexWithBatch(_faceEngine, _indexPath):
     # return tuple (error code, value)
@@ -118,6 +131,7 @@ def buildAcquiredIndexWithBatch(_faceEngine, _indexPath):
     assert(denseIndexRes[0].isOk)
     loadedIndex = denseIndexRes[1]
     return loadedIndex
+
 
 def loadAcquiredDenseIndex(_faceEngine, _indexPath):
     # return tuple (error code, value)
@@ -153,26 +167,35 @@ class TestFaceEngineRect(unittest.TestCase):
     def checkDescriptorsEquality(self, d1, d2):
         desc1 = d1.getDescriptor()
         desc2 = d2.getDescriptor()
+        for i, elem in enumerate(desc1):
+            print(desc1[i], desc2[i])
         self.assertTrue(desc1 == desc2)
-        self.assertEqual(d1.getModelVersion, d2.getModelVersion())
+        self.assertEqual(d1.getModelVersion(), d2.getModelVersion())
         self.assertEqual(d1.getDescriptorLength(), d2.getDescriptorLength())
 
     def query(self, _batch, _storage, _faceEngine, index):
         # test good
+        print(_batch.getCount())
         batchDescr = _batch.getDescriptorSlow(index.good)
         emptyDescr = _faceEngine.createDescriptor()
+        newDescr = _storage.descriptorByIndex(index.good, emptyDescr)[1]
+        print(newDescr)
+        l = newDescr.getDescriptor()
+        for i in l:
+            print(i)
         self.assertTrue(_storage.descriptorByIndex(index.good, emptyDescr))
-        self.checkDescriptorsEquality(batchDescr, emptyDescr)
+        self.checkDescriptorsEquality(batchDescr, newDescr)
         # test bad
         emptyDescr = _faceEngine.createDescriptor()
-        self.assertEqual(_storage.descriptorByIndex(index.bad, emptyDescr).FSDKError, _faceEngine.FSDKError.InvalidInput)
-        self.checkDescriptorsEquality(batchDescr, emptyDescr)
+        print(_storage.descriptorByIndex(index.bad, emptyDescr)[0])
+        self.assertEqual(_storage.descriptorByIndex(index.bad, emptyDescr)[0].FSDKError, fe.FSDKError.InvalidInput)
 
     def testIndexSearchResult(self):
         similarity = 0.6543
-        distance = 8295439.0
+        distance = 8295526.0
         index = 923924
         res = fe.SearchResult(distance, similarity, index)
+        print("MSD", sys.getsizeof(res))
         print(res)
         self.assertEqual(res.distance, distance)
         self.assertAlmostEqual(res.similarity, similarity)
@@ -182,14 +205,30 @@ class TestFaceEngineRect(unittest.TestCase):
         faceEngine = loadAcquiredFaceEngineWithCnn46()
         descriptor = loadAcquiredDescriptor(faceEngine, testDataPath + "/descriptor1_46.bin")
         batch = loadAcquiredBatch(faceEngine, testDataPath + "/batch46_eq1k.bin")
-        def funcToPass(builder):
-            for index in indexesToRemove:
-                builder.removeDescriptor(index)
-                self.query(batch, builder, faceEngine, IndexTest(188, 1141))
+
+        def funcToPass(_builder, _indexesToRemove, _batch, _faceEngine):
+            for index in _indexesToRemove:
+                _builder.removeDescriptor(index)
+                self.query(_batch, _builder, _faceEngine, IndexTest(188, 1141))
         countOfRemovals = 5
         indexesToRemove = [459, 245, 651, 832, 634]
-        # builtIndex = bui
+        indexBuilder = faceEngine.createIndexBuilder()
+        builtIndex = buildAcquiredIndexWithBatchAndDoBeforeBuild(indexBuilder,
+                                                                 faceEngine,
+                                                                 batch,
+                                                                 indexesToRemove,
+                                                                 funcToPass)
+        resBuilt = builtIndex.search(descriptor, searchResultSize)
 
+        self.assertEqual(builtIndex.size(), sizeOfBatch - countOfRemovals)
+        self.assertEqual(builtIndex.countOfIndexedDescriptors(), sizeOfBatch - countOfRemovals)
+        self.query(batch, builtIndex, faceEngine, IndexTest(169, 7712))
+        densePath = testDataPath + "/dense_index"
+        builtIndex.saveToDenseIndex(densePath)
+        loadedIndex = loadAcquiredDenseIndex(faceEngine, densePath)
+        self.query(batch, loadedIndex, faceEngine, IndexTest(108, 9228))
+        resDeser = loadedIndex.search(descriptor, searchResultSize)
+        self.assertTrue(self.areSearchResultsEqual(resBuilt[0], resDeser[0], resBuilt[1], resDeser[1]))
 
 
 

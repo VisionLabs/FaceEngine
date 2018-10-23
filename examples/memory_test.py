@@ -42,7 +42,7 @@ t = FaceEngineWrap("data",
 def test():
     with open("/home/mar/projects/FaceEnginePythonBinding/build/testData/warp1.tiff", 'rb') as file:
         data = file.read()
-    for i in range(1000000):
+    for i in range(100000):
         image = fe.Image()
         image.loadFromMemory(data, len(data))
         t.detector.detect(image, image.getRect(), 64)

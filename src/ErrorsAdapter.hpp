@@ -21,6 +21,22 @@ struct FSDKErrorResult {
 	{};
 };
 
+//fsdk::Result<fsdk::ISerializableObject::Error>
+struct SerializeErrorResult {
+	
+	bool isOk;
+	bool isError;
+	fsdk::ISerializableObject::Error serializeError;
+	const char* what;
+	
+	SerializeErrorResult(fsdk::Result<fsdk::ISerializableObject::Error> err) :
+	isOk(err.isOk()),
+	isError(err.isError()),
+	serializeError(err.getError()),
+	what(err.what())
+	{};
+};
+
 struct ImageErrorResult {
 	bool isOk;
 	bool isError;
@@ -63,7 +79,14 @@ struct FSDKErrorValueInt {
 	what(err.what()),
 	value(err.getValue())
 	{};
-
+	
+	FSDKErrorValueInt(fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err) :
+	isOk(err.isOk()),
+	isError(err.isError()),
+	fsdkError(err.getError()),
+	what(err.what()),
+	value(err.getValue())
+	{};
 };
 
 struct FSDKErrorValueFloat {
