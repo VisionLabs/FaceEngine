@@ -510,33 +510,79 @@ PYBIND11_MODULE(FaceEngine, f) {
 	py::class_<fsdk::IIndexPtr>(f, "IIndexPtr")
 		.def("search", [](
 				const fsdk::IIndexPtr& indexPtr,
-				const fsdk::IDescriptor* reference,
+				const fsdk::IDescriptorPtr reference,
 				const int maxResultsCount) {
 					std::vector<fsdk::SearchResult> searchResults(maxResultsCount);
 					fsdk::ResultValue<fsdk::FSDKError, int> err = indexPtr->search(
 						reference,
 						maxResultsCount,
 						searchResults.data());
-			const uint32_t searchSize = err.getValue();
-			py::list searchResultsPyList(searchSize);
+					const uint32_t searchSize = err.getValue();
+					py::list searchResultsPyList(searchSize);
 					if (err.isOk()) {
 						for (uint32_t i = 0; i < searchSize; ++i)
 							searchResultsPyList[i] = searchResults[i];
-						std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
+						return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
 					} else {
-						std::make_tuple(FSDKErrorResult(err), py::list());
+						return std::make_tuple(FSDKErrorResult(err), py::list());
 					}
-				},  "Search for descriptors with the shorter distance to passed descriptor.\n"
-		"\tArgs:\n"
-		"\t\tparam1 (IDescriptorPtr): Descriptor to match against index.\n"
-		"\t\tparam2 (int): Maximum count of results. It is upper bound value, it\n"
-		"\t\tdoes not guarantee to return exactly this amount of results.\n"
-		"\tReturns:\n"
-		"\t\t(tuple of FSDKErrorResult and list of SearchResults): if success - tuple with FSDKErrorResult and list of SearchResults,\n"
-		"\t\t else - FSDKErrorResult and empty list see FSDKErrorResult\n")
+				},
+				 "Search for descriptors with the shorter distance to passed descriptor.\n"
+				"\tArgs:\n"
+				"\t\tparam1 (IDescriptorPtr): Descriptor to match against index.\n"
+				"\t\tparam2 (int): Maximum count of results. It is upper bound value, it\n"
+				"\t\tdoes not guarantee to return exactly this amount of results.\n"
+				"\tReturns:\n"
+				"\t\t(tuple of FSDKErrorResult and list of SearchResults): if success - "
+				 "tuple with FSDKErrorResult and list of SearchResults,\n"
+				"\t\t else - FSDKErrorResult and empty list see FSDKErrorResult\n")
 			;
 	
-	py::class_<fsdk::IDenseIndexPtr>(f, "IDenseIndexPtr");
+	py::class_<fsdk::IDenseIndexPtr>(f, "IDenseIndexPtr")
+		.def("search", [](
+			 const fsdk::IDenseIndexPtr& indexPtr,
+			 const fsdk::IDescriptorPtr reference,
+			 const int maxResultsCount) {
+				 std::vector<fsdk::SearchResult> searchResults(maxResultsCount);
+				 fsdk::ResultValue<fsdk::FSDKError, int> err = indexPtr->search(
+				 reference,
+				 maxResultsCount,
+				 searchResults.data());
+				 const uint32_t searchSize = err.getValue();
+				 py::list searchResultsPyList(searchSize);
+				 if (err.isOk()) {
+					 for (uint32_t i = 0; i < searchSize; ++i)
+						 searchResultsPyList[i] = searchResults[i];
+					 return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
+				 } else {
+					 return std::make_tuple(FSDKErrorResult(err), py::list());
+				 }
+			 },
+			 "Search for descriptors with the shorter distance to passed descriptor.\n"
+			 "\tArgs:\n"
+			 "\t\tparam1 (IDescriptorPtr): Descriptor to match against index.\n"
+			 "\t\tparam2 (int): Maximum count of results. It is upper bound value, it\n"
+			 "\t\tdoes not guarantee to return exactly this amount of results.\n"
+			 "\tReturns:\n"
+			 "\t\t(tuple of FSDKErrorResult and list of SearchResults): if success - "
+			 "tuple with FSDKErrorResult and list of SearchResults,\n"
+			 "\t\t else - FSDKErrorResult and empty list see FSDKErrorResult\n")
+		.def("size", [](
+			const fsdk::IDenseIndexPtr& indexPtr) {
+				return indexPtr->size();
+			}, "Return size of internal storage. if not initialized, 0 is returned.")
+		.def("descriptorByIndex", [](
+			const fsdk::IDenseIndexPtr& indexPtr,
+			const fsdk::DescriptorId index,
+			const fsdk::IDescriptorPtr& descriptorPtr) {
+				fsdk::Result<fsdk::FSDKError> err = indexPtr->descriptorByIndex(index, descriptorPtr);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), descriptorPtr);
+				else
+					return std::make_tuple(FSDKErrorResult(err), fsdk::IDescriptorPtr());
+			}, "Removes descriptor out of internal storage.\n"
+				 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+	;
 	
 	py::class_<fsdk::IDynamicIndexPtr>(f, "IDynamicIndexPtr")
 		.def("saveToDenseIndex", [](const fsdk::IDynamicIndexPtr& dynamicIndex, const char* path) {
@@ -563,21 +609,63 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return dynamicIndex->countOfIndexedDescriptors();
 			}, "Returns count of indexed descriptors.\n"
 		"\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+		.def("search", [](
+			 const fsdk::IDynamicIndexPtr& indexPtr,
+			 const fsdk::IDescriptorPtr reference,
+			 const int maxResultsCount) {
+				 std::vector<fsdk::SearchResult> searchResults(maxResultsCount);
+				 fsdk::ResultValue<fsdk::FSDKError, int> err = indexPtr->search(
+				 reference,
+				 maxResultsCount,
+				 searchResults.data());
+				 const uint32_t searchSize = err.getValue();
+				 py::list searchResultsPyList(searchSize);
+				 if (err.isOk()) {
+					 for (uint32_t i = 0; i < searchSize; ++i)
+						 searchResultsPyList[i] = searchResults[i];
+					 return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
+				 } else {
+					 return std::make_tuple(FSDKErrorResult(err), py::list());
+				 }
+			 },
+			 "Search for descriptors with the shorter distance to passed descriptor.\n"
+			 "\tArgs:\n"
+			 "\t\tparam1 (IDescriptorPtr): Descriptor to match against index.\n"
+			 "\t\tparam2 (int): Maximum count of results. It is upper bound value, it\n"
+			 "\t\tdoes not guarantee to return exactly this amount of results.\n"
+			 "\tReturns:\n"
+			 "\t\t(tuple of FSDKErrorResult and list of SearchResults): if success - "
+			 "tuple with FSDKErrorResult and list of SearchResults,\n"
+			 "\t\t else - FSDKErrorResult and empty list see FSDKErrorResult\n")
+		.def("size", [](
+			const fsdk::IDynamicIndexPtr& indexPtr) {
+				return indexPtr->size();
+			}, "Return size of internal storage. if not initialized, 0 is returned.")
+		.def("descriptorByIndex", [](
+			const fsdk::IDynamicIndexPtr& indexPtr,
+			const fsdk::DescriptorId index,
+			const fsdk::IDescriptorPtr& descriptorPtr) {
+				fsdk::Result<fsdk::FSDKError> err = indexPtr->descriptorByIndex(index, descriptorPtr);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), descriptorPtr);
+				else
+					return std::make_tuple(FSDKErrorResult(err), fsdk::IDescriptorPtr());
+		}, "Removes descriptor out of internal storage.\n"
+			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 				;
 	
 	py::class_<fsdk::IIndexBuilderPtr>(f, "IIndexBuilderPtr")
-		.def("buildIndex", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr,
-					const fsdk::IProgressTracker* const progressTracker) {
-			auto res = indexBuilderPtr->buildIndex(progressTracker);
+		.def("buildIndex", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr) {
+			auto res = indexBuilderPtr->buildIndex();
 			if (res.isOk())
-				return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::acquire(res.getValue()));
+				return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::acquire(res.getValue()));
 			else
-				return std::make_tuple(fsdk::makeResult(res.getError()), fsdk::IDynamicIndexPtr());
+				return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::IDynamicIndexPtr());
 		}, "Builds index with every descriptor appended. Blocks until completed.\n"
 		"\t\t Is very heavy method in terms of computing load.")
-		.def("buildIndexAsync", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr,
-					const fsdk::IProgressTracker* const progressTracker) {
-			auto res = indexBuilderPtr->buildIndex(progressTracker);
+		.def("buildIndexAsync", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr) {
+//			progressTracker = new ProgressTracker[1];
+			auto res = indexBuilderPtr->buildIndex();
 			if (res.isOk())
 				return std::make_tuple(FSDKErrorResult(res), fsdk::acquire(res.getValue()));
 			else
@@ -600,20 +688,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 		.def("descriptorByIndex", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr, const fsdk::DescriptorId index,
 		const fsdk::IDescriptorPtr& descriptorPtr){
-			std::cout << "MSD index = " << index << " " << descriptorPtr->getDescriptorLength() << " " << indexBuilderPtr->size() << std::endl;
-//			fsdk::IStaticDescriptorStorage* staticStorage = static_cast<fsdk::IStaticDescriptorStorage*>(indexBuilderPtr);
 			fsdk::Result<fsdk::FSDKError> err = indexBuilderPtr->descriptorByIndex(index, descriptorPtr);
-			std::vector<uint8_t> data(264, 0);
 			
-			bool allocated = descriptorPtr->getDescriptor(&data.front());
-			if (allocated) {
-				for (int i = 0; i < 264; ++i) {
-					std::cout << "descriptorByIndex test" << i << ") " << +(unsigned)data[i] << std::endl;
-				}
-			} else {
-				std::cout << "descriptorByIndex test failed!!!"<< std::endl;
-			}
-
 			if (err.isOk())
 				return std::make_tuple(FSDKErrorResult(err), descriptorPtr);
 			else
@@ -622,9 +698,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 			;
 	
-	py::class_<fsdk::IProgressTracker>(f, "IProgressTracker")
-		.def("progress", &fsdk::IProgressTracker::progress)
-		;
+//	py::class_<fsdk::IProgressTracker>(f, "IProgressTracker")
+//		.def("progress", &fsdk::IProgressTracker::progress)
+//			;
+	
+	py::class_<ProgressTracker>(f, "ProgressTracker")
+	.def("progress", &ProgressTracker::progress)
+	;
 	
 	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr", "Image quality estimator interface.\n"
 		"This estimator is designed to work with a person face image; you should pass a warped face detection image.\n"

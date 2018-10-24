@@ -56,9 +56,17 @@ sizeOfBatch = 999
 reference = [763, 762, 852, 850, 851, 600, 936, 886, 739, 152]
 
 
-class ProgressTracker(fe.IProgressTracker):
+class ProgressTracker(fe.ProgressTracker):
     reports = []
     sz = 0
+
+    def __init__(self, sz, reports):
+        self.reports = reports
+        self.sz = sz
+
+    def __init__(self):
+        self.reports = []
+        self.sz = 0
 
     def progress(self, completion):
         print("Progress: %f", completion)
@@ -114,14 +122,14 @@ def buildAcquiredIndexWithBatchAndDoBeforeBuild(
     if _funcToCallBeforeBuild:
         _funcToCallBeforeBuild(_indexBuilder, _indexesToRemove, _batch, _faceEngine)
     tracker = ProgressTracker()
-    buildRes = _indexBuilder.buildIndex(tracker)
+    buildRes = _indexBuilder.buildIndex()
     index = buildRes[1]
-    assert(buildRes.isOk and index)
+    assert(buildRes[0].isOk and index)
 
-    if _checkProgress:
-        assert(tracker.sz == sizeOfBatch/100)
-        for i in range(tracker.sz):
-            assert(tracker.reports[i] - 0.1 * (i + 1) > 0)
+    # if _checkProgress:
+    #     assert(tracker.sz == sizeOfBatch/100)
+    #     for i in range(tracker.sz):
+    #         assert(tracker.reports[i] - 0.1 * (i + 1) > 0)
     return index
 
 
@@ -135,7 +143,8 @@ def buildAcquiredIndexWithBatch(_faceEngine, _indexPath):
 
 def loadAcquiredDenseIndex(_faceEngine, _indexPath):
     # return tuple (error code, value)
-    loadIndexRes = _faceEngine.loadDynamicIndex(_indexPath)
+    loadIndexRes = _faceEngine.loadDenseIndex(_indexPath)
+    print(loadIndexRes)
     assert(loadIndexRes[0].isOk)
     loadedIndex = loadIndexRes[1]
     return loadedIndex
@@ -145,9 +154,9 @@ def loadAcquiredDenseIndex(_faceEngine, _indexPath):
 class TestFaceEngineRect(unittest.TestCase):
 
     def areSearchResultsEqual(self, firstRes, secondRes, firstArray, secondArray):
-        self.assertEqual(firstRes[0].isOk, secondRes[0].isOk)
-        self.assertEqual(firstRes[1], secondRes[1])
-        self.assertEqual(len(firstRes[1]), len(secondRes[1]))
+        self.assertEqual(firstRes.isOk, secondRes.isOk)
+        self.assertEqual(firstRes.what, secondRes.what)
+        self.assertEqual(len(firstArray), len(secondArray))
         allEqual = True
         size = len(firstArray)
         def areEqual(firstArray, secondArray):
@@ -223,11 +232,17 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertEqual(builtIndex.size(), sizeOfBatch - countOfRemovals)
         self.assertEqual(builtIndex.countOfIndexedDescriptors(), sizeOfBatch - countOfRemovals)
         self.query(batch, builtIndex, faceEngine, IndexTest(169, 7712))
-        densePath = testDataPath + "/dense_index"
-        builtIndex.saveToDenseIndex(densePath)
-        loadedIndex = loadAcquiredDenseIndex(faceEngine, densePath)
-        self.query(batch, loadedIndex, faceEngine, IndexTest(108, 9228))
-        resDeser = loadedIndex.search(descriptor, searchResultSize)
+        densePath = testDataPath + "/dense_index.txt"
+        err = builtIndex.saveToDenseIndex(densePath)
+        print("MSD saved image {0}".format(err))
+        loadedDenseIndex = loadAcquiredDenseIndex(faceEngine, densePath)
+        print(loadedDenseIndex)
+        self.query(batch, loadedDenseIndex, faceEngine, IndexTest(108, 9228))
+        resDeser = loadedDenseIndex.search(descriptor, searchResultSize)
+        print(resDeser)
+        print(resBuilt[0], resDeser[0])
+        print(resBuilt[1], resDeser[1])
+        self.areSearchResultsEqual(resBuilt[0], resDeser[0], resBuilt[1], resDeser[1])
         self.assertTrue(self.areSearchResultsEqual(resBuilt[0], resDeser[0], resBuilt[1], resDeser[1]))
 
 

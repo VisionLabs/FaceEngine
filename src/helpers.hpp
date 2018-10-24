@@ -26,3 +26,15 @@ struct VectorArchive: fsdk::IArchive
 	dataOut(inout)
 	{}
 };
+
+constexpr int sizeOfBatch = 999;
+
+struct ProgressTracker: fsdk::IProgressTracker {
+	mutable std::array<float, sizeOfBatch / 100> reports;
+	mutable size_t sz = 0;
+	
+	virtual void progress(const float completion) const noexcept final {
+		printf("Progress: %f", completion);
+		reports[sz++] = completion;
+	}
+};
