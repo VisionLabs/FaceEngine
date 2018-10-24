@@ -4,6 +4,7 @@ import sys
 import platform
 import subprocess
 
+
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
@@ -47,7 +48,7 @@ class CMakeBuild(build_ext):
 
         if platform.system() == "Windows":
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
-            if sys.maxsize > 2 ** 32:
+            if sys.maxsize > 2**32:
                 cmake_args += ['-A', 'x64']
             build_args += ['--', '/m']
         else:
@@ -63,10 +64,9 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
         print(cmake_args)
 
-
 setup(
     name='FaceEngine',
-    version='v.3.6.6.01',
+    version='3.6.6.1',
     author='VisionLabs',
     author_email='info@visionlabs.ru',
     description='Python bindings of FaceEngine using pybind11 and CMake',
