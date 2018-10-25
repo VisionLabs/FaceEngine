@@ -212,7 +212,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			EthnicityEstimation
 			EthnicityEstimation.__init__
 			EthnicityEstimation.__repr__
-			EthnicityEstimation.__repr__
 			EthnicityEstimation.getEthnicityScore
 			EthnicityEstimation.getPredominantEthnicity
 
@@ -229,7 +228,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			EyesEstimation.__init__
 			EyesEstimation.__repr__
 			State
-			EyeAttributes
+			EyelidLandmarks
+			IrisLandmarks
 
 			EmotionsEstimation
 			EmotionsEstimation.__init__
@@ -253,8 +253,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Detection
 
 			FormatType
-
-			Format
 
 			Image
 			Image.__init__
@@ -517,9 +515,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 						reference,
 						maxResultsCount,
 						searchResults.data());
-					const uint32_t searchSize = err.getValue();
-					py::list searchResultsPyList(searchSize);
 					if (err.isOk()) {
+						const uint32_t searchSize = err.getValue();
+						py::list searchResultsPyList(searchSize);
 						for (uint32_t i = 0; i < searchSize; ++i)
 							searchResultsPyList[i] = searchResults[i];
 						return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
@@ -548,9 +546,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 reference,
 				 maxResultsCount,
 				 searchResults.data());
-				 const uint32_t searchSize = err.getValue();
-				 py::list searchResultsPyList(searchSize);
 				 if (err.isOk()) {
+					 const uint32_t searchSize = err.getValue();
+					 py::list searchResultsPyList(searchSize);
 					 for (uint32_t i = 0; i < searchSize; ++i)
 						 searchResultsPyList[i] = searchResults[i];
 					 return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
@@ -618,9 +616,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 reference,
 				 maxResultsCount,
 				 searchResults.data());
-				 const uint32_t searchSize = err.getValue();
-				 py::list searchResultsPyList(searchSize);
 				 if (err.isOk()) {
+					 const uint32_t searchSize = err.getValue();
+					 py::list searchResultsPyList(searchSize);
 					 for (uint32_t i = 0; i < searchSize; ++i)
 						 searchResultsPyList[i] = searchResults[i];
 					 return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
@@ -652,6 +650,22 @@ PYBIND11_MODULE(FaceEngine, f) {
 					return std::make_tuple(FSDKErrorResult(err), fsdk::IDescriptorPtr());
 		}, "Removes descriptor out of internal storage.\n"
 			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+		.def("appendDescriptor", [](const fsdk::IDynamicIndexPtr& index, const fsdk::IDescriptorPtr batch){
+			fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err = index->appendDescriptor(batch);
+			return FSDKErrorValueInt(err);
+		}, "Appends descriptor to internal storage.\n"
+			 "\t\t If used on @see IDynamicIndex graph updates itself too.\n"
+			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+		.def("appendBatch", [](const fsdk::IDynamicIndexPtr& index, const fsdk::IDescriptorBatchPtr batch){
+			fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err = index->appendBatch(batch);
+			return FSDKErrorValueInt(err);
+		}, "Appends batch of descriptors to internal storage.\n"
+			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
+		.def("removeDescriptor", [](const fsdk::IDynamicIndexPtr& dynamicIndex, const fsdk::DescriptorId id){
+			fsdk::Result<fsdk::FSDKError> err = dynamicIndex->removeDescriptor(id);
+			return FSDKErrorResult(err);
+		}, "Removes descriptor out of internal storage.\n"
+			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 				;
 	
 	py::class_<fsdk::IIndexBuilderPtr>(f, "IIndexBuilderPtr")
@@ -663,18 +677,18 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::IDynamicIndexPtr());
 		}, "Builds index with every descriptor appended. Blocks until completed.\n"
 		"\t\t Is very heavy method in terms of computing load.")
-		.def("buildIndexAsync", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr) {
-//			progressTracker = new ProgressTracker[1];
-			auto res = indexBuilderPtr->buildIndex();
-			if (res.isOk())
-				return std::make_tuple(FSDKErrorResult(res), fsdk::acquire(res.getValue()));
-			else
-				return std::make_tuple(FSDKErrorResult(res), fsdk::IDynamicIndexPtr());
-		}, "")
+//		.def("buildIndexAsync", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr) {
+//			auto res = indexBuilderPtr->buildIndex();
+//			if (res.isOk())
+//				return std::make_tuple(FSDKErrorResult(res), fsdk::acquire(res.getValue()));
+//			else
+//				return std::make_tuple(FSDKErrorResult(res), fsdk::IDynamicIndexPtr());
+//		}, "")
 		.def("appendDescriptor", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr, const fsdk::IDescriptorPtr batch){
 			fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err = indexBuilderPtr->appendDescriptor(batch);
 			return FSDKErrorValueInt(err);
-		}, "Appends batch of descriptors to internal storage.\n"
+		}, "Appends descriptor to internal storage.\n"
+			"\t\t If used on @see IDynamicIndex graph updates itself too.\n"
 			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.")
 		.def("appendBatch", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr, const fsdk::IDescriptorBatchPtr batch){
 			fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err = indexBuilderPtr->appendBatch(batch);
@@ -702,9 +716,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 //		.def("progress", &fsdk::IProgressTracker::progress)
 //			;
 	
-	py::class_<ProgressTracker>(f, "ProgressTracker")
-	.def("progress", &ProgressTracker::progress)
-	;
+//	py::class_<ProgressTracker>(f, "ProgressTracker")
+//	.def("progress", &ProgressTracker::progress)
+//	;
 	
 	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr", "Image quality estimator interface.\n"
 		"This estimator is designed to work with a person face image; you should pass a warped face detection image.\n"
@@ -748,7 +762,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				else
 					return py::cast(FSDKErrorResult(err)); },
 			 "Estimate the attributes. If success returns AttributeEstimation output structure with params, else error code.\n"
-				 "(see FSDKErrorResult for details)\n"
+				 "\t\t(see FSDKErrorResult for details)\n"
 				 "\tArgs:\n"
 				 "\t\tparam1 (Image): image with warped face. Format must be R8G8B8\n"
 				 "\tReturns:\n"
@@ -2060,7 +2074,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			   "\tor landmark passed to estimator doesn't point to an eye.\n")
 			;
 
-	py::class_<fsdk::EyesEstimation::EyeAttributes>(f, "EyeAttributes", "Eyes attribute structure.")
+	py::class_<fsdk::EyesEstimation::EyeAttributes>(f, "EyeAttributes", "Eyes attribute structure.\n")
 		.def_property_readonly_static("irisLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& e)
 			{return e.irisLandmarksCount; })
 		.def_property_readonly_static("eyelidLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& e)

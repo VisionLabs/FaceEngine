@@ -3,9 +3,6 @@ import unittest
 import argparse
 import sys
 import os
-import glob
-import logging
-import struct
 
 # if FaceEngine is not installed within the system, add the directory with FaceEngine*.so to system paths
 parser = argparse.ArgumentParser()
@@ -56,24 +53,6 @@ sizeOfBatch = 999
 reference = [763, 762, 852, 850, 851, 600, 936, 886, 739, 152]
 
 
-class ProgressTracker(fe.ProgressTracker):
-    reports = []
-    sz = 0
-
-    def __init__(self, sz, reports):
-        self.reports = reports
-        self.sz = sz
-
-    def __init__(self):
-        self.reports = []
-        self.sz = 0
-
-    def progress(self, completion):
-        print("Progress: %f", completion)
-        self.reports.append(completion)
-        self.sz += 1
-
-
 def loadAcquiredFaceEngineWithCnn46():
     faceEnginePtr = fe.createFaceEngine("data",
                                         configPath)
@@ -90,9 +69,6 @@ def loadAcquiredDescriptor(_faceEngine, _fileName):
         data = file.read()
         fileDescriptorSize = len(data)
         descriptor.load(data, fileDescriptorSize)
-        l = descriptor.getDescriptor()
-        for i in l:
-            print(i)
         return descriptor
 
 
@@ -102,11 +78,6 @@ def loadAcquiredBatch(_faceEngine, _fileName):
         data = file.read()
         fileBatchSize = len(data)
         descriptorBatch.load(data, fileBatchSize)
-        print(descriptorBatch.getMaxCount())
-        print(descriptorBatch.getCount())
-        print(descriptorBatch.getModelVersion())
-        print(descriptorBatch.getDescriptorSize())
-        print(descriptorBatch.getDescriptorSize())
         return descriptorBatch
 
 
@@ -114,14 +85,13 @@ def buildAcquiredIndexWithBatchAndDoBeforeBuild(
         _indexBuilder,
         _faceEngine,
         _batch,
-        _indexesToRemove,
-        _funcToCallBeforeBuild,
-        _checkProgress = True):
-    print("MSD buildAcquiredIndexWithBatchAndDoBeforeBuild")
+        _funcToCallBeforeBuild=None,
+        _indexesToRemove=[],
+        _checkProgress=True):
     _indexBuilder.appendBatch(_batch)
     if _funcToCallBeforeBuild:
         _funcToCallBeforeBuild(_indexBuilder, _indexesToRemove, _batch, _faceEngine)
-    tracker = ProgressTracker()
+    # tracker = ProgressTracker()
     buildRes = _indexBuilder.buildIndex()
     index = buildRes[1]
     assert(buildRes[0].isOk and index)
@@ -133,32 +103,40 @@ def buildAcquiredIndexWithBatchAndDoBeforeBuild(
     return index
 
 
-def buildAcquiredIndexWithBatch(_faceEngine, _indexPath):
+def buildAcquiredIndexWithBatch(_faceEngine, _batch):
     # return tuple (error code, value)
-    denseIndexRes = _faceEngine.loadDenseIndex(_indexPath)
-    assert(denseIndexRes[0].isOk)
-    loadedIndex = denseIndexRes[1]
-    return loadedIndex
+    indexBuilder = _faceEngine.createIndexBuilder()
+    return buildAcquiredIndexWithBatchAndDoBeforeBuild(indexBuilder, _faceEngine, _batch, None, False)
 
 
 def loadAcquiredDenseIndex(_faceEngine, _indexPath):
     # return tuple (error code, value)
     loadIndexRes = _faceEngine.loadDenseIndex(_indexPath)
-    print(loadIndexRes)
     assert(loadIndexRes[0].isOk)
     loadedIndex = loadIndexRes[1]
     return loadedIndex
 
 
+def load(descrFileName, batchFileName):
+    faceEngine = loadAcquiredFaceEngineWithCnn46()
+    descriptor = loadAcquiredDescriptor(faceEngine, testDataPath + "/" + descrFileName)
+    batch = loadAcquiredBatch(faceEngine, testDataPath + "/" + batchFileName)
+    return faceEngine, descriptor, batch
+
 
 class TestFaceEngineRect(unittest.TestCase):
 
-    def areSearchResultsEqual(self, firstRes, secondRes, firstArray, secondArray):
-        self.assertEqual(firstRes.isOk, secondRes.isOk)
-        self.assertEqual(firstRes.what, secondRes.what)
-        self.assertEqual(len(firstArray), len(secondArray))
+    def loadAcquiredDynamicIndex(self, _faceEngine, _indexPath):
+        loadIndexRes = _faceEngine.loadDynamicIndex(_indexPath)
+        self.assertTrue(loadIndexRes[0].isOk)
+        loadedIndex = loadIndexRes[1]
+        return loadedIndex
+
+    def areSearchResultsEqual(self, _firstRes, _secondRes, _firstArray, _secondArray):
+        self.assertEqual(_firstRes.isOk, _secondRes.isOk)
+        self.assertEqual(_firstRes.what, _secondRes.what)
+        self.assertEqual(len(_firstArray), len(_secondArray))
         allEqual = True
-        size = len(firstArray)
         def areEqual(firstArray, secondArray):
             self.assertEqual(len(firstArray), len(secondArray))
             for i, elem in enumerate(firstArray):
@@ -167,7 +145,7 @@ class TestFaceEngineRect(unittest.TestCase):
                 firstArray[i].similarity != secondArray[i].similarity):
                     return False
             return True
-        equal = areEqual(firstArray, secondArray)
+        equal = areEqual(_firstArray, _secondArray)
         self.assertTrue(equal)
         allEqual = allEqual and equal
         self.assertTrue(allEqual)
@@ -176,8 +154,6 @@ class TestFaceEngineRect(unittest.TestCase):
     def checkDescriptorsEquality(self, d1, d2):
         desc1 = d1.getDescriptor()
         desc2 = d2.getDescriptor()
-        for i, elem in enumerate(desc1):
-            print(desc1[i], desc2[i])
         self.assertTrue(desc1 == desc2)
         self.assertEqual(d1.getModelVersion(), d2.getModelVersion())
         self.assertEqual(d1.getDescriptorLength(), d2.getDescriptorLength())
@@ -189,9 +165,6 @@ class TestFaceEngineRect(unittest.TestCase):
         emptyDescr = _faceEngine.createDescriptor()
         newDescr = _storage.descriptorByIndex(index.good, emptyDescr)[1]
         print(newDescr)
-        l = newDescr.getDescriptor()
-        for i in l:
-            print(i)
         self.assertTrue(_storage.descriptorByIndex(index.good, emptyDescr))
         self.checkDescriptorsEquality(batchDescr, newDescr)
         # test bad
@@ -211,9 +184,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertEqual(res.index, index)
 
     def testDenseSerialization(self):
-        faceEngine = loadAcquiredFaceEngineWithCnn46()
-        descriptor = loadAcquiredDescriptor(faceEngine, testDataPath + "/descriptor1_46.bin")
-        batch = loadAcquiredBatch(faceEngine, testDataPath + "/batch46_eq1k.bin")
+        faceEngine, descriptor, batch = load("descriptor1_46.bin", "batch46_eq1k.bin")
 
         def funcToPass(_builder, _indexesToRemove, _batch, _faceEngine):
             for index in _indexesToRemove:
@@ -222,11 +193,7 @@ class TestFaceEngineRect(unittest.TestCase):
         countOfRemovals = 5
         indexesToRemove = [459, 245, 651, 832, 634]
         indexBuilder = faceEngine.createIndexBuilder()
-        builtIndex = buildAcquiredIndexWithBatchAndDoBeforeBuild(indexBuilder,
-                                                                 faceEngine,
-                                                                 batch,
-                                                                 indexesToRemove,
-                                                                 funcToPass)
+        builtIndex = buildAcquiredIndexWithBatchAndDoBeforeBuild(indexBuilder, faceEngine, batch, funcToPass, indexesToRemove)
         resBuilt = builtIndex.search(descriptor, searchResultSize)
 
         self.assertEqual(builtIndex.size(), sizeOfBatch - countOfRemovals)
@@ -244,8 +211,141 @@ class TestFaceEngineRect(unittest.TestCase):
         print(resBuilt[1], resDeser[1])
         self.areSearchResultsEqual(resBuilt[0], resDeser[0], resBuilt[1], resDeser[1])
         self.assertTrue(self.areSearchResultsEqual(resBuilt[0], resDeser[0], resBuilt[1], resDeser[1]))
+    # DynamicSerialization
 
+    def testDynamicSerialization(self):
+        faceEngine, descriptor, batch = load("descriptor1_46.bin", "batch46_eq1k.bin")
+        builtIndex = buildAcquiredIndexWithBatch(faceEngine, batch)
+        self.assertEqual(builtIndex.size(), sizeOfBatch)
+        self.assertEqual(builtIndex.countOfIndexedDescriptors(), sizeOfBatch)
+        resBuilt = builtIndex.search(descriptor, searchResultSize);
+        indexPath = testDataPath + "/dynamic_index_tmp"
+        res = builtIndex.saveToDynamicIndex(indexPath)
+        print("saving result = {0}".format(res))
+        loadedIndex = self.loadAcquiredDynamicIndex(faceEngine, indexPath)
+        self.assertEqual(loadedIndex.size(), sizeOfBatch)
+        self.assertEqual(loadedIndex.size(), sizeOfBatch)
+        self.assertEqual(loadedIndex.countOfIndexedDescriptors(), sizeOfBatch)
+        self.query(batch, loadedIndex, faceEngine, IndexTest(212, 68705))
+        resDeser = loadedIndex.search(descriptor, searchResultSize)
+        self.assertTrue(self.areSearchResultsEqual(resBuilt[0], resDeser[0], resBuilt[1], resDeser[1]))
 
+    def testSearchDeser(self):
+        faceEngine, descriptor, batch = load("descriptor1_46.bin", "batch46_eq1k.bin")
+        builtIndex = buildAcquiredIndexWithBatch(faceEngine, batch)
+        indexPath = testDataPath + "/dense_index"
+        builtIndex.saveToDenseIndex(indexPath)
+        loadedIndex = loadAcquiredDenseIndex(faceEngine, indexPath)
+        resDeser = loadedIndex.search(descriptor, searchResultSize)
+        self.assertTrue(resDeser[0].isOk)
+        searchArrayDeser = resDeser[1]
+        for i in range(len(resDeser[1])):
+            self.assertEqual(searchArrayDeser[i].index, reference[i])
+
+    def testDynamicSearchBuilt(self):
+        faceEngine, descriptor, batch = load("descriptor1_46.bin", "batch46_eq1k.bin")
+        builtIndex = buildAcquiredIndexWithBatch(faceEngine, batch)
+        resBuilt = builtIndex.search(descriptor, searchResultSize)
+        self.assertTrue(resBuilt[0].isOk)
+        for i in range(len(resBuilt[1])):
+            self.assertEqual(resBuilt[1][i].index, reference[i])
+
+    def testDynamicSearchDeser(self):
+        faceEngine, descriptor, batch = load("descriptor1_46.bin", "batch46_eq1k.bin")
+        builtIndex = buildAcquiredIndexWithBatch(faceEngine, batch)
+        indexPath = testDataPath + "/dynamic_index_tmp"
+        builtIndex.saveToDynamicIndex(indexPath)
+        loadedIndex = self.loadAcquiredDynamicIndex(faceEngine, indexPath)
+        resDeser = loadedIndex.search(descriptor, searchResultSize)
+        self.assertTrue(resDeser[0].isOk)
+        for i in range(len(resDeser[1])):
+            self.assertEqual(resDeser[1][i].index, reference[i])
+    def testDynamicAppend(self):
+        faceEngine, descriptor, batch = load("descriptor1_46.bin", "batch46_eq1k.bin")
+        builtIndex = buildAcquiredIndexWithBatch(faceEngine, batch)
+        # fake descr
+        fakeDescriptor = faceEngine.createDescriptor()
+        data = bytes(256*0x01)
+        fakeDescriptor.load(data, len(data))
+        appendRes = builtIndex.appendDescriptor(fakeDescriptor)
+        self.assertTrue(appendRes.isOk)
+        self.assertEqual(appendRes.value, sizeOfBatch)
+        self.assertEqual(builtIndex.size(), sizeOfBatch + 1)
+        self.assertEqual(builtIndex.countOfIndexedDescriptors(), sizeOfBatch + 1)
+
+        # Search reference
+        resRef = builtIndex.search(descriptor, searchResultSize)
+        self.assertTrue(resRef[0].isOk)
+        self.assertEqual(len(resRef[1]), searchResultSize)
+        for i in range(len(resRef[1])):
+            self.assertEqual(resRef[1][i].index, reference[i])
+
+        # Search fake
+        err, arr = builtIndex.search(fakeDescriptor, searchResultSize)
+        self.assertTrue(err.isOk)
+        # since we look for appended index, assume its found and is exactly the same
+        self.assertEqual(arr[0].index, appendRes.value)
+        self.assertEqual(arr[0].similarity, 1.0)
+        self.assertEqual(arr[0].distance, 0.0)
+
+    def testDynamicAppendBatch(self):
+        faceEngine, descriptor, batch = load("descriptor1_46.bin", "batch46_eq1k.bin")
+        builtIndex = buildAcquiredIndexWithBatch(faceEngine, batch)
+        appendRes = builtIndex.appendBatch(batch)
+        self.assertTrue(appendRes.isOk)
+        # compare to sizeOfBatch because existing inside index batch is the same batch
+        # so if append returns first index of inserted batch, it should return last position + 1
+        # which equals size of batch
+        self.assertEqual(appendRes.value, sizeOfBatch)
+        self.assertEqual(builtIndex.size(), 2 * sizeOfBatch)
+        self.assertEqual(builtIndex.countOfIndexedDescriptors(), 2 * sizeOfBatch)
+        # Search in dynamic index: reference
+        err, searchArray = builtIndex.search(descriptor, searchResultSize)
+        self.assertTrue(err.isOk)
+        size = len(searchArray)
+        self.assertEqual(size, searchResultSize)
+        for i in range(int(size / 2)):
+            firstEqFirst = searchArray[2 * i].index == reference[i]
+            firstEqSecond = searchArray[2 * i].index == reference[i] + sizeOfBatch
+            secondEqFirst = searchArray[2 * i].index == reference[i]
+            secondEqSecond = searchArray[2 * i].index == reference[i] + sizeOfBatch
+    def testDynamicRemove(self):
+        faceEngine, descriptor, batch = load("descriptor1_46.bin", "batch46_eq1k.bin")
+        builtIndex = buildAcquiredIndexWithBatch(faceEngine, batch)
+        self.assertEqual(builtIndex.size(), sizeOfBatch)
+        self.assertEqual(builtIndex.countOfIndexedDescriptors(), sizeOfBatch)
+        removeResult = builtIndex.removeDescriptor(reference[0])
+        self.assertTrue(removeResult.isOk)
+        # 	yep size does not shrink for implementation reasons
+        self.assertEqual(builtIndex.size(), sizeOfBatch)
+        self.assertEqual(builtIndex.countOfIndexedDescriptors(), sizeOfBatch - 1)
+
+        # Search fake
+        err, arr = builtIndex.search(descriptor, searchResultSize)
+        self.assertTrue(err.isOk)
+        size = len(arr)
+        self.assertEqual(size, searchResultSize)
+
+        # since we have removed first reference element, it should find everything but
+        # this element
+        for i in range(size - 1):
+            self.assertEqual(arr[i].index, reference[i + 1])
+
+    def testDynamicRemoveAll(self):
+        faceEngine, descriptor, batch = load("descriptor1_46.bin", "batch46_eq1k.bin")
+        builtIndex = buildAcquiredIndexWithBatch(faceEngine, batch)
+        self.assertEqual(builtIndex.size(), sizeOfBatch)
+        self.assertEqual(builtIndex.countOfIndexedDescriptors(), sizeOfBatch)
+        # remove everything
+        for i in range(sizeOfBatch):
+            removeResult = builtIndex.removeDescriptor(i)
+            self.assertTrue(removeResult.isOk)
+            self.assertEqual(builtIndex.size(), sizeOfBatch)
+            self.assertEqual(builtIndex.countOfIndexedDescriptors(), sizeOfBatch - (i + 1))
+        # Search fake. should fail as index is empty
+        err, arr = builtIndex.search(descriptor, searchResultSize)
+        self.assertFalse(err.isOk)
+        self.assertEqual(arr, [])
 
 if __name__ == '__main__':
     unittest.main()

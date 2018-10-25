@@ -75,7 +75,7 @@ def ir_example(ir_image_path):
         print("ir image was not found {0}".format(err))
         exit(1)
     ir_result = iREstimator.estimate(ir_image)
-    print("Ir estimator value: ", ir_result.value)
+    print("Ir estimator value: ", ir_result)
 
 
 def faceFlow_example():
