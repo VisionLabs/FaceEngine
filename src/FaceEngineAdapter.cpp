@@ -13,6 +13,10 @@ PyIFaceEngine::PyIFaceEngine(const char* dataPath = nullptr, const char* configP
 	faceEnginePtr = fsdk::acquire(fsdk::createFaceEngine(dataPath, configPath));
 }
 
+fsdk::FaceEngineEdition PyIFaceEngine::getFaceEngineEdition() {
+	return faceEnginePtr->getFaceEngineEdition();
+}
+
 fsdk::IDetectorPtr PyIFaceEngine::createDetector(fsdk::ObjectDetectorClassType type) {
 	fsdk::IDetectorPtr detectorPtr = fsdk::acquire(faceEnginePtr->createDetector(type));
 	if (!detectorPtr)

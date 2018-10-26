@@ -17,6 +17,7 @@ PyIFaceEngine createPyFaceEnginePtr(const char* dataPath = nullptr, const char* 
 	return PyIFaceEngine(dataPath, configPath);
 }
 
+
 PyISettingsProvider createSettingsProviderPtr(const char* path) {
 	return PyISettingsProvider(path);
 }
@@ -332,6 +333,17 @@ PYBIND11_MODULE(FaceEngine, f) {
 			
     )pbdoc";
 	
+	enum class FaceEngineEdition {
+		FrontEndEdition,
+		CompleteEdition
+	};
+	
+	py::enum_<fsdk::FaceEngineEdition>(f, "FaceEngineEdition", "Complete or FrontEdition version.\n")
+		.value("FrontEndEdition", fsdk::FaceEngineEdition::FrontEndEdition)
+		.value("CompleteEdition", fsdk::FaceEngineEdition::CompleteEdition)
+		.export_values();
+			;
+	
 	f.def("createFaceEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
 		  "Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr,
 		  "Create the LUNA SDK root object\n"
@@ -345,6 +357,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 		  "\t\tparam1 (str): configuration file path\n");
 	
 	py::class_<PyIFaceEngine>(f, "PyIFaceEngine", "Root LUNA SDK object interface\n")
+		.def("getFaceEngineEdition", &PyIFaceEngine::getFaceEngineEdition,
+			"Get LUNA SDK ditribution edition.\n"
+			"\tReturns:\n"
+			"\t\t(enum FaceEngineEdition) Edition of LUNA SDK instance. Posible values:\n"
+			"\t\t\tCompleteEdition - full edition with all function.\n"
+			"\t\t\tFrontEndEdition - short edition with excluded descriptor functions.\n"
+			"\t\t\tExtractor, matcher, descriptor, batch and index cannot be created.")
 		.def("createAttributeEstimator", &PyIFaceEngine::createAttributeEstimator, "Creates Attribute estimator\n")
 		.def("createQualityEstimator", &PyIFaceEngine::createQualityEstimator, "Creates Quality estimator\n")
 		.def("createEthnicityEstimator", &PyIFaceEngine::createEthnicityEstimator, "Creates Ethnicity estimator\n")
@@ -946,26 +965,25 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 landmarks.data(),
 				 landmarks68.data(),
 				 maxCount);
-				 auto detectionResultPyList = py::list();
+				 
 				 if (err.isOk()) {
+					 auto detectionResultPyList = py::list(err.getValue());
 					 for (uint32_t i = 0; i < (uint32_t)err.getValue(); ++i) {
-						 detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i], landmarks68[i]));
+						 detectionResultPyList[i] = std::make_tuple(detections[i], landmarks[i], landmarks68[i]);
 					 }
-					 return detectionResultPyList;
-				 }
-				 else {
-					 detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
-					 return detectionResultPyList; }},
+					 return std::make_tuple(FSDKErrorValueInt(err), detectionResultPyList);
+				 } else {
+					 return std::make_tuple(FSDKErrorValueInt(err), py::list());
+				 }},
 			 "Detect faces and landmarks on the image\n"
 			 "\tArgs:\n"
 			 "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
 			 "\t\tparam2 (Rect): rect of interest inside of the image\n"
 			 "\t\tparam3 (int): length of `detections` and `landmarks` arrays\n"
 			 "\tReturns:\n"
-			 "\t\t(list of tuples from Detection, Landmarks5, Landmarks68): if success - list of tuples of Detection, "
-			 "\tLandmarks5, Landmarks68,\n"
-			 "\t\t(FSDKErrorValueInt wrapped in list): else - error code and number of detections wrapped in list, "
-			 "see FSDKErrorValueInt\n")
+			 "\t\t(tuple with FSDKErrorValueInt code and list of tuples): \n"
+			 "\t\t\ttuple with FSDKErrorValueInt code and list of tuples from\n"
+			 "\t\t\tDetection, Landmarks5, Landmarks68see FSDKErrorValueInt (see FSDKErrorValueInt)\n")
 		
 		.def("detect_light",[](
 			 const fsdk::IDetectorPtr& det,
@@ -978,25 +996,23 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 rect,
 				 detections.data() ,
 				 maxCount);
-				 auto detectionResultPyList = py::list();
-				 if (err.isOk()) {
-					 for (uint32_t i = 0; i < (uint32_t)err.getValue(); ++i) {
-						 detectionResultPyList.append(detections[i]);
-					 }
-					 return detectionResultPyList;
-				 }
-				 else {
-					 detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
-					 return detectionResultPyList; }},
+				
+				if (err.isOk()) {
+					auto detectionResultPyList = py::list(err.getValue());
+					for (uint32_t i = 0; i < (uint32_t)err.getValue(); ++i) {
+						detectionResultPyList[i] = detections[i];
+					}
+					return std::make_tuple(FSDKErrorValueInt(err), detectionResultPyList);
+				} else {
+					return std::make_tuple(FSDKErrorValueInt(err), py::list()); }},
 			 "Detect faces and landmarks on the image\n"
 			 "\tArgs:\n"
 			 "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
 			 "\t\tparam2 (Rect): rect of interest inside of the image\n"
 			 "\t\tparam3 (int): length of `detections` array\n"
 			 "\tReturns:\n"
-			 "\t\t(list of Detection): if success - Detection\n"
-			 "\t\t(FSDKErrorValueInt wrapped in list): else - error code and number of detections wrapped in list, "
-			 "see FSDKErrorValueInt\n")
+			 "\t\t(tuple with FSDKErrorValueInt code and list of Detections): \n"
+			 "\t\t\ttuple with FSDKErrorValueInt code and list of Detections (see FSDKErrorValueInt)\n")
 		
 		.def("detect5",[](
 			 const fsdk::IDetectorPtr& det,
@@ -1012,25 +1028,25 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 landmarks.data(),
 				 maxCount);
 				 auto detectionResultPyList = py::list();
-				 if (err.isOk()) {
-					 for (uint32_t i = 0; i < (uint32_t)err.getValue(); ++i) {
-						 detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i]));
-					 }
-					 return detectionResultPyList;
-				 }
-				 else {
-					 detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
-					 return detectionResultPyList; }},
+			
+			
+			if (err.isOk()) {
+				auto detectionResultPyList = py::list(err.getValue());
+				for (uint32_t i = 0; i < (uint32_t)err.getValue(); ++i)
+					detectionResultPyList[i] = std::make_tuple(detections[i], landmarks[i]);
+				
+				return std::make_tuple(FSDKErrorValueInt(err), detectionResultPyList);
+			} else
+				return std::make_tuple(FSDKErrorValueInt(err), py::list()); },
+			 
 			 "Detect faces and landmarks on the image\n"
 			 "\tArgs:\n"
 			 "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
 			 "\t\tparam2 (Rect): rect of interest inside of the image\n"
 			 "\t\tparam3 (int): length of `detections` and `landmarks` arrays\n"
 			 "\tReturns:\n"
-			 "\t\t(list of tuples from Detection, Landmarks5): if success - list of tuples of Detection and "
-			 "\tLandmarks5\n"
-			 "\t\t(FSDKErrorValueInt wrapped in list): else - error code and number of detections wrapped in list, "
-			 "see FSDKErrorValueInt\n")
+			 "\t\t(tuple with FSDKErrorValueInt code and list of tuples): \n"
+			 "\t\t\t tuple with FSDKErrorValueInt code and list of tuples from Detection, Landmarks5 (see FSDKErrorValueInt)\n")
 			;
 	
 	py::class_<fsdk::IWarperPtr>(f, "IWarperPtr",

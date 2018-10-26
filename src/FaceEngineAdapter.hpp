@@ -7,8 +7,10 @@
 class PyIFaceEngine {
 public:
 	fsdk::IFaceEnginePtr faceEnginePtr;
-
+	
 	PyIFaceEngine(const char* dataPath, const char* configPath);
+	
+	fsdk::FaceEngineEdition getFaceEngineEdition();
 
 	fsdk::IDetectorPtr createDetector(fsdk::ObjectDetectorClassType type);
 
