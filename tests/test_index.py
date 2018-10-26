@@ -95,11 +95,6 @@ def buildAcquiredIndexWithBatchAndDoBeforeBuild(
     buildRes = _indexBuilder.buildIndex()
     index = buildRes[1]
     assert(buildRes[0].isOk and index)
-
-    # if _checkProgress:
-    #     assert(tracker.sz == sizeOfBatch/100)
-    #     for i in range(tracker.sz):
-    #         assert(tracker.reports[i] - 0.1 * (i + 1) > 0)
     return index
 
 
@@ -201,14 +196,9 @@ class TestFaceEngineRect(unittest.TestCase):
         self.query(batch, builtIndex, faceEngine, IndexTest(169, 7712))
         densePath = testDataPath + "/dense_index.txt"
         err = builtIndex.saveToDenseIndex(densePath)
-        print("MSD saved image {0}".format(err))
         loadedDenseIndex = loadAcquiredDenseIndex(faceEngine, densePath)
-        print(loadedDenseIndex)
         self.query(batch, loadedDenseIndex, faceEngine, IndexTest(108, 9228))
         resDeser = loadedDenseIndex.search(descriptor, searchResultSize)
-        print(resDeser)
-        print(resBuilt[0], resDeser[0])
-        print(resBuilt[1], resDeser[1])
         self.areSearchResultsEqual(resBuilt[0], resDeser[0], resBuilt[1], resDeser[1])
         self.assertTrue(self.areSearchResultsEqual(resBuilt[0], resDeser[0], resBuilt[1], resDeser[1]))
     # DynamicSerialization

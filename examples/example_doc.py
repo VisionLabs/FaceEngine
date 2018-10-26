@@ -35,6 +35,11 @@ print(fe.PyIFaceEngine.createDescriptor.__doc__)
 print(fe.PyIFaceEngine.createDescriptorBatch.__doc__)
 print(fe.PyIFaceEngine.createExtractor.__doc__)
 print(fe.PyIFaceEngine.createMatcher.__doc__)
+
+print(fe.PyIFaceEngine.createIndexBuilder.__doc__)
+print(fe.PyIFaceEngine.loadDenseIndex.__doc__)
+print(fe.PyIFaceEngine.loadDynamicIndex.__doc__)
+
 print(fe.PyIFaceEngine.setSettingsProvider.__doc__)
 
 print(fe.SettingsProviderValue.__doc__)
