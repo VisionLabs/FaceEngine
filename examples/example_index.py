@@ -22,40 +22,6 @@ import FaceEngine as fe
 configPath = "data" + "/faceengine.conf"
 testDataPath = "testData"
 
-searchResultSize = 10
-sizeOfBatch = 999
-reference = [763, 762, 852, 850, 851, 600, 936, 886, 739, 152]
-
-
-def loadAcquiredFaceEngineWithCnn46():
-    faceEnginePtr = fe.createFaceEngine("data",
-                                       configPath)
-    config = fe.createSettingsProvider(configPath)
-    config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(46))
-    faceEnginePtr.setSettingsProvider(config)
-    print(config.getValue("DescriptorFactory::Settings", "model").asInt())
-    return faceEnginePtr
-
-
-def loadAcquiredDescriptor(_faceEngine, _fileName):
-    descriptor = _faceEngine.createDescriptor()
-    with open(_fileName, "rb") as file:
-        data = file.read()
-        fileDescriptorSize = len(data)
-        descriptor.load(data, fileDescriptorSize)
-        return descriptor
-
-
-def loadAcquiredBatch(_faceEngine, _fileName):
-    batch = _faceEngine.createDescriptorBatch(sizeOfBatch)
-    with open(_fileName, "rb") as file:
-        data = file.read()
-        fileBatchSize = len(data)
-        print("MSD len of batch = %d", fileBatchSize)
-        batch.load(data, fileBatchSize)
-
-    return batch
-
 def loadImages(_imagesDirPath, _listPath):
     imagesNamesList = []
     imagesList = []
@@ -135,9 +101,9 @@ def extractDescriptor(_faceEngine, _detector, _descriptorExtractor, image):
         descriptor)
     data = descriptor.getDescriptor()
 
-    # MSD out desc
-    for i in data:
-        print(i)
+    # # MSD out desc
+    # for i in data:
+    #     print(i)
 
     if extractorResult.isError:
         print("Failed to extract face descriptor. Reason: {0}".format(extractorResult.what()))
