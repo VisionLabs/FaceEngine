@@ -9,9 +9,11 @@ def help():
     " *list - path to images names list\n"
     " *threshold - similarity threshold in range (0..1]\n")
 
-# if len(sys.argv) != 6:
-#     help()
-#     exit(1)
+print(sys.argv)
+
+if len(sys.argv) != 6:
+    help()
+    exit(1)
 
 # pass path dir with FaceEngine*.so and add it to system directory
 sys.path.append(sys.argv[1])
@@ -58,7 +60,7 @@ def loadImages(_imagesDirPath, _listPath):
     imagesNamesList = []
     imagesList = []
     with open(_listPath) as file:
-        lines = file.read().split()
+        lines = file.readlines()
         for line in lines:
             line = line.strip()
             print(line)
@@ -67,7 +69,7 @@ def loadImages(_imagesDirPath, _listPath):
             image = fe.Image()
             err = image.load(imagePath)
             print(err)
-            if not err.isOk:
+            if err.isError:
                 print("Failed to load image: {0}".format(imagePath))
             else:
                 imagesNamesList.append(imageName)
@@ -77,25 +79,28 @@ def loadImages(_imagesDirPath, _listPath):
 
 def extractDescriptor(_faceEngine, _detector, _descriptorExtractor, image):
     confidenceThreshold = 0.25
-    if image.isValid():
+    if not image.isValid():
         print("Request image is invalid.")
         return None
     imageBGR = fe.Image()
-    imageData = image.getData()
-    imageBGR.setData(imageData, fe.Format(fe.B8G8R8))
-    if not imageBGR.isValid():
-        print("Conversion to BGR has failed.")
-        return None
+    if image.getFormat() == fe.FormatType.R8G8B8:
+        imageBGR = image
+    else:
+        imageData = image.getData()
+        imageBGR.setData(imageData, fe.FormatType.R8G8B8)
+        if not imageBGR.isValid():
+            print("Conversion to BGR has failed.")
+            return None
     print("Detecting faces.")
     detectionsCount = 10
 
-    detectorResult, det_list = _detector.detect5(image, image.getRect(), detectionsCount)
+    detectorResult, det_list = _detector.detect5(imageBGR, imageBGR.getRect(), detectionsCount)
     detections = []
     landmarks5l = []
 
     for elem in det_list:
         detections.append(elem[0])
-        landmarks5l.append(elem[0])
+        landmarks5l.append(elem[1])
     if detectorResult.isError:
         print("Failed to detect face detection. Reason: {0}".foramt(detectorResult.what()))
     detectionsCount = len(detections)
@@ -107,11 +112,13 @@ def extractDescriptor(_faceEngine, _detector, _descriptorExtractor, image):
     for detectionIndex in range(detectionsCount):
         detection = detections[detectionIndex]
         print("Detecting facial features ({0}/{1})".format(detectionIndex + 1, detectionsCount))
+        print(detection.score)
         if detection.score > bestScore:
             bestScore = detection.score
             bestDetectionIndex = detectionIndex
     if bestScore < confidenceThreshold:
         print("Face detection succeeded, but no faces with good confidence found.")
+        return None
     print("Best face confidence is {0}".format(bestScore))
     print("Extracting descriptor.")
     try:
@@ -137,26 +144,31 @@ def extractDescriptor(_faceEngine, _detector, _descriptorExtractor, image):
 
     return descriptor
 
-def doIndexStuff(getIndex, search, report, completion):
+
+class Progress:
     ok = False
     batchStart = 0
-    index = getIndex(batchStart, ok)
+    externalBatchStart = 0
 
-    if not ok:
+
+def doIndexStuff(getIndex, _search, _report, _completion=None):
+    index = getIndex()
+
+    if not Progress.ok:
         print("Failed to get index")
         return False
 
-    results = search(index, ok)
+    results = _search(index)
 
-    if not ok:
+    if not Progress.ok:
         print("Failed to search index")
         return False
 
-    report(results, batchStart)
+    _report(results)
 
-    if completion:
-        completion(index, ok)
-        if not ok:
+    if _completion:
+        _completion(index)
+        if not Progress.ok:
             print("Failed to complete")
             return False
     return True
@@ -175,21 +187,19 @@ def doIndexStuff(getIndex, search, report, completion):
     # 4) matching threshold.
     # If matching score is above the threshold, then both images
     # belong to the same person, otherwise they belong to different persons.
-    # Images should be in ppm format.                                                                                                                                       // Images should be in ppm format.
-
 
 if __name__ == "__main__":
+    imagePath = sys.argv[2]
+    imagesDirPath = sys.argv[3]
+    listPath = sys.argv[4]
+    threshold = float(sys.argv[5])
 
-    # imagePath = sys.argv[2]
-    # imagesDirPath = sys.argv[3]
-    # listPath = sys.argv[4]
-    # threshold = float(sys.argv[5])
-
-    # print("imagePath: {0}\n,"
-    #       "imagesDirPath: {1}\n"
-    #       "listPath: {2}\n"
-    #       "threshold: {3}\n", imagePath, imagesDirPath, listPath, threshold)
+    print("imagePath: {0}\n,"
+          "imagesDirPath: {1}\n"
+          "listPath: {2}\n"
+          "threshold: {3}\n", imagePath, imagesDirPath, listPath, threshold)
     # correct path or put directory "data" with example.py
+    # Create FaceEngine root SDK object.
     faceEngine = fe.createFaceEngine("data",
                                      "data/faceengine.conf")
     if faceEngine.getFaceEngineEdition() != fe.CompleteEdition:
@@ -208,51 +218,47 @@ if __name__ == "__main__":
     descriptorBatch = faceEngine.createDescriptorBatch(len(imagesList))
     for image in imagesList:
         descriptor = extractDescriptor(faceEngine, detector, descriptorExtractor, image)
-    if descriptor.getData():
-        exit(-1)
-    descriptorBatchAddResult = descriptorBatch.add(descriptor)
-    if descriptorBatchAddResult.isError():
-        print("Failed to add descriptor to descriptor batch.")
-        exit(-1)
+
+        if descriptor is None:
+            continue
+        descriptorBatchAddResult = descriptorBatch.add(descriptor)
+        if descriptorBatchAddResult.isError:
+            print("Failed to add descriptor to descriptor batch.")
+            exit(-1)
 
     image = fe.Image()
-    if not image.load(imagePath).isOk:
+    if image.load(imagePath).isError:
         print("Failed to load image:{0}".format())
 
     # Extract face descriptor.
     descriptor = extractDescriptor(faceEngine, detector, descriptorExtractor, image)
 
-    if descriptor.getData():
-        exit(-1)
-
-    def reporter(imagePath, results, batchStart, threshold):
-        for j in len(results):
-            print("Images: \"{0}\" and \"{1}\" matched with score: \"{2}\"".format(imagePath, imagesNamesList[results[j].index - batchStart], results[j].similarity * 100.0))
+    def reporter(results):
+        for j in range(len(results)):
+            print("Images: \"{0}\" and \"{1}\" matched with score: \"{2}\" ".format(imagePath, imagesNamesList[results[j].index - Progress.batchStart], results[j].similarity * 100.0))
             s = "Images: \"{0}\", and \"{1}\"".format(imagePath,
-                  imagesNamesList[results[j].index - batchStart],
+                  imagesNamesList[results[j].index - Progress.batchStart],
                   )
             if results[j].similarity > threshold:
                 print(s + "belong to one person.")
             else:
                 print(s + "belong to different persons.")
 
-    def searcher(index, ok):
+
+    def searcher(_index):
         maxResCount = 10
-        err, arr = index.search(descriptor, maxResCount)
+        err, searchList = _index.search(descriptor, maxResCount)
         if err.isError:
             print("Failed to search")
-            ok = False
+            Progress.ok = False
             return
-        resCount = err.value
-        ok = True
-        return arr
+        Progress.ok = True
+        return searchList
 
     # Create Index Builder, build index, search it, print results, deserialize
     denseIndexPath = imagesDirPath + "/index.dense.tmp"
     dynamicIndexPath = imagesDirPath + "/index.dynamic.tmp"
-    externalBatchStart = 0
-
-
+    Progress.externalBatchStart = 0
 
     # def deserializeDenseIndexSearch(denseIndexPath, ):
 
@@ -264,41 +270,42 @@ if __name__ == "__main__":
         appendResult = indexBuilder.appendBatch(descriptorBatch)
         if appendResult.isError:
             print("Failed to append batch to builder")
-            ok = False
+            Progress.ok = False
             return None
         # index of first batch element. might be used to query/remove descriptors
-        batchStart = appendResult.value
+        Progress.batchStart = appendResult.value
         # since we cant get batch start on deserialization, but on append
         # we have to save it here
-        externalBatchStart = batchStart
+        Progress.externalBatchStart = Progress.batchStart
         err, index = indexBuilder.buildIndex()
         if err.isError:
             print("Failed to build index")
-            ok = False
+            Progress.ok = False
             return None
 
-        ok = True
+        Progress.ok = True
         return index
 
-
-    def deserialize(index, ok):
+    # pass only dynamic index
+    def deserialize(index):
         serDenseResult = index.saveToDenseIndex(denseIndexPath)
         if serDenseResult.isError:
             print("Failed to serialized as dense")
-            ok = False
+            Progress.ok = False
             return
 
         serDynamicResult = index.saveToDynamicIndex(dynamicIndexPath)
         if serDynamicResult.isError:
             print("Failed to serialized as dynamic")
-            ok = False
+            Progress.ok = False
             return
 
-        ok = True
+        Progress.ok = True
         return
 
-
-    if not doIndexStuff(getIndex, searcher, reporter, deserialize):
+    Progress.ok = False
+    Progress.ok = doIndexStuff(getIndex, searcher, reporter, deserialize)
+    if not Progress.ok:
         print("Failed to do index builder pipeline")
         exit(-1)
 
@@ -306,14 +313,14 @@ if __name__ == "__main__":
     print("DENSE INDEX PIPELINE: ")
 
     # Load dense index
-    def denseIndexLoader(batchStart, ok):
+    def denseIndexLoader():
         err, index = faceEngine.loadDenseIndex(denseIndexPath)
         if err.isError:
             print("Failed to deser dense index")
-            ok = False
+            Progress.ok = False
             return None
-        batchStart = externalBatchStart
-        ok = True
+        Progress.batchStart = Progress.externalBatchStart
+        Progress.ok = True
         return index
 
     if not doIndexStuff(denseIndexLoader, searcher, reporter):
@@ -322,29 +329,16 @@ if __name__ == "__main__":
 
     print("DYNAMIC INDEX PIPELINE: ")
 
-    def dynamicIndexLoader(batchStart, ok):
+    def dynamicIndexLoader():
         err, index = faceEngine.loadDynamicIndex(dynamicIndexPath)
         if err.isError:
-            print("Failed to deserilize dynamic index")
-            ok = False
+            print("Failed to deser dynamic index")
+            Progress.ok = False
             return None
 
-        batchStart = externalBatchStart
-        ok = True
+        Progress.batchStart = Progress.externalBatchStart
+        Progress.ok = True
         return index
 
     if not doIndexStuff(dynamicIndexLoader, searcher, reporter):
         print("Failed to do dense index pipeline")
-
-
-
-
-
-
-    faceEngine.createIndexBuilder()
-
-    faceEngine = loadAcquiredFaceEngineWithCnn46()
-    descriptor = loadAcquiredDescriptor(faceEngine, testDataPath + "/descriptor1_46.bin")
-    batch = loadAcquiredBatch(faceEngine, testDataPath + "/batch46_eq1k.bin")
-    countOfRemovals = 5
-    indexesToRemove = [459, 245, 651, 832, 634]
