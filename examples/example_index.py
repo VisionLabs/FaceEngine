@@ -75,7 +75,7 @@ def loadImages(_imagesDirPath, _listPath):
         assert(len(imagesNamesList) == len(imagesList))
     return imagesNamesList, imagesList
 
-def extractDescriptor(faceEngine, _detector, descriptorExtractor, image):
+def extractDescriptor(_faceEngine, _detector, _descriptorExtractor, image):
     confidenceThreshold = 0.25
     if image.isValid():
         print("Request image is invalid.")
@@ -115,13 +115,13 @@ def extractDescriptor(faceEngine, _detector, descriptorExtractor, image):
     print("Best face confidence is {0}".format(bestScore))
     print("Extracting descriptor.")
     try:
-        descriptor = faceEngine.createDescriptor()
+        descriptor = _faceEngine.createDescriptor()
     except:
         print("Failed to create face descrtiptor instance.")
         return None
     # Extract face descriptor.
     # This is typically the most time-consuming task.
-    extractorResult = descriptorExtractor.extract(
+    extractorResult = _descriptorExtractor.extract(
         image,
         detections[bestDetectionIndex],
         landmarks5l[bestDetectionIndex],
@@ -194,18 +194,151 @@ if __name__ == "__main__":
                                      "data/faceengine.conf")
     if faceEngine.getFaceEngineEdition() != fe.CompleteEdition:
         print("FaceEngine SDK Frontend edition doesn't support face descriptors. Use FaceEngine SDK Complete edition")
-        exit(1)
+        exit(-1)
 
     detector = faceEngine.createDetector(fe.ODT_MTCNN)
     descriptorExtractor = faceEngine.createExtractor()
     imagesNamesList, imagesList = loadImages(imagesDirPath, listPath)
     if not imagesNamesList or not imagesList:
         print("Failed to load images.")
-        exit(1)
+        exit(-1)
 
     print("Creating descriptor batch.")
     # Extract faces descriptors.
     descriptorBatch = faceEngine.createDescriptorBatch(len(imagesList))
+    for image in imagesList:
+        descriptor = extractDescriptor(faceEngine, detector, descriptorExtractor, image)
+    if descriptor.getData():
+        exit(-1)
+    descriptorBatchAddResult = descriptorBatch.add(descriptor)
+    if descriptorBatchAddResult.isError():
+        print("Failed to add descriptor to descriptor batch.")
+        exit(-1)
+
+    image = fe.Image()
+    if not image.load(imagePath).isOk:
+        print("Failed to load image:{0}".format())
+
+    # Extract face descriptor.
+    descriptor = extractDescriptor(faceEngine, detector, descriptorExtractor, image)
+
+    if descriptor.getData():
+        exit(-1)
+
+    def reporter(imagePath, results, batchStart, threshold):
+        for j in len(results):
+            print("Images: \"{0}\" and \"{1}\" matched with score: \"{2}\"".format(imagePath, imagesNamesList[results[j].index - batchStart], results[j].similarity * 100.0))
+            s = "Images: \"{0}\", and \"{1}\"".format(imagePath,
+                  imagesNamesList[results[j].index - batchStart],
+                  )
+            if results[j].similarity > threshold:
+                print(s + "belong to one person.")
+            else:
+                print(s + "belong to different persons.")
+
+    def searcher(index, ok):
+        maxResCount = 10
+        err, arr = index.search(descriptor, maxResCount)
+        if err.isError:
+            print("Failed to search")
+            ok = False
+            return
+        resCount = err.value
+        ok = True
+        return arr
+
+    # Create Index Builder, build index, search it, print results, deserialize
+    denseIndexPath = imagesDirPath + "/index.dense.tmp"
+    dynamicIndexPath = imagesDirPath + "/index.dynamic.tmp"
+    externalBatchStart = 0
+
+
+
+    # def deserializeDenseIndexSearch(denseIndexPath, ):
+
+    print("BUILDER PIPELINE: ")
+
+    def getIndex():
+        indexBuilder = faceEngine.createIndexBuilder()
+        #  Put batch into builder
+        appendResult = indexBuilder.appendBatch(descriptorBatch)
+        if appendResult.isError:
+            print("Failed to append batch to builder")
+            ok = False
+            return None
+        # index of first batch element. might be used to query/remove descriptors
+        batchStart = appendResult.value
+        # since we cant get batch start on deserialization, but on append
+        # we have to save it here
+        externalBatchStart = batchStart
+        err, index = indexBuilder.buildIndex()
+        if err.isError:
+            print("Failed to build index")
+            ok = False
+            return None
+
+        ok = True
+        return index
+
+
+    def deserialize(index, ok):
+        serDenseResult = index.saveToDenseIndex(denseIndexPath)
+        if serDenseResult.isError:
+            print("Failed to serialized as dense")
+            ok = False
+            return
+
+        serDynamicResult = index.saveToDynamicIndex(dynamicIndexPath)
+        if serDynamicResult.isError:
+            print("Failed to serialized as dynamic")
+            ok = False
+            return
+
+        ok = True
+        return
+
+
+    if not doIndexStuff(getIndex, searcher, reporter, deserialize):
+        print("Failed to do index builder pipeline")
+        exit(-1)
+
+    # Deserialize dense index, search in it
+    print("DENSE INDEX PIPELINE: ")
+
+    # Load dense index
+    def denseIndexLoader(batchStart, ok):
+        err, index = faceEngine.loadDenseIndex(denseIndexPath)
+        if err.isError:
+            print("Failed to deser dense index")
+            ok = False
+            return None
+        batchStart = externalBatchStart
+        ok = True
+        return index
+
+    if not doIndexStuff(denseIndexLoader, searcher, reporter):
+        print("Failed to do dense index pipeline")
+        exit(-1)
+
+    print("DYNAMIC INDEX PIPELINE: ")
+
+    def dynamicIndexLoader(batchStart, ok):
+        err, index = faceEngine.loadDynamicIndex(dynamicIndexPath)
+        if err.isError:
+            print("Failed to deserilize dynamic index")
+            ok = False
+            return None
+
+        batchStart = externalBatchStart
+        ok = True
+        return index
+
+    if not doIndexStuff(dynamicIndexLoader, searcher, reporter):
+        print("Failed to do dense index pipeline")
+
+
+
+
 
 
     faceEngine.createIndexBuilder()
