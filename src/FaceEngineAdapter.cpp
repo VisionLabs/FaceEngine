@@ -147,6 +147,13 @@ fsdk::IGazeEstimatorPtr PyIFaceEngine::createGazeEstimator() {
 	return gazeEstimatorPtr;
 }
 
+fsdk::IAGSEstimatorPtr PyIFaceEngine::createAGSEstimator() {
+	fsdk::IAGSEstimatorPtr agsEstimatorPtr = fsdk::acquire(faceEnginePtr->createAGSEstimator());
+	if (!agsEstimatorPtr)
+		throw py::cast_error("\nFailed to create ags estimator instance! VERIFY PATH to \"data\" directory!");
+	return agsEstimatorPtr;
+}
+
 void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }

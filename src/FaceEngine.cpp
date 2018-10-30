@@ -326,6 +326,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator, "Creates Eye estimator\n")
 		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator, "Creates Emotions estimator\n")
 		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n")
+		.def("createAGSEstimator", &PyIFaceEngine::createAGSEstimator, "Creates AGS estimator\n")
 
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			"Creates a detector of given type.\n"
@@ -1298,6 +1299,26 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 "\tReturns:\n"
 				 "\t\t(GazeEstimation): if OK - output estimation; @see GazeEstimation.\n"
 				 "\t\t(FSDKErrorResult): else - error code")
+					;
+	
+	py::class_<fsdk::IAGSEstimatorPtr>(f, "IAGSEstimatorPtr",
+		"Approximate Garbage Score estimator interface.\n"
+		"\tThis estimator is designed to work with Image and detection.\n")
+			.def("estimate",[](
+				const fsdk::IAGSEstimatorPtr& est,
+				const fsdk::Image& image,
+				const fsdk::Detection& detection) {
+					 fsdk::ResultValue<fsdk::FSDKError, float> err = est->estimate(image, detection);
+					 if (err.isOk())
+						 return std::make_tuple(FSDKErrorResult(err), err.getValue());
+					 else
+						 return std::make_tuple(FSDKErrorResult(err), 0.0f); },
+				 "Estimate the ags.\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (Image): image source image in R8G8B8 format.\n"
+				 "\t\tparam2 (detection): detection coords in image space.\n"
+				 "\tReturns:\n"
+				 "\t\t(tuple with FSDKErrorResult and float value): Error code and float value.")
 					;
 
 	py::class_<fsdk::MatchingResult>(f, "MatchingResult", "Result of descriptor matching.")

@@ -421,6 +421,35 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertAlmostEqual(actual.rightEye.yaw, expected.rightEye.yaw, delta=0.01)
             self.assertAlmostEqual(actual.rightEye.pitch, expected.rightEye.pitch, delta=0.01)
             # print("GazeEstimation actual = {0}".format(actual))
+    def test_AGSEstimator(self):
+        config = f.createSettingsProvider("data/faceengine.conf")
+        config.setValue("system", "betaMode", f.SettingsProviderValue(1))
+        config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
+        faceEnginePtr.setSettingsProvider(config)
+        # config.acquire(fsdk::createSettingsProvider(configPath.c_str()));
+        # config->setValue("system", "betaMode", 1);
+        # config->setValue("system", "verboseLogging", 5);
+        # faceEngine->setSettingsProvider(config);
+
+        estimator = faceEnginePtr.createAGSEstimator()
+        #
+        image = f.Image();
+        image.load("testData/photo_2017-03-30_14-47-43_p.ppm");
+        #
+
+        reference = f.Detection()
+        refAGS = 0.977100
+        reference.rect.x = 54
+        reference.rect.y = 58
+        reference.rect.width = 135
+        reference.rect.height = 178
+        reference.score = 0.999916
+
+        r = estimator.estimate(image, reference);
+        print(r)
+        self.assertFalse(r[0].isError)
+        print(type(r[1]))
+        self.assertAlmostEqual(refAGS, r[1], delta=0.0001)
 
 if __name__ == '__main__':
     unittest.main()
