@@ -1266,7 +1266,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\t\t(int): Length of one descriptor in batch.\n")
 		
 		.def("getDescriptorSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
-				 std::cout << "MSD = " << index << " " << descriptorBatchPtr->getCount() << std::endl;
 				 if (index < 0 || index >= int(descriptorBatchPtr->getCount())) throw py::index_error();
 				 return fsdk::acquire(descriptorBatchPtr->getDescriptorSlow(index)); },
 			 "Create descriptor from batch by index with copying\n"

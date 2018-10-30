@@ -59,7 +59,6 @@ def loadAcquiredFaceEngineWithCnn46():
     config = fe.createSettingsProvider(configPath)
     config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(46))
     faceEnginePtr.setSettingsProvider(config)
-    print(config.getValue("DescriptorFactory::Settings", "model").asInt())
     return faceEnginePtr
 
 
@@ -155,16 +154,13 @@ class TestFaceEngineRect(unittest.TestCase):
 
     def query(self, _batch, _storage, _faceEngine, index):
         # test good
-        print(_batch.getCount())
         batchDescr = _batch.getDescriptorSlow(index.good)
         emptyDescr = _faceEngine.createDescriptor()
         newDescr = _storage.descriptorByIndex(index.good, emptyDescr)[1]
-        print(newDescr)
         self.assertTrue(_storage.descriptorByIndex(index.good, emptyDescr))
         self.checkDescriptorsEquality(batchDescr, newDescr)
         # test bad
         emptyDescr = _faceEngine.createDescriptor()
-        print(_storage.descriptorByIndex(index.bad, emptyDescr)[0])
         self.assertEqual(_storage.descriptorByIndex(index.bad, emptyDescr)[0].FSDKError, fe.FSDKError.InvalidInput)
 
     def testIndexSearchResult(self):
@@ -172,8 +168,6 @@ class TestFaceEngineRect(unittest.TestCase):
         distance = 8295526.0
         index = 923924
         res = fe.SearchResult(distance, similarity, index)
-        print("MSD", sys.getsizeof(res))
-        print(res)
         self.assertEqual(res.distance, distance)
         self.assertAlmostEqual(res.similarity, similarity)
         self.assertEqual(res.index, index)
