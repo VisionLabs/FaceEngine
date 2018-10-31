@@ -160,6 +160,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IGazeEstimatorPtr
 			IGazeEstimatorPtr.estimate
 
+			IAGSEstimatorPtr
+			IAGSEstimatorPtr.estimate
 
 			MatchingResult
 
@@ -227,6 +229,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			EyesEstimation.__init__
 			EyesEstimation.__repr__
 			State
+
 			EyeAttributes
 
 			EmotionsEstimation
@@ -1773,10 +1776,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			;
 
 	py::class_<fsdk::EyesEstimation::EyeAttributes>(f, "EyeAttributes", "Eyes attribute structure.")
-		.def_property_readonly_static("irisLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& e)
-			{return e.irisLandmarksCount; })
-		.def_property_readonly_static("eyelidLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& e)
-			{return e.eyelidLandmarksCount; })
 		.def_readwrite("state", &fsdk::EyesEstimation::EyeAttributes::state)
 		.def_readwrite("iris", &fsdk::EyesEstimation::EyeAttributes::iris)
 		.def_readwrite("eyelid", &fsdk::EyesEstimation::EyeAttributes::eyelid)
