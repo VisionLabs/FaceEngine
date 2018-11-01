@@ -382,14 +382,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			 "Creates a detector of given type.\n"
 			 "\tArgs:\n"
-			 "\t\tparam1 (enum ObjectDetectorClassType): fixed or random order of algorithm types\n")
+			 "\t\tparam1 (enum ObjectDetectorClassType): Object detector type enumeration.\n")
 		.def("createWarper", &PyIFaceEngine::createWarper, "Creates warper\n")
 		.def("createDescriptor", &PyIFaceEngine::createDescriptor, "Creates Descriptor\n")
 		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0,
 			 "Creates Batch of descriptors\n"
 			 "\tArgs:\n"
 			 "\t\tparam1 (int): amount of descriptors in batch\n"
-			 "\t\tparam2 (str): descriptor version in batch. If 0 - use dafault version from config\n")
+			 "\t\tparam2 (str): descriptor version in batch. If 0 - use default version from config\n")
 		
 		.def("createExtractor", &PyIFaceEngine::createExtractor, "Creates descriptor extractor\n")
 		.def("createMatcher", &PyIFaceEngine::createMatcher, "Creates descriptor matcher\n")
@@ -568,21 +568,21 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 reference,
 				 maxResultsCount,
 				 searchResults.data());
-				 if (err.isOk()) {
-					 const uint32_t searchSize = err.getValue();
-					 py::list searchResultsPyList(searchSize);
-					 for (uint32_t i = 0; i < searchSize; ++i)
-						 searchResultsPyList[i] = searchResults[i];
-					 return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
-				 } else {
-					 return std::make_tuple(FSDKErrorResult(err), py::list());
-				 }
-			 },
+					 if (err.isOk()) {
+						 const uint32_t searchSize = err.getValue();
+						 py::list searchResultsPyList(searchSize);
+						 for (uint32_t i = 0; i < searchSize; ++i)
+							 searchResultsPyList[i] = searchResults[i];
+						 return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
+					 } else {
+						 return std::make_tuple(FSDKErrorResult(err), py::list());
+					 }
+				 },
 			 "Search for descriptors with the shorter distance to passed descriptor.\n"
 			 "\tArgs:\n"
 			 "\t\tparam1 (IDescriptorPtr): Descriptor to match against index.\n"
 			 "\t\tparam2 (int): Maximum count of results. It is upper bound value, it\n"
-			 "\t\t\еdoes not guarantee to return exactly this amount of results.\n"
+			 "\t\t\tdoes not guarantee to return exactly this amount of results.\n"
 			 "\tReturns:\n"
 			 "\t\t(tuple of FSDKErrorResult and list of SearchResults): \n"
 			 "\t\t\ttuple with FSDKErrorResult and list of SearchResults\n")
@@ -599,16 +599,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 reference,
 				 maxResultsCount,
 				 searchResults.data());
-				 if (err.isOk()) {
-					 const uint32_t searchSize = err.getValue();
-					 py::list searchResultsPyList(searchSize);
-					 for (uint32_t i = 0; i < searchSize; ++i)
-						 searchResultsPyList[i] = searchResults[i];
-					 return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
-				 } else {
-					 return std::make_tuple(FSDKErrorResult(err), py::list());
-				 }
-			 },
+					 if (err.isOk()) {
+						 const uint32_t searchSize = err.getValue();
+						 py::list searchResultsPyList(searchSize);
+						 for (uint32_t i = 0; i < searchSize; ++i)
+							 searchResultsPyList[i] = searchResults[i];
+						 return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
+					 } else {
+						 return std::make_tuple(FSDKErrorResult(err), py::list());
+					 }
+				 },
 			 "Search for descriptors with the shorter distance to passed descriptor.\n"
 			 "\tArgs:\n"
 			 "\t\tparam1 (IDescriptorPtr): Descriptor to match against index.\n"
@@ -704,7 +704,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\tArgs:\n"
 			"\t\tparam1 (IDescriptorPtr): Descriptor to match against index.\n"
 			"\t\tparam2 (int): Maximum count of results. It is upper bound value, it\n"
-			"\t\t\еdoes not guarantee to return exactly this amount of results.\n"
+			"\t\t\tdoes not guarantee to return exactly this amount of results.\n"
 			"\tReturns:\n"
 			"\t\t(tuple of FSDKErrorResult and list): \n"
 			"\t\t\ttuple with FSDKErrorResult and list of SearchResults\n")
@@ -734,8 +734,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\t\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n")
 		
 		.def("appendDescriptor", [](const fsdk::IDynamicIndexPtr& index, const fsdk::IDescriptorPtr batch) {
-			fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err = index->appendDescriptor(batch);
-			return FSDKErrorValueInt(err);
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err = index->appendDescriptor(batch);
+				return FSDKErrorValueInt(err);
 			},
 			 "Appends descriptor to internal storage.\n"
 			 "\t\tparam1 (descriptor): created descriptor with correct length, version and data\n"
@@ -795,8 +795,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\t\t Is very heavy method in terms of computing load.\n")
 		
 		.def("appendDescriptor", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr, const fsdk::IDescriptorPtr batch){
-				 fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err = indexBuilderPtr->appendDescriptor(batch);
-				 return FSDKErrorValueInt(err);
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err = indexBuilderPtr->appendDescriptor(batch);
+				return FSDKErrorValueInt(err);
 			 },
 			 "Appends descriptor to internal storage.\n"
 			 "\t\tparam1 (descriptor): created descriptor with correct length, version and data\n"
@@ -997,22 +997,22 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 detections.data() ,
 				 maxCount);
 				
-				if (err.isOk()) {
-					auto detectionResultPyList = py::list(err.getValue());
-					for (uint32_t i = 0; i < (uint32_t)err.getValue(); ++i) {
-						detectionResultPyList[i] = detections[i];
-					}
-					return std::make_tuple(FSDKErrorValueInt(err), detectionResultPyList);
-				} else {
-					return std::make_tuple(FSDKErrorValueInt(err), py::list()); }},
-			 "Detect faces and landmarks on the image\n"
-			 "\tArgs:\n"
-			 "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
-			 "\t\tparam2 (Rect): rect of interest inside of the image\n"
-			 "\t\tparam3 (int): length of `detections` array\n"
-			 "\tReturns:\n"
-			 "\t\t(tuple with FSDKErrorValueInt code and list of Detections): \n"
-			 "\t\t\ttuple with FSDKErrorValueInt code and list of Detections (see FSDKErrorValueInt)\n")
+					if (err.isOk()) {
+						auto detectionResultPyList = py::list(err.getValue());
+						for (uint32_t i = 0; i < (uint32_t)err.getValue(); ++i) {
+							detectionResultPyList[i] = detections[i];
+						}
+						return std::make_tuple(FSDKErrorValueInt(err), detectionResultPyList);
+					} else {
+						return std::make_tuple(FSDKErrorValueInt(err), py::list()); }},
+			"Detect faces and landmarks on the image\n"
+			"\tArgs:\n"
+			"\t\tparam1 (Image): input image. Format must be R8G8B8\n"
+			"\t\tparam2 (Rect): rect of interest inside of the image\n"
+			"\t\tparam3 (int): length of `detections` array\n"
+			"\tReturns:\n"
+			"\t\t(tuple with FSDKErrorValueInt code and list of Detections): \n"
+			"\t\t\ttuple with FSDKErrorValueInt code and list of Detections (see FSDKErrorValueInt)\n")
 		
 		.def("detect5",[](
 			 const fsdk::IDetectorPtr& det,
@@ -1057,19 +1057,18 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 const fsdk::IWarperPtr& warper,
 			 const fsdk::Image& image,
 			 const fsdk::Transformation& transformation) {
-				 fsdk::Image transformedImage;
-				 fsdk::Result<fsdk::FSDKError> error = warper->warp(image, transformation, transformedImage);
-				 if (error.isOk())
-					 return py::cast(transformedImage);
+				fsdk::Image transformedImage;
+				fsdk::Result<fsdk::FSDKError> error = warper->warp(image, transformation, transformedImage);
+				if (error.isOk())
+					return std::make_tuple(FSDKErrorResult(error), transformedImage);
 				 else
-					 return py::cast(FSDKErrorResult(error)); },
+					 return std::make_tuple(FSDKErrorResult(error), fsdk::Image()); },
 			 "Warp image\n"
 			 "\tArgs:\n"
 			 "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
 			 "\t\tparam2 (Transformation): transformation data\n"
 			 "\tReturns:\n"
-			 "\t\t(Image): if success - output transformed image,\n"
-			 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
+			 "\t\t(tuple): tuple with FSDKErrorResult and output transformed image\n")
 		
 		.def("warp",[](
 			 const fsdk::IWarperPtr& warper,
@@ -1081,36 +1080,32 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 transformation,
 				 transformedLandmarks5);
 				 if (error.isOk())
-					 return py::cast(transformedLandmarks5);
+					return std::make_tuple(FSDKErrorResult(error), transformedLandmarks5);
 				 else
-					 return py::cast(FSDKErrorResult(error)); },
-			 "Warp landmarks of size 5\n"
-			 "\tArgs:\n"
-			 "\t\tparam1 (Landmarks5): landmarks array of size 5\n"
-			 "\t\tparam2 (Transformation): transformation data\n"
-			 "\tReturns:\n"
-			 "\t\t(Landmarks5): if success - output transformed image,\n"
-			 "\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
+					 return std::make_tuple(FSDKErrorResult(error), fsdk::Landmarks5()); },
+			"Warp landmarks of size 5\n"
+			"\tArgs:\n"
+			"\t\tparam1 (Landmarks5): landmarks array of size 5\n"
+			"\t\tparam2 (Transformation): transformation data\n"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with FSDKErrorResult and transformed landmarks5\n")
 		
 		.def("warp",[](
 			 const fsdk::IWarperPtr& warper,
 			 const fsdk::Landmarks68& landmarks68,
 			 const fsdk::Transformation& transformation) {
-				 fsdk::Landmarks68 transformedLandmarks68;
-				 fsdk::Result<fsdk::FSDKError> error = warper->warp(landmarks68,
-																	transformation,
-																	transformedLandmarks68);
-				 if (error.isOk())
-					 return py::cast(transformedLandmarks68);
-				 else
-					 return py::cast(FSDKErrorResult(error)); },
+				fsdk::Landmarks68 transformedLandmarks68;
+				fsdk::Result<fsdk::FSDKError> error = warper->warp(landmarks68, transformation, transformedLandmarks68);
+				if (error.isOk())
+					return std::make_tuple(FSDKErrorResult(error), transformedLandmarks68);
+				else
+					return std::make_tuple(FSDKErrorResult(error), fsdk::Landmarks68()); },
 			 "Warp landmarks of size 68\n"
 			 "\tArgs:\n"
 			 "\t\tparam1 (Landmarks68): landmarks array of size 68\n"
 			 "\t\tparam2 (Transformation): transformation data\n"
 			 "\tReturns:\n"
-			 "\t\t(Landmarks68): if success - transformed landmarks of size 68,\n"
-			 "\t\t(FSDKErrorResult): else -  error code FSDKErrorResult\n")
+			 "\t\t(tuple): tuple with FSDKErrorResult and transformed landmarks68\n")
 		
 		.def("createTransformation",[](
 			 const fsdk::IWarperPtr& warper,
@@ -1142,7 +1137,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\t\t(int): size of descriptor in bytes.\n")
 		
 		.def("getDescriptor",[]( const fsdk::IDescriptorPtr& desc) {
-				 const int size = 264;
+				 const int size = desc->getDescriptorLength();
 				 std::vector<uint8_t>buffer(size, 0);
 				 bool allocated = desc->getDescriptor(&buffer.front());
 				 auto l = py::list(size);
@@ -1159,19 +1154,18 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\tThis method is thread safe"
 			 "\tReturns:\n"
 			 "\t\t(list): list of uint8_t if is ok (length of list is 264), empty list if ERROR")
-		.def("load",[]( const fsdk::IDescriptorPtr& descriptor,
-						const char* buffer,
-						uint32_t bufferSize) {
-			std::vector<uint8_t> descriptorExpectedSerial(bufferSize);
-			memcpy(&descriptorExpectedSerial.front(), buffer, bufferSize);
-			VectorArchive archiveDescriptor(descriptorExpectedSerial);
-			fsdk::Result<fsdk::ISerializableObject::Error> err = descriptor->load(&archiveDescriptor);
-			return SerializeErrorResult(err);
-		}, "Load descriptor from buffer")
-			; // descriptor
+		.def("load",[](
+			const fsdk::IDescriptorPtr& descriptor,
+			const char* buffer,
+			uint32_t bufferSize) {
+				const char* data = reinterpret_cast<const char*>(buffer);
+				VectorArchive archiveDescriptor(data, bufferSize);
+				fsdk::Result<fsdk::ISerializableObject::Error> err = descriptor->load(&archiveDescriptor);
+				return SerializeErrorResult(err);
+			}, "Load descriptor from buffer")
+				; // descriptor
 	
-	py::enum_<fsdk::ISerializableObject::Error>(f, "SerializeError",
-												"Serialization error codes.\n")
+	py::enum_<fsdk::ISerializableObject::Error>(f, "SerializeError", "Serialization error codes.\n")
 		.value("Ok", fsdk::ISerializableObject::Error::Ok)
 		.value("Size", fsdk::ISerializableObject::Error::Size)
 		.value("Signature", fsdk::ISerializableObject::Error::Signature)
@@ -1182,8 +1176,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 //	Errors
 	py::class_<SerializeErrorResult>(f, "SerializeErrorResult",
-									 "Wrapper for ISerializableObject::Error that encapsulates an action result enumeration.\n"
-									 "\tAn enum should specify a result code.\n")
+		 "Wrapper for ISerializableObject::Error that encapsulates an action result enumeration.\n"
+		 "\tAn enum should specify a result code.\n")
 		.def_readonly("isOk", &SerializeErrorResult::isOk)
 		.def_readonly("isError", &SerializeErrorResult::isError)
 		.def_readonly("serializeError", &SerializeErrorResult::serializeError)
@@ -1229,7 +1223,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\t\t(DescriptorBatchResult): One of the error codes specified by DescriptorBatchError.\n")
 		
 		.def("removeSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
-				 if (index < 0 || index >= int(descriptorBatchPtr->getCount())) throw py::index_error();
 				 fsdk::Result<fsdk::IDescriptorBatch::Error> error = descriptorBatchPtr->removeSlow(index);
 				 return  DescriptorBatchResult(error);},
 			 "Remove a descriptor from batch.\n"
@@ -1266,7 +1259,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\t\t(int): Length of one descriptor in batch.\n")
 		
 		.def("getDescriptorSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
-				 if (index < 0 || index >= int(descriptorBatchPtr->getCount())) throw py::index_error();
 				 return fsdk::acquire(descriptorBatchPtr->getDescriptorSlow(index)); },
 			 "Create descriptor from batch by index with copying\n"
 			 "\tArgs:\n"
@@ -1283,17 +1275,17 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\tReturns:\n"
 			 "\t\t(IDescriptorPtr): valid object if succeeded.\n")
 		
-		.def("load",[](const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
-					   const char* buffer,
-					   uint32_t bufferSize) {
-			std::vector<uint8_t> batchExpectedSerial(bufferSize);
-			memcpy(&batchExpectedSerial.front(), buffer, bufferSize);
-			VectorArchive archiveDescriptor(batchExpectedSerial);
-			fsdk::Result<fsdk::ISerializableObject::Error> err = descriptorBatchPtr->load(&archiveDescriptor, bufferSize);
-			return SerializeErrorResult(err);
+		.def("load",[](
+			const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
+			const char* buffer,
+			uint32_t bufferSize) {
+				VectorArchive archiveDescriptor(buffer, bufferSize);
+				fsdk::Result<fsdk::ISerializableObject::Error> err =
+					descriptorBatchPtr->load(&archiveDescriptor, bufferSize);
+				return SerializeErrorResult(err);
 			
-		}, "Load descriptor from buffer")
-			;
+			}, "Load descriptor from buffer")
+				;
 	
 	py::enum_<fsdk::IDescriptorBatch::Error>(f, "DescriptorBatchError",
 		"Descriptor batch error enumeration.\n"
@@ -1305,7 +1297,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("Internal", fsdk::IDescriptorBatch::Error::Internal)
 		.value("IoError", fsdk::IDescriptorBatch::Error::IoError)
 		.value("OutOfRange", fsdk::IDescriptorBatch::Error::OutOfRange)
-		;
+			;
 	
 	py::class_<fsdk::IDescriptorExtractorPtr>(f, "IDescriptorExtractorPtr",
 		"Descriptor extractor interface.\n"
@@ -1319,7 +1311,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 const fsdk::IDescriptorPtr& descriptor) {
 				 fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extract(image, detection,
 																					landmarks, descriptor);
-				 return py::cast(FSDKErrorValueFloat(err)); },
+				 return FSDKErrorValueFloat(err); },
 			 "Extract a face descriptor from an image.\n"
 			 "\tThis method accepts arbitrary images that have size at least 250x250 pixels and R8G8B8 pixel format.\n"
 			 "\tThe input image is warped internally using an assigned warper (@see IWarper). The descriptor extractor is\n"
@@ -1341,7 +1333,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 const fsdk::Image& image,
 			 const fsdk::IDescriptorPtr& descriptor) {
 				 fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extractFromWarpedImage(image, descriptor);
-				 return py::cast(FSDKErrorValueFloat(err)); },
+				 return FSDKErrorValueFloat(err); },
 			 "Extract descriptor from a warped image.\n"
 			 "\tThe input image should be warped; see IWarper.\n"
 			 "\tArgs:\n"
@@ -2241,10 +2233,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 		;
 		
 		py::class_<fsdk::EyesEstimation::EyeAttributes>(f, "EyeAttributes", "Eyes attribute structure.\n")
-	//		.def_property_readonly_static("irisLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& e)
-	//			{return e.irisLandmarksCount; })
-	//		.def_property_readonly_static("eyelidLandmarksCount", [] (const fsdk::EyesEstimation::EyeAttributes& e)
-	//			{return e.eyelidLandmarksCount; })
 		.def_readwrite("state", &fsdk::EyesEstimation::EyeAttributes::state)
 		.def_readwrite("iris", &fsdk::EyesEstimation::EyeAttributes::iris)
 		.def_readwrite("eyelid", &fsdk::EyesEstimation::EyeAttributes::eyelid)
@@ -2343,7 +2331,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("detectionTopLeft", &fsdk::Transformation::detectionTopLeft)
 		.def("__repr__", [](const fsdk::Transformation &t) {
 			return "Transformation: "
-				   " angleDeg= " + std::to_string(t.angleDeg)
+				   " angleDeg = " + std::to_string(t.angleDeg)
 				   + ", scale = " + std::to_string(t.scale)
 				   + ", centerP: x = " + std::to_string(t.centerP.x) + " y = " + std::to_string(t.centerP.y)
 				   + ", detectionTopLeft: x = " + std::to_string(t.detectionTopLeft.x)
@@ -2462,12 +2450,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 			return ImageErrorResult(error);
 		})
 		
-		.def("load", [](fsdk::Image& image,
-						const char* path,
-						const fsdk::Format::Type type) {
-			fsdk::Result<fsdk::Image::Error> error = image.load(path, fsdk::Format(type));
-			return ImageErrorResult(error);
-		})
+		.def("load", [](
+			fsdk::Image& image,
+			const char* path,
+			const fsdk::Format::Type type) {
+				fsdk::Result<fsdk::Image::Error> error = image.load(path, fsdk::Format(type));
+				return ImageErrorResult(error);
+			})
 		
 		.def("loadFromMemory", [](fsdk::Image& image, const char* bytes, int sizeInBytes) {
 			fsdk::Result<fsdk::Image::Error> error = image.loadFromMemory(bytes, sizeInBytes);

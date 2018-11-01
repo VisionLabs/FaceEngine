@@ -18,9 +18,6 @@ faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 def detector_example(_image_det, max_detections):
     detector = faceEngine.createDetector(fe.ODT_MTCNN)
     detector_result = detector.detect(_image_det, _image_det.getRect(), max_detections)
-    test = detector_result[1][0]
-    for i, item in enumerate(detector_result[1], 1):
-        print(item[0])
     return detector_result
 
 
@@ -38,13 +35,22 @@ def detector_example_5(_image_det, max_detections):
 
 def warper_example(image_det, _detection, _landmarks5, _landmarks68):
     warper = faceEngine.createWarper()
-    transformation = warper.createTransformation(_detection,
-                                                 _landmarks5)
+    transformation = warper.createTransformation(_detection, _landmarks5)
     print(transformation)
-    warp_image = warper.warp(image_det, transformation)
-    _transformed_landmarks5 = warper.warp(_landmarks5, transformation)
-    _transformed_landmarks68 = warper.warp(_landmarks68, transformation)
-    return (warp_image, _transformed_landmarks5, _transformed_landmarks68)
+    warp_result = warper.warp(image_det, transformation)
+    if warp_result[0].isError:
+        print("Failed image warping.")
+        return None
+    _warp_image = warp_result[1]
+    err_transformed_landmarks5, _transformed_landmarks5 = warper.warp(_landmarks5, transformation)
+    if err_transformed_landmarks5.isError:
+        print("Failed extraction of transformed landmarsks5.")
+        return None
+    err_transformed_landmarks68, _transformed_landmarks68 = warper.warp(_landmarks68, transformation)
+    if err_transformed_landmarks68.isError:
+        print("Failed extraction of transformed landmarsks68.")
+        return None
+    return (_warp_image, _transformed_landmarks5, _transformed_landmarks68)
 
 
 def set_logging(value):
@@ -79,15 +85,30 @@ if __name__ == "__main__":
     image_path = sys.argv[2]
     set_logging(1)
     image = fe.Image()
-    err = image.load(image_path)
+    err_detect_ligth = image.load(image_path)
     if not image.isValid():
-        print("Image error = ", err)
+        print("Image error = ", err_detect_ligth)
     # unpack detector result - list of tuples
-    (detection, landmarks5, landmarks68) = detector_example(image, 1)[1][0]
+    err_detect, detect_list = detector_example(image, 1)
+
+    if err_detect.isError or len(detect_list) < 1:
+        print("detect: faces are not found")
+        exit(-1)
+    for item in detect_list:
+        print(item[0])
+
+    # only for example take first detection in list
+    (detection, landmarks5, landmarks68) = detect_list[0]
     # light version return only list of detections
-    err, (detection1) = detector_example_light(image, 1)
-    # light version return only list of detections
-    (detection2, _) = detector_example_5(image, 1)[1][0]
+    err_detect_light, detect_light_result = detector_example_light(image, 1)
+    if err_detect_ligth.isError:
+        print("detect_light: faces are not found")
+        exit(-1)
+    # detect5 version return only list of tuples with detections and landmarks5
+    err_detect5, detect5_tuple = detector_example_5(image, 1)
+    if err_detect5.isError or len(detect5_tuple) < 1:
+        print("detect_5: faces are not found")
+        exit(-1)
     (warp_image, transformed_landmarks5, transformed_landmarks68) = \
         warper_example(image, detection, landmarks5, landmarks68)
     (_, landmarks5_warp, _) = detector_example(warp_image, 1)[1][0]

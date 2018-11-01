@@ -28,12 +28,10 @@ def loadImages(_imagesDirPath, _listPath):
         lines = file.readlines()
         for line in lines:
             line = line.strip()
-            print(line)
             imageName = line
             imagePath = _imagesDirPath + "/" + imageName
             image = fe.Image()
             err = image.load(imagePath)
-            print(err)
             if err.isError:
                 print("Failed to load image: {0}".format(imagePath))
             else:
@@ -65,7 +63,7 @@ def extractDescriptor(_faceEngine, _detector, _descriptorExtractor, image, image
     landmarks5l = []
 
     if detectorResult.isError:
-        print("Failed to detect face detection. Reason: {0}".foramt(detectorResult.what()))
+        print("Failed to detect face detection. Reason: {0}".format(detectorResult.what()))
     for elem in det_list:
         detections.append(elem[0])
         landmarks5l.append(elem[1])

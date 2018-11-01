@@ -49,7 +49,8 @@ max_detections = 3
 image_det = f.Image()
 err = image_det.load("testData/00205_9501_p.ppm")
 
-(detection, landmarks5, landmarks68) = detect(image_det, 3)[1][0]
+err, det_list_tuple = detect(image_det, 3)
+(detection, landmarks5, landmarks68) = det_list_tuple[0]
 
 warper = faceEnginePtr.createWarper()
 transformation = warper.createTransformation(detection, landmarks5)
@@ -246,25 +247,32 @@ class TestFaceEngineRect(unittest.TestCase):
 
         (detection_overlap, landmarks5_overlap, landmarks68_overlap) = detect(overlapImage, 1)[1][0]
         transformation_overlap = warper.createTransformation(detection_overlap, landmarks5_overlap)
-        warped_overlap_image = warper.warp(overlapImage, transformation_overlap)
-        overlap_result = smileEstimator.estimate(warped_overlap_image)
+        err1, warped_overlap_image = warper.warp(overlapImage, transformation_overlap)
+        self.assertTrue(err1.isOk)
+        self.assertTrue(warped_overlap_image.isValid())
+        smile_result = smileEstimator.estimate(warped_overlap_image)
 
-        self.assertAlmostEqual(overlap_result.mouth, 0.0, delta=0.01)
-        self.assertAlmostEqual(overlap_result.smile, 0.0, delta=0.01)
-        self.assertAlmostEqual(overlap_result.occlusion, 1.0, delta=0.01)
-
-        (detection_smile, landmarks5_smile, landmarks68_smile) = detect(smileImage, 1)[1][0]
+        self.assertAlmostEqual(smile_result.mouth, 0.0, delta=0.01)
+        self.assertAlmostEqual(smile_result.smile, 0.0, delta=0.01)
+        self.assertAlmostEqual(smile_result.occlusion, 1.0, delta=0.01)
+        err2, det_list = detect(smileImage, 1)
+        self.assertTrue(err2.isOk)
+        self.assertTrue(len(det_list) > 0)
+        (detection_smile, landmarks5_smile, landmarks68_smile) = det_list[0]
         transformation_smile = warper.createTransformation(detection_smile, landmarks5_smile)
-        warped_smile_image = warper.warp(smileImage, transformation_smile)
-        smile_result = smileEstimator.estimate(warped_smile_image)
-
+        err2, warped_overlap_image = warper.warp(smileImage, transformation_smile)
+        self.assertTrue(err2.isOk)
+        self.assertTrue(warped_overlap_image.isValid())
+        smile_result = smileEstimator.estimate(warped_overlap_image)
         self.assertAlmostEqual(smile_result.mouth, 0.0, delta=0.01)
         self.assertAlmostEqual(smile_result.smile, 1.0, delta=0.01)
         self.assertAlmostEqual(smile_result.occlusion, 0.0, delta=0.01)
 
         (detection_mouth, landmarks5_mouth, landmarks68_mouth) = detect(mouthImage, 1)[1][0]
         transformation_mouth = warper.createTransformation(detection_mouth, landmarks5_mouth)
-        warped_mouth_image = warper.warp(mouthImage, transformation_mouth)
+        err3, warped_mouth_image = warper.warp(mouthImage, transformation_mouth)
+        self.assertTrue(err3.isOk)
+        self.assertTrue(warped_mouth_image.isValid())
         mouth_result = smileEstimator.estimate(warped_mouth_image)
 
         self.assertAlmostEqual(mouth_result.mouth, 1.0, delta=0.01)
