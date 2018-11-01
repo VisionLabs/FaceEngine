@@ -58,6 +58,7 @@ public:
 	fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndex*> loadDynamicIndex(
 	const char* indexPath);
 	
+	fsdk::IAGSEstimatorPtr createAGSEstimator();
 
 	void setSettingsProvider(PyISettingsProvider& provider);
 };

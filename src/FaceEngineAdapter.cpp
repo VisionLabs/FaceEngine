@@ -169,6 +169,13 @@ fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndex*> PyIFaceEngine::loadDyna
 	return faceEnginePtr->loadDynamicIndex(indexPath);
 }
 
+fsdk::IAGSEstimatorPtr PyIFaceEngine::createAGSEstimator() {
+	fsdk::IAGSEstimatorPtr agsEstimatorPtr = fsdk::acquire(faceEnginePtr->createAGSEstimator());
+	if (!agsEstimatorPtr)
+		throw py::cast_error("\nFailed to create ags estimator instance! VERIFY PATH to \"data\" directory!");
+	return agsEstimatorPtr;
+}
+
 void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }

@@ -149,6 +149,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IGazeEstimatorPtr
 			IGazeEstimatorPtr.estimate
 
+			IAGSEstimatorPtr
+			IAGSEstimatorPtr.estimate
+
 			IIndexPtr
 			IIndexPtr.search
 
@@ -233,6 +236,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			EyesEstimation.__init__
 			EyesEstimation.__repr__
 			State
+
 			EyeAttributes
 			EyeAttributes.state
 			EyeAttributes.iris
@@ -378,7 +382,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator, "Creates Eye estimator\n")
 		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator, "Creates Emotions estimator\n")
 		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n")
-		
+
+		.def("createAGSEstimator", &PyIFaceEngine::createAGSEstimator, "Creates AGS estimator\n")
+
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			 "Creates a detector of given type.\n"
 			 "\tArgs:\n"
@@ -862,16 +868,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\tReturns:\n"
 			 "\t\t(tuple of FSDKErrorResult and descriptor):tuple with FSDKErrorResult and descriptor\n"
 			 "\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n")
-
-//		we do not need this now
-//		.def("buildIndexAsync", [](const fsdk::IIndexBuilderPtr& indexBuilderPtr) {
-//			auto res = indexBuilderPtr->buildIndex();
-//			if (res.isOk())
-//				return std::make_tuple(FSDKErrorResult(res), fsdk::acquire(res.getValue()));
-//			else
-//				return std::make_tuple(FSDKErrorResult(res), fsdk::IDynamicIndexPtr());
-//		}, "")
-			; // IIndexBuilderPtr
+				;
 	
 	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr",
 		"Image quality estimator interface.\n"
@@ -1757,8 +1754,29 @@ PYBIND11_MODULE(FaceEngine, f) {
 			 "\t\t(FSDKErrorResult): else - error code")
 			;
 	
-	py::class_<fsdk::MatchingResult>(f, "MatchingResult", "Result of descriptor matching.\n")
-		.def(py::init<>(), "Initializes result to default values.\n")
+	py::class_<fsdk::IAGSEstimatorPtr>(f, "IAGSEstimatorPtr",
+		"Approximate Garbage Score estimator interface.\n"
+		"\tThis estimator is designed to work with Image and detection.\n")
+			.def("estimate",[](
+				const fsdk::IAGSEstimatorPtr& est,
+				const fsdk::Image& image,
+				const fsdk::Detection& detection) {
+					 fsdk::ResultValue<fsdk::FSDKError, float> err = est->estimate(image, detection);
+					 if (err.isOk())
+						 return std::make_tuple(FSDKErrorResult(err), err.getValue());
+					 else
+						 return std::make_tuple(FSDKErrorResult(err), 0.0f); },
+				 "Estimate the ags.\n"
+				 "\tArgs\n"
+				 "\t\tparam1 (Image): image source image in R8G8B8 format.\n"
+				 "\t\tparam2 (detection): detection coords in image space.\n"
+				 "\tReturns:\n"
+				 "\t\t(tuple with FSDKErrorResult and float value): Error code and float value.")
+					;
+
+	py::class_<fsdk::MatchingResult>(f, "MatchingResult", "Result of descriptor matching.")
+		.def(py::init<>(), "Initializes result to default values.")
+
 		.def(py::init<float, float>(),
 			 "Initializes result.\n"
 			 "\tArgs\n"
@@ -2231,8 +2249,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			   "Eye is blocked by something not transparent,\n"
 			   "\tor landmark passed to estimator doesn't point to an eye.\n")
 		;
-		
-		py::class_<fsdk::EyesEstimation::EyeAttributes>(f, "EyeAttributes", "Eyes attribute structure.\n")
+
+	py::class_<fsdk::EyesEstimation::EyeAttributes>(f, "EyeAttributes", "Eyes attribute structure.")
 		.def_readwrite("state", &fsdk::EyesEstimation::EyeAttributes::state)
 		.def_readwrite("iris", &fsdk::EyesEstimation::EyeAttributes::iris)
 		.def_readwrite("eyelid", &fsdk::EyesEstimation::EyeAttributes::eyelid)
