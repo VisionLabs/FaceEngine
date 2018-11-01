@@ -128,6 +128,8 @@ print(fe.IEmotionsEstimatorPtr.estimate.__doc__)
 print(fe.IGazeEstimatorPtr.__doc__)
 print(fe.IGazeEstimatorPtr.estimate.__doc__)
 
+print(fe.IAGSEstimatorPtr.__doc__)
+print(fe.IAGSEstimatorPtr.estimate.__doc__)
 
 print(fe.MatchingResult.__doc__)
 

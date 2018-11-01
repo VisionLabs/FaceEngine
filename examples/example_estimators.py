@@ -75,7 +75,7 @@ def ir_example(ir_image_path):
         print("ir image was not found {0}".format(err))
         exit(1)
     ir_result = iREstimator.estimate(ir_image)
-    print("Ir estimator value: ", ir_result.value)
+    print("Ir estimator value: ", ir_result)
 
 
 def faceFlow_example():
@@ -116,6 +116,25 @@ def gaze_example(_headPoseEstimation, _eyesEstimation):
     print(gaze_result)
 
 
+def ags_example(_faceEngine, _image, _detection):
+    config = fe.createSettingsProvider("data/faceengine.conf")
+    # to get ags estimation we need to switch on betamode
+    # switch on betaMode
+    config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
+    # switch on logs to see that betamode is enabled
+    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+    _faceEngine.setSettingsProvider(config)
+    # create ags estimator only after betamode is enabled
+    agsEstimator = faceEngine.createAGSEstimator()
+    ags_result = agsEstimator.estimate(_image, _detection)
+    print("AGS estimator value: {0}".format(ags_result[1]))
+    # switch off betaMode if we do not need it yet
+    config.setValue("system", "betaMode", fe.SettingsProviderValue(0))
+    # switch off logs
+    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(0))
+    _faceEngine.setSettingsProvider(config)
+
+# helpers
 def are_equal(desc1, desc2):
     assert(len(desc1) == len(desc2))
     for i, _ in enumerate(desc1):
@@ -152,6 +171,7 @@ if __name__ == "__main__":
         headPoseEstimation = headPose_example(landmarks68)
         eyesEstimation = eye_example(warp_image, transformed_landmarks5)
         gaze_example(headPoseEstimation, eyesEstimation)
+        ags_example(faceEngine, image, detection)
     except Exception as ex:
         print(type(ex).__name__, ex)
     finally:
