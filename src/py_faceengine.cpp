@@ -28,315 +28,6 @@ PYBIND11_MAKE_OPAQUE(fsdk::Landmarks68);
 
 PYBIND11_MODULE(FaceEngine, f) {
 	
-	f.doc() = R"pbdoc(
-
-        Python wrapper for LUNA SDK usings pybind11
-        -------------------------------------------
-
-        .. currentmodule:: FaceEngine
-
-        .. autosummary::
-           :toctree: _generate
-
-           	createFaceEngine
-           	createSettingsProvider
-           	loadImage
-           	PyIFaceEngine
-			PyIFaceEngine.createAttributeEstimator
-			PyIFaceEngine.createQualityEstimator
-			PyIFaceEngine.createEthnicityEstimator
-
-			PyIFaceEngine.createHeadPoseEstimator
-			PyIFaceEngine.createBlackWhiteEstimator
-			PyIFaceEngine.createDepthEstimator
-			PyIFaceEngine.createIREstimator
-			PyIFaceEngine.createSmileEstimator
-			PyIFaceEngine.createFaceFlowEstimator
-			PyIFaceEngine.createEyeEstimator
-			PyIFaceEngine.createEmotionsEstimator
-			PyIFaceEngine.createGazeEstimator
-
-			PyIFaceEngine.createDetector
-			PyIFaceEngine.createWarper
-			PyIFaceEngine.createDescriptor
-			PyIFaceEngine.createDescriptorBatch
-			PyIFaceEngine.createExtractor
-			PyIFaceEngine.createMatcher
-			PyIFaceEngine.setSettingsProvider
-			PyIFaceEngine.createIndexBuilder
-			PyIFaceEngine.loadDenseIndex
-			PyIFaceEngine.loadDynamicIndex
-
-			SettingsProviderValue
-			SettingsProviderValue.__init__
-
-			PyISettingsProvider.getDefaultPath
-			PyISettingsProvider.load
-			PyISettingsProvider.save
-			PyISettingsProvider.clear
-			PyISettingsProvider.isEmpty
-			PyISettingsProvider.setValue
-			PyISettingsProvider.getValue
-
-			IQualityEstimatorPtr
-			IQualityEstimatorPtr.estimate
-
-			IAttributeEstimatorPtr
-			IAttributeEstimatorPtr.estimate
-
-			IEthnicityEstimator
-			IEthnicityEstimator.estimate
-
-			IDetector
-			IDetector.detect
-
-			IWarperPtr
-			IWarperPtr.warp
-			IWarperPtr.createTransformation
-
-			IDescriptorPtr
-			IDescriptorPtr.getModelVersion
-			IDescriptorPtr.getDescriptorLength
-			IDescriptorPtr.getDescriptor
-
-			IDescriptorBatchPtr
-			IDescriptorBatchPtr.add
-			IDescriptorBatchPtr.removeFast
-			IDescriptorBatchPtr.removeSlow
-			IDescriptorBatchPtr.getMaxCount
-			IDescriptorBatchPtr.getCount
-			IDescriptorBatchPtr.getModelVersion
-			IDescriptorBatchPtr.getDescriptorSize
-			IDescriptorBatchPtr.getDescriptorSlow
-			IDescriptorBatchPtr.getDescriptorFast
-
-			DescriptorBatchError
-
-			IDescriptorExtractorPtr
-			IDescriptorExtractorPtr.extract
-			IDescriptorExtractorPtr.extractFromWarpedImage
-			IDescriptorExtractorPtr.extractFromWarpedImageBatch
-
-
-			IDescriptorMatcherPtr
-			IDescriptorMatcherPtr.match
-
-			IHeadPoseEstimatorPtr
-			IHeadPoseEstimatorPtr.estimate
-
-			IBlackWhiteEstimatorPtr
-			IBlackWhiteEstimatorPtr.estimate
-
-			ILivenessDepthEstimatorPtr
-			ILivenessDepthEstimatorPtr.estimate
-			ILivenessDepthEstimatorPtr.setRange
-
-			ILivenessIREstimatorPtr
-			ILivenessIREstimatorPtr.estimate
-
-			ISmileEstimatorPtr
-			ISmileEstimatorPtr.estimate
-
-			ILivenessFlowEstimatorPtr
-			ILivenessFlowEstimatorPtr.estimate
-
-			IEyeEstimatorPtr
-			IEyeEstimatorPtr.estimate
-
-			IEmotionsEstimatorPtr
-			IEmotionsEstimatorPtr.estimate
-
-			IGazeEstimatorPtr
-			IGazeEstimatorPtr.estimate
-
-			IAGSEstimatorPtr
-			IAGSEstimatorPtr.estimate
-
-			IIndexPtr
-			IIndexPtr.search
-
-			IDenseIndexPtr
-			IDenseIndexPtr.search
-			IDenseIndexPtr.size
-			IDenseIndexPtr.descriptorByIndex
-			IDenseIndexPtr.search
-
-			IDynamicIndexPtr
-			IDynamicIndexPtr.saveToDenseIndex
-			IDynamicIndexPtr.saveToDynamicIndex
-			IDynamicIndexPtr.search
-			IDynamicIndexPtr.size
-			IDynamicIndexPtr.descriptorByIndex
-			IDynamicIndexPtr.appendDescriptor
-			IDynamicIndexPtr.appendBatch
-			IDynamicIndexPtr.removeDescriptor
-
-			MatchingResult
-
-			Landmarks5
-			Landmarks5.__len__
-			Landmarks5.__getitem__
-			Landmarks5.__setitem__
-
-			Landmarks68
-			Landmarks68.__len__
-			Landmarks68.__getitem__
-			Landmarks68.__setitem__
-
-			IrisLandmarks
-			IrisLandmarks.__len__
-			IrisLandmarks.__getitem__
-			IrisLandmarks.__setitem__
-
-			EyelidLandmarks
-			EyelidLandmarks.__len__
-			EyelidLandmarks.__getitem__
-			EyelidLandmarks.__setitem__
-
-			Vector2f
-			Vector2f.__init__
-			Vector2f.__repr__
-
-			Vector2i
-			Vector2i.__init__
-			Vector2i.__repr__
-
-			FSDKErrorResult
-			DescriptorBatchResult
-			ImageErrorResult
-			SettingsProviderErrorResult
-			FSDKErrorValueInt
-			FSDKErrorValueFloat
-			FSDKErrorValueMatching
-
-
-			AttributeEstimation
-			AttributeEstimation.__init__
-			AttributeEstimation.__repr__
-			Quality
-			Quality.__init__
-			Quality.getQuality
-
-			EthnicityEstimation
-			EthnicityEstimation.__init__
-			EthnicityEstimation.__repr__
-			EthnicityEstimation.getEthnicityScore
-			EthnicityEstimation.getPredominantEthnicity
-
-			HeadPoseEstimation
-			HeadPoseEstimation.__init__
-			HeadPoseEstimation.__repr__
-			HeadPoseEstimation.getFrontalFaceType
-
-			SmileEstimation
-			SmileEstimation.__init__
-			SmileEstimation.__repr__
-
-			EyesEstimation
-			EyesEstimation.__init__
-			EyesEstimation.__repr__
-			State
-
-			EyeAttributes
-			EyeAttributes.state
-			EyeAttributes.iris
-			EyeAttributes.eyelid
-
-			EmotionsEstimation
-			EmotionsEstimation.__init__
-			EmotionsEstimation.__repr__
-			EmotionsEstimation.getPredominantEmotion
-			EmotionsEstimation.getEmotionScore
-
-			Emotions
-
-			GazeEstimation
-			GazeEstimation.__init__
-			GazeEstimation.__repr__
-			GazeEstimation
-
-			EyeAngles
-
-			Ethnicity
-
-			Transformation
-
-			Detection
-
-			FormatType
-
-			Image
-			Image.__init__
-			Image.getWidth
-			Image.getHeight
-			Image.isValid
-			Image.getFormat
-			Image.getRect
-			Image.getData
-			Image.getChannelCount
-			Image.getChannelStep
-			Image.getBitDepth
-			Image.getByteDepth
-			Image.computePitch
-			Image.isPadded
-			Image.isBGR
-			Image.isValidFormat
-			Image.setData
-			Image.save
-			Image.load
-			Image.getRect
-			Image.loadFromMemory
-
-			ImageType
-
-			ImageError
-
-			SettingsProviderError
-
-			Rect
-
-			ObjectDetectorClassType
-			ObjectDetectorClassType.ODT_MTCNN
-			ObjectDetectorClassType.ODT_COUNT
-
-			FSDKError
-			FrontalFaceType
-
-			DepthRange
-			DepthRange.__repr__
-			loadImage
-			EyeAngles
-
-			IIndexPtr
-			IIndexPtr.search
-			
-			IDenseIndexPtr
-			IDenseIndexPtr.search
-			IDenseIndexPtr.size
-			IDenseIndexPtr.descriptorByIndex
-			
-			IDynamicIndexPtr
-			IDynamicIndexPtr.saveToDenseIndex
-			IDynamicIndexPtr.saveToDynamicIndex
-			IDynamicIndexPtr.countOfIndexedDescriptors
-			IDynamicIndexPtr.search
-			IDynamicIndexPtr.size
-			IDynamicIndexPtr.descriptorByIndex
-			IDynamicIndexPtr.search
-			IDynamicIndexPtr.appendDescriptor
-			IDynamicIndexPtr.appendBatch
-			IDynamicIndexPtr.removeDescriptor
-			
-			IIndexBuilderPtr
-			IIndexBuilderPtr.buildIndex
-			IIndexBuilderPtr.appendDescriptor
-			IIndexBuilderPtr.appendBatch
-			IIndexBuilderPtr.appendDescriptor
-			IIndexBuilderPtr.removeDescriptor
-			IIndexBuilderPtr.descriptorByIndex
-			
-    )pbdoc";
-	
 	enum class FaceEngineEdition {
 		FrontEndEdition,
 		CompleteEdition
@@ -575,13 +266,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 maxResultsCount,
 				 searchResults.data());
 					 if (err.isOk()) {
-						 const uint32_t searchSize = err.getValue();
-						 py::list searchResultsPyList(searchSize);
-						 for (uint32_t i = 0; i < searchSize; ++i)
-							 searchResultsPyList[i] = searchResults[i];
-						 return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
+						 return std::make_tuple(FSDKErrorResult(err), searchResults);
 					 } else {
-						 return std::make_tuple(FSDKErrorResult(err), py::list());
+						 return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::SearchResult>());
 					 }
 				 },
 			 "Search for descriptors with the shorter distance to passed descriptor.\n"
@@ -606,13 +293,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 maxResultsCount,
 				 searchResults.data());
 					 if (err.isOk()) {
-						 const uint32_t searchSize = err.getValue();
-						 py::list searchResultsPyList(searchSize);
-						 for (uint32_t i = 0; i < searchSize; ++i)
-							 searchResultsPyList[i] = searchResults[i];
-						 return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
+						 return std::make_tuple(FSDKErrorResult(err), searchResults);
 					 } else {
-						 return std::make_tuple(FSDKErrorResult(err), py::list());
+						 return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::SearchResult>());
 					 }
 				 },
 			 "Search for descriptors with the shorter distance to passed descriptor.\n"
@@ -697,13 +380,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 maxResultsCount,
 				 searchResults.data());
 				 if (err.isOk()) {
-					 const uint32_t searchSize = err.getValue();
-					 py::list searchResultsPyList(searchSize);
-					 for (uint32_t i = 0; i < searchSize; ++i)
-						 searchResultsPyList[i] = searchResults[i];
-					 return std::make_tuple(FSDKErrorResult(err), searchResultsPyList);
+					 return std::make_tuple(FSDKErrorResult(err), searchResults);
 				 } else {
-					 return std::make_tuple(FSDKErrorResult(err), py::list());
+					 return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::SearchResult>());
 				 }
 			},
 			"Search for descriptors with the shorter distance to passed descriptor.\n"
@@ -995,13 +674,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 maxCount);
 				
 					if (err.isOk()) {
-						auto detectionResultPyList = py::list(err.getValue());
-						for (uint32_t i = 0; i < (uint32_t)err.getValue(); ++i) {
-							detectionResultPyList[i] = detections[i];
-						}
-						return std::make_tuple(FSDKErrorValueInt(err), detectionResultPyList);
+						return std::make_tuple(FSDKErrorValueInt(err), detections);
 					} else {
-						return std::make_tuple(FSDKErrorValueInt(err), py::list()); }},
+						return std::make_tuple(FSDKErrorValueInt(err), std::vector<fsdk::Detection>()); }},
 			"Detect faces and landmarks on the image\n"
 			"\tArgs:\n"
 			"\t\tparam1 (Image): input image. Format must be R8G8B8\n"
@@ -1025,7 +700,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 landmarks.data(),
 				 maxCount);
 				 auto detectionResultPyList = py::list();
-			
 			
 			if (err.isOk()) {
 				auto detectionResultPyList = py::list(err.getValue());
@@ -1344,15 +1018,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 		
 		.def("extractFromWarpedImageBatch",[](
 			 const fsdk::IDescriptorExtractorPtr& extractor,
-			 py::list warpsBatchList,
+			 std::vector<fsdk::Image> warpsBatch,
 			 const fsdk::IDescriptorBatchPtr& descriptorBatch,
 			 const fsdk::IDescriptorPtr& aggregation,
 			 uint32_t batchSize) {
 				 std::vector<float> garbageScoreBatch(batchSize);
-				 std::vector<fsdk::Image> warpsBatch(batchSize);
-				 for (uint32_t i = 0; i < batchSize; ++i) {
-					 warpsBatch[i] = warpsBatchList[i].cast<fsdk::Image>();
-				 }
 				 fsdk::Result<fsdk::FSDKError> err = extractor->extractFromWarpedImageBatch(
 				 warpsBatch.data(),
 				 descriptorBatch,
@@ -2635,6 +2305,314 @@ PYBIND11_MODULE(FaceEngine, f) {
 		
 		.value("IncompatibleDescriptors", fsdk::FSDKError::IncompatibleDescriptors)
 			;
+	f.doc() = R"pbdoc(
+
+        Python wrapper for LUNA SDK usings pybind11
+        -------------------------------------------
+
+        .. currentmodule:: FaceEngine
+
+        .. autosummary::
+           :toctree: _generate
+
+           	createFaceEngine
+           	createSettingsProvider
+           	loadImage
+           	PyIFaceEngine
+			PyIFaceEngine.createAttributeEstimator
+			PyIFaceEngine.createQualityEstimator
+			PyIFaceEngine.createEthnicityEstimator
+
+			PyIFaceEngine.createHeadPoseEstimator
+			PyIFaceEngine.createBlackWhiteEstimator
+			PyIFaceEngine.createDepthEstimator
+			PyIFaceEngine.createIREstimator
+			PyIFaceEngine.createSmileEstimator
+			PyIFaceEngine.createFaceFlowEstimator
+			PyIFaceEngine.createEyeEstimator
+			PyIFaceEngine.createEmotionsEstimator
+			PyIFaceEngine.createGazeEstimator
+
+			PyIFaceEngine.createDetector
+			PyIFaceEngine.createWarper
+			PyIFaceEngine.createDescriptor
+			PyIFaceEngine.createDescriptorBatch
+			PyIFaceEngine.createExtractor
+			PyIFaceEngine.createMatcher
+			PyIFaceEngine.setSettingsProvider
+			PyIFaceEngine.createIndexBuilder
+			PyIFaceEngine.loadDenseIndex
+			PyIFaceEngine.loadDynamicIndex
+
+			SettingsProviderValue
+			SettingsProviderValue.__init__
+
+			PyISettingsProvider.getDefaultPath
+			PyISettingsProvider.load
+			PyISettingsProvider.save
+			PyISettingsProvider.clear
+			PyISettingsProvider.isEmpty
+			PyISettingsProvider.setValue
+			PyISettingsProvider.getValue
+
+			IQualityEstimatorPtr
+			IQualityEstimatorPtr.estimate
+
+			IAttributeEstimatorPtr
+			IAttributeEstimatorPtr.estimate
+
+			IEthnicityEstimator
+			IEthnicityEstimator.estimate
+
+			IDetector
+			IDetector.detect
+
+			IWarperPtr
+			IWarperPtr.warp
+			IWarperPtr.createTransformation
+
+			IDescriptorPtr
+			IDescriptorPtr.getModelVersion
+			IDescriptorPtr.getDescriptorLength
+			IDescriptorPtr.getDescriptor
+
+			IDescriptorBatchPtr
+			IDescriptorBatchPtr.add
+			IDescriptorBatchPtr.removeFast
+			IDescriptorBatchPtr.removeSlow
+			IDescriptorBatchPtr.getMaxCount
+			IDescriptorBatchPtr.getCount
+			IDescriptorBatchPtr.getModelVersion
+			IDescriptorBatchPtr.getDescriptorSize
+			IDescriptorBatchPtr.getDescriptorSlow
+			IDescriptorBatchPtr.getDescriptorFast
+
+			DescriptorBatchError
+
+			IDescriptorExtractorPtr
+			IDescriptorExtractorPtr.extract
+			IDescriptorExtractorPtr.extractFromWarpedImage
+			IDescriptorExtractorPtr.extractFromWarpedImageBatch
+
+
+			IDescriptorMatcherPtr
+			IDescriptorMatcherPtr.match
+
+			IHeadPoseEstimatorPtr
+			IHeadPoseEstimatorPtr.estimate
+
+			IBlackWhiteEstimatorPtr
+			IBlackWhiteEstimatorPtr.estimate
+
+			ILivenessDepthEstimatorPtr
+			ILivenessDepthEstimatorPtr.estimate
+			ILivenessDepthEstimatorPtr.setRange
+
+			ILivenessIREstimatorPtr
+			ILivenessIREstimatorPtr.estimate
+
+			ISmileEstimatorPtr
+			ISmileEstimatorPtr.estimate
+
+			ILivenessFlowEstimatorPtr
+			ILivenessFlowEstimatorPtr.estimate
+
+			IEyeEstimatorPtr
+			IEyeEstimatorPtr.estimate
+
+			IEmotionsEstimatorPtr
+			IEmotionsEstimatorPtr.estimate
+
+			IGazeEstimatorPtr
+			IGazeEstimatorPtr.estimate
+
+			IAGSEstimatorPtr
+			IAGSEstimatorPtr.estimate
+
+			IIndexPtr
+			IIndexPtr.search
+
+			IDenseIndexPtr
+			IDenseIndexPtr.search
+			IDenseIndexPtr.size
+			IDenseIndexPtr.descriptorByIndex
+			IDenseIndexPtr.search
+
+			IDynamicIndexPtr
+			IDynamicIndexPtr.saveToDenseIndex
+			IDynamicIndexPtr.saveToDynamicIndex
+			IDynamicIndexPtr.search
+			IDynamicIndexPtr.size
+			IDynamicIndexPtr.descriptorByIndex
+			IDynamicIndexPtr.appendDescriptor
+			IDynamicIndexPtr.appendBatch
+			IDynamicIndexPtr.removeDescriptor
+
+			MatchingResult
+
+			Landmarks5
+			Landmarks5.__len__
+			Landmarks5.__getitem__
+			Landmarks5.__setitem__
+
+			Landmarks68
+			Landmarks68.__len__
+			Landmarks68.__getitem__
+			Landmarks68.__setitem__
+
+			IrisLandmarks
+			IrisLandmarks.__len__
+			IrisLandmarks.__getitem__
+			IrisLandmarks.__setitem__
+
+			EyelidLandmarks
+			EyelidLandmarks.__len__
+			EyelidLandmarks.__getitem__
+			EyelidLandmarks.__setitem__
+
+			Vector2f
+			Vector2f.__init__
+			Vector2f.__repr__
+
+			Vector2i
+			Vector2i.__init__
+			Vector2i.__repr__
+
+			FSDKErrorResult
+			DescriptorBatchResult
+			ImageErrorResult
+			SettingsProviderErrorResult
+			FSDKErrorValueInt
+			FSDKErrorValueFloat
+			FSDKErrorValueMatching
+
+
+			AttributeEstimation
+			AttributeEstimation.__init__
+			AttributeEstimation.__repr__
+			Quality
+			Quality.__init__
+			Quality.getQuality
+
+			EthnicityEstimation
+			EthnicityEstimation.__init__
+			EthnicityEstimation.__repr__
+			EthnicityEstimation.getEthnicityScore
+			EthnicityEstimation.getPredominantEthnicity
+
+			HeadPoseEstimation
+			HeadPoseEstimation.__init__
+			HeadPoseEstimation.__repr__
+			HeadPoseEstimation.getFrontalFaceType
+
+			SmileEstimation
+			SmileEstimation.__init__
+			SmileEstimation.__repr__
+
+			EyesEstimation
+			EyesEstimation.__init__
+			EyesEstimation.__repr__
+			State
+
+			EyeAttributes
+			EyeAttributes.state
+			EyeAttributes.iris
+			EyeAttributes.eyelid
+
+			EmotionsEstimation
+			EmotionsEstimation.__init__
+			EmotionsEstimation.__repr__
+			EmotionsEstimation.getPredominantEmotion
+			EmotionsEstimation.getEmotionScore
+
+			Emotions
+
+			GazeEstimation
+			GazeEstimation.__init__
+			GazeEstimation.__repr__
+			GazeEstimation
+
+			EyeAngles
+
+			Ethnicity
+
+			Transformation
+
+			Detection
+
+			FormatType
+
+			Image
+			Image.__init__
+			Image.getWidth
+			Image.getHeight
+			Image.isValid
+			Image.getFormat
+			Image.getRect
+			Image.getData
+			Image.getChannelCount
+			Image.getChannelStep
+			Image.getBitDepth
+			Image.getByteDepth
+			Image.computePitch
+			Image.isPadded
+			Image.isBGR
+			Image.isValidFormat
+			Image.setData
+			Image.save
+			Image.load
+			Image.getRect
+			Image.loadFromMemory
+
+			ImageType
+
+			ImageError
+
+			SettingsProviderError
+
+			Rect
+
+			ObjectDetectorClassType
+			ObjectDetectorClassType.ODT_MTCNN
+			ObjectDetectorClassType.ODT_COUNT
+
+			FSDKError
+			FrontalFaceType
+
+			DepthRange
+			DepthRange.__repr__
+			loadImage
+			EyeAngles
+
+			IIndexPtr
+			IIndexPtr.search
+			
+			IDenseIndexPtr
+			IDenseIndexPtr.search
+			IDenseIndexPtr.size
+			IDenseIndexPtr.descriptorByIndex
+			
+			IDynamicIndexPtr
+			IDynamicIndexPtr.saveToDenseIndex
+			IDynamicIndexPtr.saveToDynamicIndex
+			IDynamicIndexPtr.countOfIndexedDescriptors
+			IDynamicIndexPtr.search
+			IDynamicIndexPtr.size
+			IDynamicIndexPtr.descriptorByIndex
+			IDynamicIndexPtr.search
+			IDynamicIndexPtr.appendDescriptor
+			IDynamicIndexPtr.appendBatch
+			IDynamicIndexPtr.removeDescriptor
+			
+			IIndexBuilderPtr
+			IIndexBuilderPtr.buildIndex
+			IIndexBuilderPtr.appendDescriptor
+			IIndexBuilderPtr.appendBatch
+			IIndexBuilderPtr.appendDescriptor
+			IIndexBuilderPtr.removeDescriptor
+			IIndexBuilderPtr.descriptorByIndex
+			
+    )pbdoc";
 }
 
 
