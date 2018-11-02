@@ -14,6 +14,7 @@ if len(sys.argv) <= 3:
 sys.path.append(sys.argv[1])
 import FaceEngine as fe
 
+
 def extractor_example(_image_list, _batch_size):
     print("Batch descriptor example")
     assert(len(_image_list) == _batch_size)
@@ -76,6 +77,7 @@ def set_logging(value):
     val = config.getValue("system", "verboseLogging")
     print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val.asInt()))
 
+
 def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print("Extractor_test_aggregation")
     config = fe.createSettingsProvider("data/faceengine.conf")
@@ -118,6 +120,7 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     # for i, element in enumerate(desc1):
     #     print(i, ")", desc[i], desc_from_batch[i])
     # print("Descriptors are equal {0}".format(are_equal(desc1, desc2)))
+
 
 if __name__ == "__main__":
     batch_size = len(sys.argv) - 2

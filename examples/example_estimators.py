@@ -156,9 +156,12 @@ if __name__ == "__main__":
     image = image_load(image_path)
     try:
         # unpack detector result - list of tuples
-        (detection, landmarks5, landmarks68) = detector_example(image, 1)[0]
+        err, detect_list = detector_example(image, 1)
+        if err.isError:
+            print("Detector: faces not found.")
+            exit(-1)
+        (detection, landmarks5, landmarks68) = detect_list[0]
         # print_landmarks(landmarks5, "landmarks5: ")
-        # print_landmarks(landmarks68, "landmarks68: ")
         (warp_image, transformed_landmarks5, transformed_landmarks68) = \
             warper_example(image, detection, landmarks5, landmarks68)
         attribute_quality_ethnicity_blackWhite_smile_example(warp_image)

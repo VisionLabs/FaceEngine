@@ -7,8 +7,10 @@
 class PyIFaceEngine {
 public:
 	fsdk::IFaceEnginePtr faceEnginePtr;
-
+	
 	PyIFaceEngine(const char* dataPath, const char* configPath);
+	
+	fsdk::FaceEngineEdition getFaceEngineEdition();
 
 	fsdk::IDetectorPtr createDetector(fsdk::ObjectDetectorClassType type);
 
@@ -48,9 +50,15 @@ public:
 
 	fsdk::IGazeEstimatorPtr createGazeEstimator();
 	
+	fsdk::IIndexBuilderPtr createIndexBuilder();
+	
+	fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndex*> loadDenseIndex(
+	const char* indexPath);
+	
+	fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndex*> loadDynamicIndex(
+	const char* indexPath);
+	
 	fsdk::IAGSEstimatorPtr createAGSEstimator();
 
 	void setSettingsProvider(PyISettingsProvider& provider);
 };
-
-fsdk::Image loadImage(const char* name);

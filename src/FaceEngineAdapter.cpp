@@ -13,6 +13,10 @@ PyIFaceEngine::PyIFaceEngine(const char* dataPath = nullptr, const char* configP
 	faceEnginePtr = fsdk::acquire(fsdk::createFaceEngine(dataPath, configPath));
 }
 
+fsdk::FaceEngineEdition PyIFaceEngine::getFaceEngineEdition() {
+	return faceEnginePtr->getFaceEngineEdition();
+}
+
 fsdk::IDetectorPtr PyIFaceEngine::createDetector(fsdk::ObjectDetectorClassType type) {
 	fsdk::IDetectorPtr detectorPtr = fsdk::acquire(faceEnginePtr->createDetector(type));
 	if (!detectorPtr)
@@ -147,6 +151,24 @@ fsdk::IGazeEstimatorPtr PyIFaceEngine::createGazeEstimator() {
 	return gazeEstimatorPtr;
 }
 
+fsdk::IIndexBuilderPtr PyIFaceEngine::createIndexBuilder() {
+	fsdk::IIndexBuilderPtr indexBuilderPtr = fsdk::acquire(faceEnginePtr->createIndexBuilder());
+	
+	if (!indexBuilderPtr)
+		throw py::cast_error("\nFailed to create indexBuilder instance! VERIFY PATH to \"data\" directory!");
+	return indexBuilderPtr;
+}
+
+fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndex*> PyIFaceEngine::loadDenseIndex(
+	const char* indexPath) {
+	return faceEnginePtr->loadDenseIndex(indexPath);
+}
+
+fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndex*> PyIFaceEngine::loadDynamicIndex(
+	const char* indexPath) {
+	return faceEnginePtr->loadDynamicIndex(indexPath);
+}
+
 fsdk::IAGSEstimatorPtr PyIFaceEngine::createAGSEstimator() {
 	fsdk::IAGSEstimatorPtr agsEstimatorPtr = fsdk::acquire(faceEnginePtr->createAGSEstimator());
 	if (!agsEstimatorPtr)
@@ -157,24 +179,3 @@ fsdk::IAGSEstimatorPtr PyIFaceEngine::createAGSEstimator() {
 void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }
-
-// only for depth test
-fsdk::Image loadImage(const char* name) {
-	std::ifstream file(name, std::ios::in|std::ios::binary);
-
-	int channels =0;
-	int elementSize = 0;
-	int rows = 0;
-	int cols = 0;
-
-	file.read((char*)&channels,sizeof(channels));
-	file.read((char*)&elementSize,sizeof(elementSize));
-	file.read((char*)&rows,sizeof(rows));
-	file.read((char*)&cols,sizeof(cols));
-
-	fsdk::Image image(cols,rows,fsdk::Format::R16);
-
-	file.read((char*)image.getData(),rows*cols*channels*elementSize);
-
-	return image;
-};
