@@ -62,5 +62,3 @@ public:
 
 	void setSettingsProvider(PyISettingsProvider& provider);
 };
-
-fsdk::Image loadImage(const char* name);

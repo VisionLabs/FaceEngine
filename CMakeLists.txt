@@ -29,6 +29,7 @@ pybind11_add_module(FaceEngine
 		src/FaceEngine.cpp
 		src/FaceEngineAdapter.cpp
 		src/SettingsProviderAdapter.cpp
+		src/helpers.cpp
 		)
 target_link_libraries(FaceEngine PRIVATE pybind11::module ${FSDK_LIBRARIES})
 
