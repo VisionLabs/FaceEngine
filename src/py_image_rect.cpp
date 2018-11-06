@@ -45,9 +45,8 @@ py::class_<fsdk::Image>(f, "Image",
 		fsdk::Format type = fsdk::Format::Type(image.getFormat());
 		int c = getChannelCount(type);
 		const auto* const data_uint = image.getDataAs<uint8_t>();
-		std::vector<uint8_t> data(data_uint, data_uint + image.getDataSize());
 		std::vector<ssize_t> shape { image.getHeight(), image.getWidth(), c };
-		auto ptr = data.data();
+		auto ptr = data_uint;
 		return py::array(shape, ptr);
 	}, "\tReturns image as numpy array.\n")
 	

@@ -223,7 +223,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 	
 	.def("extractFromWarpedImageBatch",[](
 		const fsdk::IDescriptorExtractorPtr& extractor,
-		std::vector<fsdk::Image> warpsBatch,
+		const std::vector<fsdk::Image>& warpsBatch,
 		const fsdk::IDescriptorBatchPtr& descriptorBatch,
 		uint32_t batchSize) {
 			std::vector<float> garbageScoreBatch(batchSize);
