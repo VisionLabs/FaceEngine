@@ -137,10 +137,11 @@ py::class_<fsdk::Image>(f, "Image",
 	})
 	
 	.def("loadFromMemory", [](
-	fsdk::Image& image,
-	const char* bytes,
-	int sizeInBytes,
-	const fsdk::Format::Type type) {
+		fsdk::Image& image,
+		const char* bytes,
+		int sizeInBytes,
+		const fsdk::Format::Type type) {
+		
 		fsdk::Result<fsdk::Image::Error> error = image.loadFromMemory(
 		bytes,
 		sizeInBytes,
