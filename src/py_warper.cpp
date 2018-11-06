@@ -92,6 +92,7 @@ py::class_<fsdk::Transformation>(f, "Transformation",
 	.def_readwrite("scale", &fsdk::Transformation::scale)
 	.def_readwrite("centerP", &fsdk::Transformation::centerP)
 	.def_readwrite("detectionTopLeft", &fsdk::Transformation::detectionTopLeft)
+	.def_readwrite("isValid", &fsdk::Transformation::isValid)
 	.def("__repr__", [](const fsdk::Transformation &t) {
 		return "Transformation: "
 			   " angleDeg = " + std::to_string(t.angleDeg)
