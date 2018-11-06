@@ -15,8 +15,12 @@ import FaceEngine as fe
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
 
-def detector_example(_image_det, max_detections):
-    detector = faceEngine.createDetector(fe.ODT_MTCNN)
+def detector_example(_image_det, max_detections, _detector_type=fe.ODT_MTCNN, _log_level=1):
+    if _detector_type == fe.ODT_S3FD:
+        config = set_logging(_log_level)
+        config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
+        faceEngine.setSettingsProvider(config)
+    detector = faceEngine.createDetector(_detector_type)
     detector_result = detector.detect(_image_det, _image_det.getRect(), max_detections)
     return detector_result
 
@@ -61,6 +65,7 @@ def set_logging(value):
     faceEngine.setSettingsProvider(config)
     val = config.getValue("system", "verboseLogging")
     print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val.asInt()))
+    return config
 
 
 def print_landmarks(landmarks, message=""):
@@ -83,13 +88,13 @@ def print_landmarks_for_comparing(landmarks1, landmarks2, message=""):
 
 if __name__ == "__main__":
     image_path = sys.argv[2]
-    set_logging(1)
     image = fe.Image()
     err_detect_ligth = image.load(image_path)
     if not image.isValid():
         print("Image error = ", err_detect_ligth)
     # unpack detector result - list of tuples
     err_detect, detect_list = detector_example(image, 1)
+    # err_detect, detect_list = detector_example(image, 1, fe.ODT_S3FD, 4)
 
     if err_detect.isError or len(detect_list) < 1:
         print("detect: faces are not found")
