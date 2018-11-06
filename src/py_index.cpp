@@ -135,9 +135,9 @@ void index_module(py::module& f) {
 			const int maxResultsCount) {
 				std::vector<fsdk::SearchResult> searchResults(maxResultsCount);
 				fsdk::ResultValue<fsdk::FSDKError, int> err = indexPtr->search(
-				reference,
-				maxResultsCount,
-				searchResults.data());
+					reference,
+					maxResultsCount,
+					searchResults.data());
 				if (err.isOk()) {
 					uint32_t size = err.getValue();
 					searchResults.resize(size);
@@ -165,10 +165,7 @@ void index_module(py::module& f) {
 			const fsdk::DescriptorId index,
 			const fsdk::IDescriptorPtr& descriptorPtr) {
 				fsdk::Result<fsdk::FSDKError> err = indexPtr->descriptorByIndex(index, descriptorPtr);
-				if (err.isOk())
-					return std::make_tuple(FSDKErrorResult(err), descriptorPtr);
-				else
-					return std::make_tuple(FSDKErrorResult(err), fsdk::IDescriptorPtr());
+				return std::make_tuple(FSDKErrorResult(err), descriptorPtr);
 			},
 			"Requests descriptor data out of internal storage.\n"
 			"\t\tparam1 (index): Identification value of some descriptor. Might be received either\n"
@@ -176,7 +173,7 @@ void index_module(py::module& f) {
 			"\t\tparam2 (descriptor): created descriptor object with correctly set\n"
 			"\t\tversion and length. Only changes data of passed descriptor.\n"
 			"\tReturns:\n"
-			"\t\t(tuple of FSDKErrorResult and descriptor):tuple with FSDKErrorResult and descriptor\n"
+			"\t\t(tuple with FSDKErrorResult and descriptor): tuple with FSDKErrorResult and descriptor\n"
 			"\t\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n")
 		
 		.def("appendDescriptor", [](const fsdk::IDynamicIndexPtr& index, const fsdk::IDescriptorPtr batch) {
