@@ -17,16 +17,16 @@ void index_module(py::module& f) {
 			const int maxResultsCount) {
 				std::vector<fsdk::SearchResult> searchResults(maxResultsCount);
 				fsdk::ResultValue<fsdk::FSDKError, int> err = indexPtr->search(
-				reference,
-				maxResultsCount,
-				searchResults.data());
-					if (err.isOk()) {
-						uint32_t size = err.getValue();
-						searchResults.resize(size);
-						return std::make_tuple(FSDKErrorResult(err), std::move(searchResults));
-					} else {
-						return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::SearchResult>());
-					}
+					reference,
+					maxResultsCount,
+					searchResults.data());
+				if (err.isOk()) {
+					const uint32_t size = err.getValue();
+					searchResults.resize(size);
+					return std::make_tuple(FSDKErrorResult(err), std::move(searchResults));
+				} else {
+					return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::SearchResult>());
+				}
 				},
 			"Search for descriptors with the shorter distance to passed descriptor.\n"
 			"\tArgs:\n"

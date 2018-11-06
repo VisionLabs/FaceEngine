@@ -11,6 +11,7 @@
 namespace py = pybind11;
 
 void estimators_module(py::module& f) {
+	
 	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr",
 		"Image quality estimator interface.\n"
 		"This estimator is designed to work with a person face image; you should pass a warped face detection image.\n"
@@ -125,9 +126,9 @@ void estimators_module(py::module& f) {
 			;
 	
 	py::class_<fsdk::Ref<fsdk::IBlackWhiteEstimator>>(f, "IBlackWhiteEstimatorPtr",
-		 "Grayscale image estimator interface.\n"
-		 "\tThis estimator is indifferent to image content and dimensions; you can pass both face crops (including\n"
-		 "\twarped images) and full frames.\n")
+		"Grayscale image estimator interface.\n"
+		"\tThis estimator is indifferent to image content and dimensions; you can pass both face crops (including\n"
+		"\twarped images) and full frames.\n")
 	
 		.def("estimate",[](
 			const fsdk::Ref<fsdk::IBlackWhiteEstimator>& est,
@@ -434,8 +435,8 @@ void estimators_module(py::module& f) {
 			"\tExample:lanmarks[3]")
 		
 		.def("__setitem__", [](fsdk::EyesEstimation::EyeAttributes::IrisLandmarks &s,
-							  size_t i,
-							  fsdk::Vector2<float> v) {
+							 size_t i,
+							 fsdk::Vector2<float> v) {
 				if (i >= fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount) throw py::index_error();
 				s.landmarks[i].x = v.x;
 				s.landmarks[i].y = v.y;

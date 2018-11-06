@@ -25,12 +25,11 @@ message(${FSDK_INCLUDE_DIRS})
 
 add_subdirectory(pybind11)
 
-pybind11_add_module(FaceEngine
-		src/FaceEngine.cpp
-		src/FaceEngineAdapter.cpp
-		src/SettingsProviderAdapter.cpp
-		src/helpers.cpp
-		)
+file(GLOB SOURCES src/*.cpp)
+
+message("${SOURCES}")
+
+pybind11_add_module(FaceEngine ${SOURCES})
 target_link_libraries(FaceEngine PRIVATE pybind11::module ${FSDK_LIBRARIES})
 
 message(${CMAKE_INSTALL_PREFIX})
