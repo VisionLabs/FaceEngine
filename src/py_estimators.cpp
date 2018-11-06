@@ -106,6 +106,7 @@ void estimators_module(py::module& f) {
 				return py::cast(out);
 			else
 				return py::cast(FSDKErrorResult(err)); })
+	
 		.def("estimate",[](
 			const fsdk::IHeadPoseEstimatorPtr& est,
 			const fsdk::Image& image,
@@ -244,9 +245,9 @@ void estimators_module(py::module& f) {
 		.def("estimate",[](
 			const fsdk::ILivenessFlowEstimatorPtr& est,
 			const fsdk::Image& small,
-			std::vector<fsdk::Image> framesPyList) {
+			const std::vector<fsdk::Image>& frames) {
 				double score = 0.0;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(small, framesPyList.data(), framesPyList.size(), score);
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(small, frames.data(), frames.size(), score);
 				if (err.isOk())
 					return py::cast(score);
 				else

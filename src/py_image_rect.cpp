@@ -55,6 +55,7 @@ py::class_<fsdk::Image>(f, "Image",
 		fsdk::Format type = fsdk::Format::Type(image.getFormat());
 		return getChannelCount(type);
 	}, "\tReturns channel count.\n")
+
 	.def("getChannelStep", [](const fsdk::Image& image) {
 		return image.getFormat().getChannelStep();
 	}, "\tGet channel step.Padding bytes are considered spare channels.\n")
@@ -142,13 +143,13 @@ py::class_<fsdk::Image>(f, "Image",
 		int sizeInBytes,
 		const fsdk::Format::Type type) {
 		
-		fsdk::Result<fsdk::Image::Error> error = image.loadFromMemory(
-		bytes,
-		sizeInBytes,
-		fsdk::Format(type));
-		return ImageErrorResult(error);
-	})
-		;
+			fsdk::Result<fsdk::Image::Error> error = image.loadFromMemory(
+			bytes,
+			sizeInBytes,
+			fsdk::Format(type));
+			return ImageErrorResult(error);
+		})
+			;
 
 // first of all for test
 f.def("loadImage", &loadImage, "used only for depth test");

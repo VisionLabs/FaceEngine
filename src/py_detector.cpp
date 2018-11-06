@@ -15,7 +15,7 @@ py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr", "Face detector interface")
 		const fsdk::Image& image,
 		const fsdk::Rect& rect,
 		uint32_t maxCount) {
-		  std::vector<fsdk::Detection> detections(maxCount);
+			std::vector<fsdk::Detection> detections(maxCount);
 			std::vector<fsdk::Landmarks5> landmarks(maxCount);
 			std::vector<fsdk::Landmarks68> landmarks68(maxCount);
 			fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
