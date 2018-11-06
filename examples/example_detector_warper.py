@@ -15,7 +15,7 @@ import FaceEngine as fe
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
 
-def detector_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _log_level=1, _config=None):
+def detector_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _config=None):
     if _detector_type == fe.ODT_S3FD and _config:
         _config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
         faceEngine.setSettingsProvider(_config)
@@ -94,7 +94,7 @@ if __name__ == "__main__":
         print("Image error = ", err_detect_ligth)
     # unpack detector result - list of tuples
     err_detect, detect_list = detector_example(image, 1)
-    # err_detect, detect_list = detector_example(image, 1, fe.ODT_S3FD, 4, config)
+    # err_detect, detect_list = detector_example(image, 1, fe.ODT_S3FD, config)
 
     if err_detect.isError or len(detect_list) < 1:
         print("detect: faces are not found")
