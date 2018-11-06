@@ -229,33 +229,41 @@ In some cases C++ arrays are casted to python lists.
 For example:
 
 ```
-py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr")
 .def("detect",[](
-	const fsdk::IDetectorPtr& det,
-	const fsdk::Image& image,
-	const fsdk::Rect& rect,
-	int maxCount) {
-		fsdk::Detection detections[maxCount];
-		fsdk::Landmarks5 landmarks[maxCount];
-		fsdk::Landmarks68 landmarks68[maxCount];
-		fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
-			image,
-			rect,
-			detections,
-			landmarks,
-			landmarks68,
-			maxCount);
-		auto detectionResultPyList = py::list();
-		if (err.isOk()) {
-			for (size_t i = 0; i < maxCount; ++i) {
-				detectionResultPyList.append(std::make_tuple(detections[i], landmarks[i], landmarks68[i]));
-			}
-			return detectionResultPyList;
-		}
-		else {
-			detectionResultPyList.append(py::cast(FSDKErrorValueInt(err)));
-			return detectionResultPyList; } })
-			;
+    const fsdk::IDetectorPtr& det,
+    const fsdk::Image& image,
+    const fsdk::Rect& rect,
+    uint32_t maxCount) {
+      std::vector<fsdk::Detection> detections(maxCount);
+        std::vector<fsdk::Landmarks5> landmarks(maxCount);
+        std::vector<fsdk::Landmarks68> landmarks68(maxCount);
+        fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
+            image,
+            rect,
+            detections.data(),
+            landmarks.data(),
+            landmarks68.data(),
+            maxCount);
+        
+        if (err.isOk()) {
+            const uint32_t size = err.getValue();
+            auto detectionResultPyList = py::list(size);
+            for (uint32_t i = 0; i < size; ++i) {
+                detectionResultPyList[i] = std::make_tuple(detections[i], landmarks[i], landmarks68[i]);
+            }
+            return std::make_tuple(FSDKErrorValueInt(err), detectionResultPyList);
+        } else {
+            return std::make_tuple(FSDKErrorValueInt(err), py::list());
+        }},
+    "Detect faces and landmarks on the image\n"
+    "\tArgs:\n"
+    "\t\tparam1 (Image): input image. Format must be R8G8B8\n"
+    "\t\tparam2 (Rect): rect of interest inside of the image\n"
+    "\t\tparam3 (int): length of `detections` and `landmarks` arrays\n"
+    "\tReturns:\n"
+    "\t\t(tuple with FSDKErrorValueInt code and list of tuples): \n"
+    "\t\t\ttuple with FSDKErrorValueInt code and list of tuples from\n"
+    "\t\t\tDetection, Landmarks5, Landmarks68see FSDKErrorValueInt (see FSDKErrorValueInt)\n")
 ```
 
 **usage example**

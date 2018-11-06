@@ -4,7 +4,6 @@
 #include <pybind11/stl_bind.h>
 #include <pybind11/numpy.h>
 #include "ErrorsAdapter.hpp"
-#include "FaceEngineAdapter.hpp"
 #include "helpers.hpp"
 
 namespace py = pybind11;
@@ -27,19 +26,13 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 		"\t\t(int): size of descriptor in bytes.\n")
 	
 	.def("getDescriptor",[]( const fsdk::IDescriptorPtr& desc) {
-			const int size = desc->getDescriptorLength();
-			std::vector<uint8_t>buffer(size, 0);
+			const uint32_t size = desc->getDescriptorLength();
+			std::vector<uint8_t>buffer(size);
 			bool allocated = desc->getDescriptor(&buffer.front());
-			auto l = py::list(size);
-			int i = 0;
-			for (auto it = buffer.rbegin(); it != buffer.rend(); ++it) {
-				l[i] = *it;
-				++i;
-			}
 			if (allocated)
-				return l;
+				return buffer;
 			else
-				return py::list(); },
+				return std::vector<uint8_t>(); },
 		"Copy descriptor data to python list.\n "
 		"\tThis method is thread safe"
 		"\tReturns:\n"
@@ -48,8 +41,7 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 	const fsdk::IDescriptorPtr& descriptor,
 	const char* buffer,
 	uint32_t bufferSize) {
-		const char* data = reinterpret_cast<const char*>(buffer);
-		VectorArchive archiveDescriptor(data, bufferSize);
+		VectorArchive archiveDescriptor(buffer, bufferSize);
 		fsdk::Result<fsdk::ISerializableObject::Error> err = descriptor->load(&archiveDescriptor);
 		return SerializeErrorResult(err);
 	}, "Load descriptor from buffer")
@@ -159,8 +151,11 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		const fsdk::Detection& detection,
 		const fsdk::Landmarks5& landmarks,
 		const fsdk::IDescriptorPtr& descriptor) {
-			fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extract(image, detection,
-																				landmarks, descriptor);
+			fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extract(
+				image,
+				detection,
+				landmarks,
+				descriptor);
 			return FSDKErrorValueFloat(err); },
 		"Extract a face descriptor from an image.\n"
 		"\tThis method accepts arbitrary images that have size at least 250x250 pixels and R8G8B8 pixel format.\n"
@@ -229,14 +224,10 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 	
 	.def("extractFromWarpedImageBatch",[](
 		const fsdk::IDescriptorExtractorPtr& extractor,
-		py::list warpsBatchList,
+		std::vector<fsdk::Image> warpsBatch,
 		const fsdk::IDescriptorBatchPtr& descriptorBatch,
 		uint32_t batchSize) {
 			std::vector<float> garbageScoreBatch(batchSize);
-			std::vector<fsdk::Image> warpsBatch(batchSize);
-			for (uint32_t i = 0; i < batchSize; ++i) {
-				warpsBatch[i] = warpsBatchList[i].cast<fsdk::Image>();
-			}
 			fsdk::Result<fsdk::FSDKError> err = extractor->extractFromWarpedImageBatch(
 			warpsBatch.data(),
 			descriptorBatch,
