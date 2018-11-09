@@ -21,6 +21,14 @@ def detector_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _
         faceEngine.setSettingsProvider(_config)
     detector = faceEngine.createDetector(_detector_type)
     detector_result = detector.detect(_image_det, _image_det.getRect(), _max_detections)
+    err, detector_result1 = detector.detect([_image_det, _image_det],
+                                      [_image_det.getRect(), _image_det.getRect()],
+                                      _max_detections,
+                                      fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+    print(detector_result1[0].detection)
+    print(detector_result1[0].landmarks5_opt.isValid())
+    print(detector_result1[0].landmarks68_opt.isValid())
+    print(detector_result1[0].landmarks68_opt.value()[0])
     return detector_result
 
 
@@ -86,6 +94,11 @@ def print_landmarks_for_comparing(landmarks1, landmarks2, message=""):
 
 
 if __name__ == "__main__":
+    face = fe.Face()
+    print(face.detection)
+    print(face.landmarks5_opt.isValid())
+    # print(face.landmarks5_opt.value())
+    # print(face.m_landmarks68.value())
     image_path = sys.argv[2]
     config = set_logging(1)
     image = fe.Image()
