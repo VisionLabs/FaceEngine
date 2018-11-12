@@ -24,6 +24,33 @@ def detector_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _
     return detector_result
 
 
+def detector_redetect_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _config=None):
+    if _detector_type == fe.ODT_S3FD and _config:
+        _config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
+        faceEngine.setSettingsProvider(_config)
+    detector = faceEngine.createDetector(_detector_type)
+    err, face_list = detector.detect(
+        [_image_det, _image_det],
+        [_image_det.getRect(), _image_det.getRect()],
+        _max_detections,
+        fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+    print(type(face_list))
+    # DetectionType must be the same as in detect
+    redetect_result = detector.redetect(face_list, fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+    return redetect_result
+
+
+def detector_redetect_one_example(_image_det, _detector_type=fe.ODT_MTCNN, _config=None):
+    if _detector_type == fe.ODT_S3FD and _config:
+        _config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
+        faceEngine.setSettingsProvider(_config)
+    detector = faceEngine.createDetector(_detector_type)
+    err, face = detector.detectOne(_image_det, _image_det.getRect(), fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+    # DetectionType must be the same as in detect
+    redetect_result = detector.redetectOne(face, fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+    return redetect_result
+
+
 def detector_batch_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _config=None):
     if _detector_type == fe.ODT_S3FD and _config:
         _config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
@@ -122,15 +149,26 @@ def print_landmarks_for_comparing(landmarks1, landmarks2, message=""):
 if __name__ == "__main__":
     face = fe.Face()
     image_path = sys.argv[2]
-    config = set_logging(1)
+    config = set_logging(0)
     image = fe.Image()
     err_detect_ligth = image.load(image_path)
     if not image.isValid():
         print("Image error = ", err_detect_ligth)
     # unpack detector result - list of tuples
-    err_detect, detect_list = detector_example(image, 1)
-    # err_detect, detect_list = detector_example(image, 1, fe.ODT_S3FD, config)
+    # err_detect, detect_list = detector_example(image, 1)
+    err_detect, detect_list = detector_example(image, 1, fe.ODT_S3FD, config)
+    print_landmarks(detect_list[0][1], "Landmarks5")
+    err_redetect, redetect_list = detector_redetect_example(image, 1, fe.ODT_S3FD, config)
 
+    print_landmarks(redetect_list[0].landmarks5_opt.value(), "Landmarks5_opt_batch")
+
+    print(redetect_list[0].detection)
+    print(redetect_list[0].landmarks5_opt.isValid())
+    print(redetect_list[0].landmarks68_opt.isValid())
+    detection, landmarks68_from_redetect = redetect_list[0].detection, redetect_list[0].landmarks68_opt
+
+    err_redetect_one, redetect_face = detector_redetect_one_example(image, fe.ODT_S3FD, _config=None)
+    print_landmarks(redetect_face.landmarks5_opt.value(), "Landmarks5_opt_one")
     if err_detect.isError or len(detect_list) < 1:
         print("detect: faces are not found")
         exit(-1)
@@ -140,6 +178,8 @@ if __name__ == "__main__":
     # only for example take first detection in list
     (detection, landmarks5, landmarks68) = detect_list[0]
     # light version return only list of detections
+    exit(0)
+
     err_detect_light, detect_light_result = detector_example_light(image, 1)
     if err_detect_ligth.isError:
         print("detect_light: faces are not found")
@@ -151,7 +191,7 @@ if __name__ == "__main__":
         exit(-1)
     (warp_image, transformed_landmarks5, transformed_landmarks68) = \
         warper_example(image, detection, landmarks5, landmarks68)
-    (_, landmarks5_warp, _) = detector_example(warp_image, 1)[1][0]
+    (_, landmarks5_warp, _) = detector_redect_example(warp_image, 1)[1][0]
     print_landmarks(landmarks5, "landmarks5: ")
     print_landmarks(transformed_landmarks5, "transformedLandmarks5: ")
 
