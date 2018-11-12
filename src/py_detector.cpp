@@ -38,14 +38,14 @@ void detector_module(py::module& f) {
 				}
 			},
 			"Detect faces and landmarks on the image\n"
-				"\tArgs:\n"
-				"\t\tparam1 (Image): input image. Format must be R8G8B8\n"
-				"\t\tparam2 (Rect): rect of interest inside of the image\n"
-				"\t\tparam3 (int): length of `detections` and `landmarks` arrays\n"
-				"\tReturns:\n"
-				"\t\t(tuple with FSDKErrorValueInt code and list of tuples): \n"
-				"\t\t\ttuple with FSDKErrorValueInt code and list of tuples from\n"
-				"\t\t\tDetection, Landmarks5, Landmarks68, see FSDKErrorValueInt (see FSDKErrorValueInt)\n")
+			"\tArgs:\n"
+			"\t\tparam1 (Image): input image. Format must be R8G8B8\n"
+			"\t\tparam2 (Rect): rect of interest inside of the image\n"
+			"\t\tparam3 (int): length of `detections` and `landmarks` arrays\n"
+			"\tReturns:\n"
+			"\t\t(tuple with FSDKErrorValueInt code and list of tuples): \n"
+			"\t\t\ttuple with FSDKErrorValueInt code and list of tuples from\n"
+			"\t\t\tDetection, Landmarks5, Landmarks68, see FSDKErrorValueInt (see FSDKErrorValueInt)\n")
 		
 		.def("detect", [](
 			const fsdk::IDetectorPtr& det,
@@ -65,7 +65,18 @@ void detector_module(py::module& f) {
 				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::Face>());
 			}
 			
-		}, "")
+		},
+			"Detect faces and landmarks on multiple images\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of images): input images list. Format must be R8G8B8\n"
+			"\t\tparam2 (list of rects): input rectangles of interest list.\n"
+			"\t\t\tSize of list must be the same with images list\n"
+			"\t\tparam3 (int): max number of detections per input image\n"
+			"\t\tparam4 (DetectionType): type of detection: dtBBox, dt5landmarks or dt68landmarks\n"
+			"\tReturns:\n"
+			"\t\t(tuple with FSDKErrorValueInt code and list of tuples): \n"
+			"\t\t\ttuple with FSDKErrorValueInt code and list of tuples from\n"
+			"\t\t\tDetection, Landmarks5, Landmarks68, see FSDKErrorValueInt (see FSDKErrorValueInt)\n")
 		
 		.def("setDetectionComparer", [](
 			const fsdk::IDetectorPtr& det,
@@ -76,16 +87,23 @@ void detector_module(py::module& f) {
 		.def("detectOne", [](
 			const fsdk::IDetectorPtr& det,
 			const fsdk::Image& image,
+			const fsdk::Rect rect,
 			const fsdk::DetectionType type){
 			
-			fsdk::ResultValue<fsdk::FSDKError, fsdk::Face> err = det->detectOne(image, image.getRect(), type);
+			fsdk::ResultValue<fsdk::FSDKError, fsdk::Face> err = det->detectOne(image, rect, type);
 			if (err.isOk())
 				return std::make_tuple(FSDKErrorResult(err), err.getValue());
 			else
 				return std::make_tuple(FSDKErrorResult(err), fsdk::Face());
-		}, "")
-		
-		
+		},
+			 "Light function to get just one best detection from single input image\n"
+				 "\tArgs:\n"
+				 "\t\tparam1 (Image): input image\n"
+				 "\t\tparam2 (Rect): rectangle of interest on image\n"
+				 "\t\tparam3 (DetectionType): type of detection: dtBBox, dtlandmarks or dt68landmarks\n"
+				 "\tReturns:\n"
+				 "\t\t(tuple with FSDKErrorResult and list of Detections): \n"
+				 "\t\t\twith error code and a Face object (detection bbox, landmarks, etc)\n")
 		
 		.def("detect_light", [](
 				const fsdk::IDetectorPtr& det,
@@ -114,7 +132,7 @@ void detector_module(py::module& f) {
 				"\t\tparam3 (int): length of `detections` array\n"
 				"\tReturns:\n"
 				"\t\t(tuple with FSDKErrorValueInt code and list of Detections): \n"
-				"\t\t\ttuple with FSDKErrorValueInt code and list of Detections (see FSDKErrorValueInt)\n")
+				"\t\t\ttuple with FSDKErrorValueInt code and list of Detections\n")
 		
 		.def("detect5", [](
 				const fsdk::IDetectorPtr& det,
@@ -146,7 +164,10 @@ void detector_module(py::module& f) {
 				"\t\tparam3 (int): length of `detections` and `landmarks` arrays\n"
 				"\tReturns:\n"
 				"\t\t(tuple with FSDKErrorValueInt code and list of tuples): \n"
-				"\t\t\t tuple with FSDKErrorValueInt code and list of tuples from Detection, Landmarks5 (see FSDKErrorValueInt)\n");
+				"\t\t\t tuple with FSDKErrorValueInt code and list of tuples from Detection, "
+				"Landmarks5 (see FSDKErrorValueInt)\n")
+					;
+	
 	
 	py::class_<fsdk::Detection>(f, "Detection",
 		"Face detection.\n"
