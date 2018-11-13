@@ -480,6 +480,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("DCT_CENTER_AND_CONFIDANCE", fsdk::DCT_CENTER_AND_CONFIDANCE,
 			"BestDetection - most centered with high score\n")
 		.value("DCT_COUNT", fsdk::DCT_COUNT, "Count\n")
+		.export_values();
 			;
 	
 	py::enum_<fsdk::DetectionType>(f, "DetectionType", py::arithmetic(), "Detection type type enumeration.\n")

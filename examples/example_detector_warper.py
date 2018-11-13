@@ -15,11 +15,16 @@ import FaceEngine as fe
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
 
-def detector_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _config=None):
+def detector_example(_image_det,
+                     _max_detections,
+                     _comparer_type=fe.DetectionComparerType.DCT_CENTER,
+                     _detector_type=fe.ODT_MTCNN,
+                     _config=None):
     if _detector_type == fe.ODT_S3FD and _config:
         _config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
         faceEngine.setSettingsProvider(_config)
     detector = faceEngine.createDetector(_detector_type)
+    detector.setDetectionComparer(_comparer_type)
     detector_result = detector.detect(_image_det, _image_det.getRect(), _max_detections)
     return detector_result
 
@@ -30,13 +35,13 @@ def detector_batch_example(_image_det, _max_detections, _detector_type=fe.ODT_MT
         faceEngine.setSettingsProvider(_config)
     detector = faceEngine.createDetector(_detector_type)
     err, detector_result = detector.detect([_image_det,
-                                            _image_det,
-                                            _image_det],
-                                            [_image_det.getRect(),
-                                             _image_det.getRect(),
-                                             _image_det.getRect()],
-                                            1,
-                                            fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+                                           _image_det,
+                                           _image_det],
+                                           [_image_det.getRect(),
+                                           _image_det.getRect(),
+                                           _image_det.getRect()],
+                                           _max_detections,
+                                           fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
     print(detector_result[0][0].detection)
     print(detector_result[0][0].landmarks5_opt.isValid())
     print(detector_result[0][0].landmarks68_opt.isValid())
@@ -132,7 +137,7 @@ if __name__ == "__main__":
         print("Image error = ", err_detect_ligth)
     # unpack detector result - list of tuples
     # err_detect, detect_list = detector_example(image, 1)
-    err_detect, detect_list = detector_example(image, 1, fe.ODT_S3FD, config)
+    err_detect, detect_list = detector_example(image, 10, fe.DetectionComparerType.DCT_CENTER)
 
     if err_detect.isError or len(detect_list) < 1:
         print("detect: faces are not found")
@@ -162,6 +167,7 @@ if __name__ == "__main__":
     # print_landmarks_for_comparing(landmarks5, landmarks5_warp, "Comparing landmarks")
     print("MSD", detection)
     err_batch, detect_list_batch = detector_batch_example(image, 3, fe.ODT_S3FD, config)
+
     # err_one, detect_one = detector_one_example(image, 3)
     # print_landmarks(detect_one[0].landmarks5_opt.value(), "landmarks5 test: ")
 
