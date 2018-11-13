@@ -169,7 +169,7 @@ void detector_module(py::module& f) {
 		
 		.def("redetectOne", [](
 				const fsdk::IDetectorPtr& det,
-				fsdk::Face& face,
+				fsdk::Face face,
 				const fsdk::DetectionType type,
 				const int tol) {
 				fsdk::Result<fsdk::FSDKError> err = det->redetectOne(face, type, tol);
@@ -193,7 +193,7 @@ void detector_module(py::module& f) {
 					const auto* const ptr = facesSpan.begin();
 					const uint32_t size = facesSpan.size();
 					return std::make_tuple(FSDKErrorResult(err),
-							std::move(std::vector<fsdk::Face>(ptr, ptr + size)));
+						std::move(std::vector<fsdk::Face>(ptr, ptr + size)));
 				}, py::arg("faces"), py::arg("type"), py::arg("tolerance") = 0,
 			"Batched redetect faces.\n"
 			"\tArgs:\n"
@@ -212,7 +212,7 @@ void detector_module(py::module& f) {
 			"as well as detection confidence score.\n")
 		.def(py::init<>())
 		.def_readwrite("rect", &fsdk::Detection::rect, "Object bounding box")
-		.def_readwrite("score",&fsdk::Detection::score, "Object detection score)")
+		.def_readwrite("score", &fsdk::Detection::score, "Object detection score)")
 		.def("isValid", &fsdk::Detection::isValid)
 		.def("__repr__",
 			[](const fsdk::Detection& d) {
