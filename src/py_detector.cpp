@@ -5,6 +5,8 @@
 #include <pybind11/numpy.h>
 #include "ErrorsAdapter.hpp"
 
+
+
 namespace py = pybind11;
 
 void detector_module(py::module& f) {
@@ -53,17 +55,26 @@ void detector_module(py::module& f) {
 			const std::vector<fsdk::Rect>& rectanglesVec,
 			const uint32_t detectionPerImageNum,
 			const fsdk::DetectionType type) {
-			fsdk::Span<const fsdk::Image> images(imagesVec.data(), imagesVec.size());
-			fsdk::Span<const fsdk::Rect> rectangles(rectanglesVec.data(), rectanglesVec.size());
+			fsdk::Span<const fsdk::Image> images(imagesVec);
+			fsdk::Span<const fsdk::Rect> rectangles(rectanglesVec);
 			fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Face>>> err =
 				det->detect(images, rectangles, detectionPerImageNum, type);
 			if (err.isOk()) {
-				const uint32_t size = err.getValue()->getSize();
-				const auto* resultsPtr = err.getValue()->getResults().begin();
-				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::Face>(resultsPtr, resultsPtr + size));
-			} else {
-				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::Face>());
-			}
+				const uint32_t sizeBatch = err.getValue()->getSize();
+				py::list outList(sizeBatch);
+				
+				for (uint32_t i = 0; i < sizeBatch; ++i) {
+					fsdk::Span<fsdk::Face> resultsSpan = err.getValue()->getResults(i);
+					const uint32_t rowSize = resultsSpan.size();
+					py::list outRow(rowSize);
+					for (uint32_t j = 0; j < rowSize; ++j) {
+						outRow[j] = resultsSpan.data()[j];
+					}
+					outList[i] = outRow;
+				}
+				return std::make_tuple(FSDKErrorResult(err), outList);
+			} else
+				return std::make_tuple(FSDKErrorResult(err), py::list());
 			
 		},
 			"Detect faces and landmarks on multiple images\n"
