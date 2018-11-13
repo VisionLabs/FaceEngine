@@ -440,7 +440,7 @@ class TestFaceEngineRect(unittest.TestCase):
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm");
 
         reference = f.Detection()
-        refAGS = 0.977100
+        refAGS = 0.9766771
         reference.rect.x = 54
         reference.rect.y = 58
         reference.rect.width = 135
