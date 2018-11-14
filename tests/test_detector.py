@@ -1,16 +1,12 @@
-import sys
 import unittest
 import argparse
 import sys
 import os
-import glob
-import logging
-import struct
 
-# if FaceEngine is not installed within the system, add the directory with FaceEngine*.so to system paths
+# if FaceEngine is NOT installed within the system, add the directory with FaceEngine*.so to system paths
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--bind-path", type=str,
-                    help="path to FaceEngine*.so file - binding of luna-sdk")
+                    help="path to directory with FaceEngine*.so file - binding of luna-sdk")
 
 args = parser.parse_args()
 path_to_binding = args.bind_path
@@ -25,7 +21,7 @@ print(sys.argv)
 
 sys.path.append(path_to_binding)
 
-# if FaceEngine is installed only this string of code is required for module importing
+# if FaceEngine is installed within the system only this string of code is required for module importing
 import FaceEngine as fe
 
 testDataPath = "testData"
@@ -47,12 +43,12 @@ expectedDetectionMTCNN.rect.width = 148
 expectedDetectionMTCNN.rect.height = 184
 expectedDetectionMTCNN.score = 0.99999
 
-expectedRedetectionMTCNN.rect.x = 289
-expectedRedetectionMTCNN.rect.y = 74
-expectedRedetectionMTCNN.rect.width = 153
-expectedRedetectionMTCNN.rect.height = 198
-expectedRedetectionMTCNN.score = 0.99999
-
+# expectedRedetectionMTCNN.rect.x = 289
+# expectedRedetectionMTCNN.rect.y = 74
+# expectedRedetectionMTCNN.rect.width = 153
+# expectedRedetectionMTCNN.rect.height = 198
+# expectedRedetectionMTCNN.score = 0.99999
+#
 expectedDetectionMiniMTCNN.rect.x = 297
 expectedDetectionMiniMTCNN.rect.y = 97
 expectedDetectionMiniMTCNN.rect.width = 152
@@ -73,50 +69,59 @@ def invoke_vector_coords(line):
 
 
 class TestFaceEngineDetector(unittest.TestCase):
-    def detect(self, detectorType, refDetection):
-        configPath = "data" + "/faceengine.conf"
-        config = faceEngine.createSettingsProvider(configPath)
-        config.setValue("system", "verboseLogging", 5)
-        config.setValue("system", "betaMode", 1)
-        faceEngine.setSettingsProvider(config)
-        detector = faceEngine.createDetector(detectorType)
-        landmarks68 = fe.Landmarks68()
-        lnetExpected = testDataPath + "/image1_lnet2_precise.txt"
 
+    def compare_detection_lists(self, _expDetection, detect_list, _imagesCount, _expLandmarks68=None):
+        for j in range(_imagesCount):
+            _faces = detect_list[j]
+            self.assertEqual(1, len(_faces))
+            _face = _faces[0]
+            self.assertAlmostEqual(_expDetection.score, _face.detection.score, delta=0.0001)
+            self.assertAlmostEqual(_expDetection.rect.x, _face.detection.rect.x, delta=2)
+            self.assertAlmostEqual(_expDetection.rect.y, _face.detection.rect.y, delta=2)
+            self.assertAlmostEqual(_expDetection.rect.width, _face.detection.rect.width, delta=2)
+            self.assertAlmostEqual(_expDetection.rect.height, _face.detection.rect.height, delta=3)
+            if _expLandmarks68:
+                self.assertTrue(_face.landmarks68_opt.isValid())
+                for k in range(len(_expLandmarks68)):
+                    self.assertAlmostEqual(
+                        _expLandmarks68[k].x,
+                        _face.detection.rect.x + _face.landmarks68_opt.value()[j].x, 4)
+                    self.assertAlmostEqual(
+                        _expLandmarks68[k].y,
+                        _face.detection.rect.y + _face.landmarks68_opt.value()[j].y, 4)
 
-        with open(lnetExpected) as lm68file:
-            for i, line in enumerate(lm68file):
-                landmarks68[i] = invoke_vector_coords(line)
-        image = fe.Image()
-        err = image.load(testDataPath + "/image1.ppm")
+    def compare_detections(self, face1, face2):
+        self.assertEqual(face1.detection.score, face2.detection.score)
+        self.assertEqual(face1.detection.rect.x, face2.detection.rect.x)
+        self.assertEqual(face1.detection.rect.y, face2.detection.rect.y)
+        self.assertEqual(face1.detection.rect.width, face2.detection.rect.width)
+        self.assertEqual(face1.detection.rect.height, face2.detection.rect.height)
+        if face1.landmarks68_opt.isValid() and face2.landmarks68_opt.isValid():
+            for k in range(len(face2.landmarks68_opt.value())):
+                self.assertEqual(face1.landmarks68_opt.value()[k].x,
+                                 face2.landmarks68_opt.value()[k].x)
+        if face1.landmarks5_opt.isValid() and face2.landmarks5_opt.isValid():
+            for k in range(len(face2.landmarks5_opt.value())):
+                self.assertEqual(face1.landmarks5_opt.value()[k].x,
+                                 face2.landmarks5_opt.value()[k].x)
 
-        # without landmarks
-        count = 10
-        res, detect_list = detector.detect(image, image.getRect(), count)
-        count = len(detect_list)
-        for i in range(count):
-            print(detect_list[i].score,
-                  detect_list[i].rect.x,
-                  detect_list[i].rect.y,
-                  detect_list[i].rect.width,
-                  detect_list[i].rect.height)
-        self.assertEqual(1, count)
-        self.assertAlmostEqual(refDetection.score, detect_list[0].score, delta=0.0001)
-        self.assertAlmostEqual(refDetection.rect.x, detect_list[0].rect.x, delta=2)
-        self.assertAlmostEqual(refDetection.rect.y, detect_list[0].rect.y, delta=2)
-        self.assertAlmostEqual(refDetection.rect.width, detect_list[0].width, delta=2)
-        self.assertAlmostEqual(refDetection.rect.height, detect_list[0].height, delta=2)
-
-
-    def test_BatchDetector(self):
-        configPath = "data" + "/faceengine.conf"
+    def detectorTest(self, _detectorType, _expectedDetection):
+        configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
-        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
         config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
         faceEngine.setSettingsProvider(config)
-        detector = faceEngine.createDetector(fe.ODT_MTCNN)
+        detector = faceEngine.createDetector(_detectorType)
         lnetExpected = fe.Landmarks68()
-        ptsfilename = testDataPath + "/image1_lnet2_precise.txt"
+        ptsfilename = os.path.join(testDataPath, "image1_lnet2_precise.txt")
+        image = fe.Image()
+        err_image = image.load(os.path.join(testDataPath, "image1.ppm"))
+        self.assertTrue(err_image.isOk)
+        res_one, faceOne = detector.detectOne(
+            image,
+            image.getRect(),
+        fe.DetectionType(fe.dtBBox|fe.dt5Landmarks|fe.dt68Landmarks))
+        self.assertTrue(res_one.isOk)
+
         with open(ptsfilename) as file:
             for i, line in enumerate(file):
                 lnetExpected[i] = invoke_vector_coords(line)
@@ -126,108 +131,46 @@ class TestFaceEngineDetector(unittest.TestCase):
             rectangles = []
             for i in range(count):
                 image = fe.Image()
-                err = image.load(testDataPath + "/" + "image1.ppm")
+                err = image.load(os.path.join(testDataPath, "image1.ppm"))
                 images.append(image)
                 self.assertTrue(image.isValid())
                 rectangles.append(images[i].getRect())
+
             # without landmarks
             res, detect_list = detector.detect(images, rectangles, count, fe.dtBBox)
             self.assertEqual(len(detect_list), imagesCount)
+            self.assertFalse(res.isError)
+            self.compare_detection_lists(_expectedDetection, detect_list, imagesCount)
+            self.compare_detections(faceOne, detect_list[0][0])
 
-            for i in range(imagesCount):
-                faces = detect_list[i]
-                self.assertEqual(1, len(faces))
-                face = faces[0]
-                self.assertAlmostEqual(expectedDetectionMTCNN.score,  face.m_detection.score, delta=0.0001)
-                self.assertAlmostEqual(expectedDetectionMTCNN.rect.x, face.m_detection.rect.x, delta=2)
-                self.assertAlmostEqual(expectedDetectionMTCNN.rect.y, face.m_detection.rect.y, delta=2)
-                self.assertAlmostEqual(expectedDetectionMTCNN.rect.width, face.m_detection.rect.width, delta=2)
-                self.assertAlmostEqual(expectedDetectionMTCNN.rect.height, face.m_detection.rect.height, delta=2)
-
-
-            res, detect_list = detector.detect(images,
-                                               rectangles,
-                                               count,
-                                               fe.DetectionType(fe.dtBBox|fe.dt68Landmarks))
-            self.assertFalse(res.isError())
+            # without lnet
+            res, detect_list = detector.detect(
+                images,
+                rectangles,
+                count,
+                fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
             self.assertEqual(len(detect_list), imagesCount)
+            self.assertFalse(res.isError)
+            self.compare_detection_lists(
+                _expectedDetection,
+                detect_list,
+                imagesCount)
+            self.compare_detections(faceOne, detect_list[0][0])
 
+            # with lnet
+            res, detect_list = detector.detect(
+                images,
+                rectangles,
+                count,
+                fe.DetectionType(fe.dtBBox|fe.dt68Landmarks))
+            self.compare_detection_lists(_expectedDetection, detect_list, imagesCount)
+            self.compare_detections(faceOne, detect_list[0][0])
 
-    def test_EyeEstimator(self):
-        eyeEstimator = faceEngine.createEyeEstimator()
-        def testImage(landmarksCount, refLeftState, refRightState):
-
-            reference = fe.EyesEstimation()
-            landmarksCountStr = str(landmarksCount)
-            lm68Path = "testData/eyes/image_" + landmarksCountStr + "_wlm.txt"
-            imagePath = "testData/eyes/image_WARP.png"
-            irisLeft = "testData/eyes/image_" + landmarksCountStr + "_0_iris.pts"
-            irisRight = "testData/eyes/image_" + landmarksCountStr + "_1_iris.pts"
-            eyelidLeft = "testData/eyes/image_" + landmarksCountStr + "_0_eyelid.pts"
-            eyelidRight = "testData/eyes/image_" + landmarksCountStr + "_1_eyelid.pts"
-
-            landmarks68_eyes = fe.Landmarks68()
-            warp = fe.Image()
-            warp.load(imagePath)
-
-            def invoke_vector_coords(line):
-                line = line.strip().split()
-                x, y = float(line[0]), float(line[1])
-                return fe.Vector2f(x, y)
-
-            with open(lm68Path) as lm68file:
-                for i, line in enumerate(lm68file):
-                    landmarks68_eyes[i] = invoke_vector_coords(line)
-
-            eyesEstimation = eyeEstimator.estimate(warp, landmarks68_eyes)
-
-            with open(irisLeft, 'r') as irisLeftFile, open(irisRight, 'r') as irisRightFile, \
-                    open(eyelidLeft, 'r') as eyelidLeftFile, open(eyelidRight, 'r') as eyelidRightFile:
-                pass
-
-                # read iris
-                for i, line in enumerate(irisLeftFile):
-                    reference.leftEye.iris[i] = invoke_vector_coords(line)
-                    # print("irisLeftEye", reference.leftEye.iris[i], eyesEstimation.leftEye.iris[i])
-
-                for i, line in enumerate(irisRightFile):
-                    reference.rightEye.iris[i] = invoke_vector_coords(line)
-                    # print("irisRightEye", reference.rightEye.iris[i], eyesEstimation.rightEye.iris[i])
-
-                # read eyelid
-                for i, line in enumerate(eyelidLeftFile):
-                    reference.leftEye.eyelid[i] = invoke_vector_coords(line)
-                    # print("eyelidLeftEye", reference.leftEye.eyelid[i], eyesEstimation.leftEye.eyelid[i])
-
-                for i, line in enumerate(eyelidRightFile):
-                    reference.rightEye.eyelid[i] = invoke_vector_coords(line)
-                    # print("eyelidRightEye", reference.rightEye.eyelid[i], eyesEstimation.rightEye.eyelid[i])
-
-            reference.leftEye.state = refLeftState
-            reference.rightEye.state = refRightState
-
-            acceptableDiff = 1.0
-
-            # compare with reference
-            self.assertEqual(eyesEstimation.leftEye.state, reference.leftEye.state)
-            self.assertEqual(eyesEstimation.rightEye.state, reference.rightEye.state)
-
-            # iris
-            for i in range(len(fe.IrisLandmarks())):
-                self.assertAlmostEqual(eyesEstimation.leftEye.iris[i].x, reference.leftEye.iris[i].x, delta=acceptableDiff)
-                self.assertAlmostEqual(eyesEstimation.leftEye.iris[i].y, reference.leftEye.iris[i].y, delta=acceptableDiff)
-                self.assertAlmostEqual(eyesEstimation.rightEye.iris[i].x, reference.rightEye.iris[i].x, delta=acceptableDiff)
-                self.assertAlmostEqual(eyesEstimation.rightEye.iris[i].y, reference.rightEye.iris[i].y, delta=acceptableDiff)
-
-            # eyelid
-            for i in range(len(fe.EyelidLandmarks())):
-                self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].x, reference.leftEye.eyelid[i].x, delta=acceptableDiff)
-                self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].y, reference.leftEye.eyelid[i].y, delta=acceptableDiff)
-                self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
-                self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
-
-        testImage(68, fe.State.Open, fe.State.Open)
-
+    def test_Detector(self):
+        self.detectorTest(fe.ODT_DEFAULT, expectedDetectionMTCNN)
+        self.detectorTest(fe.ODT_MTCNN, expectedDetectionMTCNN)
+        self.detectorTest(fe.ODT_MTCNN_MINI, expectedDetectionMiniMTCNN)
+        self.detectorTest(fe.ODT_S3FD, expectedDetectionS3FD)
 
 
 if __name__ == '__main__':
