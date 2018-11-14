@@ -119,7 +119,7 @@ class TestFaceEngineDetector(unittest.TestCase):
         res_one, faceOne = detector.detectOne(
             image,
             image.getRect(),
-        fe.DetectionType(fe.dtBBox|fe.dt5Landmarks|fe.dt68Landmarks))
+        fe.DetectionType(fe.dt5Landmarks|fe.dt68Landmarks))
         self.assertTrue(res_one.isOk)
 
         with open(ptsfilename) as file:
