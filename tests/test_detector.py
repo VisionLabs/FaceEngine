@@ -100,14 +100,20 @@ class TestFaceEngineDetector(unittest.TestCase):
             for k in range(len(face2.landmarks68_opt.value())):
                 self.assertEqual(face1.landmarks68_opt.value()[k].x,
                                  face2.landmarks68_opt.value()[k].x)
+                self.assertEqual(face1.landmarks68_opt.value()[k].y,
+                                 face2.landmarks68_opt.value()[k].y)
+
         if face1.landmarks5_opt.isValid() and face2.landmarks5_opt.isValid():
             for k in range(len(face2.landmarks5_opt.value())):
                 self.assertEqual(face1.landmarks5_opt.value()[k].x,
                                  face2.landmarks5_opt.value()[k].x)
+                self.assertEqual(face1.landmarks5_opt.value()[k].y,
+                                 face2.landmarks5_opt.value()[k].y)
 
     def detectorTest(self, _detectorType, _expectedDetection):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
+        # config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
         config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
         faceEngine.setSettingsProvider(config)
         detector = faceEngine.createDetector(_detectorType)
