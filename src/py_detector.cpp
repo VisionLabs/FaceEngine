@@ -13,10 +13,10 @@ void detector_module(py::module& f) {
 	
 	py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr", "Face detector interface")
 		.def("detect", [](
-				const fsdk::IDetectorPtr& det,
-				const fsdk::Image& image,
-				const fsdk::Rect& rect,
-				uint32_t maxCount) {
+			const fsdk::IDetectorPtr& det,
+			const fsdk::Image& image,
+			const fsdk::Rect& rect,
+			uint32_t maxCount) {
 				std::vector<fsdk::Detection> detections(maxCount);
 				std::vector<fsdk::Landmarks5> landmarks(maxCount);
 				std::vector<fsdk::Landmarks68> landmarks68(maxCount);
@@ -55,26 +55,26 @@ void detector_module(py::module& f) {
 			const std::vector<fsdk::Rect>& rectanglesVec,
 			const uint32_t detectionPerImageNum,
 			const fsdk::DetectionType type) {
-			fsdk::Span<const fsdk::Image> images(imagesVec);
-			fsdk::Span<const fsdk::Rect> rectangles(rectanglesVec);
-			fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Face>>> err =
+				fsdk::Span<const fsdk::Image> images(imagesVec);
+				fsdk::Span<const fsdk::Rect> rectangles(rectanglesVec);
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Face>>> err =
 				det->detect(images, rectangles, detectionPerImageNum, type);
-			if (err.isOk()) {
-				const uint32_t sizeBatch = err.getValue()->getSize();
-				py::list outList(sizeBatch);
-				
-				for (uint32_t i = 0; i < sizeBatch; ++i) {
-					fsdk::Span<fsdk::Face> resultsSpan = err.getValue()->getResults(i);
-					const uint32_t rowSize = resultsSpan.size();
-					py::list outRow(rowSize);
-					for (uint32_t j = 0; j < rowSize; ++j) {
-						outRow[j] = resultsSpan.data()[j];
+				if (err.isOk()) {
+					const uint32_t sizeBatch = err.getValue()->getSize();
+					py::list outList(sizeBatch);
+					
+					for (uint32_t i = 0; i < sizeBatch; ++i) {
+						fsdk::Span<fsdk::Face> resultsSpan = err.getValue()->getResults(i);
+						const uint32_t rowSize = resultsSpan.size();
+						py::list outRow(rowSize);
+						for (uint32_t j = 0; j < rowSize; ++j) {
+							outRow[j] = resultsSpan.data()[j];
+						}
+						outList[i] = outRow;
 					}
-					outList[i] = outRow;
-				}
-				return std::make_tuple(FSDKErrorResult(err), outList);
-			} else
-				return std::make_tuple(FSDKErrorResult(err), py::list());
+					return std::make_tuple(FSDKErrorResult(err), outList);
+				} else
+					return std::make_tuple(FSDKErrorResult(err), py::list());
 			
 		},
 			"Detect faces and landmarks on multiple images\n"
@@ -85,14 +85,13 @@ void detector_module(py::module& f) {
 			"\t\tparam3 (int): max number of detections per input image\n"
 			"\t\tparam4 (DetectionType): type of detection: dtBBox, dt5landmarks or dt68landmarks\n"
 			"\tReturns:\n"
-			"\t\t(tuple with FSDKErrorValueInt code and list of tuples): \n"
-			"\t\t\ttuple with FSDKErrorValueInt code and list of tuples from\n"
-			"\t\t\tDetection, Landmarks5, Landmarks68, see FSDKErrorValueInt (see FSDKErrorValueInt)\n")
+			"\t\t(tuple): \n"
+			"\t\t\ttuple with FSDKErrorResult code and list of lists of Faces\n")
 		
 		.def("setDetectionComparer", [](
 			const fsdk::IDetectorPtr& det,
-			fsdk::DetectionComparerType comparerType){
-			det->setDetectionComparer(comparerType);
+			fsdk::DetectionComparerType comparerType) {
+				det->setDetectionComparer(comparerType);
 		}, "Set detection comparer from SDK defined list\n")
 		
 		.def("detectOne", [](
@@ -113,14 +112,14 @@ void detector_module(py::module& f) {
 				 "\t\tparam2 (Rect): rectangle of interest on image\n"
 				 "\t\tparam3 (DetectionType): type of detection: dtBBox, dtlandmarks or dt68landmarks\n"
 				 "\tReturns:\n"
-				 "\t\t(tuple with FSDKErrorResult and list of Detections): \n"
-				 "\t\t\twith error code and a Face object (detection bbox, landmarks, etc)\n")
+				 "\t\t(tuple): \n"
+				 "\t\t\twith error code and Face object (detection bbox, landmarks, etc)\n")
 		
 		.def("detect_light", [](
-				const fsdk::IDetectorPtr& det,
-				const fsdk::Image& image,
-				const fsdk::Rect& rect,
-				int maxCount) {
+			const fsdk::IDetectorPtr& det,
+			const fsdk::Image& image,
+			const fsdk::Rect& rect,
+			int maxCount) {
 				std::vector<fsdk::Detection> detections(maxCount);
 				fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(
 					image,
@@ -142,14 +141,14 @@ void detector_module(py::module& f) {
 				"\t\tparam2 (Rect): rect of interest inside of the image\n"
 				"\t\tparam3 (int): length of `detections` array\n"
 				"\tReturns:\n"
-				"\t\t(tuple with FSDKErrorValueInt code and list of Detections): \n"
+				"\t\t(tuple): \n"
 				"\t\t\ttuple with FSDKErrorValueInt code and list of Detections\n")
 		
 		.def("detect5", [](
-				const fsdk::IDetectorPtr& det,
-				const fsdk::Image& image,
-				const fsdk::Rect& rect,
-				int maxCount) {
+			const fsdk::IDetectorPtr& det,
+			const fsdk::Image& image,
+			const fsdk::Rect& rect,
+			int maxCount) {
 				std::vector<fsdk::Detection> detections(maxCount);
 				std::vector<fsdk::Landmarks5> landmarks(maxCount);
 				fsdk::ResultValue<fsdk::FSDKError, int> err = det->detect(

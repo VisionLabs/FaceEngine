@@ -43,12 +43,6 @@ expectedDetectionMTCNN.rect.width = 148
 expectedDetectionMTCNN.rect.height = 184
 expectedDetectionMTCNN.score = 0.99999
 
-# expectedRedetectionMTCNN.rect.x = 289
-# expectedRedetectionMTCNN.rect.y = 74
-# expectedRedetectionMTCNN.rect.width = 153
-# expectedRedetectionMTCNN.rect.height = 198
-# expectedRedetectionMTCNN.score = 0.99999
-#
 expectedDetectionMiniMTCNN.rect.x = 297
 expectedDetectionMiniMTCNN.rect.y = 97
 expectedDetectionMiniMTCNN.rect.width = 152

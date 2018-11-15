@@ -45,10 +45,10 @@ py::class_<fsdk::Optional<T>> optional_class(py::module& this_module, const char
 	return class_instance;
 }
 
-void set_optinal_class(py::module& f)
+void set_optional_class(py::module& f)
 {
-	auto optinonalLandmarks5 = optional_class<fsdk::Landmarks5>(f, "OptinalLandmarks5");
-	auto optinonalLandmarks68 = optional_class<fsdk::Landmarks68>(f, "OptinalLandmarks68");
+	auto optionalLandmarks5 = optional_class<fsdk::Landmarks5>(f, "OptionalLandmarks5");
+	auto optionalLandmarks68 = optional_class<fsdk::Landmarks68>(f, "OptionalLandmarks68");
 }
 
 
@@ -61,7 +61,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 	detector_module(f);
 	descriptor_module(f);
 	warper_module(f);
-	set_optinal_class(f);
+	set_optional_class(f);
 	
 	enum class FaceEngineEdition {
 		FrontEndEdition,
@@ -71,9 +71,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 	
 	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
 		.def(py::init<>())
-		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection optinal\n")
-		.def_readwrite("landmarks5_opt", &fsdk::Face::m_landmarks5, "Landmarks5 optinal\n")
-		.def_readwrite("landmarks68_opt", &fsdk::Face::m_landmarks68, "Landmarks68 optinal\n")
+		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection optional\n")
+		.def_readwrite("landmarks5_opt", &fsdk::Face::m_landmarks5, "Landmarks5 optional\n")
+		.def_readwrite("landmarks68_opt", &fsdk::Face::m_landmarks68, "Landmarks68 optional\n")
 			;
 	
 	py::enum_<fsdk::FaceEngineEdition>(f, "FaceEngineEdition", "Complete or FrontEdition version.\n")

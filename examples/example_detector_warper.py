@@ -34,12 +34,14 @@ def detector_batch_example(_image_det, _max_detections, _detector_type=fe.ODT_MT
         _config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
         faceEngine.setSettingsProvider(_config)
     detector = faceEngine.createDetector(_detector_type)
-    err, detector_result = detector.detect([_image_det,
-                                           _image_det,
-                                           _image_det],
-                                           [_image_det.getRect(),
-                                           _image_det.getRect(),
-                                           _image_det.getRect()],
+    image_list = [_image_det,
+                  _image_det,
+                  _image_det]
+    rect_list = [_image_det.getRect(),
+                 _image_det.getRect(),
+                 _image_det.getRect()]
+    err, detector_result = detector.detect(image_list,
+                                           rect_list,
                                            _max_detections,
                                            fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
     print(detector_result[0][0].detection)
