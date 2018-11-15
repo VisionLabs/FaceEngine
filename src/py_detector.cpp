@@ -114,13 +114,13 @@ py::class_<fsdk::Detection>(f, "Detection",
 	.def_readwrite("score", &fsdk::Detection::score, "Object detection score)")
 	.def("isValid", &fsdk::Detection::isValid)
 	.def("__repr__",
-		 [](const fsdk::Detection &d) {
-			 return "Detection: rect: x = " + std::to_string(d.rect.x) +
+		[](const fsdk::Detection &d) {
+			return "Detection: rect: x = " + std::to_string(d.rect.x) +
 				", y = " + std::to_string(d.rect.y) +
 				", width = " + std::to_string(d.rect.width) +
 				", height = " + std::to_string(d.rect.height) +
 				"; score = " + std::to_string(d.score) +
 				"; isValid = " + std::to_string(d.isValid());
-		 })
+		})
 	;
 }

@@ -25,17 +25,14 @@ void estimators_module(py::module& f) {
 			const fsdk::Image &warp) {
 				fsdk::Quality out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
-				if (err.isOk())
-					return py::cast(out);
-				else
-					return py::cast(FSDKErrorResult(err)); },
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
 			"Estimate the quality. If success returns quality output structure with quality params, else error code "
 			"(see FSDKErrorResult for details). \n"
 			"\tArgs:\n"
 			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8"
 			"\tReturns:\n"
-			"\t\t(Quality): if success - output Quality,\n"
-			"\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
+			"\t\t(tuple): tuple with error code FSDKErrorResult and output Quality\n")
 		;
 	
 	py::class_<fsdk::IAttributeEstimatorPtr>(f, "IAttributeEstimatorPtr",
@@ -50,18 +47,16 @@ void estimators_module(py::module& f) {
 			const fsdk::Image &warp) {
 				fsdk::AttributeEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
-				if (err.isOk())
-					return py::cast(out);
-				else
-					return py::cast(FSDKErrorResult(err)); },
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
 			"Estimate the attributes. If success returns AttributeEstimation output structure with params, else error code.\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
 			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8\n"
 			"\tReturns:\n"
-			"\t\t(AttributeEstimation): if success - AttributeEstimation,\n"
-			"\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
-			;
+			"\t\t(tuple): tuple with error code FSDKErrorResult and output AttributeEstimation\n")
+		
+		;
 	
 	py::class_<fsdk::IEthnicityEstimatorPtr>(f, "IEthnicityEstimatorPtr",
 			"Ethnicity estimator interface. This estimator is designed to work with a person face image; \n"
@@ -73,18 +68,15 @@ void estimators_module(py::module& f) {
 			const fsdk::Image &warp) {
 				fsdk::EthnicityEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
-				if (err.isOk())
-					return py::cast(out);
-				else
-					return py::cast(FSDKErrorResult(err)); },
+				return std::make_tuple(FSDKErrorResult(err), out);
+			 },
 			"Ethnicity estimator interface. If success returns EthnicityEstimation structure with params, else error code. \n"
 			"See FSDKErrorResult for details. This estimator is designed to work with a person face image; \n"
 			"you should pass a warped face detection image obtained from IWarper\n"
 			"\tArgs:\n"
 			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8"
 			"\tReturns:\n"
-			"\t\t(EthnicityEstimation): if success - EthnicityEstimation,\n"
-			"\t\t(FSDKErrorResult): else error code FSDKErrorResult\n")
+			"\t\t(tuple): tuple with error code FSDKErrorResult and output EthnicityEstimation\n")
 	;
 	//	second part of estimators
 	py::class_<fsdk::IHeadPoseEstimatorPtr>(f, "IHeadPoseEstimatorPtr",
@@ -98,14 +90,12 @@ void estimators_module(py::module& f) {
 		"\tsee HeadPoseEstimation structure for details about how exactly the estimations are reported")
 	
 		.def("estimate",[](
-		const fsdk::IHeadPoseEstimatorPtr& est,
-		const fsdk::Landmarks68& landmarks68) {
-			fsdk::HeadPoseEstimation out;
-			fsdk::Result<fsdk::FSDKError> err = est->estimate(landmarks68, out);
-			if (err.isOk())
-				return py::cast(out);
-			else
-				return py::cast(FSDKErrorResult(err)); })
+			const fsdk::IHeadPoseEstimatorPtr& est,
+			const fsdk::Landmarks68& landmarks68) {
+				fsdk::HeadPoseEstimation out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(landmarks68, out);
+				return std::make_tuple(FSDKErrorResult(err), out);
+			})
 	
 		.def("estimate",[](
 			const fsdk::IHeadPoseEstimatorPtr& est,
@@ -113,17 +103,14 @@ void estimators_module(py::module& f) {
 			const fsdk::Detection& detection) {
 				fsdk::HeadPoseEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, out);
-				if (err.isOk())
-					return py::cast(out);
-				else
-					return py::cast(FSDKErrorResult(err)); },
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
 			"Estimate the angles.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Image): image source image. Format must be R8G8B8.\n"
 			"\t\tparam2 (Detection): detection.\n"
 			"\tReturns:\n"
-			"\t\t(HeadPoseEstimation): if OK - output estimation; see AngleEstimation.\n"
-			"\t\t(FSDKErrorResult): else - Result with error specified by FSDKErrorResult.\n")
+			"\t\t(tuple): tuple with error code FSDKErrorResult and output EthnicityEstimation\n")
 			;
 	
 	py::class_<fsdk::Ref<fsdk::IBlackWhiteEstimator>>(f, "IBlackWhiteEstimatorPtr",
@@ -136,34 +123,35 @@ void estimators_module(py::module& f) {
 			const fsdk::Image& image) {
 				bool outIsGrayscale;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, outIsGrayscale);
-				if (err.isOk())
-					return py::cast(outIsGrayscale);
-				else
-					return py::cast(FSDKErrorResult(err)); },
+				return std::make_tuple(FSDKErrorResult(err), outIsGrayscale);
+			},
 			"Check if image is grayscale or colo.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Image): image source image. Format must be R8G8B8.\n"
 			"\tReturns:\n"
-			"\t\t(FSDKErrorResult): estimation result; true if image is grayscale, false if not.\n")
+			"\t\t(tuple): estimation result and bool answer (true if image is grayscale, false if not).\n")
 			;
 	
 	py::class_<fsdk::ILivenessDepthEstimatorPtr>(f, "ILivenessDepthEstimatorPtr",
-												"Depth estimator interface.\n"
-												"\tThis estimator is designed for face analysis using depth map. It works with 16 bit depth map of face warp.\n"
-												"\tSee IWarper for details")
+			"Depth estimator interface.\n"
+			"\tThis estimator is designed for face analysis using depth map. "
+			"It works with 16 bit depth map of face warp.\n"
+			"\tSee IWarper for details")
 	
 		.def("estimate",[](
 			const fsdk::ILivenessDepthEstimatorPtr& est,
 			const fsdk::Image& image) {
 				fsdk::ResultValue<fsdk::FSDKError, float> err = est->estimate(image);
-			
-				return FSDKErrorValueFloat(err); },
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), err.getValue());
+				else
+					return std::make_tuple(FSDKErrorResult(err), 0.0f); },
 			"Check whether or not depth map corresponds to the real person.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Image): warped depth image with R16 format.\n"
 			"\tReturns:\n"
-			"\t\t(FSDKErrorValueFloat): ResultValue with error code and score of estimation.\n"
-			"\t\t\testimation score normalized between 0.0 and 1.0,\n"
+			"\t\t(tuple): tuple with error code and score of estimation.\n"
+			"\t\t\tEstimation score normalized between 0.0 and 1.0,\n"
 			"\t\t\twhere 1.0 equals to 100% confidence that person on image is alive, and 0.0 equals to 0%.\n")
 		
 		.def("setRange",[](
@@ -201,17 +189,14 @@ void estimators_module(py::module& f) {
 			const fsdk::Image& irWarp) {
 				fsdk::IREstimation irEstimation;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(irWarp, irEstimation);
-				if (err.isOk())
-					return py::cast(irEstimation);
-				else
-					return py::cast(FSDKErrorResult(err)); },
+				return std::make_tuple(FSDKErrorResult(err), irEstimation);
+			},
 			"Check whether or not infrared warp corresponds to the real person.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Image): irWarp infra red face warp\n"
 			"\tReturns:\n"
-			"\t\t(IREstimation): if OK - return irEstimation\n"
-			"\t\t\t(FSDKErrorResult): else - Error code.\n")
-			;
+			"\t\t(tuple):  tuple with Error code and irEstimation\n")
+				;
 	
 	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr",
 		"Smile estimator interface.\n"
@@ -223,16 +208,13 @@ void estimators_module(py::module& f) {
 			const fsdk::Image& image) {
 				fsdk::SmileEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, out);
-				if (err.isOk())
-					return py::cast(out);
-				else
-					return py::cast(FSDKErrorResult(err)); },
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
 			"Estimate SmileEstimation probabilities.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Image): face warped image.\n"
 			"\tReturns:\n"
-			"\t\t(SmileEstimation): if OK - estimation\n"
-			"\t\t(FSDKErrorResult): else - Error code.\n")
+			"\t\t(tuple): - tuple with error code FSDKErrorResult and SmileEstimation\n")
 			;
 	
 	py::class_<fsdk::ILivenessFlowEstimatorPtr>(f, "ILivenessFlowEstimatorPtr",
@@ -248,17 +230,13 @@ void estimators_module(py::module& f) {
 			const std::vector<fsdk::Image>& frames) {
 				double score = 0.0;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(small, frames.data(), frames.size(), score);
-				if (err.isOk())
-					return py::cast(score);
-				else
-					return py::cast(FSDKErrorResult(err)); },
+				return std::make_tuple(FSDKErrorResult(err), score); },
 			"Check if correct optical flow can be calculated from input images..\n"
 			"\tArgs\n"
 			"\t\tparam1 (Image): small face crop\n"
 			"\t\tparam2 (list): list with big face crops.\n"
 			"\tReturns:\n"
-			"\t\t(double): if OK - score.\n"
-			"\t\t(FSDKErrorResult): else - error code")
+			"\t\t(tuple): tuple with error code and float score.\n")
 			;
 	
 	py::class_<fsdk::IEyeEstimatorPtr>(f, "IEyeEstimatorPtr",
@@ -276,18 +254,15 @@ void estimators_module(py::module& f) {
 			const fsdk::Landmarks5& landmarks5) {
 				fsdk::EyesEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, landmarks5, out);
-				if (err.isOk())
-					return py::cast(out);
-				else
-					return py::cast(FSDKErrorResult(err)); },
+				return std::make_tuple(FSDKErrorResult(err), out);
+				},
 			"Estimate the attributes.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Image): warp source image. Format must be R8G8B8. Must be warped!\n"
 			"\t\tparam2 (Landmarks5): landmarks5 landmark of size 5 used to warp image, "
 			"must be in warped image coordinates. @see IWarper\n"
 			"\tReturns:\n"
-			"\t\t(EyesEstimation): if OK - return eye estimation\n"
-			"\t\t(FSDKErrorResult): else - Error code")
+			"\t\t(tuple): returns error code FSDKErrorResult and EyesEstimation\n")
 		
 		.def("estimate",[](
 			const fsdk::IEyeEstimatorPtr& est,
@@ -295,18 +270,15 @@ void estimators_module(py::module& f) {
 			const fsdk::Landmarks68& landmarks68) {
 				fsdk::EyesEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, landmarks68, out);
-				if (err.isOk())
-					return py::cast(out);
-				else
-					return py::cast(FSDKErrorResult(err)); },
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
 			"Estimate the attributes.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Image): warp source image. Format must be R8G8B8. Must be warped!\n"
 			"\t\tparam2 (Landmarks68): landmark of size 68 used to warp image, must be "
 			"in warped image coordinates.\n"
 			"\tReturns:\n"
-			"\t\t(EyesEstimation): if OK - return eye estimation"
-			"\t\t(FSDKErrorResult): else - Error code")
+			"\t\t(tuple): returns error code FSDKErrorResult and  EyesEstimation\n")
 			;
 	
 	py::class_<fsdk::IEmotionsEstimatorPtr>(f, "IEmotionsEstimatorPtr",
@@ -321,17 +293,15 @@ void estimators_module(py::module& f) {
 			const fsdk::Image& warp) {
 				fsdk::EmotionsEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
-				if (err.isOk())
-					return py::cast(out);
-				else
-					return py::cast(FSDKErrorResult(err)); },
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
 			"\tEstimate the attributes.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Image): warp source image. If format is not R8 it would be converted to R8. "
 			"Must be warped!\n"
 			"\tReturns:\n"
-			"\t\t(EmotionsEstimation): if OK - estimation of emotions. see EmotionsEstimation for details\n"
-			"\t\t(FSDKErrorResult): else - Error code")
+			"\tReturns:\n"
+			"\t\t(tuple): returns error code FSDKErrorResult and EmotionsEstimation\n")
 			;
 	
 	py::class_<fsdk::IGazeEstimatorPtr>(f, "IGazeEstimatorPtr",
@@ -347,17 +317,14 @@ void estimators_module(py::module& f) {
 			const fsdk::EyesEstimation& eyesEstimation) {
 				fsdk::GazeEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(angles, eyesEstimation, out);
-				if (err.isOk())
-					return py::cast(out);
-				else
-					return py::cast(FSDKErrorResult(err)); },
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
 			"Estimate the eye angles.\n"
 			"\tArgs\n"
 			"\t\tparam1 (HeadPoseEstimation): HeadPoseEstimation calculated using landmarks68.\n"
 			"\t\tparam2 (EyesEstimation): EyesEstimation of eyes.\n"
 			"\tReturns:\n"
-			"\t\t(GazeEstimation): if OK - output estimation; @see GazeEstimation.\n"
-			"\t\t(FSDKErrorResult): else - error code")
+			"\t\t(tuple): returns error code FSDKErrorResult and GazeEstimation\n")
 			;
 	
 	py::class_<fsdk::IAGSEstimatorPtr>(f, "IAGSEstimatorPtr",
@@ -435,9 +402,10 @@ void estimators_module(py::module& f) {
 			"Called to implement evaluation of self[key]. The accepted keys should be integers.\n "
 			"\tExample:lanmarks[3]")
 		
-		.def("__setitem__", [](fsdk::EyesEstimation::EyeAttributes::IrisLandmarks &s,
-							 size_t i,
-							 fsdk::Vector2<float> v) {
+		.def("__setitem__", [](
+			fsdk::EyesEstimation::EyeAttributes::IrisLandmarks &s,
+			size_t i,
+			fsdk::Vector2<float> v) {
 				if (i >= fsdk::EyesEstimation::EyeAttributes::irisLandmarksCount) throw py::index_error();
 				s.landmarks[i].x = v.x;
 				s.landmarks[i].y = v.y;
@@ -680,9 +648,9 @@ void estimators_module(py::module& f) {
 	
 	// Gaze
 		py::class_<fsdk::GazeEstimation>(f, "GazeEstimation",
-										"Gaze estimation output.\n"
-										"\tThese values are produced by IGazeEstimatorPtr object.\n"
-										"\tEach angle is measured in degrees and in [-180, 180] range.\n")
+			"Gaze estimation output.\n"
+			"\tThese values are produced by IGazeEstimatorPtr object.\n"
+			"\tEach angle is measured in degrees and in [-180, 180] range.\n")
 		.def(py::init<>())
 		.def_readwrite("leftEye", &fsdk::GazeEstimation::leftEye)
 		.def_readwrite("rightEye", &fsdk::GazeEstimation::rightEye)
