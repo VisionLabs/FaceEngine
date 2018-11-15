@@ -28,7 +28,7 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 	.def("getDescriptor",[]( const fsdk::IDescriptorPtr& desc) {
 			const uint32_t size = desc->getDescriptorLength();
 			std::vector<uint8_t> buffer(size);
-			bool isOk = desc->getDescriptor(&buffer.front());
+			bool isOk = desc->getDescriptor(buffer.data());
 			if (isOk)
 				return std::move(buffer);
 			else
@@ -36,7 +36,19 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 		"Copy descriptor data to python list.\n "
 		"\tThis method is thread safe"
 		"\tReturns:\n"
-		"\t\t(list): list of uint8_t if is ok (length of list is 264), empty list if ERROR")
+		"\t\t(list): list of uint8_t if is ok, empty list if ERROR")
+	.def("getDescriptorAsBytes",[]( const fsdk::IDescriptorPtr& desc) {
+			 const uint32_t size = desc->getDescriptorLength();
+			 std::vector<uint8_t> buffer(size);
+			 bool isOk = desc->getDescriptor(buffer.data());
+			 if (isOk)
+				 return py::bytes((const char*)buffer.data(), buffer.size());
+			 else
+				 return py::bytes(); },
+		 "Copy descriptor data to python list.\n "
+			 "\tThis method is thread safe"
+			 "\tReturns:\n"
+			 "\t\t(bytes): bytes")
 	.def("load",[](
 		const fsdk::IDescriptorPtr& descriptor,
 		const char* buffer,

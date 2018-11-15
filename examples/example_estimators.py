@@ -134,14 +134,6 @@ def ags_example(_faceEngine, _image, _detection):
     config.setValue("system", "verboseLogging", fe.SettingsProviderValue(0))
     _faceEngine.setSettingsProvider(config)
 
-# helpers
-def are_equal(desc1, desc2):
-    assert(len(desc1) == len(desc2))
-    for i, _ in enumerate(desc1):
-        if desc1[i] != desc2[i]:
-            return False
-    return True
-
 def print_landmarks(landmarks, message=""):
     print(message)
     for i in range(len(landmarks)):
