@@ -35,9 +35,6 @@ faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 test_data_path = "testData"
 dataPath = "data"
 
-
-
-
 class TestFaceEngineRect(unittest.TestCase):
 
     # helpers
