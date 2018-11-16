@@ -183,8 +183,10 @@ void detector_module(py::module& f) {
 				fsdk::Face face,
 				const fsdk::DetectionType type,
 				const int tol) {
-				fsdk::Result<fsdk::FSDKError> err = det->redetectOne(face, type, tol);
-				return std::make_tuple(FSDKErrorResult(err), face);
+				fsdk::ResultValue<fsdk::FSDKError, bool> err = det->redetectOne(face, type, tol);
+				if (err.isOk() && err.getValue())
+					return std::make_tuple(FSDKErrorValueBool(err), face);
+				return std::make_tuple(FSDKErrorValueBool(err), fsdk::Face());
 			}, py::arg("face"), py::arg("type"), py::arg("tolerance") = 0,
 			"Batched redetect faces.\n"
 			"\tArgs:\n"

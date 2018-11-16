@@ -74,6 +74,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection optinal\n")
 		.def_readwrite("landmarks5_opt", &fsdk::Face::m_landmarks5, "Landmarks5 optinal\n")
 		.def_readwrite("landmarks68_opt", &fsdk::Face::m_landmarks68, "Landmarks68 optinal\n")
+		.def("isValid", &fsdk::Face::isValid, "Valid or not\n")
 			;
 	
 	py::enum_<fsdk::FaceEngineEdition>(f, "FaceEngineEdition", "Complete or FrontEdition version.\n")
@@ -396,6 +397,23 @@ PYBIND11_MODULE(FaceEngine, f) {
 			[](const FSDKErrorValueInt &err) {
 				return "FSDKErrorValueInt: "
 						"isOk = " + std::to_string(err.isOk)
+						+ ", isError = " + std::to_string(err.isError)
+						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", value = " + std::to_string(err.value)
+						+ ", what = " + err.what; })
+			;
+	
+	py::class_<FSDKErrorValueBool>(f, "FSDKErrorValueBool", "Wrapper for result to output some bool "
+		"value aside the result.\n")
+		.def_readonly("isOk", &FSDKErrorValueBool::isOk)
+		.def_readonly("isError", &FSDKErrorValueBool::isError)
+		.def_readonly("FSDKError", &FSDKErrorValueBool::fsdkError)
+		.def_readonly("what", &FSDKErrorValueBool::what)
+		.def_readonly("value", &FSDKErrorValueBool::value)
+		.def("__repr__",
+			 [](const FSDKErrorValueBool &err) {
+				 return "FSDKErrorValueBool: "
+							"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
 						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
 						+ ", value = " + std::to_string(err.value)

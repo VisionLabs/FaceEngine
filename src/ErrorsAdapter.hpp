@@ -89,6 +89,22 @@ struct FSDKErrorValueInt {
 	{};
 };
 
+struct FSDKErrorValueBool {
+	bool isOk;
+	bool isError;
+	fsdk::FSDKError fsdkError;
+	const char* what;
+	int value;
+	
+	FSDKErrorValueBool(fsdk::ResultValue<fsdk::FSDKError, bool> err) :
+		isOk(err.isOk()),
+		isError(err.isError()),
+		fsdkError(err.getError()),
+		what(err.what()),
+		value(err.getValue())
+	{};
+};
+
 struct FSDKErrorValueFloat {
 	bool isOk;
 	bool isError;

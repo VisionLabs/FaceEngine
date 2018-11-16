@@ -45,10 +45,13 @@ def detector_redetect_one_example(_image_det, _detector_type=fe.ODT_MTCNN, _conf
         _config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
         faceEngine.setSettingsProvider(_config)
     detector = faceEngine.createDetector(_detector_type)
-    err, face = detector.detectOne(_image_det, _image_det.getRect(), fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+    err, face = detector.detectOne(_image_det, _image_det.getRect(), fe.DetectionType(fe.dt5Landmarks))
     # DetectionType must be the same as in detect
-    redetect_result = detector.redetectOne(face, fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
-    return redetect_result
+    if face.isValid():
+        redetect_result = detector.redetectOne(face, fe.dt5Landmarks)
+        return redetect_result
+    else:
+        return None
 
 
 def detector_batch_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _config=None):
@@ -161,49 +164,29 @@ if __name__ == "__main__":
     # err_detect, detect_list = detector_example(image, 1)
     err_detect, detect_list = detector_example(image, 1)
     # take landmakrs5 and print them
-    print_landmarks(detect_list[0][1], "Landmarks5_simple")
+    # print_landmarks(detect_list[0][1], "Landmarks5_simple")
     err_redetect, redetect_list = detector_redetect_example(image, 1, fe.ODT_S3FD, config)
-    print_landmarks(redetect_list[0].landmarks5_opt.value(), "Landmarks5_opt_batch")
+    # print_landmarks(redetect_list[0].landmarks5_opt.value(), "Landmarks5_opt_batch")
 
-    print(redetect_list[0].detection)
-    print(redetect_list[0].landmarks5_opt.isValid())
-    print(redetect_list[0].landmarks68_opt.isValid())
-    detection_from_redetection, landmarks68_from_redetect = redetect_list[0].detection, redetect_list[0].landmarks68_opt.value()
+    # print(redetect_list[0].detection)
+    # print(redetect_list[0].landmarks5_opt.isValid())
+    # print(redetect_list[0].landmarks68_opt.isValid())
+    # detection_from_redetection, landmarks68_from_redetect = redetect_list[0].detection, redetect_list[0].landmarks68_opt.value()
 
-    err_redetect_one, redetect_face = detector_redetect_one_example(image, fe.ODT_S3FD, _config=None)
-    print_landmarks(redetect_face.landmarks5_opt.value(), "Landmarks5_opt_one")
+    redetect_result = detector_redetect_one_example(image, fe.ODT_S3FD, _config=None)
+    if not redetect_result:
+        print("Face is not valid")
+        exit(-1)
+    err_redetect_one, redetect_face = redetect_result
+    if err_redetect_one.isOk and err_redetect_one.value:
+        print_landmarks(redetect_face.landmarks5_opt.value(), "Landmarks5_opt_one")
+    else:
+        print("redetectOne: no detections")
     if err_detect.isError or len(detect_list) < 1:
         print("detect: faces are not found")
         exit(-1)
-    for item in detect_list:
-        print(item[0])
 
-    # only for example take first detection in list
-    (detection_from_redetection, landmarks5, landmarks68) = detect_list[0]
-    
-    exit(0)
-    # light version return only list of detections
-    err_detect_light, detect_light_result = detector_example_light(image, 1)
-    if err_detect_ligth.isError:
-        print("detect_light: faces are not found")
-        exit(-1)
-    # detect5 version return only list of tuples with detections and landmarks5
-    err_detect5, detect5_tuple = detector_example_5(image, 1)
-    if err_detect5.isError or len(detect5_tuple) < 1:
-        print("detect_5: faces are not found")
-        exit(-1)
-    (warp_image, transformed_landmarks5, transformed_landmarks68) = \
-        warper_example(image, detection_from_redetection, landmarks5, landmarks68)
-    (_, landmarks5_warp, _) = detector_redect_example(warp_image, 1)[1][0]
-    print_landmarks(landmarks5, "landmarks5: ")
-    print_landmarks(landmarks68, "landmarks68: ")
-    print_landmarks(transformed_landmarks5, "transformedLandmarks5: ")
 
-    # print_landmarks_for_comparing(landmarks5, landmarks5_warp, "Comparing landmarks")
-    print("MSD", detection_from_redetection)
-    err_batch, detect_list_batch = detector_batch_example(image, 3, fe.ODT_S3FD, config)
-    # err_one, detect_one = detector_one_example(image, 3)
-    # print_landmarks(detect_one[0].landmarks5_opt.value(), "landmarks5 test: ")
 
 
 
