@@ -38,7 +38,6 @@ dataPath = "data"
 
 
 
-
 class TestFaceEngineRect(unittest.TestCase):
 
     # helpers
@@ -103,8 +102,6 @@ class TestFaceEngineRect(unittest.TestCase):
         data1 = descriptor.getData()
         with open(test_data_path + "/descriptor1_" + versionString + "_actual.bin", "wb") as out_file:
             out_file.write(data1)
-        print(res.value)
-        print(refGS)
         self.assertAlmostEqual(refGS, res.value, delta=(0.02, 0.03)[useMobileNet])
         refPath = os.path.join(test_data_path, "descriptor1_" + versionString + ".bin")
         with open(refPath, "rb") as file:
@@ -119,8 +116,26 @@ class TestFaceEngineRect(unittest.TestCase):
 
     def test_extractor(self):
         self.extractor(51, 0.9718, True, "auto", "cpu")
-        self.extractor(46, 0.9718, False, "auto", "cpu")
+        self.extractor(46, 0.9718, True, "auto", "cpu")
         self.extractor(52, 1.0, True, "auto", "cpu")
+        self.extractor(46, 0.9718, False, "auto", "cpu")
+        self.extractor(51, 0.9718, False, "auto", "cpu")
+        self.extractor(46, 0.9718, False, "cpu", "cpu")
+        self.extractor(46, 0.9718, True, "cpu", "cpu")
+        self.extractor(51, 0.9718, False, "cpu", "cpu")
+        self.extractor(51, 0.9718, True, "cpu", "cpu")
+        self.extractor(52, 0.8926, False, "cpu", "cpu")
+        self.extractor(52, 1.0, True, "cpu", "cpu")
+        self.extractor(46, 0.9718, False, "avx2", "cpu")
+        self.extractor(46, 0.9718, True, "avx", "cpu")
+        self.extractor(51, 0.9718, False, "avx", "cpu")
+        self.extractor(51, 0.9718, False, "avx2", "cpu")
+        self.extractor(51, 0.9718, True, "avx", "cpu")
+        self.extractor(51, 0.9718, True, "avx2", "cpu")
+        self.extractor(52, 0.8926, False, "avx", "cpu")
+        self.extractor(52, 0.8926, False, "avx2", "cpu")
+        self.extractor(52, 1.0, True, "avx", "cpu")
+        self.extractor(52, 1.0, True, "avx2", "cpu")
 
     def extractor_batch(self, version, useMobileNet, cpuType, device):
         configPath = os.path.join(dataPath, "faceengine.conf")
@@ -156,7 +171,6 @@ class TestFaceEngineRect(unittest.TestCase):
             descLength = descriptor.getDescriptorLength()
             for j in range(descLength):
                 self.assertEqual(dataExpected[j], data1[j + i_desc * descLength])
-            print(res.value, res_batch[1][i_desc])
             self.assertAlmostEqual(res.value, res_batch[1][i_desc], delta=0.0001)
 
     def test_extractor_batch(self):
@@ -185,16 +199,15 @@ class TestFaceEngineRect(unittest.TestCase):
         # self.assertFalse(res_batch.isError)
         res = extractor.extractFromWarpedImageBatch(warps, batch, aggr, 1)
         self.assertFalse(res[0].isError)
-
-        res = extractor.extractFromWarpedImageBatch(warps[0], descriptor)
+        res = extractor.extractFromWarpedImage(warps[0], descriptor)
         self.assertTrue(res.isOk)
+        self.assertEqual(descriptor.getModelVersion(), batch.getModelVersion())
         data_expected = descriptor.getData()
         err_get_data, data_actual = batch.getData()
         descLength = descriptor.getDescriptorLength()
         for j in range(descLength):
-            self.assertEqual(dataExpected[j], data1[j + i_desc * descLength])
-        print(res.value, res_batch[1][i_desc])
-    self.assertAlmostEqual(res.value, res_batch[1][i_desc], delta=0.0001)
+            self.assertEqual(data_expected[j], data_actual[j])
+
     def test_extractor_aggregation(self):
         self.extractor_aggregation(46, True, "auto", "cpu")
         self.extractor_aggregation(46, False, "auto", "cpu")
