@@ -100,7 +100,7 @@ class TestFaceEngineRect(unittest.TestCase):
         descriptor = faceEngine.createDescriptor()
         res = extractor.extractFromWarpedImage(warp, descriptor)
         self.assertTrue(res.isOk)
-        data1 = descriptor.getDescriptorAsBytes()
+        data1 = descriptor.getData()
         with open(test_data_path + "/descriptor1_" + versionString + "_actual.bin", "wb") as out_file:
             out_file.write(data1)
         print(res.value)
@@ -111,22 +111,93 @@ class TestFaceEngineRect(unittest.TestCase):
             read_data = file.read()
             descriptorExpected = faceEngine.createDescriptor()
             descriptorExpected.load(read_data, len(read_data))
-            dataActual = descriptor.getDescriptorAsBytes()
-            dataExpected = descriptorExpected.getDescriptorAsBytes()
+            dataActual = descriptor.getData()
+            dataExpected = descriptorExpected.getData()
             self.assertEqual(descriptorExpected.getModelVersion(), descriptor.getModelVersion())
             for i in range(descriptor.getDescriptorLength()):
                 self.assertEqual(dataActual[i], dataExpected[i])
 
-    def test_extractor46(self):
+    def test_extractor(self):
         self.extractor(51, 0.9718, True, "auto", "cpu")
         self.extractor(46, 0.9718, False, "auto", "cpu")
         self.extractor(52, 1.0, True, "auto", "cpu")
-        
-    # self.extractor(46, True, "auto", "cpu")
 
+    def extractor_batch(self, version, useMobileNet, cpuType, device):
+        configPath = os.path.join(dataPath, "faceengine.conf")
+        faceEngine = fe.createFaceEngine(dataPath)
+        config = fe.createSettingsProvider(configPath)
+        config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
+        config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
+        config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
+        config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpuType))
+        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        faceEngine.setSettingsProvider(config)
+        warps = [fe.Image(), fe.Image()]
+        err1 = warps[0].load(os.path.join(test_data_path, "warp1.ppm"))
+        err2 = warps[1].load(os.path.join(test_data_path, "warp2.ppm"))
+        # warps[0].load(os.path.join(test_data_path, "warp1.ppm"))
+        # warps[0].load(os.path.join(test_data_path, "warp_eyeglasses.jpg"))
 
+        extractor = faceEngine.createExtractor()
+        batch = faceEngine.createDescriptorBatch(2)
+        descriptor = faceEngine.createDescriptor()
 
+        res_batch = extractor.extractFromWarpedImageBatch(warps, batch, descriptor, 2)
+        self.assertTrue(res_batch[0].isOk)
+        err_batch_get_data, data1 = batch.getData()
+        self.assertTrue(err_batch_get_data.isOk)
+        with open(test_data_path + "/batch12_" + str(version) + "_actual.bin", "wb") as out_file:
+            out_file.write(data1)
+        for i_desc in range(2):
+            res = extractor.extractFromWarpedImage(warps[i_desc], descriptor)
+            self.assertTrue(res.isOk)
+            self.assertEqual(descriptor.getModelVersion(), batch.getModelVersion())
+            dataExpected = descriptor.getData()
+            descLength = descriptor.getDescriptorLength()
+            for j in range(descLength):
+                self.assertEqual(dataExpected[j], data1[j + i_desc * descLength])
+            print(res.value, res_batch[1][i_desc])
+            self.assertAlmostEqual(res.value, res_batch[1][i_desc], delta=0.0001)
 
+    def test_extractor_batch(self):
+        self.extractor_batch(46, True, "auto", "cpu")
+        self.extractor_batch(46, False, "auto", "cpu")
+
+    def extractor_aggregation(self, version, useMobileNet, cpuType, device):
+        configPath = os.path.join(dataPath, "faceengine.conf")
+        faceEngine = fe.createFaceEngine(dataPath)
+        config = fe.createSettingsProvider(configPath)
+        config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
+        config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
+        config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
+        config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpuType))
+        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        faceEngine.setSettingsProvider(config)
+        warps = [fe.Image(), fe.Image()]
+        err1 = warps[0].load(os.path.join(test_data_path, "warp1.ppm"))
+        err2 = warps[1].load(os.path.join(test_data_path, "warp2.ppm"))
+        extractor = faceEngine.createExtractor()
+        batch = faceEngine.createDescriptorBatch(2)
+        descriptor = faceEngine.createDescriptor()
+        aggr = faceEngine.createDescriptor()
+
+        # res_batch = extractor.extractFromWarpedImageBatch(warps, None, aggr, 1)
+        # self.assertFalse(res_batch.isError)
+        res = extractor.extractFromWarpedImageBatch(warps, batch, aggr, 1)
+        self.assertFalse(res[0].isError)
+
+        res = extractor.extractFromWarpedImageBatch(warps[0], descriptor)
+        self.assertTrue(res.isOk)
+        data_expected = descriptor.getData()
+        err_get_data, data_actual = batch.getData()
+        descLength = descriptor.getDescriptorLength()
+        for j in range(descLength):
+            self.assertEqual(dataExpected[j], data1[j + i_desc * descLength])
+        print(res.value, res_batch[1][i_desc])
+    self.assertAlmostEqual(res.value, res_batch[1][i_desc], delta=0.0001)
+    def test_extractor_aggregation(self):
+        self.extractor_aggregation(46, True, "auto", "cpu")
+        self.extractor_aggregation(46, False, "auto", "cpu")
 
 if __name__ == '__main__':
     unittest.main()
