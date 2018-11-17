@@ -39,7 +39,13 @@ def attribute_quality_ethnicity_blackWhite_smile_example(image):
     ethnicityEstimator = faceEngine.createEthnicityEstimator()
     blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
     smileEstimator = faceEngine.createSmileEstimator()
-    attribute_result = attributeEstimator.estimate(image)
+
+    attributeRequest = fe.AttributeRequest(
+            fe.AttributeRequest.estimateAge | 
+            fe.AttributeRequest.estimateGender | 
+            fe.AttributeRequest.estimateEthnicity
+        )
+    attribute_result = attributeEstimator.estimate(image, attributeRequest)
     quality_result = qualityEstimator.estimate(image)
     ethnicity_result = ethnicityEstimator.estimate(image)
     blackWhite_result = blackWhiteEstimator.estimate(image)
