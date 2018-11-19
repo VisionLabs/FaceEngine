@@ -613,7 +613,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IDescriptorBatchPtr.getDescriptorSlow
 			IDescriptorBatchPtr.getDescriptorFast
 			IDescriptorBatchPtr.load
-			IDescriptorBatchPtr.getData
 
 			DescriptorBatchError
 

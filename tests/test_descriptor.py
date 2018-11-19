@@ -156,18 +156,19 @@ class TestFaceEngineRect(unittest.TestCase):
 
         res_batch = extractor.extractFromWarpedImageBatch(warps, batch, descriptor, 2)
         self.assertTrue(res_batch[0].isOk)
-        err_batch_get_data, data1 = batch.getData()
-        self.assertTrue(err_batch_get_data.isOk)
         with open(test_data_path + "/batch12_" + str(version) + "_actual.bin", "wb") as out_file:
-            out_file.write(data1)
+            for i in range(2):
+                descriptor_from_batch = batch.getDescriptorFast(i)
+                out_file.write(descriptor_from_batch.getData())
         for i_desc in range(2):
             res = extractor.extractFromWarpedImage(warps[i_desc], descriptor)
             self.assertTrue(res.isOk)
             self.assertEqual(descriptor.getModelVersion(), batch.getModelVersion())
             dataExpected = descriptor.getData()
+            dataActual = batch.getDescriptorFast(i_desc).getData()
             descLength = descriptor.getDescriptorLength()
             for j in range(descLength):
-                self.assertEqual(dataExpected[j], data1[j + i_desc * descLength])
+                self.assertEqual(dataExpected[j], dataActual[j])
             self.assertAlmostEqual(res.value, res_batch[1][i_desc], delta=0.0001)
 
     def test_extractor_batch(self):
@@ -200,7 +201,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(res.isOk)
         self.assertEqual(descriptor.getModelVersion(), batch.getModelVersion())
         data_expected = descriptor.getData()
-        err_get_data, data_actual = batch.getData()
+        data_actual = batch.getDescriptorFast(0).getData()
         descLength = descriptor.getDescriptorLength()
         for j in range(descLength):
             self.assertEqual(data_expected[j], data_actual[j])
