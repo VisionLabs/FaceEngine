@@ -712,10 +712,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			FSDKErrorValueFloat
 			FSDKErrorValueMatching
 
+			AttributeRequest
+			AttributeRequest.estimateAge
+			AttributeRequest.estimateGender
+			AttributeRequest.estimateEthnicity
 
-			AttributeEstimation
-			AttributeEstimation.__init__
-			AttributeEstimation.__repr__
+			AttributeResult
+			AttributeResult.__init__
+			AttributeResult.__repr__
+
 			Quality
 			Quality.__init__
 			Quality.getQuality
