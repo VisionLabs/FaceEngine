@@ -9,7 +9,7 @@ struct VectorArchive: fsdk::IArchive
 	int index = 0;
 	
 	bool write(const void* data, size_t size) noexcept override {
-		memcpy((void*)&dataOut, data, size);
+		memcpy((void*)dataOut, data, size);
 		return true;
 	}
 	

@@ -28,7 +28,7 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 	.def("getDescriptor",[]( const fsdk::IDescriptorPtr& desc) {
 			const uint32_t size = desc->getDescriptorLength();
 			std::vector<uint8_t> buffer(size);
-			bool isOk = desc->getDescriptor(&buffer.front());
+			bool isOk = desc->getDescriptor(buffer.data());
 			if (isOk)
 				return std::move(buffer);
 			else
@@ -36,16 +36,25 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 		"Copy descriptor data to python list.\n "
 		"\tThis method is thread safe"
 		"\tReturns:\n"
-		"\t\t(list): list of uint8_t if is ok (length of list is 264), empty list if ERROR")
+		"\t\t(list): list of uint8_t if is ok, empty list if ERROR")
+	.def("getData",[]( const fsdk::IDescriptorPtr& desc) {
+			 const uint32_t size = desc->getDescriptorLength();
+			 std::vector<uint8_t> buffer(size);
+			 bool isOk = desc->getDescriptor(buffer.data());
+			 if (isOk)
+				 return py::bytes((const char*)buffer.data(), buffer.size());
+			 else
+				 return py::bytes(); },
+		 "Returns descriptor as bytes.\n")
 	.def("load",[](
 		const fsdk::IDescriptorPtr& descriptor,
 		const char* buffer,
 		uint32_t bufferSize) {
-		VectorArchive archiveDescriptor(buffer, bufferSize);
-		fsdk::Result<fsdk::ISerializableObject::Error> err = descriptor->load(&archiveDescriptor);
-		return SerializeErrorResult(err);
-	}, "Load descriptor from buffer")
-	; // descriptor
+			VectorArchive archiveDescriptor(buffer, bufferSize);
+			fsdk::Result<fsdk::ISerializableObject::Error> err = descriptor->load(&archiveDescriptor);
+			return SerializeErrorResult(err);
+		}, "Load descriptor from buffer")
+			; // descriptor
 	
 // DescriptorBatch
 py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batch interface. "
@@ -125,21 +134,22 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 			return fsdk::acquire(descriptorBatchPtr->getDescriptorFast(index)); },
 		"Create descriptor from batch by index without copying\n"
 		"\tArgs:\n"
-		"\t\tparam1 (int):  index required descriptor in batch\n"
+		"\t\tparam1 (int): index required descriptor in batch\n"
 		"\tReturns:\n"
 		"\t\t(IDescriptorPtr): valid object if succeeded.\n")
 	
 	.def("load",[](
-	const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
-		const char* buffer,
-		uint32_t bufferSize) {
-		VectorArchive archiveDescriptor(buffer, bufferSize);
-		fsdk::Result<fsdk::ISerializableObject::Error> err =
-		descriptorBatchPtr->load(&archiveDescriptor, bufferSize);
-		return SerializeErrorResult(err);
+		const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
+			const char* buffer,
+			uint32_t bufferSize) {
+				VectorArchive archiveDescriptor(buffer, bufferSize);
+				fsdk::Result<fsdk::ISerializableObject::Error> err =
+					descriptorBatchPtr->load(&archiveDescriptor, bufferSize);
+				return SerializeErrorResult(err);
 		
-	}, "Load descriptor from buffer")
-	;
+			}, "Load descriptor from buffer")
+			;
+	
 	py::class_<fsdk::IDescriptorExtractorPtr>(f, "IDescriptorExtractorPtr",
 		"Descriptor extractor interface.\n"
 		"\tExtracts face descriptors from images. The descriptors can be later used for face matching.\n")
@@ -196,16 +206,16 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		const fsdk::IDescriptorPtr& aggregation,
 		uint32_t batchSize) {
 			std::vector<float> garbageScoreBatch(batchSize);
-			fsdk::Result<fsdk::FSDKError> err = extractor->extractFromWarpedImageBatch(
-			warpsBatch.data(),
-			descriptorBatch,
-			aggregation,
-			garbageScoreBatch.data(),
-			batchSize);
+			fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extractFromWarpedImageBatch(
+				warpsBatch.data(),
+				descriptorBatch,
+				aggregation,
+				garbageScoreBatch.data(),
+				batchSize);
 			if (err.isOk()) {
-				return std::make_tuple(FSDKErrorResult(err), std::move(garbageScoreBatch));
+				return std::make_tuple(FSDKErrorValueFloat(err), std::move(garbageScoreBatch));
 			} else
-				return std::make_tuple(FSDKErrorResult(err), std::vector<float>());
+				return std::make_tuple(FSDKErrorValueFloat(err), std::vector<float>());
 		},
 		"Extract batch of descriptors from a batch of images and perform aggregation.\n"
 		"\tThe input images should be warped; see IWarper.\n"
