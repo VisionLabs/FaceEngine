@@ -291,7 +291,7 @@ void index_module(py::module& f) {
 			const fsdk::DescriptorId index,
 			const fsdk::IDescriptorPtr& descriptorPtr) {
 				fsdk::Result<fsdk::FSDKError> err = indexBuilderPtr->descriptorByIndex(index, descriptorPtr);
-				 return std::make_tuple(FSDKErrorResult(err), descriptorPtr);
+				return std::make_tuple(FSDKErrorResult(err), descriptorPtr);
 			},
 			"Requests descriptor data out of internal storage.\n"
 			"\t\tparam1 (index): Identification value of some descriptor. Might be received either\n"

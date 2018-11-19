@@ -39,32 +39,58 @@ def attribute_quality_ethnicity_blackWhite_smile_example(image):
     ethnicityEstimator = faceEngine.createEthnicityEstimator()
     blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
     smileEstimator = faceEngine.createSmileEstimator()
-    attribute_result = attributeEstimator.estimate(image)
-    quality_result = qualityEstimator.estimate(image)
-    ethnicity_result = ethnicityEstimator.estimate(image)
-    blackWhite_result = blackWhiteEstimator.estimate(image)
-    smile_result = smileEstimator.estimate(image)
-    print(attribute_result)
-    print(quality_result)
-    print(ethnicity_result)
-    print("Ethnicity score: {0}".format(ethnicity_result.getEthnicityScore(fe.Ethnicity.Caucasian)))
-    print("Predominant: {0}".format(ethnicity_result.getPredominantEthnicity()))
-    print("BlackWhiteEstimation: ", blackWhite_result)
-    print(smile_result)
+    err_attribute, attribute_result = attributeEstimator.estimate(image)
+    err_quality, quality_result = qualityEstimator.estimate(image)
+    err_ethnicity, ethnicity_result = ethnicityEstimator.estimate(image)
+    err_blackWhite, blackWhite_result = blackWhiteEstimator.estimate(image)
+    err_smile, smile_result = smileEstimator.estimate(image)
+    if err_attribute.isOk:
+        print(attribute_result)
+    else:
+        print("Failed attribute estimation. Reason: {0}".format(err.what))
+        exit(1)
+    if err_quality.isOk:
+        print(quality_result)
+    else:
+        print("Failed quality estimation. Reason: {0}".format(err.what))
+        exit(1)
+    if err_ethnicity.isOk:
+        print(ethnicity_result)
+        print("Ethnicity score: {0}".format(ethnicity_result.getEthnicityScore(fe.Ethnicity.Caucasian)))
+        print("Predominant: {0}".format(ethnicity_result.getPredominantEthnicity()))
+    else:
+        print("Failed ethnicity estimation. Reason: {0}".format(err.what))
+        exit(1)
+    if err_blackWhite.isOk:
+        print("BlackWhiteEstimation: ", blackWhite_result)
+    else:
+        print("Failed BlackWhiteEstimation estimation. Reason: {0}".format(err.what))
+        exit(1)
+    if err_smile.isOk:
+        print(smile_result)
+    else:
+        print("Failed smile estimation. Reason: {0}".format(err.what))
+        exit(1)
 
 
 def headPose_example(_landmarks68):
     headPoseEstimator = faceEngine.createHeadPoseEstimator()
-    headPoseEstimation = headPoseEstimator.estimate(_landmarks68)
-    print(headPoseEstimation)
-    return headPoseEstimation
+    err, headPoseEstimation = headPoseEstimator.estimate(_landmarks68)
+    if err.isOk:
+        print(headPoseEstimation)
+    return err, headPoseEstimation
 
 
 def depth_example(depth_image_path):
     depthEstimator = faceEngine.createDepthEstimator()
     # loadImage is used only for depth test
     depth_image = fe.loadImage(depth_image_path)
-    print("Depth estimator value: ", depthEstimator.estimate(depth_image).value)
+    err_depth, result = depthEstimator.estimate(depth_image)
+    if err.isOk:
+        print("Depth estimator value: ", result)
+    else:
+        print("Failed depth estimation. Reason: {0}".format(err.what))
+        exit(1)
 
 
 def ir_example(ir_image_path):
@@ -74,46 +100,63 @@ def ir_example(ir_image_path):
     if not ir_image.isValid():
         print("ir image was not found {0}".format(err))
         exit(1)
-    ir_result = iREstimator.estimate(ir_image)
-    print("Ir estimator value: ", ir_result)
+    err, ir_result = iREstimator.estimate(ir_image)
+    if err.isOk:
+        print("Ir estimator value: ", ir_result)
+    else:
+        print("Failed ir estimation. Reason: {0}".format(err.what))
+        exit(1)
 
 
 def faceFlow_example():
     faceFlowEstimator = faceEngine.createFaceFlowEstimator()
     face_flow_image = fe.Image()
-    face_flow_image.load("testData/small.ppm")
+    err = face_flow_image.load("testData/small.ppm")
     if not face_flow_image.isValid():
-        print("image was not found {0}".format(err))
+        print("image was not found {0}".format(err.what))
         exit(1)
     sequence = []
     for i in range(10):
         temp_image = fe.Image()
         temp_image.load("testData/" + str(i) + "big.ppm")
         sequence.append(temp_image)
-    faceFlowResult = faceFlowEstimator.estimate(face_flow_image, sequence)
-    print("FaceFlowResult: {0}".format(faceFlowResult))
+    err, faceFlowResult = faceFlowEstimator.estimate(face_flow_image, sequence)
+    if err.isOk:
+        print("FaceFlowResult: {0}".format(faceFlowResult))
 
 
 def eye_example(_warp_image, _transformed_landmarks5):
     eyeEstimator = faceEngine.createEyeEstimator()
-    eyesEstimation = eyeEstimator.estimate(_warp_image, _transformed_landmarks5)
-    print("left eye: ", eyesEstimation.leftEye.state)
-    print("right eye: ", eyesEstimation.rightEye.state)
+    err, eyesEstimation = eyeEstimator.estimate(_warp_image, _transformed_landmarks5)
+    if err.isOk:
+        print("left eye: ", eyesEstimation.leftEye.state)
+        print("right eye: ", eyesEstimation.rightEye.state)
+    else:
+        print("Failed eye estimation. Reason: {0}".format(err.what))
+        exit(1)
     # print_landmarks(eyesEstimation.leftEye.eyelid, "eyesEstimation.leftEye.eyelid")
     # print_landmarks(eyesEstimation.rightEye.eyelid, "eyesEstimation.rightEye.eyelid")
-    return eyesEstimation
+    return err, eyesEstimation
 
 
 def emotions_example(warp_image):
     emotionsEstimator = faceEngine.createEmotionsEstimator()
-    emotions_result = emotionsEstimator.estimate(warp_image)
-    print(emotions_result)
+    err, emotions_result = emotionsEstimator.estimate(warp_image)
+    if err.isOk:
+        print(emotions_result)
+    else:
+        print("Failed emotions estimation. Reason: {0}".format(err.what))
+        exit(1)
 
 
 def gaze_example(_headPoseEstimation, _eyesEstimation):
     gazeEstimator = faceEngine.createGazeEstimator()
-    gaze_result = gazeEstimator.estimate(_headPoseEstimation, _eyesEstimation)
-    print(gaze_result)
+    err, gaze_result = gazeEstimator.estimate(_headPoseEstimation, _eyesEstimation)
+    if err.isOk:
+        print(gaze_result)
+    else:
+        print("Failed gaze estimation. Reason: {0}".format(err.what))
+        exit(1)
 
 
 def ags_example(_faceEngine, _image, _detection):
@@ -126,8 +169,12 @@ def ags_example(_faceEngine, _image, _detection):
     _faceEngine.setSettingsProvider(config)
     # create ags estimator only after betamode is enabled
     agsEstimator = faceEngine.createAGSEstimator()
-    ags_result = agsEstimator.estimate(_image, _detection)
-    print("AGS estimator value: {0}".format(ags_result[1]))
+    err, ags_result = agsEstimator.estimate(_image, _detection)
+    if err.isOk:
+        print("AGS estimator value: {0}".format(ags_result))
+    else:
+        print("Failed AGS estimation. Reason: {0}".format(err.what))
+        exit(1)
     # switch off betaMode if we do not need it yet
     config.setValue("system", "betaMode", fe.SettingsProviderValue(0))
     # switch off logs
@@ -163,12 +210,20 @@ if __name__ == "__main__":
         faceFlow_example()
 
         emotions_example(warp_image)
-        headPoseEstimation = headPose_example(landmarks68)
-        eyesEstimation = eye_example(warp_image, transformed_landmarks5)
-        gaze_example(headPoseEstimation, eyesEstimation)
+        err_headPose, headPoseEstimation = headPose_example(landmarks68)
+        err_eyes, eyesEstimation = eye_example(warp_image, transformed_landmarks5)
+        if err_headPose.isOk and err_eyes.isOk:
+            gaze_example(headPoseEstimation, eyesEstimation)
+        elif err_headPose.isError:
+            print("Failed head pose estimation. Reason: {0}".format(err_headPose.what))
+            exit(1)
+        elif err_eyes.isOk:
+            print("Failed eyes estimation. Reason: {0}".format(err_eyes.what))
+            exit(1)
         ags_example(faceEngine, image, detection)
     except Exception as ex:
         print(type(ex).__name__, ex)
+        exit(-1)
     finally:
         # do something here
         pass
