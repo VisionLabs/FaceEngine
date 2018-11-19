@@ -3,7 +3,6 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 #include <pybind11/numpy.h>
-#include <err.h>
 #include "ErrorsAdapter.hpp"
 #include "helpers.hpp"
 
@@ -145,7 +144,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 			uint32_t bufferSize) {
 				VectorArchive archiveDescriptor(buffer, bufferSize);
 				fsdk::Result<fsdk::ISerializableObject::Error> err =
-				descriptorBatchPtr->load(&archiveDescriptor, bufferSize);
+					descriptorBatchPtr->load(&archiveDescriptor, bufferSize);
 				return SerializeErrorResult(err);
 		
 			}, "Load descriptor from buffer")
