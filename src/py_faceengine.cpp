@@ -49,6 +49,8 @@ void set_optional_class(py::module& f)
 {
 	auto optionalLandmarks5 = optional_class<fsdk::Landmarks5>(f, "OptionalLandmarks5");
 	auto optionalLandmarks68 = optional_class<fsdk::Landmarks68>(f, "OptionalLandmarks68");
+	auto optionalfloat = optional_class<float>(f, "Optionalfloat");
+	auto optionalEthnicityEstimation = optional_class<fsdk::EthnicityEstimation>(f, "OptionalEthnicityEstimation");
 }
 
 
@@ -710,10 +712,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			FSDKErrorValueFloat
 			FSDKErrorValueMatching
 
+			AttributeRequest
+			AttributeRequest.estimateAge
+			AttributeRequest.estimateGender
+			AttributeRequest.estimateEthnicity
 
-			AttributeEstimation
-			AttributeEstimation.__init__
-			AttributeEstimation.__repr__
+			AttributeResult
+			AttributeResult.__init__
+			AttributeResult.__repr__
+
 			Quality
 			Quality.__init__
 			Quality.getQuality

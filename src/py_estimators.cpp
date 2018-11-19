@@ -40,22 +40,46 @@ void estimators_module(py::module& f) {
 		"you should pass a warped face detection image. Estimated attributes are: \n"
 		"\tage;\n"
 		"\tgender;\n"
-		"\tglasses;\n")
+		"\tethnicity;\n")
 	
 		.def("estimate", [](
 			const fsdk::IAttributeEstimatorPtr& est,
-			const fsdk::Image &warp) {
-				fsdk::AttributeEstimation out;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
-				return std::make_tuple(FSDKErrorResult(err), out);
-			},
-			"Estimate the attributes. If success returns AttributeEstimation output structure with params, else error code.\n"
+			const fsdk::Image &warp,
+			const fsdk::IAttributeEstimator::EstimationRequest request) {
+				fsdk::IAttributeEstimator::EstimationResult result;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, request, result);
+				return std::make_tuple(FSDKErrorResult(err), result); },
+			"Estimate the attributes for image.\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
 			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8\n"
+			"\t\tparam2 (AttributeRequest): request with flags to check parameters to estimate\n"
 			"\tReturns:\n"
-			"\t\t(tuple): tuple with error code FSDKErrorResult and output AttributeEstimation\n")
-		
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code and EstimatorResult (see AttributeResult)\n")
+			;
+
+	py::enum_<fsdk::IAttributeEstimator::EstimationRequest>(f, "AttributeRequest", py::arithmetic(),
+		"Face image attribute estimation request enumeration.\n")
+		.value("estimateAge", fsdk::IAttributeEstimator::EstimationRequest::estimateAge, "Get age estimation\n")
+		.value("estimateGender", fsdk::IAttributeEstimator::EstimationRequest::estimateGender, "Get gender estimation\n")
+		.value("estimateEthnicity", fsdk::IAttributeEstimator::EstimationRequest::estimateEthnicity, "Get ethnicity estimation\n")
+		.export_values();
+			;
+
+	py::class_<fsdk::IAttributeEstimator::EstimationResult>(f, "AttributeResult",
+		"Face image attribute estimator results.")
+		.def(py::init<>())
+		.def_readwrite("age_opt", &fsdk::IAttributeEstimator::EstimationResult::age, "age estimation optional\n")
+		.def_readwrite("gender_opt", &fsdk::IAttributeEstimator::EstimationResult::gender, "gender estimation optional\n")
+		.def_readwrite("ethnicity_opt", &fsdk::IAttributeEstimator::EstimationResult::ethnicity, "ethnicity estimation optional\n")
+		.def("__repr__",
+			[](const fsdk::IAttributeEstimator::EstimationResult &r) {
+				return "AttributeResult: "
+						"age = " + (r.age.valid() ? std::to_string(r.age.value()) : std::string("not requested!\n")) +
+						" gender = " + (r.gender.valid() ? std::to_string(r.gender.value()) : std::string("not requested!\n")) +
+						" ethnicity = " + (r.ethnicity.valid() ? std::to_string(static_cast<int>(r.ethnicity.value().getPredominantEthnicity())) : std::string("not requested!\n"))
+						; })
 		;
 	
 	py::class_<fsdk::IEthnicityEstimatorPtr>(f, "IEthnicityEstimatorPtr",
@@ -449,26 +473,6 @@ void estimators_module(py::module& f) {
 			"\tThe method `__setitem__` is used only for test and research purposes with class Vector2f.\n "
 			"\tExample: lanmarks[i] = FaceEngine.Vector2f(10.0, 20.0)")
 			; //EyelidLandmarks
-// Attribute
-	py::class_<fsdk::AttributeEstimation>(f, "AttributeEstimation",
-		"Attribute estimation output.\n"
-		"\tThese values are produced by IComplexEstimator object.\n"
-		"\tEach estimation is given in normalized [0, 1] range. Parameter meanings:\n"
-		"\t\tgender: 1 - male, 0 - female;\n"
-		"\t\tglasses: 1 - person wears glasses, 0 - person doesn't wear glasses;\n"
-		"\t\tage: estimated age (in years).\n")
-		.def(py::init<>())
-		.def_readwrite("gender", &fsdk::AttributeEstimation::gender)
-		.def_readwrite("glasses", &fsdk::AttributeEstimation::glasses)
-		.def_readwrite("age", &fsdk::AttributeEstimation::age)
-		.def("__repr__",
-			[](const fsdk::AttributeEstimation &a) {
-				return "AttributeEstimation: "
-						"gender = " + std::to_string(a.gender) +
-						", glasses = " + std::to_string(a.glasses) +
-						", age = " + std::to_string(a.age);
-			})
-			;
 
 //	Quality
 	py::class_<fsdk::Quality>(f, "Quality",

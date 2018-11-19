@@ -120,11 +120,16 @@ class TestFaceEngineRect(unittest.TestCase):
         image = f.Image()
         image.load("testData/00205_9501_p.ppm")
         self.assertTrue(image.isValid())
-        err, attribute_result = attributeEstimator.estimate(image)
+        attributeRequest = f.AttributeRequest(
+            f.AttributeRequest.estimateAge | 
+            f.AttributeRequest.estimateGender | 
+            f.AttributeRequest.estimateEthnicity
+        )
+        err, attribute_result = attributeEstimator.estimate(image, attributeRequest)
         self.assertTrue(err.isOk)
-        self.assertEqual(attribute_result.gender, 0.0)
-        self.assertEqual(attribute_result.glasses, 0.0)
-        self.assertAlmostEqual(attribute_result.age, 60.44, delta=0.1)
+        self.assertEqual(attribute_result.gender_opt.value(), 0.0)
+        self.assertAlmostEqual(attribute_result.ethnicity_opt.value().caucasian, 1.0, delta=0.1)
+        self.assertAlmostEqual(attribute_result.age_opt.value(), 60.44, delta=0.1)
 
     def test_QualityEstimator(self):
         qualityEstimator = faceEnginePtr.createQualityEstimator()
