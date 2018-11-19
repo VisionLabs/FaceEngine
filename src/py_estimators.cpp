@@ -300,7 +300,6 @@ void estimators_module(py::module& f) {
 			"\t\tparam1 (Image): warp source image. If format is not R8 it would be converted to R8. "
 			"Must be warped!\n"
 			"\tReturns:\n"
-			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and EmotionsEstimation\n")
 			;
 	
