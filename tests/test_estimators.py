@@ -453,17 +453,15 @@ class TestFaceEngineRect(unittest.TestCase):
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
 
         reference = f.Detection()
-        refAGS = 0.9766771
+        refAGS = 0.976
         reference.rect.x = 54
         reference.rect.y = 58
         reference.rect.width = 135
         reference.rect.height = 178
         reference.score = 0.999916
-
-        err, ags_result = estimator.estimate(image, reference)
-        self.assertTrue(err.isOk)
-        self.assertFalse(err.isError)
-        self.assertAlmostEqual(refAGS, ags_result, delta=0.001)
+        r = estimator.estimate(image, reference);
+        self.assertFalse(r[0].isError)
+        self.assertAlmostEqual(refAGS, r[1], delta=0.01)
         config.setValue("system", "verboseLogging", f.SettingsProviderValue(0))
         faceEnginePtr.setSettingsProvider(config)
 
