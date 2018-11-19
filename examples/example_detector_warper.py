@@ -15,13 +15,53 @@ import FaceEngine as fe
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
 
-def detector_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _config=None):
+def detector_example(_image_det,
+                     _max_detections,
+                     _comparer_type=fe.DetectionComparerType.DCT_CENTER,
+                     _detector_type=fe.ODT_MTCNN,
+                     _config=None):
     if _detector_type == fe.ODT_S3FD and _config:
         _config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
         faceEngine.setSettingsProvider(_config)
     detector = faceEngine.createDetector(_detector_type)
+    detector.setDetectionComparer(_comparer_type)
     detector_result = detector.detect(_image_det, _image_det.getRect(), _max_detections)
     return detector_result
+
+
+def detector_batch_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _config=None):
+    if _detector_type == fe.ODT_S3FD and _config:
+        _config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
+        faceEngine.setSettingsProvider(_config)
+    detector = faceEngine.createDetector(_detector_type)
+    image_list = [_image_det,
+                  _image_det,
+                  _image_det]
+    rect_list = [_image_det.getRect(),
+                 _image_det.getRect(),
+                 _image_det.getRect()]
+    err, detector_result = detector.detect(image_list,
+                                           rect_list,
+                                           _max_detections,
+                                           fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+    print(detector_result[0][0].detection)
+    print("Batch Landmarks5 validity ", detector_result[0][0].landmarks5_opt.isValid())
+    print("Batch Landmarks68 validity ", detector_result[0][0].landmarks68_opt.isValid())
+    return err, detector_result
+
+
+def detector_one_example(_image_det, _detector_type=fe.ODT_MTCNN, _config=None):
+    if _detector_type == fe.ODT_S3FD and _config:
+        _config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
+        faceEngine.setSettingsProvider(_config)
+    detector = faceEngine.createDetector(_detector_type)
+    err, detector_result = detector.detectOne(_image_det,
+                                           _image_det.getRect(),
+                                           fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+    print(detector_result.detection)
+    print("Landmarks5 validity ", detector_result.landmarks5_opt.isValid())
+    print("Landmarks68 validity ", detector_result.landmarks68_opt.isValid())
+    return err, detector_result
 
 
 def detector_example_light(_image_det, max_detections):
@@ -86,6 +126,7 @@ def print_landmarks_for_comparing(landmarks1, landmarks2, message=""):
 
 
 if __name__ == "__main__":
+    face = fe.Face()
     image_path = sys.argv[2]
     config = set_logging(1)
     image = fe.Image()
@@ -93,18 +134,19 @@ if __name__ == "__main__":
     if not image.isValid():
         print("Image error = ", err_detect_ligth)
     # unpack detector result - list of tuples
-    err_detect, detect_list = detector_example(image, 1)
-    # err_detect, detect_list = detector_example(image, 1, fe.ODT_S3FD, config)
+    # err_detect, detect_list = detector_example(image, 1)
+    err_detect, detect_list = detector_example(image, 10, fe.DetectionComparerType.DCT_CENTER)
 
     if err_detect.isError or len(detect_list) < 1:
         print("detect: faces are not found")
         exit(-1)
+    # print all detections in list
     for item in detect_list:
         print(item[0])
 
     # only for example take first detection in list
     (detection, landmarks5, landmarks68) = detect_list[0]
-    # light version return only list of detections
+    # light version returns only list of detections
     err_detect_light, detect_light_result = detector_example_light(image, 1)
     if err_detect_ligth.isError:
         print("detect_light: faces are not found")
@@ -120,6 +162,22 @@ if __name__ == "__main__":
     print_landmarks(landmarks5, "landmarks5: ")
     print_landmarks(transformed_landmarks5, "transformedLandmarks5: ")
     # print_landmarks_for_comparing(landmarks5, landmarks5_warp, "Comparing landmarks")
+
+    print("\nBatch interface example: ")
+    err_batch, detect_list_batch = detector_batch_example(image, 3, fe.ODT_S3FD, config)
+    if err_batch.isError:
+        print("detector_batch_example: faces are not found")
+        exit(-1)
+    # for example take only first detection in first from list
+    print_landmarks(detect_list_batch[0][0].landmarks5_opt.value(), "landmarks5, batch detection: ")
+
+    print("\nSimple interface example: ")
+    err_one, face_one = detector_one_example(image, fe.ODT_S3FD)
+    if err_one.isError:
+        print("err_one: faces are not found")
+        exit(-1)
+    print_landmarks(face_one.landmarks5_opt.value(), "landmarks5, detectOne: ")
+
 
 
 

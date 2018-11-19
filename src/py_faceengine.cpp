@@ -4,6 +4,7 @@
 #include <pybind11/functional.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
+#include <pybind11/operators.h>
 #include <pybind11/numpy.h>
 #include "ErrorsAdapter.hpp"
 #include "FaceEngineAdapter.hpp"
@@ -29,8 +30,27 @@ PyISettingsProvider createSettingsProviderPtr(const char* path) {
 	return PyISettingsProvider(path);
 }
 
-PYBIND11_MAKE_OPAQUE(fsdk::Landmarks5);
-PYBIND11_MAKE_OPAQUE(fsdk::Landmarks68);
+template<class T>
+py::class_<fsdk::Optional<T>> optional_class(py::module& this_module, const char* name)
+{
+	py::class_<fsdk::Optional<T>>class_instance(this_module, name);
+	
+	class_instance.def("value", [](const fsdk::Optional<T>& self) {
+			return self.value();
+		});
+	class_instance.def("isValid", [](const fsdk::Optional<T>& self) {
+		return self.valid();
+	});
+	
+	return class_instance;
+}
+
+void set_optional_class(py::module& f)
+{
+	auto optionalLandmarks5 = optional_class<fsdk::Landmarks5>(f, "OptionalLandmarks5");
+	auto optionalLandmarks68 = optional_class<fsdk::Landmarks68>(f, "OptionalLandmarks68");
+}
+
 
 PYBIND11_MODULE(FaceEngine, f) {
 	
@@ -41,11 +61,20 @@ PYBIND11_MODULE(FaceEngine, f) {
 	detector_module(f);
 	descriptor_module(f);
 	warper_module(f);
+	set_optional_class(f);
 	
 	enum class FaceEngineEdition {
 		FrontEndEdition,
 		CompleteEdition
 	};
+	
+	
+	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
+		.def(py::init<>())
+		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection optional\n")
+		.def_readwrite("landmarks5_opt", &fsdk::Face::m_landmarks5, "Landmarks5 optional\n")
+		.def_readwrite("landmarks68_opt", &fsdk::Face::m_landmarks68, "Landmarks68 optional\n")
+			;
 	
 	py::enum_<fsdk::FaceEngineEdition>(f, "FaceEngineEdition", "Complete or FrontEdition version.\n")
 		.value("FrontEndEdition", fsdk::FaceEngineEdition::FrontEndEdition)
@@ -442,6 +471,26 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.export_values();
 			;
 	
+	py::enum_<fsdk::DetectionComparerType>(f, "DetectionComparerType", py::arithmetic(),
+			"Strategy of BestDetections comparer\n")
+		.value("DCT_CONFIDANCE", fsdk::DCT_CONFIDANCE,
+			"BestDetection - detections with highest score\n")
+		.value("DCT_CENTER", fsdk::DCT_CENTER,
+			"BestDetection - most centered detection\n")
+		.value("DCT_CENTER_AND_CONFIDANCE", fsdk::DCT_CENTER_AND_CONFIDANCE,
+			"BestDetection - most centered with high score\n")
+		.value("DCT_COUNT", fsdk::DCT_COUNT, "Count\n")
+		.export_values();
+			;
+	
+	py::enum_<fsdk::DetectionType>(f, "DetectionType", py::arithmetic(), "Detection type type enumeration.\n")
+		.value("dtBBox", fsdk::dtBBox, "Get bounding boxes of faces\n")
+		.value("dt5Landmarks", fsdk::dt5Landmarks, "Get 5 facial landmarks\n")
+		.value("dt68Landmarks", fsdk::dt68Landmarks, "Get 68 facial landmarks\n")
+		.export_values();
+			;
+	
+	
 	py::enum_<fsdk::FSDKError>(f, "FSDKError", "Common SDK error codes.\n")
 		.value("Ok", fsdk::FSDKError::Ok)
 		.value("Internal", fsdk::FSDKError::Internal)
@@ -480,10 +529,10 @@ PYBIND11_MODULE(FaceEngine, f) {
         .. autosummary::
            :toctree: _generate
 
-           	createFaceEngine
-           	createSettingsProvider
-           	loadImage
-           	PyIFaceEngine
+			createFaceEngine
+			createSettingsProvider
+ 			loadImage
+			PyIFaceEngine
 			PyIFaceEngine.createAttributeEstimator
 			PyIFaceEngine.createQualityEstimator
 			PyIFaceEngine.createEthnicityEstimator
