@@ -141,14 +141,14 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 	
 	.def("load",[](
 		const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
-		const char* buffer,
-		uint32_t bufferSize) {
-			VectorArchive archiveDescriptor(buffer, bufferSize);
-			fsdk::Result<fsdk::ISerializableObject::Error> err =
-			descriptorBatchPtr->load(&archiveDescriptor, bufferSize);
-			return SerializeErrorResult(err);
+			const char* buffer,
+			uint32_t bufferSize) {
+				VectorArchive archiveDescriptor(buffer, bufferSize);
+				fsdk::Result<fsdk::ISerializableObject::Error> err =
+				descriptorBatchPtr->load(&archiveDescriptor, bufferSize);
+				return SerializeErrorResult(err);
 		
-		}, "Load descriptor from buffer")
+			}, "Load descriptor from buffer")
 			;
 	
 	py::class_<fsdk::IDescriptorExtractorPtr>(f, "IDescriptorExtractorPtr",
