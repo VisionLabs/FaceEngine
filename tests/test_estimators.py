@@ -125,18 +125,19 @@ class TestFaceEngineRect(unittest.TestCase):
             f.AttributeRequest.estimateGender | 
             f.AttributeRequest.estimateEthnicity
         )
-        attribute_result = attributeEstimator.estimate(image, attributeRequest)
-        self.assertTrue(attribute_result[0].isOk)
-        self.assertEqual(attribute_result[1].gender_opt.value(), 0.0)
-        self.assertAlmostEqual(attribute_result[1].ethnicity_opt.value().caucasian, 1.0, delta=0.1)
-        self.assertAlmostEqual(attribute_result[1].age_opt.value(), 60.44, delta=0.1)
+        err, attribute_result = attributeEstimator.estimate(image, attributeRequest)
+        self.assertTrue(err.isOk)
+        self.assertEqual(attribute_result.gender_opt.value(), 0.0)
+        self.assertAlmostEqual(attribute_result.ethnicity_opt.value().caucasian, 1.0, delta=0.1)
+        self.assertAlmostEqual(attribute_result.age_opt.value(), 60.44, delta=0.1)
 
     def test_QualityEstimator(self):
         qualityEstimator = faceEnginePtr.createQualityEstimator()
         image = f.Image()
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
         self.assertTrue(image.isValid())
-        quality_result = qualityEstimator.estimate(image)
+        err, quality_result = qualityEstimator.estimate(image)
+        self.assertTrue(err.isOk)
         self.assertAlmostEqual(quality_result.getQuality(), 0.95, delta=0.15)
 
     def test_EthnicityEstimator(self):
@@ -145,7 +146,8 @@ class TestFaceEngineRect(unittest.TestCase):
         image = f.Image()
         image.load("testData/warp1.ppm")
         self.assertTrue(image.isValid())
-        ethnicity_result = ethnicityEstimator.estimate(image)
+        err, ethnicity_result = ethnicityEstimator.estimate(image)
+        self.assertTrue(err.isOk)
         self.assertAlmostEqual(ethnicity_result.africanAmerican, 0.0, delta=0.1)
         self.assertAlmostEqual(ethnicity_result.indian, 0.0, delta=0.1)
         self.assertAlmostEqual(ethnicity_result.asian, 0.0, delta=0.1)
@@ -162,7 +164,8 @@ class TestFaceEngineRect(unittest.TestCase):
         det.detect(image, image.getRect(), 1)
         (detection, landmarks5, landmarks68) = detect(image, 3)[1][0]
         headPoseEstimator = faceEnginePtr.createHeadPoseEstimator()
-        headPoseEstimation = headPoseEstimator.estimate(landmarks68)
+        err, headPoseEstimation = headPoseEstimator.estimate(landmarks68)
+        self.assertTrue(err.isOk)
         expected = f.HeadPoseEstimation()
         expected.roll = 0.3891
         expected.yaw = -2.3956
@@ -184,7 +187,8 @@ class TestFaceEngineRect(unittest.TestCase):
         det.detect(image, image.getRect(), 1)
         (detection, landmarks5, landmarks68) = detect(image, 3)[1][0]
         headPoseEstimator = faceEnginePtr.createHeadPoseEstimator()
-        headPoseEstimation = headPoseEstimator.estimate(image, detection)
+        err, headPoseEstimation = headPoseEstimator.estimate(image, detection)
+        self.assertTrue(err.isOk)
         expected = f.HeadPoseEstimation()
         expected.roll = 0.3891
         expected.yaw = -2.3956
@@ -200,7 +204,8 @@ class TestFaceEngineRect(unittest.TestCase):
         image = f.Image()
         image.load("testData/warp1.ppm")
         self.assertTrue(image.isValid())
-        isBlack = blackWhiteEstimator.estimate(image)
+        err, isBlack = blackWhiteEstimator.estimate(image)
+        self.assertTrue(err.isOk)
         self.assertFalse(isBlack)
 
     def test_DepthEstimator(self):
@@ -208,9 +213,10 @@ class TestFaceEngineRect(unittest.TestCase):
         # depth
         # loadImage - only for depth image downloading
         depthImage = f.loadImage("testData/warp.depth")
-        depth_result = depthEstimator.estimate(depthImage)
+        err, depth_result = depthEstimator.estimate(depthImage)
+        self.assertTrue(err.isOk)
         # print("Depth estimation result = {0}".format(depth_result))
-        self.assertAlmostEqual(depth_result.value, 1.0, delta=0.01)
+        self.assertAlmostEqual(depth_result, 1.0, delta=0.01)
 
     def test_IREstimator(self):
         config = f.createSettingsProvider("data/faceengine.conf")
@@ -222,7 +228,8 @@ class TestFaceEngineRect(unittest.TestCase):
         irImage = f.Image()
         irImage.load("testData/irWarp.ppm")
         self.assertTrue(irImage.isValid())
-        irRestult = iREstimator.estimate(irImage)
+        err, irRestult = iREstimator.estimate(irImage)
+        self.assertTrue(err.isOk)
         # print("irResult = ", irRestult)
         self.assertTrue(irRestult.isReal)
         self.assertAlmostEqual(irRestult.score, 1.0, delta=0.01)
@@ -234,7 +241,8 @@ class TestFaceEngineRect(unittest.TestCase):
         
         irImage.load("testData/irWarpNonCooperative.png")
         self.assertTrue(irImage.isValid())
-        irRestult = iREstimator.estimate(irImage)
+        err, irRestult = iREstimator.estimate(irImage)
+        self.assertTrue(err.isOk)
         self.assertTrue(irRestult.isReal)
         self.assertAlmostEqual(irRestult.score, 0.9935, delta=0.001)
 
@@ -256,8 +264,8 @@ class TestFaceEngineRect(unittest.TestCase):
         err1, warped_overlap_image = warper.warp(overlapImage, transformation_overlap)
         self.assertTrue(err1.isOk)
         self.assertTrue(warped_overlap_image.isValid())
-        smile_result = smileEstimator.estimate(warped_overlap_image)
-
+        err_smile1, smile_result = smileEstimator.estimate(warped_overlap_image)
+        self.assertTrue(err_smile1.isOk)
         self.assertAlmostEqual(smile_result.mouth, 0.0, delta=0.01)
         self.assertAlmostEqual(smile_result.smile, 0.0, delta=0.01)
         self.assertAlmostEqual(smile_result.occlusion, 1.0, delta=0.01)
@@ -269,7 +277,8 @@ class TestFaceEngineRect(unittest.TestCase):
         err2, warped_overlap_image = warper.warp(smileImage, transformation_smile)
         self.assertTrue(err2.isOk)
         self.assertTrue(warped_overlap_image.isValid())
-        smile_result = smileEstimator.estimate(warped_overlap_image)
+        err_smile2, smile_result = smileEstimator.estimate(warped_overlap_image)
+        self.assertTrue(err_smile2.isOk)
         self.assertAlmostEqual(smile_result.mouth, 0.0, delta=0.01)
         self.assertAlmostEqual(smile_result.smile, 1.0, delta=0.01)
         self.assertAlmostEqual(smile_result.occlusion, 0.0, delta=0.01)
@@ -279,8 +288,8 @@ class TestFaceEngineRect(unittest.TestCase):
         err3, warped_mouth_image = warper.warp(mouthImage, transformation_mouth)
         self.assertTrue(err3.isOk)
         self.assertTrue(warped_mouth_image.isValid())
-        mouth_result = smileEstimator.estimate(warped_mouth_image)
-
+        err, mouth_result = smileEstimator.estimate(warped_mouth_image)
+        self.assertTrue(err.isOk)
         self.assertAlmostEqual(mouth_result.mouth, 1.0, delta=0.01)
         self.assertAlmostEqual(mouth_result.smile, 0.0, delta=0.01)
         self.assertAlmostEqual(mouth_result.occlusion, 0.0, delta=0.01)
@@ -295,7 +304,8 @@ class TestFaceEngineRect(unittest.TestCase):
             tempImage = f.Image()
             tempImage.load("testData/" + str(i) + "big.ppm")
             sequence.append(tempImage)
-        faceFlowScore = faceFlowEstimator.estimate(faceFlowImage, sequence)
+        err, faceFlowScore = faceFlowEstimator.estimate(faceFlowImage, sequence)
+        self.assertTrue(err.isOk)
         self.assertAlmostEqual(faceFlowScore, 0.9967, delta=0.01)
 
     def test_EyeEstimator(self):
@@ -324,8 +334,8 @@ class TestFaceEngineRect(unittest.TestCase):
                 for i, line in enumerate(lm68file):
                     landmarks68_eyes[i] = invoke_vector_coords(line)
 
-            eyesEstimation = eyeEstimator.estimate(warp, landmarks68_eyes)
-
+            err_eyes, eyesEstimation = eyeEstimator.estimate(warp, landmarks68_eyes)
+            self.assertTrue(err_eyes.isOk)
             with open(irisLeft, 'r') as irisLeftFile, open(irisRight, 'r') as irisRightFile, \
                     open(eyelidLeft, 'r') as eyelidLeftFile, open(eyelidRight, 'r') as eyelidRightFile:
                 pass
@@ -381,7 +391,8 @@ class TestFaceEngineRect(unittest.TestCase):
             image.load(path_to_warp_image)
             self.assertTrue(image.isValid())
             emotionsEstimator = faceEnginePtr.createEmotionsEstimator()
-            emotionsEstimation = emotionsEstimator.estimate(image)
+            err_emotions, emotionsEstimation = emotionsEstimator.estimate(image)
+            self.assertTrue(err_emotions.isOk)
             self.assertAlmostEqual(emotionsEstimation.anger, reference.anger, delta=acceptable_diff)
             self.assertAlmostEqual(emotionsEstimation.disgust, reference.disgust, delta=acceptable_diff)
             self.assertAlmostEqual(emotionsEstimation.fear, reference.fear, delta=acceptable_diff)
@@ -429,7 +440,8 @@ class TestFaceEngineRect(unittest.TestCase):
             expected.rightEye.yaw = -4.9038884727
             expected.rightEye.pitch = -0.13287750706
             gazeEstimator = faceEnginePtr.createGazeEstimator()
-            actual = gazeEstimator.estimate(headPoseEstimation, eyesEstimation)
+            err, actual = gazeEstimator.estimate(headPoseEstimation, eyesEstimation)
+            self.assertTrue(err.isOk)
             self.assertAlmostEqual(actual.leftEye.yaw, expected.leftEye.yaw, delta=0.01)
             self.assertAlmostEqual(actual.leftEye.pitch, expected.leftEye.pitch, delta=0.01)
             self.assertAlmostEqual(actual.rightEye.yaw, expected.rightEye.yaw, delta=0.01)
@@ -442,20 +454,19 @@ class TestFaceEngineRect(unittest.TestCase):
         config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
         faceEnginePtr.setSettingsProvider(config)
         estimator = faceEnginePtr.createAGSEstimator()
-        image = f.Image();
-        image.load("testData/photo_2017-03-30_14-47-43_p.ppm");
+        image = f.Image()
+        image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
 
         reference = f.Detection()
-        refAGS = 0.9766771
+        refAGS = 0.976
         reference.rect.x = 54
         reference.rect.y = 58
         reference.rect.width = 135
         reference.rect.height = 178
         reference.score = 0.999916
-
         r = estimator.estimate(image, reference);
         self.assertFalse(r[0].isError)
-        self.assertAlmostEqual(refAGS, r[1], delta=0.0001)
+        self.assertAlmostEqual(refAGS, r[1], delta=0.01)
         config.setValue("system", "verboseLogging", f.SettingsProviderValue(0))
         faceEnginePtr.setSettingsProvider(config)
 

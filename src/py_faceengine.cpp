@@ -73,7 +73,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 	
 	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
 		.def(py::init<>())
-		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection optional\n")
+		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection\n")
 		.def_readwrite("landmarks5_opt", &fsdk::Face::m_landmarks5, "Landmarks5 optional\n")
 		.def_readwrite("landmarks68_opt", &fsdk::Face::m_landmarks68, "Landmarks68 optional\n")
 			;
@@ -534,7 +534,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 			createFaceEngine
 			createSettingsProvider
  			loadImage
+ 			Face
+			FaceEngineEdition
+			FaceEngineEdition.FrontEndEdition
+			FaceEngineEdition.CompleteEdition
+
 			PyIFaceEngine
+			PyIFaceEngine.getFaceEngineEdition
 			PyIFaceEngine.createAttributeEstimator
 			PyIFaceEngine.createQualityEstimator
 			PyIFaceEngine.createEthnicityEstimator
@@ -582,6 +588,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IDetector
 			IDetector.detect
+			IDetector.detect5
+			IDetector.detect_light
+			IDetector.detectOne
+			IDetector.setDetectionComparer
 
 			IWarperPtr
 			IWarperPtr.warp
@@ -789,13 +799,47 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Rect
 
 			ObjectDetectorClassType
-			ObjectDetectorClassType.ODT_MTCNN
 			ObjectDetectorClassType.ODT_MTCNN_MINI
 			ObjectDetectorClassType.ODT_S3FD
 			ObjectDetectorClassType.ODT_COUNT
 
+			DetectionComparerType
+			DetectionComparerType.DCT_CONFIDANCE
+			DetectionComparerType.DCT_CENTER
+			DetectionComparerType.DCT_CENTER_AND_CONFIDANCE
+			DetectionComparerType.DCT_COUNT
+
+			DetectionType
+			DetectionType.dtBBox
+			DetectionType.dt5Landmarks
+			DetectionType.dt68Landmarks
+
 			FSDKError
+			FSDKError.Ok
+			FSDKError.Internal
+			FSDKError.InvalidInput
+			FSDKError.InvalidImage
+			FSDKError.InvalidRect
+			FSDKError.InvalidImageFormat
+			FSDKError.InvalidImageSize
+			FSDKError.InvalidDetection
+			FSDKError.InvalidLandmarks5
+			FSDKError.InvalidLandmarks68
+			FSDKError.InvalidTransformation
+			FSDKError.InvalidDescriptor
+			FSDKError.InvalidDescriptorBatch
+			FSDKError.InvalidSettingsProvider
+			FSDKError.ModuleNotInitialized
+			FSDKError.ModuleNotReady
+			FSDKError.LicenseError
+			FSDKError.BufferIsNull
+			FSDKError.BufferIsFull
+			FSDKError.BufferIsEmpty
+			FSDKError.InvalidBufferSize
 			FrontalFaceType
+			FrontalFaceType.FrontalFace0
+			FrontalFaceType.FrontalFace1
+			FrontalFaceType.FrontalFace2
 
 			DepthRange
 			DepthRange.__repr__

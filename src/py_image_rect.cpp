@@ -22,8 +22,8 @@ py::enum_<fsdk::Format::Type>(f, "FormatType", "Format type enumeration.\n")
 	.value("R8", fsdk::Format::R8)
 //		R16 is used for internal transformations for depth map, as i understand it can be saved as png
 	.value("R16", fsdk::Format::R16,
-		 "\tUsed for internal transformations for depth map and "
-		 "cannot be saved or downloaded")
+		"\tUsed for internal transformations for depth map and "
+		"cannot be saved or downloaded")
 	;
 py::class_<fsdk::Image>(f, "Image",
 	"Image objects\n"

@@ -95,11 +95,11 @@ py::class_<fsdk::Transformation>(f, "Transformation",
 	.def_readwrite("isValid", &fsdk::Transformation::isValid)
 	.def("__repr__", [](const fsdk::Transformation &t) {
 		return "Transformation: "
-			   " angleDeg = " + std::to_string(t.angleDeg)
-			   + ", scale = " + std::to_string(t.scale)
-			   + ", centerP: x = " + std::to_string(t.centerP.x) + " y = " + std::to_string(t.centerP.y)
-			   + ", detectionTopLeft: x = " + std::to_string(t.detectionTopLeft.x)
-			   + " y = " + std::to_string(t.detectionTopLeft.y);
+			" angleDeg = " + std::to_string(t.angleDeg)
+			+ ", scale = " + std::to_string(t.scale)
+			+ ", centerP: x = " + std::to_string(t.centerP.x) + " y = " + std::to_string(t.centerP.y)
+			+ ", detectionTopLeft: x = " + std::to_string(t.detectionTopLeft.x)
+			+ " y = " + std::to_string(t.detectionTopLeft.y);
 	})
 	;
 }
