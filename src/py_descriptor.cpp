@@ -46,10 +46,7 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 				 return py::bytes((const char*)buffer.data(), buffer.size());
 			 else
 				 return py::bytes(); },
-		 "Copy descriptor data to python list.\n "
-			 "\tThis method is thread safe"
-			 "\tReturns:\n"
-			 "\t\t(bytes): bytes")
+		 "Returns descriptor as bytes.\n")
 	.def("load",[](
 		const fsdk::IDescriptorPtr& descriptor,
 		const char* buffer,
@@ -162,7 +159,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 				batch->save(&archiveDescriptor);
 			return std::make_tuple(SerializeErrorResult(err), py::bytes(buffer.data(), buffer.size()));
 			
-		}, "Save descriptor batch to passed buffer")
+		}, "Returns tuple with error code and descriptor as bytes")
 			;
 	
 	py::class_<fsdk::IDescriptorExtractorPtr>(f, "IDescriptorExtractorPtr",

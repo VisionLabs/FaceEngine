@@ -87,6 +87,8 @@ print(fe.IDescriptorPtr.__doc__)
 print(fe.IDescriptorPtr.getModelVersion.__doc__)
 print(fe.IDescriptorPtr.getDescriptorLength.__doc__)
 print(fe.IDescriptorPtr.getDescriptor.__doc__)
+print(fe.IDescriptorPtr.getData.__doc__)
+print(fe.IDescriptorPtr.load.__doc__)
 
 print(fe.IDescriptorBatchPtr.__doc__)
 print(fe.IDescriptorBatchPtr.add.__doc__)
@@ -98,6 +100,8 @@ print(fe.IDescriptorBatchPtr.getModelVersion.__doc__)
 print(fe.IDescriptorBatchPtr.getDescriptorSize.__doc__)
 print(fe.IDescriptorBatchPtr.getDescriptorSlow.__doc__)
 print(fe.IDescriptorBatchPtr.getDescriptorFast.__doc__)
+print(fe.IDescriptorBatchPtr.getData.__doc__)
+print(fe.IDescriptorBatchPtr.load.__doc__)
 
 print(fe.DescriptorBatchError.__doc__)
 
