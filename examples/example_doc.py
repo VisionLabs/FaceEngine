@@ -12,9 +12,11 @@ sys.path.append(sys.argv[1])
 import FaceEngine as fe
 
 print(fe.__doc__)
+print(fe.FaceEngineEdition.__doc__)
 print(fe.createFaceEngine.__doc__)
 print(fe.createSettingsProvider.__doc__)
 print(fe.PyIFaceEngine.__doc__)
+print(fe.PyIFaceEngine.getFaceEngineEdition.__doc__)
 print(fe.PyIFaceEngine.createAttributeEstimator.__doc__)
 print(fe.PyIFaceEngine.createQualityEstimator.__doc__)
 print(fe.PyIFaceEngine.createEthnicityEstimator.__doc__)
@@ -64,6 +66,10 @@ print(fe.IEthnicityEstimatorPtr.estimate.__doc__)
 
 print(fe.IDetectorPtr.__doc__)
 print(fe.IDetectorPtr.detect.__doc__)
+print(fe.IDetectorPtr.detect5.__doc__)
+print(fe.IDetectorPtr.detect_light.__doc__)
+print(fe.IDetectorPtr.detectOne.__doc__)
+print(fe.IDetectorPtr.setDetectionComparer.__doc__)
 
 print(fe.IWarperPtr.__doc__)
 print(fe.IWarperPtr.warp.__doc__)
@@ -253,8 +259,12 @@ print(fe.Rect.__doc__)
 
 print(fe.ObjectDetectorClassType.__doc__)
 
+print(fe.DetectionComparerType.__doc__)
+
+print(fe.DetectionType.__doc__)
 
 print(fe.FSDKError.__doc__)
+
 print(fe.FrontalFaceType.__doc__)
 
 print(fe.DepthRange.__doc__)
