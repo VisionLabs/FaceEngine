@@ -51,7 +51,7 @@ Library `FaceEngine*.so` will be generated and installed in system.
 to uninstall it:
 
 ```bash
-$ pip uinstall FaceEngine 
+$ pip uninstall FaceEngine 
 ```
 Possible you'll need **sudo** rights or use python3 and pip3.
 
