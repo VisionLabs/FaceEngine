@@ -39,7 +39,7 @@ faceEnginePtr = f.createFaceEngine("data",
 # detector test and example
 def detect(image_det, max_detections):
     detector = faceEnginePtr.createDetector(f.ODT_MTCNN)
-    detector_result = detector.detect(image_det, image_det.getRect(), max_detections)
+    detector_result = detector.detectOne(image_det, image_det.getRect(), max_detections)
     # for i, item in enumerate(detector_result, 1):
 #     print(i, item)
     return detector_result
