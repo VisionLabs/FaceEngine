@@ -2,7 +2,7 @@ import sys
 # import numpy as np
 # from matplotlib import pyplot as plt
 
-from example_detector_warper import detector_example, warper_example
+from example_detector_warper import detector_one_example, warper_example
 
 def help():
     print("python example.py <path to FaceEngine*.so> <path to image>")
@@ -200,12 +200,15 @@ if __name__ == "__main__":
     image_path = sys.argv[2]
     image = image_load(image_path)
     try:
-        # unpack detector result - list of tuples
-        err, detect_list = detector_example(image, 1)
+        # take the simplest example and first detection, see example_detector_warper.py
+        err, face = detector_one_example(image)
         if err.isError:
             print("Detector: faces not found.")
             exit(-1)
-        (detection, landmarks5, landmarks68) = detect_list[0]
+        (detection, landmarks5, landmarks68) = \
+            face.detection, \
+            face.landmarks5_opt.value(), \
+            face.landmarks68_opt.value()
         # print_landmarks(landmarks5, "landmarks5: ")
         (warp_image, transformed_landmarks5, transformed_landmarks68) = \
             warper_example(image, detection, landmarks5, landmarks68)

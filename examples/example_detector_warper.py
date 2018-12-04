@@ -45,8 +45,6 @@ def detector_one_example(_image_det, _detector_type=fe.ODT_MTCNN, _config=None):
                                            _image_det.getRect(),
                                            fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
     print(detector_result.detection)
-    print("Landmarks5 validity ", detector_result.landmarks5_opt.isValid())
-    print("Landmarks68 validity ", detector_result.landmarks68_opt.isValid())
     return err, detector_result
 
 
@@ -100,7 +98,6 @@ def print_landmarks_for_comparing(landmarks1, landmarks2, message=""):
 
 
 if __name__ == "__main__":
-    face = fe.Face()
     image_path = sys.argv[2]
     config = set_logging(1)
     image = fe.Image()
@@ -119,10 +116,11 @@ if __name__ == "__main__":
     i_image = 0
     for item in detect_list_batch:
         for item_item in item:
-            print(item_item.detection)
+            print("image № " + str(i_image) + " detection № " + str(i_detection) + ": ", item_item.detection)
             i_detection = +1
-            if item_item.landmarks5_opt.isValid():
-                print_landmarks(item_item.landmarks5_opt.value(), "image № " + str(i_image) + " detection № " + str(i_detection) + ", landmarks5 = ")
+            # print landmarks if you need
+            # if item_item.landmarks5_opt.isValid():
+            #     print_landmarks(item_item.landmarks5_opt.value(), "image № " + str(i_image) + " detection № " + str(i_detection) + ", landmarks5 = ")
             # if item_item.landmarks68_opt.isValid():
             #     print_landmarks(item_item.landmarks68_opt.value())
         i_image += 1
@@ -145,16 +143,16 @@ if __name__ == "__main__":
     print_landmarks(transformed_landmarks5, "transformedLandmarks5: ")
     # print_landmarks_for_comparing(landmarks5, landmarks5_warp, "Comparing landmarks")
 
-
-
-
-
     print("\nSimple interface example: ")
     err_one, face_one = detector_one_example(image, fe.ODT_S3FD)
     if err_one.isError:
         print("err_one: faces are not found")
         exit(-1)
+    if not face_one.landmarks5_opt.isValid() or not face_one.landmarks68_opt.isValid():
+        print("landmarks are not valid")
+        exit(-1)
     print_landmarks(face_one.landmarks5_opt.value(), "landmarks5, detectOne: ")
+    # print_landmarks(face_one.landmarks68_opt.value(), "landmarks68, detectOne: ")
 
 
 
