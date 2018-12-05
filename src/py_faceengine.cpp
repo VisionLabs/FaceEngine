@@ -588,8 +588,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IDetector
 			IDetector.detect
-			IDetector.detect5
-			IDetector.detect_light
 			IDetector.detectOne
 			IDetector.setDetectionComparer
 
@@ -648,6 +646,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IEyeEstimatorPtr
 			IEyeEstimatorPtr.estimate
+			
+			EyesRects
+			EyesRects.leftEyeRect
+			EyesRects.leftEyeRect
+			EyeCropper
+			EyeCropper.__init__
+			EyeCropper.cropByLandmarks5
+			EyeCropper.cropByLandmarks68
 
 			IEmotionsEstimatorPtr
 			IEmotionsEstimatorPtr.estimate

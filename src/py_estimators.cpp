@@ -581,8 +581,8 @@ void estimators_module(py::module& f) {
 			"\tMethods of this structure crop an input warped image "
 			"and returns rectangle coordinates of each eye.\n")
 		.def(py::init<>())
-		.def("cropByLandmarks5", &fsdk::EyeCropper::cropByLandmarks5, "Crop rects by Landmarks5")
-		.def("cropByLandmarks68", &fsdk::EyeCropper::cropByLandmarks68, "Crop rects by Landmarks68")
+		.def("cropByLandmarks5", &fsdk::EyeCropper::cropByLandmarks5, "Crop rects by Landmarks5\n")
+		.def("cropByLandmarks68", &fsdk::EyeCropper::cropByLandmarks68, "Crop rects by Landmarks68\n")
 		;
 	
 	py::class_<fsdk::EyeCropper::EyesRects>(f, "EyesRects")
