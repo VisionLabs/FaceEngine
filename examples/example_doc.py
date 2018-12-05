@@ -66,8 +66,6 @@ print(fe.IEthnicityEstimatorPtr.estimate.__doc__)
 
 print(fe.IDetectorPtr.__doc__)
 print(fe.IDetectorPtr.detect.__doc__)
-print(fe.IDetectorPtr.detect5.__doc__)
-print(fe.IDetectorPtr.detect_light.__doc__)
 print(fe.IDetectorPtr.detectOne.__doc__)
 print(fe.IDetectorPtr.setDetectionComparer.__doc__)
 
@@ -136,6 +134,14 @@ print(fe.ILivenessFlowEstimatorPtr.estimate.__doc__)
 print(fe.IEyeEstimatorPtr.__doc__)
 print(fe.IEyeEstimatorPtr.estimate.__doc__)
 
+print(fe.EyesRects.__doc__)
+print(fe.EyesRects.leftEyeRect.__doc__)
+print(fe.EyesRects.leftEyeRect.__doc__)
+print(fe.EyeCropper.__doc__)
+print(fe.EyeCropper.__init__.__doc__)
+print(fe.EyeCropper.cropByLandmarks5.__doc__)
+print(fe.EyeCropper.cropByLandmarks68.__doc__)
+
 print(fe.IEmotionsEstimatorPtr.__doc__)
 print(fe.IEmotionsEstimatorPtr.estimate.__doc__)
 
@@ -180,9 +186,6 @@ print(fe.FSDKErrorValueInt.__doc__)
 print(fe.FSDKErrorValueFloat.__doc__)
 print(fe.FSDKErrorValueMatching.__doc__)
 
-print(fe.AttributeEstimation.__doc__)
-print(fe.AttributeEstimation.__init__.__doc__)
-print(fe.AttributeEstimation.__repr__.__doc__)
 print(fe.Quality.__doc__)
 print(fe.Quality.__init__.__doc__)
 print(fe.Quality.getQuality.__doc__)
