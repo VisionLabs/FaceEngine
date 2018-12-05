@@ -271,38 +271,20 @@ void estimators_module(py::module& f) {
 		"\tlandmarks describing iris.\n"
 		"See EyesEstimation for output details.\n"
 		"More detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n")
-	
 		.def("estimate",[](
-			const fsdk::IEyeEstimatorPtr& est,
-			const fsdk::Image& warp,
-			const fsdk::Landmarks5& landmarks5) {
+				const fsdk::IEyeEstimatorPtr& est,
+				const fsdk::Image& warp,
+				const fsdk::EyeCropper::EyesRects& eyeRects) {
 				fsdk::EyesEstimation out;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, landmarks5, out);
-				return std::make_tuple(FSDKErrorResult(err), out);
-				},
-			"Estimate the attributes.\n"
-			"\tArgs\n"
-			"\t\tparam1 (Image): warp source image. Format must be R8G8B8. Must be warped!\n"
-			"\t\tparam2 (Landmarks5): landmarks5 landmark of size 5 used to warp image, "
-			"must be in warped image coordinates. @see IWarper\n"
-			"\tReturns:\n"
-			"\t\t(tuple): returns error code FSDKErrorResult and EyesEstimation\n")
-		
-		.def("estimate",[](
-			const fsdk::IEyeEstimatorPtr& est,
-			const fsdk::Image& warp,
-			const fsdk::Landmarks68& landmarks68) {
-				fsdk::EyesEstimation out;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, landmarks68, out);
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, eyeRects, out);
 				return std::make_tuple(FSDKErrorResult(err), out);
 			},
 			"Estimate the attributes.\n"
-			"\tArgs\n"
-			"\t\tparam1 (Image): warp source image. Format must be R8G8B8. Must be warped!\n"
-			"\t\tparam2 (Landmarks68): landmark of size 68 used to warp image, must be "
-			"in warped image coordinates.\n"
-			"\tReturns:\n"
-			"\t\t(tuple): returns error code FSDKErrorResult and  EyesEstimation\n")
+				"\tArgs\n"
+				"\t\tparam1 (Image): warp source image. Format must be R8G8B8. Must be warped!\n"
+				"\t\tparam2 (EyeRects): Cropped rects.\n"
+				"\tReturns:\n"
+				"\t\t(tuple): returns error code FSDKErrorResult and EyesEstimation\n")
 			;
 	
 	py::class_<fsdk::IEmotionsEstimatorPtr>(f, "IEmotionsEstimatorPtr",
@@ -584,7 +566,7 @@ void estimators_module(py::module& f) {
 			})
 		;
 
-// EyesEstimation
+	// EyesEstimation
 	py::class_<fsdk::EyesEstimation>(f, "EyesEstimation",
 		"Eyes estimation output.\n"
 		"\tThese values are produced by IEyeEstimator object.\n")
@@ -592,6 +574,21 @@ void estimators_module(py::module& f) {
 		.def_readwrite("leftEye", &fsdk::EyesEstimation::leftEye)
 		.def_readwrite("rightEye", &fsdk::EyesEstimation::rightEye)
 			;
+	
+	// EyesCropper
+	py::class_<fsdk::EyeCropper>(f, "EyeCropper",
+		"EyeCropper is a helper structure for IEyeEstimator interfacet.\n"
+			"\tMethods of this structure crop an input warped image "
+			"and returns rectangle coordinates of each eye.\n")
+		.def(py::init<>())
+		.def("cropByLandmarks5", &fsdk::EyeCropper::cropByLandmarks5, "Crop rects by Landmarks5")
+		.def("cropByLandmarks68", &fsdk::EyeCropper::cropByLandmarks68, "Crop rects by Landmarks68")
+		;
+	
+	py::class_<fsdk::EyeCropper::EyesRects>(f, "EyesRects")
+		.def_readwrite("leftEyeRect", &fsdk::EyeCropper::EyesRects::leftEyeRect)
+		.def_readwrite("rightEyeRect", &fsdk::EyeCropper::EyesRects::rightEyeRect)
+		;
 	
 		py::enum_<fsdk::EyesEstimation::EyeAttributes::State>(f, "State", "Enumeration of possible eye states.\n")
 		.value("Closed", fsdk::EyesEstimation::EyeAttributes::State::Closed, "Eye is closed.\n")
@@ -607,7 +604,7 @@ void estimators_module(py::module& f) {
 		.def_readwrite("eyelid", &fsdk::EyesEstimation::EyeAttributes::eyelid)
 			;
 
-// Emotions
+	// Emotions
 	py::class_<fsdk::EmotionsEstimation>(f, "EmotionsEstimation",
 		"Emotions estimation structure.\n"
 		"\tEach estimation is given in normalized [0, 1] range.\n")

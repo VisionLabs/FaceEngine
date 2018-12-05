@@ -15,10 +15,8 @@ import FaceEngine as fe
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
 
-def detector_batch_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _config=None):
-    if _detector_type == fe.ODT_S3FD and _config:
-        _config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
-        faceEngine.setSettingsProvider(_config)
+def detector_batch_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN):
+
     detector = faceEngine.createDetector(_detector_type)
     image_list = [_image_det,
                   _image_det,
@@ -36,10 +34,7 @@ def detector_batch_example(_image_det, _max_detections, _detector_type=fe.ODT_MT
     return err, detector_result
 
 
-def detector_one_example(_image_det, _detector_type=fe.ODT_MTCNN, _config=None):
-    if _detector_type == fe.ODT_S3FD and _config:
-        _config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
-        faceEngine.setSettingsProvider(_config)
+def detector_one_example(_image_det, _detector_type=fe.ODT_MTCNN):
     detector = faceEngine.createDetector(_detector_type)
     err, detector_result = detector.detectOne(_image_det,
                                            _image_det.getRect(),
@@ -107,7 +102,7 @@ if __name__ == "__main__":
 
     print("\nBatch interface example: ")
     n_detections = 3
-    err_batch, detect_list_batch = detector_batch_example(image, n_detections, fe.ODT_S3FD, config)
+    err_batch, detect_list_batch = detector_batch_example(image, n_detections, fe.ODT_S3FD)
     if err_batch.isError:
         print("detector_batch_example: faces are not found")
         exit(-1)
@@ -138,7 +133,7 @@ if __name__ == "__main__":
     (warp_image, transformed_landmarks5, transformed_landmarks68) = \
         warper_example(image, detection, landmarks5, landmarks68)
 
-    landmarks5_warp = detector_batch_example(image, n_detections, fe.ODT_S3FD, config)[1][0][0].landmarks5_opt.value()
+    landmarks5_warp = detector_batch_example(image, n_detections, fe.ODT_S3FD)[1][0][0].landmarks5_opt.value()
     print_landmarks(landmarks5, "landmarks5: ")
     print_landmarks(transformed_landmarks5, "transformedLandmarks5: ")
     # print_landmarks_for_comparing(landmarks5, landmarks5_warp, "Comparing landmarks")

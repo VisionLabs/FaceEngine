@@ -133,7 +133,9 @@ def faceFlow_example():
 
 def eye_example(_warp_image, _transformed_landmarks5):
     eyeEstimator = faceEngine.createEyeEstimator()
-    err, eyesEstimation = eyeEstimator.estimate(_warp_image, _transformed_landmarks5)
+    cropper = fe.EyeCropper()
+    eyeRectsByLandmarks5 = cropper.cropByLandmarks5(_warp_image, _transformed_landmarks5)
+    err_eyes, eyesEstimation = eyeEstimator.estimate(_warp_image, eyeRectsByLandmarks5)
     if err.isOk:
         print("left eye: ", eyesEstimation.leftEye.state)
         print("right eye: ", eyesEstimation.rightEye.state)

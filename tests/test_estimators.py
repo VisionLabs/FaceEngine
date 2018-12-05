@@ -354,8 +354,9 @@ class TestFaceEngineRect(unittest.TestCase):
             with open(lm68Path) as lm68file:
                 for i, line in enumerate(lm68file):
                     landmarks68_eyes[i] = invoke_vector_coords(line)
-
-            err_eyes, eyesEstimation = eyeEstimator.estimate(warp, landmarks68_eyes)
+            cropper = f.EyeCropper()
+            eyeRectsByLandmarks68 = cropper.cropByLandmarks68(warp, landmarks68_eyes)
+            err_eyes, eyesEstimation = eyeEstimator.estimate(warp, eyeRectsByLandmarks68)
             self.assertTrue(err_eyes.isOk)
             with open(irisLeft, 'r') as irisLeftFile, open(irisRight, 'r') as irisRightFile, \
                     open(eyelidLeft, 'r') as eyelidLeftFile, open(eyelidRight, 'r') as eyelidRightFile:
