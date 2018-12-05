@@ -116,10 +116,15 @@ class TestFaceEngineDetector(unittest.TestCase):
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "image1.ppm"))
         self.assertTrue(err_image.isOk)
-        res_one, faceOne = detector.detectOne(
+        res_one, faceOne1 = detector.detectOne(
             image,
             image.getRect(),
-        fe.DetectionType(fe.dt5Landmarks|fe.dt68Landmarks))
+            fe.DetectionType(fe.dt5Landmarks))
+        self.assertTrue(res_one.isOk)
+        res_one, faceOne2 = detector.detectOne(
+            image,
+            image.getRect(),
+            fe.DetectionType(fe.dt5Landmarks|fe.dt68Landmarks))
         self.assertTrue(res_one.isOk)
 
         with open(ptsfilename) as file:
@@ -141,7 +146,7 @@ class TestFaceEngineDetector(unittest.TestCase):
             self.assertEqual(len(detect_list), imagesCount)
             self.assertFalse(res.isError)
             self.compare_detection_lists(_expectedDetection, detect_list, imagesCount)
-            self.compare_detections(faceOne, detect_list[0][0])
+            self.compare_detections(faceOne1, detect_list[0][0])
 
             # without lnet
             res, detect_list = detector.detect(
@@ -155,7 +160,7 @@ class TestFaceEngineDetector(unittest.TestCase):
                 _expectedDetection,
                 detect_list,
                 imagesCount)
-            self.compare_detections(faceOne, detect_list[0][0])
+            self.compare_detections(faceOne1, detect_list[0][0])
 
             # with lnet
             res, detect_list = detector.detect(
@@ -164,7 +169,7 @@ class TestFaceEngineDetector(unittest.TestCase):
                 count,
                 fe.DetectionType(fe.dtBBox|fe.dt68Landmarks))
             self.compare_detection_lists(_expectedDetection, detect_list, imagesCount)
-            self.compare_detections(faceOne, detect_list[0][0])
+            self.compare_detections(faceOne2, detect_list[0][0])
 
     def test_Detector(self):
         self.detectorTest(fe.ODT_DEFAULT, expectedDetectionMTCNN)
