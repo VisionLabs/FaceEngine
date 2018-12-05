@@ -96,10 +96,10 @@ if __name__ == "__main__":
     image_path = sys.argv[2]
     config = set_logging(1)
     image = fe.Image()
-    err_image_downloaded = image.load(image_path)
+    err_image_loaded = image.load(image_path)
     if not image.isValid():
-        print("Image error = ", err_image_downloaded)
-
+        print("Image error = ", err_image_loaded)
+        exit(-1)
     print("\nBatch interface example: ")
     n_detections = 3
     err_batch, detect_list_batch = detector_batch_example(image, n_detections, fe.ODT_S3FD)
@@ -111,8 +111,8 @@ if __name__ == "__main__":
     i_image = 0
     for item in detect_list_batch:
         for item_item in item:
-            print("image № " + str(i_image) + " detection № " + str(i_detection) + ": ", item_item.detection)
-            i_detection = +1
+            print("image " + str(i_image) + " detection " + str(i_detection) + ": ", item_item.detection)
+            i_detection += 1
             # print landmarks if you need
             # if item_item.landmarks5_opt.isValid():
             #     print_landmarks(item_item.landmarks5_opt.value(), "image № " + str(i_image) + " detection № " + str(i_detection) + ", landmarks5 = ")
@@ -121,7 +121,6 @@ if __name__ == "__main__":
         i_image += 1
         i_detection = 0
 
-    print(type(detect_list_batch[0][0]))
     # only for example take first detection in list
     face = detect_list_batch[0][0]
     if not face.landmarks5_opt.isValid() or not face.landmarks68_opt.isValid():
@@ -132,8 +131,7 @@ if __name__ == "__main__":
 
     (warp_image, transformed_landmarks5, transformed_landmarks68) = \
         warper_example(image, detection, landmarks5, landmarks68)
-
-    landmarks5_warp = detector_batch_example(image, n_detections, fe.ODT_S3FD)[1][0][0].landmarks5_opt.value()
+    #
     print_landmarks(landmarks5, "landmarks5: ")
     print_landmarks(transformed_landmarks5, "transformedLandmarks5: ")
     # print_landmarks_for_comparing(landmarks5, landmarks5_warp, "Comparing landmarks")
