@@ -61,4 +61,5 @@ public:
 	fsdk::IAGSEstimatorPtr createAGSEstimator();
 
 	void setSettingsProvider(PyISettingsProvider& provider);
+	
 };
