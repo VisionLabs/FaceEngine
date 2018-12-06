@@ -10,7 +10,7 @@
 #include "FaceEngineAdapter.hpp"
 #include "SettingsProviderAdapter.hpp"
 #include "helpers.hpp"
-
+#include <fsdk/Version.h>
 
 namespace py = pybind11;
 
@@ -70,7 +70,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 		CompleteEdition
 	};
 	
-	
 	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
 		.def(py::init<>())
 		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection\n")
@@ -83,6 +82,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("CompleteEdition", fsdk::FaceEngineEdition::CompleteEdition)
 		.export_values();
 			;
+	
+	f.def("getVersionHash", []() -> std::string {
+		return std::string("fsdk_hash: ") + fsdk::getVersionHash();
+	});
+	f.def("getVersionString", []() -> std::string {
+		return std::string("fsdk_version: ") + fsdk::getVersionString();
+	});
+	f.def("getBuildInfo", []() -> std::string {
+		return std::string("fsdk_build_info: ") + fsdk::getBuildInfo();
+	});
 	
 	f.def("createFaceEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
 		"Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr,
@@ -588,8 +597,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IDetector
 			IDetector.detect
-			IDetector.detect5
-			IDetector.detect_light
 			IDetector.detectOne
 			IDetector.setDetectionComparer
 
@@ -648,6 +655,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IEyeEstimatorPtr
 			IEyeEstimatorPtr.estimate
+			
+			EyesRects
+			EyesRects.leftEyeRect
+			EyesRects.leftEyeRect
+			EyeCropper
+			EyeCropper.__init__
+			EyeCropper.cropByLandmarks5
+			EyeCropper.cropByLandmarks68
 
 			IEmotionsEstimatorPtr
 			IEmotionsEstimatorPtr.estimate

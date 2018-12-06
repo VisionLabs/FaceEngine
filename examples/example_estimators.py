@@ -2,7 +2,7 @@ import sys
 # import numpy as np
 # from matplotlib import pyplot as plt
 
-from example_detector_warper import detector_example, warper_example
+from example_detector_warper import detector_one_example, warper_example
 
 def help():
     print("python example.py <path to FaceEngine*.so> <path to image>")
@@ -133,7 +133,9 @@ def faceFlow_example():
 
 def eye_example(_warp_image, _transformed_landmarks5):
     eyeEstimator = faceEngine.createEyeEstimator()
-    err, eyesEstimation = eyeEstimator.estimate(_warp_image, _transformed_landmarks5)
+    cropper = fe.EyeCropper()
+    eyeRectsByLandmarks5 = cropper.cropByLandmarks5(_warp_image, _transformed_landmarks5)
+    err_eyes, eyesEstimation = eyeEstimator.estimate(_warp_image, eyeRectsByLandmarks5)
     if err.isOk:
         print("left eye: ", eyesEstimation.leftEye.state)
         print("right eye: ", eyesEstimation.rightEye.state)
@@ -187,25 +189,36 @@ def ags_example(_faceEngine, _image, _detection):
     config.setValue("system", "verboseLogging", fe.SettingsProviderValue(0))
     _faceEngine.setSettingsProvider(config)
 
+
 def print_landmarks(landmarks, message=""):
     print(message)
     for i in range(len(landmarks)):
         print(landmarks[i])
 
 
+def get_info():
+    print(fe.getVersionHash())
+    print(fe.getVersionString())
+    print(fe.getBuildInfo())
+
+
 if __name__ == "__main__":
     # correct path or put directory "data" with example.py
     faceEngine = fe.createFaceEngine("data",
                                      "data/faceengine.conf")
+    get_info()
     image_path = sys.argv[2]
     image = image_load(image_path)
     try:
-        # unpack detector result - list of tuples
-        err, detect_list = detector_example(image, 1)
+        # take the simplest example and first detection, see example_detector_warper.py
+        err, face = detector_one_example(image)
         if err.isError:
             print("Detector: faces not found.")
             exit(-1)
-        (detection, landmarks5, landmarks68) = detect_list[0]
+        (detection, landmarks5, landmarks68) = \
+            face.detection, \
+            face.landmarks5_opt.value(), \
+            face.landmarks68_opt.value()
         # print_landmarks(landmarks5, "landmarks5: ")
         (warp_image, transformed_landmarks5, transformed_landmarks68) = \
             warper_example(image, detection, landmarks5, landmarks68)

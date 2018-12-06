@@ -108,7 +108,6 @@ class TestFaceEngineDetector(unittest.TestCase):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
         # config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
-        config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
         faceEngine.setSettingsProvider(config)
         detector = faceEngine.createDetector(_detectorType)
         lnetExpected = fe.Landmarks68()
