@@ -70,8 +70,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 		CompleteEdition
 	};
 	
-	f.attr("__version__") = system("git describe --tags | grep -Eo \"[0-9]{1,}\\.[0-9]{1,}\\.[0-9]{1,}\\.[0-9]{1,}\"");
-	
 	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
 		.def(py::init<>())
 		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection\n")
