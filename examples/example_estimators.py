@@ -189,16 +189,24 @@ def ags_example(_faceEngine, _image, _detection):
     config.setValue("system", "verboseLogging", fe.SettingsProviderValue(0))
     _faceEngine.setSettingsProvider(config)
 
+
 def print_landmarks(landmarks, message=""):
     print(message)
     for i in range(len(landmarks)):
         print(landmarks[i])
 
 
+def get_info():
+    print(fe.getVersionHash())
+    print(fe.getVersionString())
+    print(fe.getBuildInfo())
+
+
 if __name__ == "__main__":
     # correct path or put directory "data" with example.py
     faceEngine = fe.createFaceEngine("data",
                                      "data/faceengine.conf")
+    get_info()
     image_path = sys.argv[2]
     image = image_load(image_path)
     try:

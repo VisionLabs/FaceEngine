@@ -179,3 +179,4 @@ fsdk::IAGSEstimatorPtr PyIFaceEngine::createAGSEstimator() {
 void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }
+
