@@ -428,21 +428,22 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertEqual(emotionsEstimation.getPredominantEmotion(), predominant)
         reference1 = f.EmotionsEstimation()
         reference2 = f.EmotionsEstimation()
-        reference1.anger = 0.0022
-        reference1.disgust = 0.0000
-        reference1.fear = 0.0011
-        reference1.happiness = 0.9461
-        reference1.sadness = 0.0223
-        reference1.surprise = 0.0001
-        reference1.neutral = 0.0282
+        reference1.anger = 0.001
+        reference1.disgust = 0.001
+        reference1.fear = 0.001
+        reference1.happiness = 0.999
+        reference1.sadness = 0.001
+        reference1.surprise = 0.001
+        reference1.neutral = 0.001
 
-        reference2.anger = 0.8487
-        reference2.disgust = 0.0002
-        reference2.fear = 0.0052
-        reference2.happiness = 0.0507
-        reference2.sadness = 0.0826
-        reference2.surprise = 0.0003
-        reference2.neutral = 0.0123
+        reference2.anger = 0.999
+        reference2.disgust = 0.001
+        reference2.fear = 0.001
+        reference2.happiness = 0.001
+        reference2.sadness = 0.001
+        reference2.surprise = 0.001
+        reference2.neutral = 0.001
+
         emotions_test("testData/emotions1.ppm", reference1, f.Emotions.Happiness)
         emotions_test("testData/emotions2.ppm", reference2, f.Emotions.Anger)
 
