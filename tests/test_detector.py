@@ -193,25 +193,21 @@ class TestFaceEngineDetector(unittest.TestCase):
     def redetectTest(self, _detectorType, refDetection):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
-        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(4))
         if _detectorType == fe.ODT_S3FD:
             config.setValue("S3FDDetector::Settings", "RedetectExpandCoef", fe.SettingsProviderValue(0.7))
-            print(config.getValue("S3FDDetector::Settings", "RedetectExpandCoef").asFloat())
         faceEngine.setSettingsProvider(config)
         detector = faceEngine.createDetector(_detectorType)
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "image1.ppm"))
         self.assertTrue(err_image.isOk)
         err, face = detector.detectOne(image, image.getRect(), fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
-        print(face.detection)
         self.assertFalse(err.isError)
         self.assertTrue(face.isValid())
         # redetection
         iteraionsNumber = 1
         for i in range(iteraionsNumber):
             err_redetect, face_redection = detector.redetectOne(face, fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
-            print(face_redection.detection)
-            self.assertAlmostEqual(refDetection.score, face_redection.detection.score, delta=0.0001)
             self.assertAlmostEqual(refDetection.rect.x, face_redection.detection.rect.x, delta=2)
             self.assertAlmostEqual(refDetection.rect.y, face_redection.detection.rect.y, delta=2)
             self.assertAlmostEqual(refDetection.rect.width, face_redection.detection.rect.width, delta=2)

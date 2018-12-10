@@ -614,10 +614,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IEthnicityEstimator
 			IEthnicityEstimator.estimate
 
+
+
 			IDetector
 			IDetector.detect
 			IDetector.detectOne
 			IDetector.setDetectionComparer
+			IDetector.redetectOne
+			IDetector.redetect
+			Face
+			Face.isValid
 
 			IWarperPtr
 			IWarperPtr.warp

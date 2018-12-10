@@ -84,11 +84,13 @@ void detector_module(py::module& f) {
 				const fsdk::DetectionType type,
 				const int tol) {
 				fsdk::ResultValue<fsdk::FSDKError, bool> err = det->redetectOne(face, type, tol);
-				if (err.isOk() && err.getValue())
+				if (err.isOk() && err.getValue()) {
 					return std::make_tuple(FSDKErrorValueBool(err), face);
+				}
+				
 				return std::make_tuple(FSDKErrorValueBool(err), fsdk::Face());
 			}, py::arg("face"), py::arg("type"), py::arg("tolerance") = 0,
-			"Batched redetect faces.\n"
+			"Redetect face.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (Face): face structure with detection and landmarks.\n"
 			"\t\tparam2 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
