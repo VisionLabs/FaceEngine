@@ -10,7 +10,7 @@
 #include "FaceEngineAdapter.hpp"
 #include "SettingsProviderAdapter.hpp"
 #include "helpers.hpp"
-
+#include <fsdk/Version.h>
 
 namespace py = pybind11;
 
@@ -45,10 +45,13 @@ py::class_<fsdk::Optional<T>> optional_class(py::module& this_module, const char
 	return class_instance;
 }
 
-void set_optional_class(py::module &f)
+void set_optional_class(py::module& f)
 {
-	auto optinonalLandmarks5 = optional_class<fsdk::Landmarks5>(f, "OptionalLandmarks5");
-	auto optinonalLandmarks68 = optional_class<fsdk::Landmarks68>(f, "OptionalLandmarks68");
+	auto optionalLandmarks5 = optional_class<fsdk::Landmarks5>(f, "OptionalLandmarks5");
+	auto optionalLandmarks68 = optional_class<fsdk::Landmarks68>(f, "OptionalLandmarks68");
+	auto optionalfloat = optional_class<float>(f, "Optionalfloat");
+	auto optionalEthnicityEstimation = optional_class<fsdk::EthnicityEstimation>(f, "OptionalEthnicityEstimation");
+
 }
 
 
@@ -68,7 +71,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 		CompleteEdition
 	};
 	
-	
 	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
 		.def(py::init<>())
 		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection optinal\n")
@@ -82,6 +84,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("CompleteEdition", fsdk::FaceEngineEdition::CompleteEdition)
 		.export_values();
 			;
+	
+	f.def("getVersionHash", []() -> std::string {
+		return std::string("fsdk_hash: ") + fsdk::getVersionHash();
+	});
+	f.def("getVersionString", []() -> std::string {
+		return std::string("fsdk_version: ") + fsdk::getVersionString();
+	});
+	f.def("getBuildInfo", []() -> std::string {
+		return std::string("fsdk_build_info: ") + fsdk::getBuildInfo();
+	});
 	
 	f.def("createFaceEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
 		"Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr,
@@ -498,6 +510,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("DCT_CENTER_AND_CONFIDANCE", fsdk::DCT_CENTER_AND_CONFIDANCE,
 			"BestDetection - most centered with high score\n")
 		.value("DCT_COUNT", fsdk::DCT_COUNT, "Count\n")
+		.export_values();
 			;
 	
 	py::enum_<fsdk::DetectionType>(f, "DetectionType", py::arithmetic(), "Detection type type enumeration.\n")
@@ -549,7 +562,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 			createFaceEngine
 			createSettingsProvider
  			loadImage
+ 			Face
+			FaceEngineEdition
+			FaceEngineEdition.FrontEndEdition
+			FaceEngineEdition.CompleteEdition
+
 			PyIFaceEngine
+			PyIFaceEngine.getFaceEngineEdition
 			PyIFaceEngine.createAttributeEstimator
 			PyIFaceEngine.createQualityEstimator
 			PyIFaceEngine.createEthnicityEstimator
@@ -597,6 +616,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IDetector
 			IDetector.detect
+			IDetector.detectOne
+			IDetector.setDetectionComparer
 
 			IWarperPtr
 			IWarperPtr.warp
@@ -606,6 +627,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IDescriptorPtr.getModelVersion
 			IDescriptorPtr.getDescriptorLength
 			IDescriptorPtr.getDescriptor
+			IDescriptorPtr.getData
+			IDescriptorPtr.load
 
 			IDescriptorBatchPtr
 			IDescriptorBatchPtr.add
@@ -617,6 +640,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IDescriptorBatchPtr.getDescriptorSize
 			IDescriptorBatchPtr.getDescriptorSlow
 			IDescriptorBatchPtr.getDescriptorFast
+			IDescriptorBatchPtr.load
 
 			DescriptorBatchError
 
@@ -650,6 +674,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IEyeEstimatorPtr
 			IEyeEstimatorPtr.estimate
+			
+			EyesRects
+			EyesRects.leftEyeRect
+			EyesRects.leftEyeRect
+			EyeCropper
+			EyeCropper.__init__
+			EyeCropper.cropByLandmarks5
+			EyeCropper.cropByLandmarks68
 
 			IEmotionsEstimatorPtr
 			IEmotionsEstimatorPtr.estimate
@@ -717,10 +749,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			FSDKErrorValueFloat
 			FSDKErrorValueMatching
 
+			AttributeRequest
+			AttributeRequest.estimateAge
+			AttributeRequest.estimateGender
+			AttributeRequest.estimateEthnicity
 
-			AttributeEstimation
-			AttributeEstimation.__init__
-			AttributeEstimation.__repr__
+			AttributeResult
+			AttributeResult.__init__
+			AttributeResult.__repr__
+
 			Quality
 			Quality.__init__
 			Quality.getQuality
@@ -804,13 +841,47 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Rect
 
 			ObjectDetectorClassType
-			ObjectDetectorClassType.ODT_MTCNN
 			ObjectDetectorClassType.ODT_MTCNN_MINI
 			ObjectDetectorClassType.ODT_S3FD
 			ObjectDetectorClassType.ODT_COUNT
 
+			DetectionComparerType
+			DetectionComparerType.DCT_CONFIDANCE
+			DetectionComparerType.DCT_CENTER
+			DetectionComparerType.DCT_CENTER_AND_CONFIDANCE
+			DetectionComparerType.DCT_COUNT
+
+			DetectionType
+			DetectionType.dtBBox
+			DetectionType.dt5Landmarks
+			DetectionType.dt68Landmarks
+
 			FSDKError
+			FSDKError.Ok
+			FSDKError.Internal
+			FSDKError.InvalidInput
+			FSDKError.InvalidImage
+			FSDKError.InvalidRect
+			FSDKError.InvalidImageFormat
+			FSDKError.InvalidImageSize
+			FSDKError.InvalidDetection
+			FSDKError.InvalidLandmarks5
+			FSDKError.InvalidLandmarks68
+			FSDKError.InvalidTransformation
+			FSDKError.InvalidDescriptor
+			FSDKError.InvalidDescriptorBatch
+			FSDKError.InvalidSettingsProvider
+			FSDKError.ModuleNotInitialized
+			FSDKError.ModuleNotReady
+			FSDKError.LicenseError
+			FSDKError.BufferIsNull
+			FSDKError.BufferIsFull
+			FSDKError.BufferIsEmpty
+			FSDKError.InvalidBufferSize
 			FrontalFaceType
+			FrontalFaceType.FrontalFace0
+			FrontalFaceType.FrontalFace1
+			FrontalFaceType.FrontalFace2
 
 			DepthRange
 			DepthRange.__repr__

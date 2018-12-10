@@ -58,15 +58,17 @@ def extractDescriptor(_faceEngine, _detector, _descriptorExtractor, image, image
     print("Detecting faces.")
     detectionsCount = 10
 
-    detectorResult, det_list = _detector.detect5(imageBGR, imageBGR.getRect(), detectionsCount)
+    detectorResult, det_list = _detector.detect([imageBGR], [imageBGR.getRect()], detectionsCount, fe.DetectionType(fe.dt5Landmarks))
     detections = []
     landmarks5l = []
 
     if detectorResult.isError:
         print("Failed to detect face detection. Reason: {0}".format(detectorResult.what()))
     for elem in det_list:
-        detections.append(elem[0])
-        landmarks5l.append(elem[1])
+        for elem_elem in elem:
+            detections.append(elem_elem.detection)
+            if elem_elem.landmarks5_opt.isValid():
+                landmarks5l.append(elem_elem.landmarks5_opt.value())
     detectionsCount = len(detections)
     if detectionsCount == 0:
         print("Faces is not found: \"{0}\".".format(image_name))
