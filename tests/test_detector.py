@@ -197,7 +197,6 @@ class TestFaceEngineDetector(unittest.TestCase):
         if _detectorType == fe.ODT_S3FD:
             config.setValue("S3FDDetector::Settings", "RedetectExpandCoef", fe.SettingsProviderValue(0.7))
             print(config.getValue("S3FDDetector::Settings", "RedetectExpandCoef").asFloat())
-        # config.setValue("system", "betaMode", fe.SettingsProviderValue(5))
         faceEngine.setSettingsProvider(config)
         detector = faceEngine.createDetector(_detectorType)
         image = fe.Image()
