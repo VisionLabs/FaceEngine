@@ -63,12 +63,11 @@ expectedDetectionS3FD.rect.width = 141
 expectedDetectionS3FD.rect.height = 208
 expectedDetectionS3FD.score = 0.99954
 
-expectedRedetectionS3FD.rect.x = 294
-expectedRedetectionS3FD.rect.y = 95
-expectedRedetectionS3FD.rect.width = 149
-expectedRedetectionS3FD.rect.height = 186
+expectedRedetectionS3FD.rect.x = 293
+expectedRedetectionS3FD.rect.y = 97
+expectedRedetectionS3FD.rect.width = 153
+expectedRedetectionS3FD.rect.height = 190
 expectedRedetectionS3FD.score = 0.99954
-
 
 # helper
 def invoke_vector_coords(line):
