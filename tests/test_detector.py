@@ -185,7 +185,7 @@ class TestFaceEngineDetector(unittest.TestCase):
             self.compare_detections(faceOne2, detect_list[0][0])
 
     def test_Detector(self):
-        self.detectorTest(fe.FACE_DET_COUNT, expectedDetectionV1)
+        self.detectorTest(fe.FACE_DET_DEFAULT, expectedDetectionV1)
         self.detectorTest(fe.FACE_DET_V1, expectedDetectionV1)
         self.detectorTest(fe.FACE_DET_V2, expectedDetectionV2)
         self.detectorTest(fe.FACE_DET_V3, expectedDetectionV3)
