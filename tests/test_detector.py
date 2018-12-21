@@ -33,15 +33,23 @@ del(sys.argv[1])
 faceEngine = fe.createFaceEngine("data",
                                    "data/faceengine.conf")
 expectedDetectionMTCNN = fe.Detection()
+expectedDetectionMTCNN = fe.Detection()
 expectedRedetectionMTCNN = fe.Detection()
 expectedDetectionMiniMTCNN = fe.Detection()
 expectedDetectionS3FD = fe.Detection()
+expectedRedetectionS3FD = fe.Detection()
 
 expectedDetectionMTCNN.rect.x = 288
 expectedDetectionMTCNN.rect.y = 93
 expectedDetectionMTCNN.rect.width = 148
 expectedDetectionMTCNN.rect.height = 184
 expectedDetectionMTCNN.score = 0.99999
+
+expectedRedetectionMTCNN.rect.x = 290
+expectedRedetectionMTCNN.rect.y = 75
+expectedRedetectionMTCNN.rect.width = 150
+expectedRedetectionMTCNN.rect.height = 197
+expectedRedetectionMTCNN.score = 0.99999
 
 expectedDetectionMiniMTCNN.rect.x = 297
 expectedDetectionMiniMTCNN.rect.y = 97
@@ -54,6 +62,12 @@ expectedDetectionS3FD.rect.y = 81
 expectedDetectionS3FD.rect.width = 141
 expectedDetectionS3FD.rect.height = 208
 expectedDetectionS3FD.score = 0.99954
+
+expectedRedetectionS3FD.rect.x = 293
+expectedRedetectionS3FD.rect.y = 97
+expectedRedetectionS3FD.rect.width = 153
+expectedRedetectionS3FD.rect.height = 190
+expectedRedetectionS3FD.score = 0.99954
 
 # helper
 def invoke_vector_coords(line):
@@ -176,6 +190,32 @@ class TestFaceEngineDetector(unittest.TestCase):
         self.detectorTest(fe.ODT_MTCNN_MINI, expectedDetectionMiniMTCNN)
         self.detectorTest(fe.ODT_S3FD, expectedDetectionS3FD)
 
+    def redetectTest(self, _detectorType, refDetection):
+        configPath = os.path.join("data", "faceengine.conf")
+        config = fe.createSettingsProvider(configPath)
+        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(4))
+        if _detectorType == fe.ODT_S3FD:
+            config.setValue("S3FDDetector::Settings", "RedetectExpandCoef", fe.SettingsProviderValue(0.7))
+        faceEngine.setSettingsProvider(config)
+        detector = faceEngine.createDetector(_detectorType)
+        image = fe.Image()
+        err_image = image.load(os.path.join(testDataPath, "image1.ppm"))
+        self.assertTrue(err_image.isOk)
+        err, face = detector.detectOne(image, image.getRect(), fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
+        self.assertFalse(err.isError)
+        self.assertTrue(face.isValid())
+        # redetection
+        iteraionsNumber = 1
+        for i in range(iteraionsNumber):
+            err_redetect, face_redection = detector.redetectOne(face, fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
+            self.assertAlmostEqual(refDetection.rect.x, face_redection.detection.rect.x, delta=2)
+            self.assertAlmostEqual(refDetection.rect.y, face_redection.detection.rect.y, delta=2)
+            self.assertAlmostEqual(refDetection.rect.width, face_redection.detection.rect.width, delta=2)
+            self.assertAlmostEqual(refDetection.rect.height, face_redection.detection.rect.height, delta=2)
+
+    def test_RedetectorOne(self):
+        self.redetectTest(fe.ODT_MTCNN, expectedRedetectionMTCNN)
+        self.redetectTest(fe.ODT_S3FD, expectedRedetectionS3FD)
 
 if __name__ == '__main__':
     unittest.main()

@@ -51,6 +51,7 @@ void set_optional_class(py::module& f)
 	auto optionalLandmarks68 = optional_class<fsdk::Landmarks68>(f, "OptionalLandmarks68");
 	auto optionalfloat = optional_class<float>(f, "Optionalfloat");
 	auto optionalEthnicityEstimation = optional_class<fsdk::EthnicityEstimation>(f, "OptionalEthnicityEstimation");
+
 }
 
 
@@ -72,9 +73,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 	
 	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
 		.def(py::init<>())
-		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection\n")
-		.def_readwrite("landmarks5_opt", &fsdk::Face::m_landmarks5, "Landmarks5 optional\n")
-		.def_readwrite("landmarks68_opt", &fsdk::Face::m_landmarks68, "Landmarks68 optional\n")
+		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection optinal\n")
+		.def_readwrite("landmarks5_opt", &fsdk::Face::m_landmarks5, "Landmarks5 optinal\n")
+		.def_readwrite("landmarks68_opt", &fsdk::Face::m_landmarks68, "Landmarks68 optinal\n")
+		.def("isValid", &fsdk::Face::isValid, "Valid or not\n")
 			;
 	
 	py::enum_<fsdk::FaceEngineEdition>(f, "FaceEngineEdition", "Complete or FrontEdition version.\n")
@@ -413,6 +415,23 @@ PYBIND11_MODULE(FaceEngine, f) {
 						+ ", what = " + err.what; })
 			;
 	
+	py::class_<FSDKErrorValueBool>(f, "FSDKErrorValueBool", "Wrapper for result to output some bool "
+		"value aside the result.\n")
+		.def_readonly("isOk", &FSDKErrorValueBool::isOk)
+		.def_readonly("isError", &FSDKErrorValueBool::isError)
+		.def_readonly("FSDKError", &FSDKErrorValueBool::fsdkError)
+		.def_readonly("what", &FSDKErrorValueBool::what)
+		.def_readonly("value", &FSDKErrorValueBool::value)
+		.def("__repr__",
+			 [](const FSDKErrorValueBool &err) {
+				 return "FSDKErrorValueBool: "
+							"isOk = " + std::to_string(err.isOk)
+						+ ", isError = " + std::to_string(err.isError)
+						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", value = " + std::to_string(err.value)
+						+ ", what = " + err.what; })
+			;
+	
 	py::class_<FSDKErrorValueFloat>(f, "FSDKErrorValueFloat",
 		"Wrapper for result to output some "
 		"float value aside the result.\n")
@@ -595,10 +614,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IEthnicityEstimator
 			IEthnicityEstimator.estimate
 
+
+
 			IDetector
 			IDetector.detect
 			IDetector.detectOne
 			IDetector.setDetectionComparer
+			IDetector.redetectOne
+			IDetector.redetect
+			Face
+			Face.isValid
 
 			IWarperPtr
 			IWarperPtr.warp

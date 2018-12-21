@@ -69,6 +69,11 @@ print(fe.IDetectorPtr.detect.__doc__)
 print(fe.IDetectorPtr.detectOne.__doc__)
 print(fe.IDetectorPtr.setDetectionComparer.__doc__)
 
+print(fe.IDetectorPtr.redetectOne.__doc__)
+print(fe.IDetectorPtr.redetect.__doc__)
+print(fe.Face.__doc__)
+print(fe.Face.isValid.__doc__)
+
 print(fe.IWarperPtr.__doc__)
 print(fe.IWarperPtr.warp.__doc__)
 print(fe.IWarperPtr.createTransformation.__doc__)

@@ -16,7 +16,6 @@ faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
 
 def detector_batch_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN):
-
     detector = faceEngine.createDetector(_detector_type)
     image_list = [_image_det,
                   _image_det,
@@ -32,6 +31,30 @@ def detector_batch_example(_image_det, _max_detections, _detector_type=fe.ODT_MT
     print("Batch Landmarks5 validity ", detector_result[0][0].landmarks5_opt.isValid())
     print("Batch Landmarks68 validity ", detector_result[0][0].landmarks68_opt.isValid())
     return err, detector_result
+
+
+def detector_redetect_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _config=None):
+    detector = faceEngine.createDetector(_detector_type)
+    err, face_list = detector.detect(
+        [_image_det, _image_det],
+        [_image_det.getRect(), _image_det.getRect()],
+        _max_detections,
+        fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+    print(type(face_list))
+    # DetectionType must be the same as in detect. Take only first type
+    redetect_result = detector.redetect(face_list[0], fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+    return redetect_result
+
+
+def detector_redetect_one_example(_image_det, _detector_type=fe.ODT_MTCNN, _config=None):
+    detector = faceEngine.createDetector(_detector_type)
+    err, face = detector.detectOne(_image_det, _image_det.getRect(), fe.DetectionType(fe.dt5Landmarks))
+    # DetectionType must be the same as in detect
+    if face.isValid():
+        redetect_result = detector.redetectOne(face, fe.dt5Landmarks)
+        return redetect_result
+    else:
+        return None
 
 
 def detector_one_example(_image_det, _detector_type=fe.ODT_MTCNN):
@@ -94,7 +117,7 @@ def print_landmarks_for_comparing(landmarks1, landmarks2, message=""):
 
 if __name__ == "__main__":
     image_path = sys.argv[2]
-    config = set_logging(1)
+    config = set_logging(0)
     image = fe.Image()
     err_image_loaded = image.load(image_path)
     if not image.isValid():

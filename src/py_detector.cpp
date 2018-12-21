@@ -78,6 +78,46 @@ void detector_module(py::module& f) {
 				 "\tReturns:\n"
 				 "\t\t(tuple): \n"
 				 "\t\t\twith error code and Face object (detection bbox, landmarks, etc)\n")
+		.def("redetectOne", [](
+				const fsdk::IDetectorPtr& det,
+				fsdk::Face face,
+				const fsdk::DetectionType type,
+				const int tol) {
+				fsdk::ResultValue<fsdk::FSDKError, bool> err = det->redetectOne(face, type, tol);
+				if (err.isOk() && err.getValue()) {
+					return std::make_tuple(FSDKErrorValueBool(err), face);
+				}
+				
+				return std::make_tuple(FSDKErrorValueBool(err), fsdk::Face());
+			}, py::arg("face"), py::arg("type"), py::arg("tolerance") = 0,
+			"Redetect face.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (Face): face structure with detection and landmarks.\n"
+			"\t\tparam2 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
+			"\t\tparam3 (int): tolerance allowed face shifting between two nearest detection frames in pixels.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
+		
+		.def("redetect", [](
+				const fsdk::IDetectorPtr& det,
+				std::vector<fsdk::Face>& faces,
+				const fsdk::DetectionType type,
+				const int tol = 0) {
+					const fsdk::Span<fsdk::Face> facesSpan(faces.data(), faces.size());
+					fsdk::Result<fsdk::FSDKError> err = det->redetect(facesSpan, type, tol);
+					const auto* const ptr = facesSpan.begin();
+					const uint32_t size = facesSpan.size();
+					return std::make_tuple(FSDKErrorResult(err),
+						std::move(std::vector<fsdk::Face>(ptr, ptr + size)));
+				}, py::arg("faces"), py::arg("type"), py::arg("tolerance") = 0,
+			"Batched redetect faces.\n"
+			"\tArgs:\n"
+			"\t\tparam1 ([Face]): detections list.\n"
+			"\t\tparam2 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
+			"\t\tparam3 (int): tolerance allowed face shifting between two nearest detection frames in pixels.\n"
+			"\tReturns:\n"
+			"\t\t(tuple with FSDKErrorResult code and list of Faces): \n"
+			"\t\t\t tuple with FSDKErrorResult and list of tuples from Detection\n")
 					;
 	
 	
@@ -86,9 +126,9 @@ void detector_module(py::module& f) {
 			"\tStores a detected face bounding box within a source image frame "
 			"as well as detection confidence score.\n")
 		.def(py::init<>())
-		.def_readwrite("rect",& fsdk::Detection::rect, "Object bounding box")
-		.def_readwrite("score",& fsdk::Detection::score, "Object detection score)")
-		.def("isValid",& fsdk::Detection::isValid)
+		.def_readwrite("rect", &fsdk::Detection::rect, "Object bounding box")
+		.def_readwrite("score", &fsdk::Detection::score, "Object detection score)")
+		.def("isValid", &fsdk::Detection::isValid)
 		.def("__repr__",
 			[](const fsdk::Detection& d) {
 				return "Detection: rect: x = " + std::to_string(d.rect.x) +
