@@ -387,7 +387,7 @@ void estimators_module(py::module& f) {
 			;
 	py::class_<fsdk::EyesEstimation::EyeAttributes::IrisLandmarks>(f, "IrisLandmarks",
 			"Iris landmarks, length is fixed and equal to 32.\n"
-			"\tMTCNN face detector is capable of face landmarks detection. "
+			"\tFace detector is capable of face landmarks detection. "
 			"\tLandmarks are special classes binded to python. \n"
 			"\tThey are similar on python lists. It is possible to use some standard "
 			"python built-in functions for them: \n"
@@ -422,7 +422,7 @@ void estimators_module(py::module& f) {
 	
 	py::class_<fsdk::EyesEstimation::EyeAttributes::EyelidLandmarks>(f, "EyelidLandmarks",
 		"Eyelid landmarks, length is fixed and equal to 6.\n"
-		"\tMTCNN face detector is capable of face landmarks detection. "
+		"\tFace detector is capable of face landmarks detection. "
 		"\tLandmarks are special classes binded to python. \n"
 		"\tThey are similar on python lists. It is possible to use some standard "
 		"python built-in functions for them: \n"

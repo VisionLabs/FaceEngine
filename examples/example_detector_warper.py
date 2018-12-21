@@ -15,7 +15,7 @@ import FaceEngine as fe
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
 
-def detector_batch_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN):
+def detector_batch_example(_image_det, _max_detections, _detector_type=fe.FACE_DET_V1):
     detector = faceEngine.createDetector(_detector_type)
     image_list = [_image_det,
                   _image_det,
@@ -33,7 +33,7 @@ def detector_batch_example(_image_det, _max_detections, _detector_type=fe.ODT_MT
     return err, detector_result
 
 
-def detector_redetect_example(_image_det, _max_detections, _detector_type=fe.ODT_MTCNN, _config=None):
+def detector_redetect_example(_image_det, _max_detections, _detector_type=fe.FACE_DET_V1, _config=None):
     detector = faceEngine.createDetector(_detector_type)
     err, face_list = detector.detect(
         [_image_det, _image_det],
@@ -46,7 +46,7 @@ def detector_redetect_example(_image_det, _max_detections, _detector_type=fe.ODT
     return redetect_result
 
 
-def detector_redetect_one_example(_image_det, _detector_type=fe.ODT_MTCNN, _config=None):
+def detector_redetect_one_example(_image_det, _detector_type=fe.FACE_DET_V1, _config=None):
     detector = faceEngine.createDetector(_detector_type)
     err, face = detector.detectOne(_image_det, _image_det.getRect(), fe.DetectionType(fe.dt5Landmarks))
     # DetectionType must be the same as in detect
@@ -57,7 +57,7 @@ def detector_redetect_one_example(_image_det, _detector_type=fe.ODT_MTCNN, _conf
         return None
 
 
-def detector_one_example(_image_det, _detector_type=fe.ODT_MTCNN):
+def detector_one_example(_image_det, _detector_type=fe.FACE_DET_V1):
     detector = faceEngine.createDetector(_detector_type)
     err, detector_result = detector.detectOne(_image_det,
                                            _image_det.getRect(),
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         exit(-1)
     print("\nBatch interface example: ")
     n_detections = 3
-    err_batch, detect_list_batch = detector_batch_example(image, n_detections, fe.ODT_S3FD)
+    err_batch, detect_list_batch = detector_batch_example(image, n_detections, fe.FACE_DET_V3)
     if err_batch.isError:
         print("detector_batch_example: faces are not found")
         exit(-1)
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     # print_landmarks_for_comparing(landmarks5, landmarks5_warp, "Comparing landmarks")
 
     print("\nSimple interface example: ")
-    err_one, face_one = detector_one_example(image, fe.ODT_S3FD)
+    err_one, face_one = detector_one_example(image, fe.FACE_DET_V3)
     if err_one.isError:
         print("err_one: faces are not found")
         exit(-1)

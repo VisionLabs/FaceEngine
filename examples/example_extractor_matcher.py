@@ -94,7 +94,7 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     # val = config.getValue("QualityEstimator::Settings", "expBlur")
 
     faceEngine.setSettingsProvider(config)
-    val = config.getValue("MTCNNDetector::Settings", "scaleFactor")
+    val = config.getValue("FaceDetV1::Settings", "scaleFactor")
     print(val.asFloat())
 
     warps = [fe.Image(), fe.Image()]

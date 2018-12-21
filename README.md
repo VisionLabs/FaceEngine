@@ -207,7 +207,7 @@ qualityEstimator = faceEngine.createQualityEstimator()
 ethnicityEstimator = faceEngine.createEthnicityEstimator()
 blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
 smileEstimator = faceEngine.createSmileEstimator()
-detector = faceEngine.createDetector(fe.ODT_MTCNN)
+detector = faceEngine.createDetector(fe.FACE_DET_V1)
 warper = faceEngine.createWarper()
 descriptor = faceEngine.createDescriptor()
 descriptorExtractor = faceEngine.createExtractor()
@@ -268,7 +268,7 @@ For example:
 
 **usage example**
 ```python
-    detector = faceEngine.createDetector(fe.ODT_MTCNN)
+    detector = faceEngine.createDetector(fe.FACE_DET_V1)
     max_detections = 3
     print("Image for detection: ", _image_det.getHeight(), _image_det.getWidth(), _image_det.isValid())
     detector_result = detector.detect(_image_det, _image_det.getRect(), max_detections)
