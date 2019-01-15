@@ -133,7 +133,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(err.isOk)
         self.assertEqual(attribute_result.gender_opt.value(), 0.0)
         self.assertAlmostEqual(attribute_result.ethnicity_opt.value().caucasian, 1.0, delta=0.1)
-        self.assertAlmostEqual(attribute_result.age_opt.value(), 60.44, delta=0.1)
+        self.assertAlmostEqual(attribute_result.age_opt.value(), 60.0, delta=2.0)
 
     def test_QualityEstimator(self):
         qualityEstimator = faceEnginePtr.createQualityEstimator()
