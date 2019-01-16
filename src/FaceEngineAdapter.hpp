@@ -52,6 +52,8 @@ public:
 	
 	fsdk::IIndexBuilderPtr createIndexBuilder();
 	
+	fsdk::Ref<fsdk::IHumanDetector> createHumanDetector();
+	
 	fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndex*> loadDenseIndex(
 	const char* indexPath);
 	

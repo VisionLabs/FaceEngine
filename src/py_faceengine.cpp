@@ -136,6 +136,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"Creates a detector of given type.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (enum ObjectDetectorClassType): Object detector type enumeration.\n")
+		
+		.def("createHumanDetector", &PyIFaceEngine::createHumanDetector,
+			"Creates a human detector.\n")
+		
 		.def("createWarper", &PyIFaceEngine::createWarper, "Creates warper\n")
 		.def("createDescriptor", &PyIFaceEngine::createDescriptor, "Creates Descriptor\n")
 		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0,

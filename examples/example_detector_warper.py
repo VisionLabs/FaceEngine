@@ -170,6 +170,20 @@ if __name__ == "__main__":
     print_landmarks(face_one.landmarks5_opt.value(), "landmarks5, detectOne: ")
     # print_landmarks(face_one.landmarks68_opt.value(), "landmarks68, detectOne: ")
 
+    config = fe.createSettingsProvider("data/faceengine.conf")
+    # switch on betaMode
+    config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
+    # switch on logs to see that betamode is enabled
+    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+    faceEngine.setSettingsProvider(config)
+    humanDetector = faceEngine.createHumanDetector()
+    imageHuman = fe.Image()
+    errHuman = imageHuman.load("testData/0_Parade_marchingband_1_620.ppm")
+    human_result = humanDetector.detect([image], [image.getRect()], 10)
+    print(human_result[0].isOk, human_result[1])
+
+
+
 
 
 

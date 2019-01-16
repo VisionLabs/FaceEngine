@@ -139,5 +139,44 @@ void detector_module(py::module& f) {
 						"; isValid = " + std::to_string(d.isValid());
 			});
 	
+	py::class_<fsdk::Ref<fsdk::IHumanDetector>>(f, "IHumanDetectorPtr", "Human detector interface.\n")
+		.def("detect", [](
+				const fsdk::Ref<fsdk::IHumanDetector>& det,
+				const std::vector<fsdk::Image>& imagesVec,
+				const std::vector<fsdk::Rect>& rectanglesVec,
+				const uint32_t detectionPerImageNum) {
+				fsdk::Span<const fsdk::Image> images(imagesVec);
+				fsdk::Span<const fsdk::Rect> rectangles(rectanglesVec);
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Detection>>> err =
+					det->detect(images, rectangles, detectionPerImageNum);
+				if (err.isOk()) {
+					const uint32_t sizeBatch = err.getValue()->getSize();
+					py::list outList(sizeBatch);
+					
+					for (uint32_t i = 0; i < sizeBatch; ++i) {
+						fsdk::Span<fsdk::Detection> resultsSpan = err.getValue()->getResults(i);
+						const uint32_t rowSize = resultsSpan.size();
+						py::list outRow(rowSize);
+						for (uint32_t j = 0; j < rowSize; ++j) {
+							outRow[j] = resultsSpan.data()[j];
+						}
+						outList[i] = outRow;
+					}
+					return std::make_tuple(FSDKErrorResult(err), outList);
+				} else
+					return std::make_tuple(FSDKErrorResult(err), py::list());
+				
+			},
+			"Detects humans\n"
+				"\tArgs:\n"
+				"\t\tparam1 (list of images): input images list. Format must be R8G8B8\n"
+				"\t\tparam2 (list of rects): input rectangles of interest list.\n"
+				"\t\t\tSize of list must be the same with images list\n"
+				"\t\tparam3 (int): max number of detections per input image\n"
+				"\tReturns:\n"
+				"\t\t(tuple): \n"
+				"\t\t\ttuple with FSDKErrorResult code and list of lists of Detections\n")
+			;
+	
 }
 
