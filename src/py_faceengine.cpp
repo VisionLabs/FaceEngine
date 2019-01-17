@@ -232,7 +232,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 	
 	py::class_<fsdk::Landmarks5>(f, "Landmarks5",
 		"Face landmarks, length is fixed and equal to5.\n"
-		"\tMTCNN face detector is capable of face landmarks detection. "
+		"\tFace detector is capable of face landmarks detection. "
 		"\tLandmarks are special classes binded to python. \n"
 		"\tThey are similar on python lists. It is possible to use some standard python built-in "
 		"functions for them: \n"
@@ -263,7 +263,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 	
 	py::class_<fsdk::Landmarks68>(f, "Landmarks68",
 		"Face landmarks, length is fixed and equal to 68.\n"
-		"\tMTCNN face detector is capable of face landmarks detection. "
+		"\Face detector is capable of face landmarks detection. "
 		"\tLandmarks are special classes binded to python. \n"
 		"\tThey are similar on python lists. It is possible to use some standard python "
 		"built-in functions for them: \n"
@@ -493,11 +493,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 			;
 	
 	py::enum_<fsdk::ObjectDetectorClassType>(f, "ObjectDetectorClassType", py::arithmetic(), "Object detector type enumeration.\n")
-		.value("ODT_DEFAULT", fsdk::ODT_DEFAULT, "Default detector cpecified in config file")
-		.value("ODT_MTCNN", fsdk::ODT_MTCNN, "MTCNN detector type")
-		.value("ODT_MTCNN_MINI", fsdk::ODT_MTCNN_MINI, "ODT_MTCNN_MINI detector type")
-		.value("ODT_S3FD", fsdk::ODT_S3FD, "ODT_S3FD detector type")
-		.value("ODT_COUNT", fsdk::ODT_COUNT, "Detector type count")
+		.value("FACE_DET_DEFAULT", fsdk::FACE_DET_DEFAULT, "Default detector cpecified in config file")
+		.value("FACE_DET_V1", fsdk::FACE_DET_V1, "First detector type")
+		.value("FACE_DET_V2", fsdk::FACE_DET_V2, "Light detector type")
+		.value("FACE_DET_V3", fsdk::FACE_DET_V3, "Third detector type")
+		.value("FACE_DET_COUNT", fsdk::FACE_DET_COUNT, "Detector type count")
 		.export_values();
 			;
 	
@@ -847,9 +847,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Rect
 
 			ObjectDetectorClassType
-			ObjectDetectorClassType.ODT_MTCNN_MINI
-			ObjectDetectorClassType.ODT_S3FD
-			ObjectDetectorClassType.ODT_COUNT
+			ObjectDetectorClassType.FACE_DET_DEFAULT
+			ObjectDetectorClassType.FACE_DET_V1
+			ObjectDetectorClassType.FACE_DET_V2
+			ObjectDetectorClassType.FACE_DET_V3
+			ObjectDetectorClassType.FACE_DET_COUNT
 
 			DetectionComparerType
 			DetectionComparerType.DCT_CONFIDANCE

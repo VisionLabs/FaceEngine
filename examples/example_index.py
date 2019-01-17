@@ -186,7 +186,7 @@ if __name__ == "__main__":
             else:
                 print(s + "belong to different persons.")
 
-    detector = faceEngine.createDetector(fe.ODT_MTCNN)
+    detector = faceEngine.createDetector(fe.FACE_DET_V1)
     descriptorExtractor = faceEngine.createExtractor()
     imagesNamesList, imagesList = loadImages(imagesDirPath, listPath)
     if not imagesNamesList or not imagesList:
