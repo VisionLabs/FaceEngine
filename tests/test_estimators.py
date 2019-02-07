@@ -38,7 +38,7 @@ faceEnginePtr = f.createFaceEngine("data",
 
 # detector test and example
 def detect(image_det, max_detections):
-    detector = faceEnginePtr.createDetector(f.ODT_MTCNN)
+    detector = faceEnginePtr.createDetector(f.FACE_DET_V1)
     detector_result = detector.detectOne(image_det,
                                          image_det.getRect(),
                                          f.DetectionType(f.dt5Landmarks | f.dt68Landmarks))
@@ -164,7 +164,7 @@ class TestFaceEngineRect(unittest.TestCase):
         faceEnginePtr.setSettingsProvider(config)
         image = f.Image()
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
-        det = faceEnginePtr.createDetector(f.ODT_MTCNN)
+        det = faceEnginePtr.createDetector(f.FACE_DET_V1)
         err_temp, face = detect(image, 3)
         (detection, landmarks5, landmarks68) = face.detection, \
                                                face.landmarks5_opt.value(), \
@@ -189,7 +189,7 @@ class TestFaceEngineRect(unittest.TestCase):
         faceEnginePtr.setSettingsProvider(config)
         image = f.Image()
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
-        det = faceEnginePtr.createDetector(f.ODT_MTCNN)
+        det = faceEnginePtr.createDetector(f.FACE_DET_V1)
         _, face = detect(image, 3)
         (detection, landmarks5, landmarks68) = face.detection, \
                                                face.landmarks5_opt.value(), \

@@ -32,42 +32,42 @@ del(sys.argv[1])
 
 faceEngine = fe.createFaceEngine("data",
                                    "data/faceengine.conf")
-expectedDetectionMTCNN = fe.Detection()
-expectedDetectionMTCNN = fe.Detection()
-expectedRedetectionMTCNN = fe.Detection()
-expectedDetectionMiniMTCNN = fe.Detection()
-expectedDetectionS3FD = fe.Detection()
-expectedRedetectionS3FD = fe.Detection()
+expectedDetectionV1 = fe.Detection()
+expectedDetectionV1 = fe.Detection()
+expectedRedetectionV1 = fe.Detection()
+expectedDetectionV2 = fe.Detection()
+expectedDetectionV3 = fe.Detection()
+expectedRedetectionV3 = fe.Detection()
 
-expectedDetectionMTCNN.rect.x = 288
-expectedDetectionMTCNN.rect.y = 93
-expectedDetectionMTCNN.rect.width = 148
-expectedDetectionMTCNN.rect.height = 184
-expectedDetectionMTCNN.score = 0.99999
+expectedDetectionV1.rect.x = 288
+expectedDetectionV1.rect.y = 93
+expectedDetectionV1.rect.width = 148
+expectedDetectionV1.rect.height = 184
+expectedDetectionV1.score = 0.99999
 
-expectedRedetectionMTCNN.rect.x = 290
-expectedRedetectionMTCNN.rect.y = 75
-expectedRedetectionMTCNN.rect.width = 150
-expectedRedetectionMTCNN.rect.height = 197
-expectedRedetectionMTCNN.score = 0.99999
+expectedRedetectionV1.rect.x = 290
+expectedRedetectionV1.rect.y = 75
+expectedRedetectionV1.rect.width = 150
+expectedRedetectionV1.rect.height = 197
+expectedRedetectionV1.score = 0.99999
 
-expectedDetectionMiniMTCNN.rect.x = 297
-expectedDetectionMiniMTCNN.rect.y = 97
-expectedDetectionMiniMTCNN.rect.width = 152
-expectedDetectionMiniMTCNN.rect.height = 184
-expectedDetectionMiniMTCNN.score = 0.99999
+expectedDetectionV2.rect.x = 297
+expectedDetectionV2.rect.y = 97
+expectedDetectionV2.rect.width = 152
+expectedDetectionV2.rect.height = 184
+expectedDetectionV2.score = 0.99999
 
-expectedDetectionS3FD.rect.x = 297
-expectedDetectionS3FD.rect.y = 81
-expectedDetectionS3FD.rect.width = 141
-expectedDetectionS3FD.rect.height = 208
-expectedDetectionS3FD.score = 0.99954
+expectedDetectionV3.rect.x = 297
+expectedDetectionV3.rect.y = 81
+expectedDetectionV3.rect.width = 141
+expectedDetectionV3.rect.height = 208
+expectedDetectionV3.score = 0.99954
 
-expectedRedetectionS3FD.rect.x = 293
-expectedRedetectionS3FD.rect.y = 97
-expectedRedetectionS3FD.rect.width = 153
-expectedRedetectionS3FD.rect.height = 190
-expectedRedetectionS3FD.score = 0.99954
+expectedRedetectionV3.rect.x = 293
+expectedRedetectionV3.rect.y = 97
+expectedRedetectionV3.rect.width = 153
+expectedRedetectionV3.rect.height = 190
+expectedRedetectionV3.score = 0.99954
 
 # helper
 def invoke_vector_coords(line):
@@ -185,17 +185,17 @@ class TestFaceEngineDetector(unittest.TestCase):
             self.compare_detections(faceOne2, detect_list[0][0])
 
     def test_Detector(self):
-        self.detectorTest(fe.ODT_DEFAULT, expectedDetectionMTCNN)
-        self.detectorTest(fe.ODT_MTCNN, expectedDetectionMTCNN)
-        self.detectorTest(fe.ODT_MTCNN_MINI, expectedDetectionMiniMTCNN)
-        self.detectorTest(fe.ODT_S3FD, expectedDetectionS3FD)
+        self.detectorTest(fe.FACE_DET_DEFAULT, expectedDetectionV1)
+        self.detectorTest(fe.FACE_DET_V1, expectedDetectionV1)
+        self.detectorTest(fe.FACE_DET_V2, expectedDetectionV2)
+        self.detectorTest(fe.FACE_DET_V3, expectedDetectionV3)
 
     def redetectTest(self, _detectorType, refDetection):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(4))
-        if _detectorType == fe.ODT_S3FD:
-            config.setValue("S3FDDetector::Settings", "RedetectExpandCoef", fe.SettingsProviderValue(0.7))
+        if _detectorType == fe.FACE_DET_V3:
+            config.setValue("FaceDetV3::Settings", "RedetectExpandCoef", fe.SettingsProviderValue(0.7))
         faceEngine.setSettingsProvider(config)
         detector = faceEngine.createDetector(_detectorType)
         image = fe.Image()
@@ -214,8 +214,8 @@ class TestFaceEngineDetector(unittest.TestCase):
             self.assertAlmostEqual(refDetection.rect.height, face_redection.detection.rect.height, delta=2)
 
     def test_RedetectorOne(self):
-        self.redetectTest(fe.ODT_MTCNN, expectedRedetectionMTCNN)
-        self.redetectTest(fe.ODT_S3FD, expectedRedetectionS3FD)
+        self.redetectTest(fe.FACE_DET_V1, expectedRedetectionV1)
+        self.redetectTest(fe.FACE_DET_V3, expectedRedetectionV3)
 
 if __name__ == '__main__':
     unittest.main()
