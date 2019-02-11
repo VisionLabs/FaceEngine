@@ -124,7 +124,7 @@ void estimators_module(py::module& f) {
 		.def("estimate",[](
 			const fsdk::IHeadPoseEstimatorPtr& est,
 			const fsdk::Image& image,
-			const fsdk::Detection& detection) {
+			const fsdk::BaseDetection<float>& detection) {
 				fsdk::HeadPoseEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, out);
 				return std::make_tuple(FSDKErrorResult(err), out);
@@ -338,7 +338,7 @@ void estimators_module(py::module& f) {
 			.def("estimate",[](
 				const fsdk::IAGSEstimatorPtr& est,
 				const fsdk::Image& image,
-				const fsdk::Detection& detection) {
+				const fsdk::BaseDetection<float>& detection) {
 					fsdk::ResultValue<fsdk::FSDKError, float> err = est->estimate(image, detection);
 					if (err.isOk())
 						return std::make_tuple(FSDKErrorResult(err), err.getValue());

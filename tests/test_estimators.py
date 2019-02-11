@@ -480,12 +480,12 @@ class TestFaceEngineRect(unittest.TestCase):
         image = f.Image()
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
 
-        reference = f.Detection()
+        reference = f.DetectionFloat()
         refAGS = 0.976
-        reference.rect.x = 54
-        reference.rect.y = 58
-        reference.rect.width = 135
-        reference.rect.height = 178
+        reference.rect.x = 54.0
+        reference.rect.y = 58.0
+        reference.rect.width = 135.0
+        reference.rect.height = 178.0
         reference.score = 0.999916
         r = estimator.estimate(image, reference);
         self.assertFalse(r[0].isError)

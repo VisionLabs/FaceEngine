@@ -267,12 +267,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 	
 	py::class_<fsdk::Landmarks68>(f, "Landmarks68",
 		"Face landmarks, length is fixed and equal to 68.\n"
-		"\Face detector is capable of face landmarks detection. "
+		"\tFace detector is capable of face landmarks detection. "
 		"\tLandmarks are special classes binded to python. \n"
 		"\tThey are similar on python lists. It is possible to use some standard python "
 		"built-in functions for them: \n"
 		"\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and "
-		"research purposes with class Vector2f. \n"
+		"\tresearch purposes with class Vector2f. \n"
 		"\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n")
 	
 		.def(py::init<>())

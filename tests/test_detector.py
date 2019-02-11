@@ -32,41 +32,41 @@ del(sys.argv[1])
 
 faceEngine = fe.createFaceEngine("data",
                                    "data/faceengine.conf")
-expectedDetectionV1 = fe.Detection()
-expectedDetectionV1 = fe.Detection()
-expectedRedetectionV1 = fe.Detection()
-expectedDetectionV2 = fe.Detection()
-expectedDetectionV3 = fe.Detection()
-expectedRedetectionV3 = fe.Detection()
+expectedDetectionV1 = fe.DetectionFloat()
+expectedDetectionV1 = fe.DetectionFloat()
+expectedRedetectionV1 = fe.DetectionFloat()
+expectedDetectionV2 = fe.DetectionFloat()
+expectedDetectionV3 = fe.DetectionFloat()
+expectedRedetectionV3 = fe.DetectionFloat()
 
-expectedDetectionV1.rect.x = 288
-expectedDetectionV1.rect.y = 93
-expectedDetectionV1.rect.width = 148
-expectedDetectionV1.rect.height = 184
+expectedDetectionV1.rect.x = 288.0
+expectedDetectionV1.rect.y = 93.0
+expectedDetectionV1.rect.width = 148.0
+expectedDetectionV1.rect.height = 184.0
 expectedDetectionV1.score = 0.99999
 
-expectedRedetectionV1.rect.x = 290
-expectedRedetectionV1.rect.y = 75
-expectedRedetectionV1.rect.width = 150
-expectedRedetectionV1.rect.height = 197
+expectedRedetectionV1.rect.x = 290.0
+expectedRedetectionV1.rect.y = 75.0
+expectedRedetectionV1.rect.width = 150.0
+expectedRedetectionV1.rect.height = 197.0
 expectedRedetectionV1.score = 0.99999
 
-expectedDetectionV2.rect.x = 297
-expectedDetectionV2.rect.y = 97
-expectedDetectionV2.rect.width = 152
-expectedDetectionV2.rect.height = 184
+expectedDetectionV2.rect.x = 297.0
+expectedDetectionV2.rect.y = 97.0
+expectedDetectionV2.rect.width = 152.0
+expectedDetectionV2.rect.height = 184.0
 expectedDetectionV2.score = 0.99999
 
-expectedDetectionV3.rect.x = 297
-expectedDetectionV3.rect.y = 81
-expectedDetectionV3.rect.width = 141
-expectedDetectionV3.rect.height = 208
-expectedDetectionV3.score = 0.99954
+expectedDetectionV3.rect.x = 297.0
+expectedDetectionV3.rect.y = 77.0
+expectedDetectionV3.rect.width = 145.0
+expectedDetectionV3.rect.height = 208.0
+expectedDetectionV3.score = 0.99994
 
-expectedRedetectionV3.rect.x = 293
-expectedRedetectionV3.rect.y = 97
-expectedRedetectionV3.rect.width = 153
-expectedRedetectionV3.rect.height = 190
+expectedRedetectionV3.rect.x = 293.0
+expectedRedetectionV3.rect.y = 96.0
+expectedRedetectionV3.rect.width = 150.0
+expectedRedetectionV3.rect.height = 192.0
 expectedRedetectionV3.score = 0.99954
 
 # helper
@@ -83,10 +83,10 @@ class TestFaceEngineDetector(unittest.TestCase):
             _faces = detect_list[j]
             self.assertEqual(1, len(_faces))
             _face = _faces[0]
-            self.assertAlmostEqual(_expDetection.score, _face.detection.score, delta=0.0001)
-            self.assertAlmostEqual(_expDetection.rect.x, _face.detection.rect.x, delta=2)
-            self.assertAlmostEqual(_expDetection.rect.y, _face.detection.rect.y, delta=2)
-            self.assertAlmostEqual(_expDetection.rect.width, _face.detection.rect.width, delta=2)
+            self.assertAlmostEqual(_expDetection.score, _face.detection.score, delta=0.001)
+            self.assertAlmostEqual(_expDetection.rect.x, _face.detection.rect.x, delta=3)
+            self.assertAlmostEqual(_expDetection.rect.y, _face.detection.rect.y, delta=3)
+            self.assertAlmostEqual(_expDetection.rect.width, _face.detection.rect.width, delta=3)
             self.assertAlmostEqual(_expDetection.rect.height, _face.detection.rect.height, delta=3)
             if _expLandmarks68:
                 self.assertTrue(_face.landmarks68_opt.isValid())
@@ -208,10 +208,10 @@ class TestFaceEngineDetector(unittest.TestCase):
         iteraionsNumber = 1
         for i in range(iteraionsNumber):
             err_redetect, face_redection = detector.redetectOne(face, fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
-            self.assertAlmostEqual(refDetection.rect.x, face_redection.detection.rect.x, delta=2)
-            self.assertAlmostEqual(refDetection.rect.y, face_redection.detection.rect.y, delta=2)
-            self.assertAlmostEqual(refDetection.rect.width, face_redection.detection.rect.width, delta=2)
-            self.assertAlmostEqual(refDetection.rect.height, face_redection.detection.rect.height, delta=2)
+            self.assertAlmostEqual(refDetection.rect.x, face_redection.detection.rect.x, delta=3)
+            self.assertAlmostEqual(refDetection.rect.y, face_redection.detection.rect.y, delta=3)
+            self.assertAlmostEqual(refDetection.rect.width, face_redection.detection.rect.width, delta=3)
+            self.assertAlmostEqual(refDetection.rect.height, face_redection.detection.rect.height, delta=3)
 
     def test_RedetectorOne(self):
         self.redetectTest(fe.FACE_DET_V1, expectedRedetectionV1)

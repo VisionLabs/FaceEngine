@@ -180,7 +180,8 @@ if __name__ == "__main__":
     imageHuman = fe.Image()
     errHuman = imageHuman.load("testData/0_Parade_marchingband_1_620.ppm")
     human_result = humanDetector.detect([image], [image.getRect()], 10)
-    print(human_result[0].isOk, human_result[1])
+    # list of human detections
+    print("Human result: ", human_result[0].isOk, human_result[1])
 
 
 

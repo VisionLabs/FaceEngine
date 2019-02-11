@@ -71,7 +71,7 @@ py::class_<fsdk::IWarperPtr>(f, "IWarperPtr",
 	
 	.def("createTransformation",[](
 		const fsdk::IWarperPtr& warper,
-		const fsdk::Detection& detection,
+		const fsdk::BaseDetection<float>& detection,
 		const fsdk::Landmarks5& landmarks) {
 			return warper->createTransformation(detection, landmarks); },
 		"Create transformation data struct.\n"

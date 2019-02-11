@@ -10,8 +10,62 @@
 
 namespace py = pybind11;
 
-void image_rect_module(py::module& f) {
+template<class T>
+py::class_<fsdk::BaseRect<T>> rect_class(py::module& this_module, const char* name)
+{
+	py::class_<fsdk::BaseRect<T>>class_instance(this_module, name);
+	
+	class_instance.def(py::init<>());
+	class_instance.def(py::init<T, T, T, T>());
+	class_instance.def(py::init<fsdk::Vector2<T>, fsdk::Vector2<T>>());
+	class_instance.def(py::init<const fsdk::Rect&>());
+	class_instance.def(py::self != py::self);
+	class_instance.def(py::self == py::self);
+	class_instance.def("isValid", &fsdk::BaseRect<T>::isValid);
+	class_instance.def("size", &fsdk::BaseRect<T>::size);
+	class_instance.def_readwrite("x", &fsdk::BaseRect<T>::x);
+	class_instance.def_readwrite("y", &fsdk::BaseRect<T>::y);
+	class_instance.def_readwrite("width", &fsdk::BaseRect<T>::width);
+	class_instance.def_readwrite("height", &fsdk::BaseRect<T>::height);
+	class_instance.def_static("coords", &fsdk::BaseRect<T>::coords);
+	class_instance.def("size", &fsdk::BaseRect<T>::size);
+	class_instance.def("topLeft", &fsdk::BaseRect<T>::topLeft);
+	class_instance.def("center", &fsdk::BaseRect<T>::center);
+	class_instance.def("bottomRight", &fsdk::BaseRect<T>::bottomRight);
+	class_instance.def("top", &fsdk::BaseRect<T>::top);
+	class_instance.def("bottom", &fsdk::BaseRect<T>::bottom);
+	class_instance.def("left", &fsdk::BaseRect<T>::left);
+	class_instance.def("right", &fsdk::BaseRect<T>::right);
+	class_instance.def("set", &fsdk::BaseRect<T>::set);
+	class_instance.def("adjust", &fsdk::BaseRect<T>::adjust);
+	class_instance.def("adjusted", &fsdk::BaseRect<T>::adjusted);
+	class_instance.def("getArea", &fsdk::BaseRect<T>::getArea);
+	class_instance.def("inside", &fsdk::BaseRect<T>::inside);
+	class_instance.def("isValid", &fsdk::BaseRect<T>::isValid);
+	
+	class_instance.def("__repr__",
+		[](const fsdk::BaseRect<T> &r) {
+			return "x = " + std::to_string(r.x) +
+				", y = " + std::to_string(r.y) +
+				", width = " + std::to_string(r.width) +
+				", height = " + std::to_string(r.height);
+		})
+		;
+	
+	return class_instance;
+}
 
+
+void set_rect_class(py::module& f)
+{
+	auto rect = rect_class<int>(f, "Rect");
+	auto rectFloat = rect_class<float>(f, "RectFloat");
+}
+
+void image_rect_module(py::module& f) {
+	
+	set_rect_class(f);
+	
 // Image type and format
 py::enum_<fsdk::Format::Type>(f, "FormatType", "Format type enumeration.\n")
 	.value("Unknown", fsdk::Format::Unknown)
@@ -181,38 +235,4 @@ py::enum_<fsdk::Image::Error>(f, "ImageError", "Image error codes.\n")
 	.value("FailedToLoad", fsdk::Image::Error::FailedToLoad)
 	.value("FailedToInitialize", fsdk::Image::Error::FailedToInitialize)
 		;
-py::class_<fsdk::Rect>(f, "Rect", "Rectangle")
-	.def(py::init<>())
-	.def(py::init<int, int, int, int>())
-	.def(py::init<fsdk::Vector2<int>, fsdk::Vector2<int>>())
-	.def(py::init<const fsdk::Rect&>())
-	.def(py::self != py::self)
-	.def(py::self == py::self)
-	.def_readwrite("x", &fsdk::Rect::x)
-	.def_readwrite("y", &fsdk::Rect::y)
-	.def_readwrite("width", &fsdk::Rect::width)
-	.def_readwrite("height", &fsdk::Rect::height)
-	.def_static("coords", &fsdk::Rect::coords)
-	.def("size", &fsdk::Rect::size)
-	.def("topLeft", &fsdk::Rect::topLeft)
-	.def("center", &fsdk::Rect::center)
-	.def("bottomRight", &fsdk::Rect::bottomRight)
-	.def("top", &fsdk::Rect::top)
-	.def("bottom", &fsdk::Rect::bottom)
-	.def("left", &fsdk::Rect::left)
-	.def("right", &fsdk::Rect::right)
-	.def("set", &fsdk::Rect::set)
-	.def("adjust", &fsdk::Rect::adjust)
-	.def("adjusted", &fsdk::Rect::adjusted)
-	.def("getArea", &fsdk::Rect::getArea)
-	.def("inside", &fsdk::Rect::inside)
-	.def("isValid", &fsdk::Rect::isValid)
-	.def("__repr__",
-		[](const fsdk::Rect &r) {
-			return "x = " + std::to_string(r.x) +
-					", y = " + std::to_string(r.y) +
-					", width = " + std::to_string(r.width) +
-					", height = " + std::to_string(r.height);
-		})
-	;
 }

@@ -5,14 +5,41 @@
 #include <pybind11/numpy.h>
 #include "ErrorsAdapter.hpp"
 
-
-
 namespace py = pybind11;
+
+template<class T>
+py::class_<fsdk::BaseDetection<T>> detection_class(py::module& this_module, const char* name)
+{
+	py::class_<fsdk::BaseDetection<T>>class_instance(this_module, name);
+	
+	class_instance.def(py::init<>());
+	class_instance.def_readwrite("rect", &fsdk::BaseDetection<T>::rect, "Object bounding box");
+	class_instance.def_readwrite("score", &fsdk::BaseDetection<T>::score, "Object detection score)");
+	class_instance.def("isValid", &fsdk::BaseDetection<T>::isValid);
+	class_instance.def("__repr__",
+		[](const fsdk::BaseDetection<T> &r) {
+			return "x = " + std::to_string(r.rect.x) +
+				", y = " + std::to_string(r.rect.y) +
+				", width = " + std::to_string(r.rect.width) +
+				", height = " + std::to_string(r.rect.height);
+		})
+		;
+	
+	return class_instance;
+}
+
+void set_detection_class(py::module& f)
+{
+	auto detection = detection_class<int>(f, "Detection");
+	auto detectionFloat = detection_class<float>(f, "DetectionFloat");
+}
+
 
 void detector_module(py::module& f) {
 	
+	set_detection_class(f);
+	
 	py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr", "Face detector interface")
-		
 		.def("detect", [](
 			const fsdk::IDetectorPtr& det,
 			const std::vector<fsdk::Image>& imagesVec,
@@ -120,24 +147,20 @@ void detector_module(py::module& f) {
 			"\t\t\t tuple with FSDKErrorResult and list of tuples from Detection\n")
 					;
 	
-	
-	py::class_<fsdk::Detection>(f, "Detection",
-		"Face detection.\n"
-			"\tStores a detected face bounding box within a source image frame "
-			"as well as detection confidence score.\n")
+	py::class_<fsdk::Human>(f, "Human", "Human detection\n")
 		.def(py::init<>())
-		.def_readwrite("rect", &fsdk::Detection::rect, "Object bounding box")
-		.def_readwrite("score", &fsdk::Detection::score, "Object detection score)")
-		.def("isValid", &fsdk::Detection::isValid)
+		.def_readwrite("rect", &fsdk::Human::m_detection, "Object bounding box")
+		.def("isValid", &fsdk::Human::isValid)
 		.def("__repr__",
-			[](const fsdk::Detection& d) {
-				return "Detection: rect: x = " + std::to_string(d.rect.x) +
-						", y = " + std::to_string(d.rect.y) +
-						", width = " + std::to_string(d.rect.width) +
-						", height = " + std::to_string(d.rect.height) +
-						"; score = " + std::to_string(d.score) +
-						"; isValid = " + std::to_string(d.isValid());
+			[](const fsdk::Human& d) {
+				return "Human: rect: x = " + std::to_string(d.m_detection.rect.x) +
+					", y = " + std::to_string(d.m_detection.rect.y) +
+					", width = " + std::to_string(d.m_detection.rect.width) +
+					", height = " + std::to_string(d.m_detection.rect.height) +
+					"; score = " + std::to_string(d.m_detection.score) +
+					"; isValid = " + std::to_string(d.m_detection.isValid());
 			});
+			;
 	
 	py::class_<fsdk::Ref<fsdk::IHumanDetector>>(f, "IHumanDetectorPtr", "Human detector interface.\n")
 		.def("detect", [](
@@ -147,14 +170,14 @@ void detector_module(py::module& f) {
 				const uint32_t detectionPerImageNum) {
 				fsdk::Span<const fsdk::Image> images(imagesVec);
 				fsdk::Span<const fsdk::Rect> rectangles(rectanglesVec);
-				fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Detection>>> err =
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Human>>> err =
 					det->detect(images, rectangles, detectionPerImageNum);
 				if (err.isOk()) {
 					const uint32_t sizeBatch = err.getValue()->getSize();
 					py::list outList(sizeBatch);
 					
 					for (uint32_t i = 0; i < sizeBatch; ++i) {
-						fsdk::Span<fsdk::Detection> resultsSpan = err.getValue()->getResults(i);
+						fsdk::Span<fsdk::Human> resultsSpan = err.getValue()->getResults(i);
 						const uint32_t rowSize = resultsSpan.size();
 						py::list outRow(rowSize);
 						for (uint32_t j = 0; j < rowSize; ++j) {
