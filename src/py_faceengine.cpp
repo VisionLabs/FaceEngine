@@ -618,16 +618,18 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IEthnicityEstimator
 			IEthnicityEstimator.estimate
 
+			IDetectorPtr
+			IDetectorPtr.detect
+			IDetectorPtr.detectOne
+			IDetectorPtr.setDetectionComparer
 
-
-			IDetector
-			IDetector.detect
-			IDetector.detectOne
-			IDetector.setDetectionComparer
-			IDetector.redetectOne
-			IDetector.redetect
+			IDetectorPtr.redetectOne
+			IDetectorPtr.redetect
 			Face
 			Face.isValid
+
+			IHumanDetectorPtr
+			IHumanDetectorPtr.detect
 
 			IWarperPtr
 			IWarperPtr.warp
@@ -849,6 +851,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			SettingsProviderError
 
 			Rect
+			RectFloat
 
 			ObjectDetectorClassType
 			ObjectDetectorClassType.FACE_DET_DEFAULT
@@ -856,7 +859,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			ObjectDetectorClassType.FACE_DET_V2
 			ObjectDetectorClassType.FACE_DET_V3
 			ObjectDetectorClassType.FACE_DET_COUNT
+			
+			Detection
+			Detection.isValid
+			Detection.__repr__
 
+			DetectionFloat
+			DetectionFloat.isValid
+			DetectionFloat.__repr__
+			
 			DetectionComparerType
 			DetectionComparerType.DCT_CONFIDANCE
 			DetectionComparerType.DCT_CENTER

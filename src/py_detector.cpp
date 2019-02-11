@@ -13,9 +13,11 @@ py::class_<fsdk::BaseDetection<T>> detection_class(py::module& this_module, cons
 	py::class_<fsdk::BaseDetection<T>>class_instance(this_module, name);
 	
 	class_instance.def(py::init<>());
-	class_instance.def_readwrite("rect", &fsdk::BaseDetection<T>::rect, "Object bounding box");
-	class_instance.def_readwrite("score", &fsdk::BaseDetection<T>::score, "Object detection score)");
-	class_instance.def("isValid", &fsdk::BaseDetection<T>::isValid);
+	class_instance.def_readwrite("rect", &fsdk::BaseDetection<T>::rect, "Object bounding box\n");
+	class_instance.def_readwrite("score", &fsdk::BaseDetection<T>::score, "Object detection score\n");
+	class_instance.def("isValid", &fsdk::BaseDetection<T>::isValid, 
+		"Checks whether a detection is valid.\n"
+		"\t\tA detection is considered valid if it has a valid rect and score in [0..1] range.\n");
 	class_instance.def("__repr__",
 		[](const fsdk::BaseDetection<T> &r) {
 			return "x = " + std::to_string(r.rect.x) +
@@ -149,7 +151,7 @@ void detector_module(py::module& f) {
 	
 	py::class_<fsdk::Human>(f, "Human", "Human detection\n")
 		.def(py::init<>())
-		.def_readwrite("rect", &fsdk::Human::m_detection, "Object bounding box")
+		.def_readwrite("detection", &fsdk::Human::m_detection, "Object bounding box")
 		.def("isValid", &fsdk::Human::isValid)
 		.def("__repr__",
 			[](const fsdk::Human& d) {

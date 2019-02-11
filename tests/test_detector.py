@@ -125,7 +125,17 @@ class TestFaceEngineDetector(unittest.TestCase):
         faceEngine.setSettingsProvider(config)
         detector = faceEngine.createDetector(_detectorType)
         lnetExpected = fe.Landmarks68()
-        ptsfilename = os.path.join(testDataPath, "image1_lnet2_precise.txt")
+        def get_image_prefix(_detectorType):
+            if _detectorType == fe.FACE_DET_V1:
+                return "fdet1"
+            if _detectorType == fe.FACE_DET_V2:
+                return "fdet2"
+            if _detectorType == fe.FACE_DET_V3:
+                return "fdet3"
+
+        det = get_image_prefix(_detectorType)
+        prec = "precise"
+        ptsfilename = os.path.join(testDataPath, "image1_lnet2_" + det + "_" + prec + ".txt")
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "image1.ppm"))
         self.assertTrue(err_image.isOk)
@@ -185,10 +195,26 @@ class TestFaceEngineDetector(unittest.TestCase):
             self.compare_detections(faceOne2, detect_list[0][0])
 
     def test_Detector(self):
-        self.detectorTest(fe.FACE_DET_DEFAULT, expectedDetectionV1)
         self.detectorTest(fe.FACE_DET_V1, expectedDetectionV1)
         self.detectorTest(fe.FACE_DET_V2, expectedDetectionV2)
         self.detectorTest(fe.FACE_DET_V3, expectedDetectionV3)
+
+    def test_HumanDetector(self):
+        configPath = os.path.join("data", "faceengine.conf")
+        config = fe.createSettingsProvider(configPath)
+        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
+        faceEngine.setSettingsProvider(config)
+        humanDetector = faceEngine.createHumanDetector()
+        image = fe.Image()
+        err_image = image.load(os.path.join(testDataPath, "0_Parade_marchingband_1_620.ppm"))
+        self.assertTrue(err_image.isOk)
+        err_human_detector, list_of_list_of_detections = humanDetector.detect([image], [image.getRect()], 10)
+        self.assertTrue(err_human_detector.isOk)
+        self.assertEqual(753, list_of_list_of_detections[0][0].detection.rect.x)
+        self.assertEqual(386, list_of_list_of_detections[0][0].detection.rect.y)
+        self.assertEqual(140, list_of_list_of_detections[0][0].detection.rect.width)
+        self.assertEqual(238, list_of_list_of_detections[0][0].detection.rect.height)
 
     def redetectTest(self, _detectorType, refDetection):
         configPath = os.path.join("data", "faceengine.conf")
