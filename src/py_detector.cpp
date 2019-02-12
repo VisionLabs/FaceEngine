@@ -10,7 +10,7 @@ namespace py = pybind11;
 template<class T>
 py::class_<fsdk::BaseDetection<T>> detection_class(py::module& this_module, const char* name)
 {
-	py::class_<fsdk::BaseDetection<T>>class_instance(this_module, name);
+	py::class_<fsdk::BaseDetection<T>> class_instance(this_module, name);
 	
 	class_instance.def(py::init<>());
 	class_instance.def_readwrite("rect", &fsdk::BaseDetection<T>::rect, "Object bounding box\n");

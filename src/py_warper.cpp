@@ -71,6 +71,7 @@ py::class_<fsdk::IWarperPtr>(f, "IWarperPtr",
 	
 	.def("createTransformation",[](
 		const fsdk::IWarperPtr& warper,
+		// cast to detection<int> inside c++ interface
 		const fsdk::BaseDetection<float>& detection,
 		const fsdk::Landmarks5& landmarks) {
 			return warper->createTransformation(detection, landmarks); },

@@ -32,6 +32,7 @@ del(sys.argv[1])
 
 faceEngine = fe.createFaceEngine("data",
                                    "data/faceengine.conf")
+
 expectedDetectionV1 = fe.DetectionFloat()
 expectedDetectionV1 = fe.DetectionFloat()
 expectedRedetectionV1 = fe.DetectionFloat()
@@ -194,12 +195,7 @@ class TestFaceEngineDetector(unittest.TestCase):
             self.compare_detection_lists(_expectedDetection, detect_list, imagesCount)
             self.compare_detections(faceOne2, detect_list[0][0])
 
-    def test_Detector(self):
-        self.detectorTest(fe.FACE_DET_V1, expectedDetectionV1)
-        self.detectorTest(fe.FACE_DET_V2, expectedDetectionV2)
-        self.detectorTest(fe.FACE_DET_V3, expectedDetectionV3)
-
-    def test_HumanDetector(self):
+    def humanDetectorTest(self):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
@@ -215,6 +211,12 @@ class TestFaceEngineDetector(unittest.TestCase):
         self.assertEqual(386, list_of_list_of_detections[0][0].detection.rect.y)
         self.assertEqual(140, list_of_list_of_detections[0][0].detection.rect.width)
         self.assertEqual(238, list_of_list_of_detections[0][0].detection.rect.height)
+
+    def test_Detector(self):
+        self.detectorTest(fe.FACE_DET_V1, expectedDetectionV1)
+        self.detectorTest(fe.FACE_DET_V2, expectedDetectionV2)
+        self.detectorTest(fe.FACE_DET_V3, expectedDetectionV3)
+        self.humanDetectorTest()
 
     def redetectTest(self, _detectorType, refDetection):
         configPath = os.path.join("data", "faceengine.conf")

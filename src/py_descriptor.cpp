@@ -157,6 +157,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 	.def("extract",[](
 		const fsdk::IDescriptorExtractorPtr& extractor,
 		fsdk::Image& image,
+		// cast to detection<int> inside c++ interface
 		const fsdk::BaseDetection<float>& detection,
 		const fsdk::Landmarks5& landmarks,
 		const fsdk::IDescriptorPtr& descriptor) {
