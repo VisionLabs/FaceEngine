@@ -21,6 +21,7 @@ py::class_<fsdk::BaseRect<T>> rect_class(py::module& this_module, const char* na
 	class_instance.def(py::init<const fsdk::Rect&>());
 	class_instance.def(py::self != py::self);
 	class_instance.def(py::self == py::self);
+	class_instance.def(py::self & py::self);
 	class_instance.def("isValid", &fsdk::BaseRect<T>::isValid);
 	class_instance.def("size", &fsdk::BaseRect<T>::size);
 	class_instance.def_readwrite("x", &fsdk::BaseRect<T>::x);
