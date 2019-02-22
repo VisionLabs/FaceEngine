@@ -11,6 +11,7 @@ namespace py = pybind11;
 
 PyIFaceEngine::PyIFaceEngine(const char* dataPath = nullptr, const char* configPath = nullptr) {
 	faceEnginePtr = fsdk::acquire(fsdk::createFaceEngine(dataPath, configPath));
+	livenessEnginePtr = fsdk::acquire(lsdk::createLivenessEngine(faceEnginePtr, dataPath));
 }
 
 fsdk::FaceEngineEdition PyIFaceEngine::getFaceEngineEdition() {

@@ -21,6 +21,7 @@ void settings_provider_module(py::module& f);
 void detector_module(py::module& f);
 void descriptor_module(py::module& f);
 void warper_module(py::module& f);
+void liveness_module(py::module& f);
 
 PyIFaceEngine createPyFaceEnginePtr(const char* dataPath = nullptr, const char* configPath = nullptr) {
 	return PyIFaceEngine(dataPath, configPath);
@@ -64,6 +65,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 	detector_module(f);
 	descriptor_module(f);
 	warper_module(f);
+	liveness_module(f);
 	set_optional_class(f);
 	
 	enum class FaceEngineEdition {
