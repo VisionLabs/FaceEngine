@@ -8,6 +8,7 @@
 #include <pybind11/numpy.h>
 #include "ErrorsAdapter.hpp"
 #include "FaceEngineAdapter.hpp"
+#include "LivenessEngineAdapter.hpp"
 #include "SettingsProviderAdapter.hpp"
 #include "helpers.hpp"
 #include <fsdk/Version.h>
@@ -25,6 +26,12 @@ void liveness_module(py::module& f);
 
 PyIFaceEngine createPyFaceEnginePtr(const char* dataPath = nullptr, const char* configPath = nullptr) {
 	return PyIFaceEngine(dataPath, configPath);
+}
+
+PyILivenessEngine createPyLivenessEnginePtr(
+	const PyIFaceEngine& pyIFaceEngine,
+	const char* dataPath = nullptr) {
+	return PyILivenessEngine(pyIFaceEngine, dataPath);
 }
 
 PyISettingsProvider createSettingsProviderPtr(const char* path) {
@@ -101,13 +108,19 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr,
 		"Create the LUNA SDK root object\n"
 		"\tArgs:\n"
-		"\t\tparam1 (str): [optional] path to folder with FSDK data. Default: ./data (on windows), /opt/visionlabs/data (on linux)\n"
+		"\t\tparam1 (str): [optional] path to folder with FSDK data.\n"
 		"\t\tparam2 (str): [optional] path to faceengine.conf file. Default: <dataPath>/faceengine.cong\n");
 	
 	f.def("createSettingsProvider", &createSettingsProviderPtr, py::return_value_policy::take_ownership,
 		"Create object SettingsProvider\n"
 		"\tArgs:\n"
 		"\t\tparam1 (str): configuration file path\n");
+	
+	f.def("createLivenessEngine", &createPyLivenessEnginePtr, py::return_value_policy::take_ownership,
+		  "Create the Liveness object\n"
+		"\tArgs:\n"
+		"\t\tparam1 (FaceEngine obj): the LUNA SDK root object.\n"
+		"\t\tparam2 (str): [optional] path to folder with FSDK data.\n");
 	
 	py::class_<PyIFaceEngine>(f, "PyIFaceEngine", "Root LUNA SDK object interface\n")
 		.def("getFaceEngineEdition", &PyIFaceEngine::getFaceEngineEdition,

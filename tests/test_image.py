@@ -3,7 +3,6 @@ import unittest
 import argparse
 import sys
 import os
-from ctypes import *
 import numpy as np
 
 

@@ -26,6 +26,9 @@ include_directories(${LSDK_INCLUDE_DIRS})
 message(${FSDK_LIBRARIES})
 message(${FSDK_INCLUDE_DIRS})
 
+message(${LSDK_LIBRARIES})
+message(${LSDK_INCLUDE_DIRS})
+
 add_subdirectory(pybind11)
 
 file(GLOB SOURCES src/*.cpp)

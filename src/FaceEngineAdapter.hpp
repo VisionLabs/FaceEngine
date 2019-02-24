@@ -2,13 +2,13 @@
 // Created by mar on 28.04.18.
 //
 #include <fsdk/FaceEngine.h>
-#include <lsdk/LivenessEngine.h>
 #include "SettingsProviderAdapter.hpp"
+
+#pragma once
 
 class PyIFaceEngine {
 public:
 	fsdk::IFaceEnginePtr faceEnginePtr;
-	lsdk::ILivenessEnginePtr livenessEnginePtr;
 	
 	PyIFaceEngine(const char* dataPath, const char* configPath);
 	
