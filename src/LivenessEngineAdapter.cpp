@@ -16,7 +16,17 @@ PyILivenessEngine::PyILivenessEngine(
 }
 
 lsdk::ILivenessPtr PyILivenessEngine::createLiveness(lsdk::LivenessAlgorithmType type) {
-	return fsdk::acquire(livenessEnginePtr->createLiveness(type));
+	lsdk::ILivenessPtr livenessPtr = fsdk::acquire(livenessEnginePtr->createLiveness(type));
+	if (!livenessPtr)
+		throw py::cast_error("\nFailed to create liveness instance! VERIFY PATH to \"data\" directory!");
+	return livenessPtr;
+}
+
+lsdk::IComplexLivenessPtr PyILivenessEngine::createComplexLiveness(lsdk::ComplexLivenessAlgorithmType type) {
+	lsdk::IComplexLivenessPtr livenessPtr = fsdk::acquire(livenessEnginePtr->createComplexLiveness(type));
+	if (!livenessPtr)
+		throw py::cast_error("\nFailed to create complex liveness instance! VERIFY PATH to \"data\" directory!");
+	return livenessPtr;
 }
 
 void PyILivenessEngine::setSettingsProvider(PyISettingsProvider& provider) {

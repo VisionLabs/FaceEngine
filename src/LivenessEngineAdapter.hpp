@@ -16,10 +16,11 @@ public:
 	
 	lsdk::ILivenessPtr createLiveness(lsdk::LivenessAlgorithmType type);
 	
+	lsdk::IComplexLivenessPtr createComplexLiveness(lsdk::ComplexLivenessAlgorithmType type);
+	
 	void setSettingsProvider(PyISettingsProvider& provider);
 	
-	fsdk::ISettingsProviderPtr getSettingsProvider();
-	
+//	fsdk::ISettingsProviderPtr getSettingsProvider();
 	
 	void setDataDirectory(const char* path);
 	

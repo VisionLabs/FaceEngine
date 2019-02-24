@@ -366,6 +366,23 @@ PYBIND11_MODULE(FaceEngine, f) {
 						+ ", what = " + err.what; })
 			;
 	
+	//	Errors
+	py::class_<LSDKErrorResult>(f, "LSDKErrorResult",
+			"Wrapper for LSDK::Error that encapsulates an action result enumeration.\n"
+			"\tAn enum should specify a result code.\n")
+		.def_readonly("isOk", &LSDKErrorResult::isOk)
+		.def_readonly("isError", &LSDKErrorResult::isError)
+		.def_readonly("LSDKError", &LSDKErrorResult::lsdkError)
+		.def_readonly("what", &LSDKErrorResult::what)
+		.def("__repr__",
+			 [](const LSDKErrorResult &err) {
+				 return "LSDKErrorResult: "
+							"isOk = " + std::to_string(err.isOk)
+						+ ", isError = " + std::to_string(err.isError)
+						+ ", LSDKError = " + fsdk::ErrorTraits<lsdk::LSDKError >::toString(err.lsdkError)
+						+ ", what = " + err.what; })
+		;
+	
 	py::class_<DescriptorBatchResult>(f, "DescriptorBatchResult",
 		"Wrapper for DescriptorBatch::Error that encapsulates an action result enumeration.\n"
 		"\tAn enum should specify a result code.\n")
