@@ -62,6 +62,14 @@ void liveness_module(py::module& f) {
 		.def_readwrite("left", &lsdk::Angles::yaw)
 		.def_readwrite("pitch", &lsdk::Angles::pitch)
 		.def_readwrite("roll", &lsdk::Angles::roll)
+		.def("__repr__",
+			[](const lsdk::Angles &h) {
+				std::ostringstream ss;
+				ss << "Angles: pitch = " << h.pitch
+					<< ", yaw = " << h.yaw
+					<< ", roll = " << h.roll;
+				return ss.str();
+			})
 			;
 	
 	py::class_<lsdk::Scores>(f, "Scores")
@@ -69,12 +77,28 @@ void liveness_module(py::module& f) {
 		.def_readwrite("smile", &lsdk::Scores::smile)
 		.def_readwrite("mouth", &lsdk::Scores::mouth)
 		.def_readwrite("eyebrow", &lsdk::Scores::eyebrow)
+		.def("__repr__",
+			[](const lsdk::Scores &h) {
+				std::ostringstream ss;
+				ss << "Scores: smile = " << h.smile
+					<< ", mouth = " << h.mouth
+					<< ", eyebrow = " << h.eyebrow;
+				return ss.str();
+			})
+		;
 			;
 	
 	py::class_<lsdk::EyeStates>(f, "EyeStates")
 		.def(py::init<>())
 		.def_readwrite("left", &lsdk::EyeStates::left)
 		.def_readwrite("right", &lsdk::EyeStates::right)
+		.def("__repr__",
+			[](const lsdk::EyeStates &h) {
+				std::ostringstream ss;
+				ss << "EyeStates: left = " << h.left
+					<< ", right = " << h.right;
+				return ss.str();
+			})
 			;
 	
 	py::class_<lsdk::ILivenessPtr>(f, "Liveness")
@@ -97,45 +121,46 @@ void liveness_module(py::module& f) {
 	})
 	.def("getWarp", [](const lsdk::ILivenessPtr& livenessPtr) {
 		fsdk::Image warp;
-		bool got = livenessPtr->getWarp(&warp);
-		return py::make_tuple(got, warp);
+		bool success = livenessPtr->getWarp(&warp);
+		return py::make_tuple(success, warp);
 			;
 	})
 	.def("getLandmarks68", [](const lsdk::ILivenessPtr& livenessPtr) {
 		fsdk::Landmarks68 landmarks68;
-		bool got = livenessPtr->getLandmarks68(&landmarks68);
-		return py::make_tuple(got, landmarks68);
+		bool success = livenessPtr->getLandmarks68(&landmarks68);
+		return py::make_tuple(success, landmarks68);
 	})
 	.def("getLandmarks5", [](const lsdk::ILivenessPtr& livenessPtr) {
 		fsdk::Landmarks5 landmarks5;
-		bool got = livenessPtr->getLandmarks5(&landmarks5);
-		return py::make_tuple(got, landmarks5);
+		bool success = livenessPtr->getLandmarks5(&landmarks5);
+		return py::make_tuple(success, landmarks5);
+		return py::make_tuple(success, landmarks5);
 	})
 	.def("getIrisLandmarks", [](const lsdk::ILivenessPtr& livenessPtr) {
 		fsdk::Landmarks<32> irisLandmarks;
-		bool got = livenessPtr->getIrisLandmarks(&irisLandmarks);
-		return py::make_tuple(got, irisLandmarks);
+		bool success = livenessPtr->getIrisLandmarks(&irisLandmarks);
+		return py::make_tuple(success, irisLandmarks);
 	})
 	.def("getAngles", [](const lsdk::ILivenessPtr& livenessPtr) {
 		lsdk::Angles angles;
-		bool got = livenessPtr->getAngles(&angles);
-		return py::make_tuple(got, angles);
+		bool success = livenessPtr->getAngles(&angles);
+		return py::make_tuple(success, angles);
 	})
 	.def("getScores", [](const lsdk::ILivenessPtr& livenessPtr) {
 		lsdk::Scores scores;
-		bool got = livenessPtr->getScores(&scores);
-		return py::make_tuple(got, scores);
+		bool success = livenessPtr->getScores(&scores);
+		return py::make_tuple(success, scores);
 	})
 	.def("getEyestates", [](const lsdk::ILivenessPtr& livenessPtr){
 		lsdk::EyeStates eyeStates;
-		bool got = livenessPtr->getEyestates(&eyeStates);
-		return py::make_tuple(got, eyeStates);
+		bool success = livenessPtr->getEyestates(&eyeStates);
+		return py::make_tuple(success, eyeStates);
 	})
 		;
 	
 	py::class_<lsdk::IComplexLivenessPtr>(f, "ComplexLiveness")
 	.def("update", [](
-			const lsdk::IComplexLivenessPtr & livenessPtr,
+			const lsdk::IComplexLivenessPtr& livenessPtr,
 			fsdk::Image &rgb,
 			fsdk::Image& map) {
 			fsdk::ResultValue<lsdk::LSDKError, bool> err = livenessPtr->update(rgb, map);
@@ -154,39 +179,39 @@ void liveness_module(py::module& f) {
 	})
 	.def("getWarp", [](const lsdk::IComplexLivenessPtr& livenessPtr) {
 		fsdk::Image warp;
-		bool got = livenessPtr->getWarp(&warp);
-		return py::make_tuple(got, warp);
+		bool success = livenessPtr->getWarp(&warp);
+		return py::make_tuple(success, warp);
 		;
 	})
 	.def("getLandmarks68", [](const lsdk::IComplexLivenessPtr& livenessPtr) {
 		fsdk::Landmarks68 landmarks68;
-		bool got = livenessPtr->getLandmarks68(&landmarks68);
-		return py::make_tuple(got, landmarks68);
+		bool success = livenessPtr->getLandmarks68(&landmarks68);
+		return py::make_tuple(success, landmarks68);
 	})
 	.def("getLandmarks5", [](const lsdk::IComplexLivenessPtr& livenessPtr) {
 		fsdk::Landmarks5 landmarks5;
-		bool got = livenessPtr->getLandmarks5(&landmarks5);
-		return py::make_tuple(got, landmarks5);
+		bool success = livenessPtr->getLandmarks5(&landmarks5);
+		return py::make_tuple(success, landmarks5);
 	})
 	.def("getIrisLandmarks", [](const lsdk::IComplexLivenessPtr& livenessPtr) {
 		std::vector<fsdk::Landmarks<32>> irisLandmarks(2);
-		bool got = livenessPtr->getIrisLandmarks(irisLandmarks.data());
-		return py::make_tuple(got, irisLandmarks);
+		bool success = livenessPtr->getIrisLandmarks(irisLandmarks.data());
+		return py::make_tuple(success, irisLandmarks);
 	})
 	.def("getAngles", [](const lsdk::IComplexLivenessPtr& livenessPtr) {
 		lsdk::Angles angles;
-		bool got = livenessPtr->getAngles(&angles);
-		return py::make_tuple(got, angles);
+		bool success = livenessPtr->getAngles(&angles);
+		return py::make_tuple(success, angles);
 	})
 	.def("getScores", [](const lsdk::IComplexLivenessPtr& livenessPtr) {
 		lsdk::Scores scores;
-		bool got = livenessPtr->getScores(&scores);
-		return py::make_tuple(got, scores);
+		bool success = livenessPtr->getScores(&scores);
+		return py::make_tuple(success, scores);
 	})
 	.def("getEyestates", [](const lsdk::IComplexLivenessPtr& livenessPtr){
 		lsdk::EyeStates eyeStates;
-		bool got = livenessPtr->getEyestates(&eyeStates);
-		return py::make_tuple(got, eyeStates);
+		bool success = livenessPtr->getEyestates(&eyeStates);
+		return py::make_tuple(success, eyeStates);
 	})
 		;
 	
