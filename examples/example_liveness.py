@@ -29,6 +29,7 @@ print(liveness_engine)
 
 config_fe = fe.createSettingsProvider("data/faceengine.conf")
 config_le = fe.createSettingsProvider("data/livenessengine.conf")
+aggr = config_le.getValue("Liveness::Infrared", "aggregationThreshold").asFloat()
 config_path = config_fe.getDefaultPath()
 config_path = config_le.getDefaultPath()
 
@@ -45,25 +46,33 @@ liveness_engine.setDataDirectory(path)
 # print(fe.LSDKError.Internal)
 
 vidcap = cv2.VideoCapture("/home/mar/tasks/realsense_demos/video/100_FAS_video_IK/v111.IK_2018-10.avi")
-n = 0
+# vidcap = cv2.VideoCapture(0)
 success = False
 process = True
 liveness = liveness_engine.createLiveness(fe.LA_INFRARED)
 print("Look straight into the camera")
+n = 0
 while process:
     try:
-        ret, ir_frame = vidcap.read()
+        ret, ir_frame_cv = vidcap.read()
+        print(ir_frame_cv.shape)
+
         if not ret:
             print("Image is empty")
             process = False
             break
         image = fe.Image()
-        image.setData(ir_frame, fe.FormatType.R8G8B8)
-        # image.save("/home/mar/tasks/liveness-bindings/dump/" + str(n) + ".jpg")
+        image.setData(ir_frame_cv)
+        image.save("/home/mar/tasks/liveness-bindings/dump/" + str(n) + ".jpg")
         result, liveness_success = liveness.update(image)
+        print(image.getWidth(), image.getHeight(), image.getFormat())
+        image_cv = image.getData()
+        # plt.imshow(image_cv)
+        # plt.xticks([]), plt.yticks([])
+        # plt.show()
         print(result.what)
         print(liveness_success)
-        if result.isOk:
+        if liveness_success:
             success = liveness_success
             process = False
             break
