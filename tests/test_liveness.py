@@ -47,6 +47,7 @@ print(liveness_engine)
 config = fe.createSettingsProvider("data/faceengine.conf")
 config_path = config.getDefaultPath()
 
+#implementation
 print(fe.LA_PITCH_DOWN)
 print(fe.LA_PITCH_UP)
 print(fe.LA_YAW_LEFT)
@@ -96,7 +97,6 @@ if result_det:
     print(detection)
 else:
     print("detection was not got")
-
 
 
 result_warp, warp = liveness.getWarp()
@@ -180,9 +180,6 @@ class TestFaceEngineLiveness(unittest.TestCase):
         self.simpleLivenessTest(fe.LA_ZOOM, test_data_path + "/zoom.bin")
         self.simpleLivenessTest(fe.LA_SMILE, test_data_path + "/smile.bin")
         self.complexLivenessTest(fe.CLA_DEPTH, test_data_path + "/color.bin", test_data_path + "/depth.bin")
-
-
-
 
 
 if __name__ == '__main__':
