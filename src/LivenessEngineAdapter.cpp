@@ -42,6 +42,6 @@ void PyILivenessEngine::setDataDirectory(const char* path) {
 }
 
 const char* PyILivenessEngine::getDataDirectory() {
-	livenessEnginePtr->getDataDirectory();
+	return livenessEnginePtr->getDataDirectory();
 }
 
