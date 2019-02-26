@@ -6,6 +6,7 @@
 #include <fsdk/FaceEngine.h>
 #include <lsdk/LivenessEngine.h>
 #include <fstream>
+#include <iostream>
 
 struct FSDKErrorResult {
 
@@ -30,7 +31,7 @@ struct LSDKErrorResult {
 	lsdk::LSDKError lsdkError;
 	const char* what;
 	
-	LSDKErrorResult(fsdk::Result<lsdk::LSDKError> err) :
+	LSDKErrorResult(fsdk::ResultValue<lsdk::LSDKError, bool> err) :
 		isOk(err.isOk()),
 		isError(err.isError()),
 		lsdkError(err.getError()),

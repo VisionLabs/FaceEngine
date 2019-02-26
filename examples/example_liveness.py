@@ -18,7 +18,7 @@ import FaceEngine as fe
 faceEngine = fe.createFaceEngine("data",
                                  "data/faceengine.conf")
 
-liveness_engine = fe.createLivenessEngine(faceEngine, "data")
+liveness_engine = fe.createLivenessEngine(faceEngine, "./data")
 
 def print_landmarks(landmarks, message=""):
     print(message)
@@ -33,17 +33,9 @@ aggr = config_le.getValue("Liveness::Infrared", "aggregationThreshold").asFloat(
 config_path = config_fe.getDefaultPath()
 config_path = config_le.getDefaultPath()
 
-liveness_engine.setSettingsProvider(config_fe)
 path = liveness_engine.getDataDirectory()
 print("Path to data directory is: {0}".format(path))
 liveness_engine.setDataDirectory(path)
-
-# print(fe.LA_INFRARED)
-# print(fe.LSDKError.Ok)
-# print(fe.LSDKError.NotInitialized)
-# print(fe.LSDKError.NotReady)
-# print(fe.LSDKError.PreconditionFailed)
-# print(fe.LSDKError.Internal)
 
 vidcap = cv2.VideoCapture("/home/mar/tasks/realsense_demos/video/100_FAS_video_IK/v111.IK_2018-10.avi")
 # vidcap = cv2.VideoCapture(0)

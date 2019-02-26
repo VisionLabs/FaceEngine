@@ -207,6 +207,7 @@ py::class_<fsdk::Image>(f, "Image",
 
 // first of all for test
 f.def("loadImage", &loadImage, "used only for depth test");
+f.def("loadFrameSequence", &loadFrameSequence, "used only for depth test");
 
 py::enum_<fsdk::Image::Type>(f, "ImageType",
 	"Supported image types.\n")

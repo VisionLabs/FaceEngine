@@ -47,11 +47,6 @@ print(liveness_engine)
 config = fe.createSettingsProvider("data/faceengine.conf")
 config_path = config.getDefaultPath()
 
-liveness_engine.setSettingsProvider(config)
-path = liveness_engine.getDataDirectory()
-print("Path to data directory is: {0}".format(path))
-liveness_engine.setDataDirectory(path)
-
 print(fe.LA_PITCH_DOWN)
 print(fe.LA_PITCH_UP)
 print(fe.LA_YAW_LEFT)
@@ -121,14 +116,8 @@ print("Scores success:", result)
 result, eye_states = liveness.getEyestates()
 print("Eye_states success:", result)
 print(err.what, success)
-err_complex, success_complex = complex_liveness.update(image, image)
-print(err_complex.what, success)
-
 liveness.reset()
 
-
-
-complex_liveness.reset()
 result, detection = complex_liveness.getDetection()
 result, warp = complex_liveness.getWarp()
 result, landmarks68 = complex_liveness.getLandmarks68()
@@ -138,3 +127,63 @@ result, angles = complex_liveness.getAngles()
 result, scores = complex_liveness.getScores()
 result, eye_states = complex_liveness.getEyestates()
 complex_liveness.reset()
+
+
+class TestFaceEngineLiveness(unittest.TestCase):
+    def simpleLivenessTest(self, type, path):
+        configPath = os.path.join("data", "faceengine.conf")
+        config = fe.createSettingsProvider(configPath)
+        faceEngine.setSettingsProvider(config)
+        liveness = liveness_engine.createLiveness(type)
+        # image_list = fe.loadFrameSequence(test_data_path + "/smile.bin")
+        image_list = fe.loadFrameSequence(path)
+        result = None
+        success = False
+        for image in image_list:
+            if not image.isValid():
+                print("Image is not valid")
+                continue
+            result, success = liveness.update(image)
+        self.assertTrue(result.isOk)
+        self.assertTrue(success)
+
+    def complexLivenessTest(self, type, color_path, depth_path):
+        configPath = os.path.join("data", "faceengine.conf")
+        config = fe.createSettingsProvider(configPath)
+        faceEngine.setSettingsProvider(config)
+        complex_liveness = liveness_engine.createComplexLiveness(type)
+        color_image_list = fe.loadFrameSequence(color_path)
+        depth_image_list = fe.loadFrameSequence(depth_path)
+        result = None
+        success = False
+        self.assertEqual(len(color_image_list), len(depth_image_list))
+        for i, _ in enumerate(color_image_list):
+            if not color_image_list[i].isValid():
+                print("Image is not valid")
+                continue
+            if not depth_image_list[i].isValid():
+                print("Image is not valid")
+                continue
+            result, success = complex_liveness.update(color_image_list[i], depth_image_list[i])
+        self.assertTrue(result.isOk)
+        self.assertTrue(success)
+
+    def test_liveness(self):
+        self.simpleLivenessTest(fe.LA_INFRARED, test_data_path + "/infrared.bin")
+        self.simpleLivenessTest(fe.LA_YAW_RIGHT, test_data_path + "/yawright.bin")
+        self.simpleLivenessTest(fe.LA_YAW_LEFT, test_data_path + "/yawleft.bin")
+        self.simpleLivenessTest(fe.LA_PITCH_UP, test_data_path + "/pitchup.bin")
+        self.simpleLivenessTest(fe.LA_PITCH_DOWN, test_data_path + "/pitchdown.bin")
+        self.simpleLivenessTest(fe.LA_MOUTH, test_data_path + "/mouth.bin")
+        self.simpleLivenessTest(fe.LA_EYEBROW, test_data_path + "/eyebrow.bin")
+        self.simpleLivenessTest(fe.LA_EYE, test_data_path + "/eye.bin")
+        self.simpleLivenessTest(fe.LA_ZOOM, test_data_path + "/zoom.bin")
+        self.simpleLivenessTest(fe.LA_SMILE, test_data_path + "/smile.bin")
+        self.complexLivenessTest(fe.CLA_DEPTH, test_data_path + "/color.bin", test_data_path + "/depth.bin")
+
+
+
+
+
+if __name__ == '__main__':
+    unittest.main()

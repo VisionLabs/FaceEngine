@@ -13,6 +13,8 @@ PyILivenessEngine::PyILivenessEngine(
 	const PyIFaceEngine& pyIFaceEngine,
 	const char* dataPath) {
 	livenessEnginePtr = fsdk::acquire(lsdk::createLivenessEngine(pyIFaceEngine.faceEnginePtr, dataPath));
+	if (!livenessEnginePtr)
+		throw py::cast_error("\nFailed to create livenessEnginePtr instance! VERIFY PATH to \"data\" directory!");
 }
 
 lsdk::ILivenessPtr PyILivenessEngine::createLiveness(lsdk::LivenessAlgorithmType type) {

@@ -21,7 +21,7 @@ void liveness_module(py::module& f) {
 		.def("createComplexLiveness", &PyILivenessEngine::createComplexLiveness, "\n")
 			; // PyILivenessEngine
 	
-	py::enum_<lsdk::LivenessAlgorithmType>(f, "LivenessType", py::arithmetic(),
+	py::enum_<lsdk::LivenessAlgorithmType>(f, "LivenessType",
 			"Liveness type enumeration.\n")
 		.value("LA_PITCH_DOWN", lsdk::LA_PITCH_DOWN, "Algorithm based on downward face movement.\n")
 		.value("LA_PITCH_UP", lsdk::LA_PITCH_UP, "Algorithm based on upward face movement.\n")
@@ -44,8 +44,7 @@ void liveness_module(py::module& f) {
 		.export_values();
 			;
 	
-	py::enum_<lsdk::LSDKError>(f, "LSDKError", py::arithmetic(),
-			"Liveness type enumeration.\n")
+	py::enum_<lsdk::LSDKError>(f, "LSDKError", "Liveness type enumeration.\n")
 		.value("Ok", lsdk::LSDKError::Ok, "Ok.\n")
 		.value("NotInitialized", lsdk::LSDKError::NotInitialized,
 			"Liveness not initialized..\n")
@@ -103,17 +102,13 @@ void liveness_module(py::module& f) {
 	
 	py::class_<lsdk::ILivenessPtr>(f, "Liveness")
 	.def("update", [](
-			 const lsdk::ILivenessPtr& livenessPtr,
+			const lsdk::ILivenessPtr& livenessPtr,
 			fsdk::Image &image) {
 			fsdk::ResultValue<lsdk::LSDKError, bool> err = livenessPtr->update(image);
-			if (err.isOk())
-				std::cout << "C++ err.isOk() = " << err.isOk() << " " << err.getValue() << std::endl;
-			else
-				std::cout << "C++ err.isOk() = " << err.isOk() << std::endl;
 		if (err.isOk() && err.getValue())
-			 return std::make_tuple(LSDKErrorResult(fsdk::makeResult((err.getError()))), err.getValue());
+			 return std::make_tuple(LSDKErrorResult(err), err.getValue());
 		else
-			return std::make_tuple(LSDKErrorResult(fsdk::makeResult((err.getError()))), false);},
+			return std::make_tuple(LSDKErrorResult(err), false);},
 		 "")
 	.def("reset", [](const lsdk::ILivenessPtr& livenessPtr){
 		livenessPtr->reset();
@@ -137,7 +132,6 @@ void liveness_module(py::module& f) {
 	.def("getLandmarks5", [](const lsdk::ILivenessPtr& livenessPtr) {
 		fsdk::Landmarks5 landmarks5;
 		bool success = livenessPtr->getLandmarks5(&landmarks5);
-		return py::make_tuple(success, landmarks5);
 		return py::make_tuple(success, landmarks5);
 	})
 	.def("getIrisLandmarks", [](const lsdk::ILivenessPtr& livenessPtr) {
