@@ -105,7 +105,7 @@ void liveness_module(py::module& f) {
 			const lsdk::ILivenessPtr& livenessPtr,
 			fsdk::Image &image) {
 			fsdk::ResultValue<lsdk::LSDKError, bool> err = livenessPtr->update(image);
-		if (err.isOk() && err.getValue())
+		if (err.isOk())
 			 return std::make_tuple(LSDKErrorResult(err), err.getValue());
 		else
 			return std::make_tuple(LSDKErrorResult(err), false);},

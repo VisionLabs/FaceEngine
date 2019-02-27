@@ -133,6 +133,7 @@ class TestFaceEngineLiveness(unittest.TestCase):
     def simpleLivenessTest(self, type, path):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
+        config.setValue("system", "defaultDetectorType", fe.SettingsProviderValue("FaceDetV1"))
         faceEngine.setSettingsProvider(config)
         liveness = liveness_engine.createLiveness(type)
         # image_list = fe.loadFrameSequence(test_data_path + "/smile.bin")
@@ -150,6 +151,7 @@ class TestFaceEngineLiveness(unittest.TestCase):
     def complexLivenessTest(self, type, color_path, depth_path):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
+        config.setValue("system", "defaultDetectorType", fe.SettingsProviderValue("FaceDetV1"))
         faceEngine.setSettingsProvider(config)
         complex_liveness = liveness_engine.createComplexLiveness(type)
         color_image_list = fe.loadFrameSequence(color_path)
