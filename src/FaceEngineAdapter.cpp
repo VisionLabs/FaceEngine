@@ -40,7 +40,6 @@ fsdk::IQualityEstimatorPtr PyIFaceEngine::createQualityEstimator() {
 		throw py::cast_error("\nFailed to create quality estimator instance! VERIFY PATH to \"data\" directory!");
 	}
 	return qualityEstimatorPtr;
-
 }
 
 fsdk::IEthnicityEstimatorPtr PyIFaceEngine::createEthnicityEstimator() {
@@ -158,6 +157,15 @@ fsdk::IIndexBuilderPtr PyIFaceEngine::createIndexBuilder() {
 		throw py::cast_error("\nFailed to create indexBuilder instance! VERIFY PATH to \"data\" directory!");
 	return indexBuilderPtr;
 }
+
+fsdk::Ref<fsdk::IHumanDetector> PyIFaceEngine::createHumanDetector() {
+	fsdk::Ref<fsdk::IHumanDetector> humanDetector = fsdk::acquire(faceEnginePtr->createHumanDetector());
+	
+	if (!humanDetector)
+		throw py::cast_error("\nFailed to create HumanDetector instance! VERIFY PATH to \"data\" directory!");
+	return humanDetector;
+}
+
 
 fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndex*> PyIFaceEngine::loadDenseIndex(
 	const char* indexPath) {

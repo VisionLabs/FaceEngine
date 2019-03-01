@@ -71,8 +71,12 @@ print(fe.IDetectorPtr.setDetectionComparer.__doc__)
 
 print(fe.IDetectorPtr.redetectOne.__doc__)
 print(fe.IDetectorPtr.redetect.__doc__)
+
 print(fe.Face.__doc__)
 print(fe.Face.isValid.__doc__)
+
+print(fe.IHumanDetectorPtr.__doc__)
+print(fe.IHumanDetectorPtr.detect.__doc__)
 
 print(fe.IWarperPtr.__doc__)
 print(fe.IWarperPtr.warp.__doc__)
@@ -236,6 +240,16 @@ print(fe.Ethnicity.__doc__)
 print(fe.Transformation.__doc__)
 
 print(fe.Detection.__doc__)
+print(fe.Detection.isValid.__doc__)
+print(fe.Detection.__repr__.__doc__)
+
+print(fe.DetectionFloat.__doc__)
+print(fe.DetectionFloat.isValid.__doc__)
+print(fe.DetectionFloat.__repr__.__doc__)
+
+print(fe.Human.__doc__)
+print(fe.Human.isValid.__doc__)
+print(fe.Human.__repr__.__doc__)
 
 print(fe.FormatType.__doc__)
 
@@ -267,6 +281,7 @@ print(fe.ImageError.__doc__)
 print(fe.SettingsProviderError.__doc__)
 
 print(fe.Rect.__doc__)
+print(fe.RectFloat.__doc__)
 
 print(fe.ObjectDetectorClassType.__doc__)
 

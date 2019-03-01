@@ -136,6 +136,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"Creates a detector of given type.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (enum ObjectDetectorClassType): Object detector type enumeration.\n")
+		
+		.def("createHumanDetector", &PyIFaceEngine::createHumanDetector,
+			"Creates a human detector.\n")
+		
 		.def("createWarper", &PyIFaceEngine::createWarper, "Creates warper\n")
 		.def("createDescriptor", &PyIFaceEngine::createDescriptor, "Creates Descriptor\n")
 		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0,
@@ -263,12 +267,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 	
 	py::class_<fsdk::Landmarks68>(f, "Landmarks68",
 		"Face landmarks, length is fixed and equal to 68.\n"
-		"\Face detector is capable of face landmarks detection. "
+		"\tFace detector is capable of face landmarks detection. "
 		"\tLandmarks are special classes binded to python. \n"
 		"\tThey are similar on python lists. It is possible to use some standard python "
 		"built-in functions for them: \n"
 		"\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and "
-		"research purposes with class Vector2f. \n"
+		"\tresearch purposes with class Vector2f. \n"
 		"\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n")
 	
 		.def(py::init<>())
@@ -614,16 +618,18 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IEthnicityEstimator
 			IEthnicityEstimator.estimate
 
+			IDetectorPtr
+			IDetectorPtr.detect
+			IDetectorPtr.detectOne
+			IDetectorPtr.setDetectionComparer
 
-
-			IDetector
-			IDetector.detect
-			IDetector.detectOne
-			IDetector.setDetectionComparer
-			IDetector.redetectOne
-			IDetector.redetect
+			IDetectorPtr.redetectOne
+			IDetectorPtr.redetect
 			Face
 			Face.isValid
+
+			IHumanDetectorPtr
+			IHumanDetectorPtr.detect
 
 			IWarperPtr
 			IWarperPtr.warp
@@ -845,6 +851,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			SettingsProviderError
 
 			Rect
+			RectFloat
 
 			ObjectDetectorClassType
 			ObjectDetectorClassType.FACE_DET_DEFAULT
@@ -852,7 +859,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			ObjectDetectorClassType.FACE_DET_V2
 			ObjectDetectorClassType.FACE_DET_V3
 			ObjectDetectorClassType.FACE_DET_COUNT
+			
+			Detection
+			Detection.isValid
+			Detection.__repr__
 
+			DetectionFloat
+			DetectionFloat.isValid
+			DetectionFloat.__repr__
+			
 			DetectionComparerType
 			DetectionComparerType.DCT_CONFIDANCE
 			DetectionComparerType.DCT_CENTER

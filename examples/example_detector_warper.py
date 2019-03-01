@@ -169,6 +169,14 @@ if __name__ == "__main__":
         exit(-1)
     print_landmarks(face_one.landmarks5_opt.value(), "landmarks5, detectOne: ")
     # print_landmarks(face_one.landmarks68_opt.value(), "landmarks68, detectOne: ")
+    humanDetector = faceEngine.createHumanDetector()
+    imageHuman = fe.Image()
+    errHuman = imageHuman.load("testData/0_Parade_marchingband_1_620.ppm")
+    human_result = humanDetector.detect([image], [image.getRect()], 10)
+    # list of human detections
+    print("Human result: ", human_result[0].isOk, human_result[1])
+
+
 
 
 
