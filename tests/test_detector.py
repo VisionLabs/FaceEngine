@@ -197,10 +197,6 @@ class TestFaceEngineDetector(unittest.TestCase):
 
     def humanDetectorTest(self):
         configPath = os.path.join("data", "faceengine.conf")
-        config = fe.createSettingsProvider(configPath)
-        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
-        config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
-        faceEngine.setSettingsProvider(config)
         humanDetector = faceEngine.createHumanDetector()
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "0_Parade_marchingband_1_620.ppm"))
@@ -221,7 +217,6 @@ class TestFaceEngineDetector(unittest.TestCase):
     def redetectTest(self, _detectorType, refDetection):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
-        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(4))
         if _detectorType == fe.FACE_DET_V3:
             config.setValue("FaceDetV3::Settings", "RedetectExpandCoef", fe.SettingsProviderValue(0.7))
         faceEngine.setSettingsProvider(config)
