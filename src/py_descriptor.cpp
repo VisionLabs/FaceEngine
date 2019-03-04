@@ -9,7 +9,13 @@
 namespace py = pybind11;
 
 void descriptor_module(py::module& f) {
-// descriptor
+
+py::enum_<fsdk::ISerializableObject::Flags>(f, "Save", py::arithmetic(), "Serialization flags.\n")
+	.value("Default", fsdk::ISerializableObject::Flags::Default, "Meta information will be written.\n")
+	.value("NoSignature", fsdk::ISerializableObject::Flags::NoSignature, "No meta-information..\n")
+		;
+
+	// descriptor
 py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Used for matching.\n")
 	
 	.def("getModelVersion",[]( const fsdk::IDescriptorPtr& desc) {
@@ -49,11 +55,27 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 	.def("load",[](
 		const fsdk::IDescriptorPtr& descriptor,
 		const char* buffer,
-		uint32_t bufferSize) {
-			VectorArchive archiveDescriptor(buffer, bufferSize);
-			fsdk::Result<fsdk::ISerializableObject::Error> err = descriptor->load(&archiveDescriptor);
+		uint32_t bufferSize,
+		fsdk::ISerializableObject::Flags flag = fsdk::ISerializableObject::Default ) {
+			Archive archiveDescriptor(buffer, bufferSize);
+			fsdk::Result<fsdk::ISerializableObject::Error> err = descriptor->load(&archiveDescriptor, flag);
 			return SerializeErrorResult(err);
-		}, "Load descriptor from buffer")
+		},
+		py::arg("buffer"),
+		py::arg("bufferSize"),
+		py::arg("flag") = fsdk::ISerializableObject::Default,
+		"Load descriptor from buffer")
+	
+	.def("save",[](
+		const fsdk::IDescriptorPtr& descriptor,
+		fsdk::ISerializableObject::Flags flag  = fsdk::ISerializableObject::Default) {
+		std::vector<uint8_t> buffer;
+		VectorArchive archiveDescriptor(buffer);
+		fsdk::Result<fsdk::ISerializableObject::Error> err = descriptor->save(&archiveDescriptor, flag);
+		return std::make_tuple(SerializeErrorResult(err), py::bytes((const char*)buffer.data(), buffer.size()));
+		},
+		py::arg("flag") = fsdk::ISerializableObject::Default,
+		"Save descriptor to buffer")
 			; // descriptor
 	
 // DescriptorBatch
@@ -140,14 +162,30 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 	
 	.def("load",[](
 		const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
-			const char* buffer,
-			uint32_t bufferSize) {
-				VectorArchive archiveDescriptor(buffer, bufferSize);
-				fsdk::Result<fsdk::ISerializableObject::Error> err =
-					descriptorBatchPtr->load(&archiveDescriptor, bufferSize);
-				return SerializeErrorResult(err);
+		const char* buffer,
+		uint32_t bufferSize,
+		fsdk::ISerializableObject::Flags flag = fsdk::ISerializableObject::Default) {
+			Archive archiveDescriptor(buffer, bufferSize);
+			fsdk::Result<fsdk::ISerializableObject::Error> err =
+				descriptorBatchPtr->load(&archiveDescriptor, flag);
+			return SerializeErrorResult(err);
+			
+		},
+		py::arg("buffer"),
+		py::arg("bufferSize"),
+		py::arg("flag") = fsdk::ISerializableObject::Default,
+		"Load descriptor batch from buffer")
 		
-			}, "Load descriptor from buffer")
+	.def("save",[](
+		const fsdk::IDescriptorPtr& descriptorBatchPtr,
+		fsdk::ISerializableObject::Flags flag = fsdk::ISerializableObject::Default) {
+			std::vector<uint8_t> buffer;
+			VectorArchive archiveDescriptor(buffer);
+			fsdk::Result<fsdk::ISerializableObject::Error> err = descriptorBatchPtr->load(&archiveDescriptor, flag);
+			return std::make_tuple(SerializeErrorResult(err), py::bytes((const char*)buffer.data(), buffer.size()));
+			},
+		py::arg("flag") = fsdk::ISerializableObject::Default
+		, "Save descriptor batch to buffer")
 			;
 	
 	py::class_<fsdk::IDescriptorExtractorPtr>(f, "IDescriptorExtractorPtr",

@@ -99,17 +99,53 @@ class TestFaceEngineRect(unittest.TestCase):
         data1 = descriptor.getData()
         with open(test_data_path + "/descriptor1_" + versionString + "_actual.bin", "wb") as out_file:
             out_file.write(data1)
+
         self.assertAlmostEqual(refGS, res.value, delta=(0.02, 0.03)[useMobileNet])
         refPath = os.path.join(test_data_path, "descriptor1_" + versionString + ".bin")
         with open(refPath, "rb") as file:
             read_data = file.read()
             descriptorExpected = faceEngine.createDescriptor()
-            descriptorExpected.load(read_data, len(read_data))
+            err_load = descriptorExpected.load(read_data, len(read_data))
+            print(err_load)
+            self.assertTrue(err_load.isOk)
             dataActual = descriptor.getData()
             dataExpected = descriptorExpected.getData()
             self.assertEqual(descriptorExpected.getModelVersion(), descriptor.getModelVersion())
             for i in range(descriptor.getDescriptorLength()):
                 self.assertEqual(dataActual[i], dataExpected[i])
+
+            # by Default full version with headears, NoSignature - write only version
+            err, full_data_actual_default1 = descriptor.save()
+            self.assertTrue(err.isOk)
+            err, full_data_actual_default2 = descriptor.save(fe.Save.Default)
+            self.assertTrue(err.isOk)
+            err, full_data_actual_no_signature = descriptor.save(fe.Save.NoSignature)
+            self.assertTrue(err.isOk)
+
+            err, full_data_exp_default1 = descriptorExpected.save()
+            self.assertTrue(err.isOk)
+            err, full_data_exp_default2 = descriptorExpected.save(fe.Save.Default)
+            self.assertTrue(err.isOk)
+            err, full_data_exp_no_signature = descriptorExpected.save(fe.Save.NoSignature)
+            self.assertTrue(err.isOk)
+
+
+            diff_actual_default1 = len(full_data_actual_default1) - len(dataActual)
+            diff_actual_default2 = len(full_data_actual_default2) - len(dataActual)
+            diff_actual_no_signature = len(full_data_actual_no_signature) - len(dataActual)
+            diff_exp_default1 = len(full_data_exp_default1) - len(dataActual)
+            diff_exp_default2 = len(full_data_exp_default2) - len(dataActual)
+            diff_exp_no_signature = len(full_data_exp_no_signature) - len(dataActual)
+
+            for i in range(descriptor.getDescriptorLength()):
+                self.assertEqual(dataActual[i], full_data_actual_default1[i + diff_actual_default1])
+                self.assertEqual(dataActual[i], full_data_actual_default2[i + diff_actual_default2])
+                self.assertEqual(dataActual[i], full_data_exp_no_signature[i + diff_actual_no_signature])
+
+                self.assertEqual(dataExpected[i], full_data_exp_default1[i + diff_exp_default1])
+                self.assertEqual(dataExpected[i], full_data_exp_default2[i + diff_exp_default2])
+                self.assertEqual(dataExpected[i], full_data_exp_no_signature[i + diff_exp_no_signature])
+
 
     def test_extractor(self):
         self.extractor(51, 0.9718, True, "auto", "cpu")
