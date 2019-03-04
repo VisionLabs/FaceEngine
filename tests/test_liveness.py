@@ -70,10 +70,10 @@ print(fe.LSDKError.NotReady)
 print(fe.LSDKError.PreconditionFailed)
 print(fe.LSDKError.Internal)
 angles = fe.Angles()
-angles.left = 10
+angles.yaw = 10
 angles.pitch = 20
 angles.roll = 30
-print("angles {0}, {1} {2}".format(angles.left, angles.pitch, angles.roll))
+print("angles {0}, {1} {2}".format(angles.yaw, angles.pitch, angles.roll))
 scores = fe.Scores()
 scores.smile = 0.3
 scores.mouth = 0.3
