@@ -2,7 +2,7 @@
 
 #pragma once
 
-struct VectorArchive: fsdk::IArchive
+struct Archive: fsdk::IArchive
 {
 	const char* dataOut;
 	uint32_t m_size = 0;
@@ -20,12 +20,12 @@ struct VectorArchive: fsdk::IArchive
 		return true;
 	}
 	
-	VectorArchive(const char* inout, uint32_t size):
+	Archive(const char* inout, uint32_t size):
 	dataOut(inout), m_size(size)
 	{}
 };
 
-struct VectorArchive2: fsdk::IArchive
+struct VectorArchive: fsdk::IArchive
 {
 	std::vector<uint8_t>& dataOut;
 	int index = 0;
@@ -45,7 +45,7 @@ struct VectorArchive2: fsdk::IArchive
 	
 	void setSizeHint(size_t /*hint*/) noexcept override {}
 	
-	VectorArchive2(std::vector<uint8_t>& inout):
+	VectorArchive(std::vector<uint8_t>& inout):
 		dataOut(inout)
 	{}
 };
