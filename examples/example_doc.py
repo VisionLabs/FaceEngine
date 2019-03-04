@@ -1,7 +1,7 @@
 import sys
 
 def help():
-    print("python example.py <path to FaceEngine*.so> ")
+    print("python example.py <path to dir with FaceEngine*.so> ")
 
 if len(sys.argv) != 2:
     help()
@@ -96,6 +96,7 @@ print(fe.IDescriptorPtr.getDescriptorLength.__doc__)
 print(fe.IDescriptorPtr.getDescriptor.__doc__)
 print(fe.IDescriptorPtr.getData.__doc__)
 print(fe.IDescriptorPtr.load.__doc__)
+print(fe.IDescriptorPtr.save.__doc__)
 
 print(fe.IDescriptorBatchPtr.__doc__)
 print(fe.IDescriptorBatchPtr.add.__doc__)
@@ -108,6 +109,7 @@ print(fe.IDescriptorBatchPtr.getDescriptorSize.__doc__)
 print(fe.IDescriptorBatchPtr.getDescriptorSlow.__doc__)
 print(fe.IDescriptorBatchPtr.getDescriptorFast.__doc__)
 print(fe.IDescriptorBatchPtr.load.__doc__)
+print(fe.IDescriptorBatchPtr.save.__doc__)
 
 print(fe.DescriptorBatchError.__doc__)
 

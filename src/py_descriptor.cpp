@@ -13,7 +13,6 @@ void descriptor_module(py::module& f) {
 py::enum_<fsdk::ISerializableObject::Flags>(f, "Save", py::arithmetic(), "Serialization flags.\n")
 	.value("Default", fsdk::ISerializableObject::Flags::Default, "Meta meta-information will be written.\n")
 	.value("NoSignature", fsdk::ISerializableObject::Flags::NoSignature, "No meta-information about descriptor.\n")
-//	.export_values();
 		;
 
 	// descriptor
@@ -62,7 +61,6 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 			fsdk::Result<fsdk::ISerializableObject::Error> err = descriptor->load(&archiveDescriptor, flag);
 			return SerializeErrorResult(err);
 		},
-//		py::arg("descriptor"),
 		py::arg("buffer"),
 		py::arg("bufferSize"),
 		py::arg("flag") = fsdk::ISerializableObject::Default,
@@ -76,7 +74,6 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 		fsdk::Result<fsdk::ISerializableObject::Error> err = descriptor->save(&archiveDescriptor, flag);
 		return std::make_tuple(SerializeErrorResult(err), py::bytes((const char*)buffer.data(), buffer.size()));
 		},
-//		py::arg("descriptor"),
 		py::arg("flag") = fsdk::ISerializableObject::Default,
 		"Save descriptor to buffer")
 			; // descriptor

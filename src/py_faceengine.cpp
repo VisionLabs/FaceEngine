@@ -641,6 +641,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IDescriptorPtr.getDescriptor
 			IDescriptorPtr.getData
 			IDescriptorPtr.load
+			IDescriptorPtr.save
 
 			IDescriptorBatchPtr
 			IDescriptorBatchPtr.add
@@ -653,6 +654,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IDescriptorBatchPtr.getDescriptorSlow
 			IDescriptorBatchPtr.getDescriptorFast
 			IDescriptorBatchPtr.load
+			IDescriptorBatchPtr.save
 
 			DescriptorBatchError
 
