@@ -75,10 +75,10 @@ std::vector<fsdk::Image> loadFrameSequence(const char* path){
 
 bool saveFrameSequence(const std::vector<fsdk::Image>& sequence, std::string path){
 	
+	if(sequence.empty()) return false;
+	
 	std::ofstream file;
 	file.open(path, std::ios::out | std::ios::binary);
-	
-	if(sequence.empty()) return false;
 	if(!file.is_open()) return false;
 	
 	int frames = sequence.size();

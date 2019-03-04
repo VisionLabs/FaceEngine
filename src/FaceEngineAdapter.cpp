@@ -2,7 +2,6 @@
 // Created by mar on 28.04.18.
 //
 
-#include <iostream>
 #include "FaceEngineAdapter.hpp"
 #include <pybind11/pybind11.h>
 

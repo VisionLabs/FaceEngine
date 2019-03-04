@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include "FaceEngineAdapter.hpp"
 #include <fsdk/FaceEngine.h>
 #include <lsdk/LivenessEngine.h>
-#include "FaceEngineAdapter.hpp"
 
 class PyILivenessEngine {
 
