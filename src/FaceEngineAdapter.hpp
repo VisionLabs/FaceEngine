@@ -1,6 +1,8 @@
 //
 // Created by mar on 28.04.18.
 //
+#pragma once
+
 #include <fsdk/FaceEngine.h>
 #include "SettingsProviderAdapter.hpp"
 
@@ -22,6 +24,7 @@ public:
 
 //	warper
 	fsdk::IWarperPtr createWarper();
+	
 //	descriptor
 	fsdk::IDescriptorPtr createDescriptor();
 

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <fsdk/FaceEngine.h>
+#include <lsdk/LivenessEngine.h>
 #include <fstream>
 
 struct FSDKErrorResult {
@@ -21,7 +22,23 @@ struct FSDKErrorResult {
 	{};
 };
 
-//fsdk::Result<fsdk::ISerializableObject::Error>
+// liveness error
+struct LSDKErrorResult {
+	
+	bool isOk;
+	bool isError;
+	lsdk::LSDKError lsdkError;
+	const char* what;
+	
+	LSDKErrorResult(fsdk::ResultValue<lsdk::LSDKError, bool> err) :
+		isOk(err.isOk()),
+		isError(err.isError()),
+		lsdkError(err.getError()),
+		what(err.what())
+	{};
+};
+
+
 struct SerializeErrorResult {
 	
 	bool isOk;

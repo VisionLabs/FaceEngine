@@ -20,8 +20,14 @@ endif()
 find_package(FaceEngineSDK REQUIRED)
 include_directories(${FSDK_INCLUDE_DIRS})
 
+find_package(LivenessEngineSDK REQUIRED)
+include_directories(${LSDK_INCLUDE_DIRS})
+
 message(${FSDK_LIBRARIES})
 message(${FSDK_INCLUDE_DIRS})
+
+message(${LSDK_LIBRARIES})
+message(${LSDK_INCLUDE_DIRS})
 
 add_subdirectory(pybind11)
 
@@ -30,7 +36,7 @@ file(GLOB SOURCES src/*.cpp)
 message("${SOURCES}")
 
 pybind11_add_module(FaceEngine ${SOURCES})
-target_link_libraries(FaceEngine PRIVATE pybind11::module ${FSDK_LIBRARIES})
+target_link_libraries(FaceEngine PRIVATE pybind11::module ${FSDK_LIBRARIES} ${LSDK_LIBRARIES})
 
 message(${CMAKE_INSTALL_PREFIX})
 
