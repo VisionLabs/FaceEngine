@@ -9,8 +9,10 @@
 #include "FaceEngineAdapter.hpp"
 
 class PyILivenessEngine {
+
 private:
 	lsdk::ILivenessEnginePtr livenessEnginePtr;
+	
 public:
 	PyILivenessEngine(const PyIFaceEngine& pyIFaceEngine, const char* dataPath);
 	

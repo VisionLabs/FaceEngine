@@ -91,7 +91,6 @@ bool saveFrameSequence(const std::vector<fsdk::Image>& sequence, std::string pat
 		height == frame.getHeight() &&
 		type == fsdk::Format::Type(frame.getFormat())))
 			return false;
-
 	
 	file.write((char*)&frames, sizeof(frames));
 	file.write((char*)&width, sizeof(width));
