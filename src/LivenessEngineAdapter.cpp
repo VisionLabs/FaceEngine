@@ -2,7 +2,6 @@
 // Created by mar on 24.02.19.
 //
 
-#include <iostream>
 #include "LivenessEngineAdapter.hpp"
 #include <pybind11/pybind11.h>
 
