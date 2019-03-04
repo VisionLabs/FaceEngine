@@ -105,7 +105,9 @@ class TestFaceEngineRect(unittest.TestCase):
         with open(refPath, "rb") as file:
             read_data = file.read()
             descriptorExpected = faceEngine.createDescriptor()
-            descriptorExpected.load(read_data, len(read_data))
+            err_load = descriptorExpected.load(read_data, len(read_data))
+            print(err_load)
+            self.assertTrue(err_load.isOk)
             dataActual = descriptor.getData()
             dataExpected = descriptorExpected.getData()
             self.assertEqual(descriptorExpected.getModelVersion(), descriptor.getModelVersion())
@@ -113,45 +115,20 @@ class TestFaceEngineRect(unittest.TestCase):
                 self.assertEqual(dataActual[i], dataExpected[i])
 
             # by Default full version with headears, NoSignature - write only version
-            descriptor_actual_loaded_default1 = faceEngine.createDescriptor()
-            descriptor_actual_loaded_default2 = faceEngine.createDescriptor()
-            descriptor_actual_loaded_no_signature = faceEngine.createDescriptor()
             err, full_data_actual_default1 = descriptor.save()
-            self.assertTrue(err.isOk)
-            err = descriptor_actual_loaded_default1.load(full_data_actual_default1, len(full_data_actual_default1))
             self.assertTrue(err.isOk)
             err, full_data_actual_default2 = descriptor.save(fe.Save.Default)
             self.assertTrue(err.isOk)
-            err = descriptor_actual_loaded_default2.load(full_data_actual_default2,
-                                                         len(full_data_actual_default2),
-                                                         fe.Save.Default)
-            self.assertTrue(err.isOk)
             err, full_data_actual_no_signature = descriptor.save(fe.Save.NoSignature)
             self.assertTrue(err.isOk)
-            err = descriptor_actual_loaded_no_signature.load(full_data_actual_no_signature,
-                                                             len(full_data_actual_no_signature),
-                                                             fe.Save.NoSignature)
-            self.assertTrue(err.isOk)
 
-            descriptor_exp_loaded_default1 = faceEngine.createDescriptor()
-            descriptor_exp_loaded_default2 = faceEngine.createDescriptor()
-            descriptor_exp_loaded_no_signature = faceEngine.createDescriptor()
             err, full_data_exp_default1 = descriptorExpected.save()
-            self.assertTrue(err.isOk)
-            err = descriptor_exp_loaded_default1.load(full_data_exp_default1, len(full_data_exp_default1))
             self.assertTrue(err.isOk)
             err, full_data_exp_default2 = descriptorExpected.save(fe.Save.Default)
             self.assertTrue(err.isOk)
-            err = descriptor_exp_loaded_default2.load(full_data_exp_default2,
-                                                      len(full_data_exp_default2),
-                                                      fe.Save.Default)
-            self.assertTrue(err.isOk)
             err, full_data_exp_no_signature = descriptorExpected.save(fe.Save.NoSignature)
             self.assertTrue(err.isOk)
-            err = descriptor_exp_loaded_no_signature.load(full_data_exp_no_signature,
-                                                          len(full_data_exp_no_signature),
-                                                          fe.Save.NoSignature)
-            self.assertTrue(err.isOk)
+
 
             diff_actual_default1 = len(full_data_actual_default1) - len(dataActual)
             diff_actual_default2 = len(full_data_actual_default2) - len(dataActual)
@@ -168,8 +145,6 @@ class TestFaceEngineRect(unittest.TestCase):
                 self.assertEqual(dataExpected[i], full_data_exp_default1[i + diff_exp_default1])
                 self.assertEqual(dataExpected[i], full_data_exp_default2[i + diff_exp_default2])
                 self.assertEqual(dataExpected[i], full_data_exp_no_signature[i + diff_exp_no_signature])
-
-
 
 
     def test_extractor(self):
