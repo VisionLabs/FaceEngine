@@ -104,7 +104,6 @@ class TestFaceEngineRect(unittest.TestCase):
         refPath = os.path.join(test_data_path, "descriptor1_" + versionString + ".bin")
         with open(refPath, "rb") as file:
             read_data = file.read()
-            print(len(read_data))
             descriptorExpected = faceEngine.createDescriptor()
             descriptorExpected.load(read_data, len(read_data))
             dataActual = descriptor.getData()
