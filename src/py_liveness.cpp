@@ -15,9 +15,6 @@ void liveness_module(py::module& f) {
 	py::class_<PyILivenessEngine>(f, "PyILivenessEngine", "Root Liveness object interface\n")
 		.def("createLiveness", &PyILivenessEngine::createLiveness, "liveness object if succeeded, nullptr if failed.\n")
 		.def("setSettingsProvider", &PyILivenessEngine::setSettingsProvider, "\n")
-//		.def("getSettingsProvider", &PyILivenessEngine::getSettingsProvider, "\n")
-		.def("setDataDirectory", &PyILivenessEngine::setDataDirectory, "\n")
-		.def("getDataDirectory", &PyILivenessEngine::getDataDirectory, "\n")
 		.def("createComplexLiveness", &PyILivenessEngine::createComplexLiveness, "\n")
 			; // PyILivenessEngine
 	
@@ -58,7 +55,7 @@ void liveness_module(py::module& f) {
 	
 	py::class_<lsdk::Angles>(f, "Angles")
 		.def(py::init<>())
-		.def_readwrite("left", &lsdk::Angles::yaw)
+		.def_readwrite("yaw", &lsdk::Angles::yaw)
 		.def_readwrite("pitch", &lsdk::Angles::pitch)
 		.def_readwrite("roll", &lsdk::Angles::roll)
 		.def("__repr__",

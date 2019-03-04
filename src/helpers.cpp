@@ -70,7 +70,6 @@ std::vector<fsdk::Image> loadFrameSequence(const char* path){
 		sequence.emplace_back(frame.clone());
 	}
 	
-	file.close();
 	return sequence;
 }
 
@@ -79,13 +78,20 @@ bool saveFrameSequence(const std::vector<fsdk::Image>& sequence, std::string pat
 	std::ofstream file;
 	file.open(path, std::ios::out | std::ios::binary);
 	
-	if(!file.is_open()) return false;
 	if(sequence.empty()) return false;
+	if(!file.is_open()) return false;
 	
 	int frames = sequence.size();
 	int width = sequence[0].getWidth();
 	int height = sequence[0].getHeight();
 	int type = fsdk::Format::Type(sequence[0].getFormat());
+	
+	for (auto frame : sequence)
+		if (!(width == frame.getWidth() &&
+		height == frame.getHeight() &&
+		type == fsdk::Format::Type(frame.getFormat())))
+			return false;
+
 	
 	file.write((char*)&frames, sizeof(frames));
 	file.write((char*)&width, sizeof(width));
@@ -96,6 +102,5 @@ bool saveFrameSequence(const std::vector<fsdk::Image>& sequence, std::string pat
 		auto size = sequence[i].getDataSize();
 		file.write((char*)sequence[i].getData(), size);
 	}
-	file.close();
 	return true;
 }

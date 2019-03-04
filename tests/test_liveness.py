@@ -105,7 +105,6 @@ result, landmarks68 = liveness.getLandmarks68()
 print("landmarks68 success:", result)
 result, landmarks5 = liveness.getLandmarks5()
 print_landmarks(landmarks5, "landmarks5:")
-
 print("landmarks5 success:", result)
 result, irisLandmarks = liveness.getIrisLandmarks()
 print("Irislandmarks success:", result)

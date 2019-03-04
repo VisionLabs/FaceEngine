@@ -6,7 +6,6 @@
 #include <fsdk/FaceEngine.h>
 #include <lsdk/LivenessEngine.h>
 #include <fstream>
-#include <iostream>
 
 struct FSDKErrorResult {
 
@@ -39,23 +38,7 @@ struct LSDKErrorResult {
 	{};
 };
 
-struct LSDKErrorValueBool {
-	bool isOk;
-	bool isError;
-	lsdk::LSDKError lsdkError;
-	const char* what;
-	bool value;
-	
-	LSDKErrorValueBool(fsdk::ResultValue<lsdk::LSDKError, bool> err) :
-		isOk(err.isOk()),
-		isError(err.isError()),
-		lsdkError(err.getError()),
-		what(err.what()),
-		value(err.getValue())
-	{};
-};
 
-//fsdk::Result<fsdk::ISerializableObject::Error>
 struct SerializeErrorResult {
 	
 	bool isOk;

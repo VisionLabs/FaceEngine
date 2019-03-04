@@ -2,16 +2,16 @@
 // Created by mar on 24.02.19.
 //
 
+#pragma once
+
 #include <fsdk/FaceEngine.h>
 #include <lsdk/LivenessEngine.h>
 #include "FaceEngineAdapter.hpp"
 
-#pragma once
-
 class PyILivenessEngine {
-public:
+private:
 	lsdk::ILivenessEnginePtr livenessEnginePtr;
-	
+public:
 	PyILivenessEngine(const PyIFaceEngine& pyIFaceEngine, const char* dataPath);
 	
 	lsdk::ILivenessPtr createLiveness(lsdk::LivenessAlgorithmType type);
@@ -19,12 +19,6 @@ public:
 	lsdk::IComplexLivenessPtr createComplexLiveness(lsdk::ComplexLivenessAlgorithmType type);
 	
 	void setSettingsProvider(PyISettingsProvider& provider);
-	
-//	fsdk::ISettingsProviderPtr getSettingsProvider();
-	
-	void setDataDirectory(const char* path);
-	
-	const char* getDataDirectory();
 	
 };
 

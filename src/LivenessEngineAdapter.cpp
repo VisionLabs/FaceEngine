@@ -35,15 +35,3 @@ void PyILivenessEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	livenessEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }
 
-//fsdk::ISettingsProviderPtr PyILivenessEngine::getSettingsProvider() {
-//	return fsdk::acquire(livenessEnginePtr->getSettingsProvider());
-//}
-
-void PyILivenessEngine::setDataDirectory(const char* path) {
-	livenessEnginePtr->setDataDirectory(path);
-}
-
-const char* PyILivenessEngine::getDataDirectory() {
-	return livenessEnginePtr->getDataDirectory();
-}
-
