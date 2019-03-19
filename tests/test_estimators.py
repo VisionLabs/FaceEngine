@@ -132,6 +132,7 @@ class TestFaceEngineRect(unittest.TestCase):
         err, attribute_result = attributeEstimator.estimate(image, attributeRequest)
         self.assertTrue(err.isOk)
         self.assertEqual(attribute_result.gender_opt.value(), 0.0)
+        self.assertAlmostEqual(attribute_result.genderScore_opt.value(), 0.01, delta=0.05)
         self.assertAlmostEqual(attribute_result.ethnicity_opt.value().caucasian, 1.0, delta=0.1)
         self.assertAlmostEqual(attribute_result.age_opt.value(), 60.0, delta=2.0)
 
