@@ -72,12 +72,14 @@ void estimators_module(py::module& f) {
 		.def(py::init<>())
 		.def_readwrite("age_opt", &fsdk::IAttributeEstimator::EstimationResult::age, "age estimation optional\n")
 		.def_readwrite("gender_opt", &fsdk::IAttributeEstimator::EstimationResult::gender, "gender estimation optional\n")
+		.def_readwrite("genderScore_opt", &fsdk::IAttributeEstimator::EstimationResult::genderScore, "gender score optional\n")
 		.def_readwrite("ethnicity_opt", &fsdk::IAttributeEstimator::EstimationResult::ethnicity, "ethnicity estimation optional\n")
 		.def("__repr__",
 			[](const fsdk::IAttributeEstimator::EstimationResult &r) {
 				return "AttributeResult: "
 						"age = " + (r.age.valid() ? std::to_string(r.age.value()) : std::string("not requested!\n")) +
 						" gender = " + (r.gender.valid() ? std::to_string(r.gender.value()) : std::string("not requested!\n")) +
+						" genderScore = " + (r.genderScore.valid() ? std::to_string(r.genderScore.value()) : std::string("not requested!\n")) +
 						" ethnicity = " + (r.ethnicity.valid() ? std::to_string(static_cast<int>(r.ethnicity.value().getPredominantEthnicity())) : std::string("not requested!\n"))
 						; })
 		;
