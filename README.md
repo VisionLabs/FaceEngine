@@ -62,7 +62,7 @@ If you want to **build from source files by CMake without installing**:
 ```bash
 $ mkdir build
 $ cd build
-$ cmake .. -DFSDK_ROOT=<path_to_LUNA_SDK>
+$ cmake .. -DFSDK_ROOT=<path_to_LUNA_SDK> -DLSDK_ROOT=<FSDK_path>
 $ cmake --build . --config Release
 ```
 
@@ -72,14 +72,14 @@ If you want to point not default version of python or custom path to LUNA SDK yo
 for `python 3.6` for example:
 
 ```bash
-$ cmake .. -DFSDK_ROOT=<FSDK_path> -DCMAKE_INSTALL_PREFIX=./install -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3.6
+$ cmake .. -DFSDK_ROOT=<FSDK_path> -DLSDK_ROOT=<FSDK_path> -DCMAKE_INSTALL_PREFIX=./install -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3.6
 -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython3.6.lib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python3.6
 ```
 **Example of building command (from FSDK_ROOT/pythonBindings/build):**
 for python 2.7 for example:
 
 ```bash
-$ cmake .. -DFSDK_ROOT=<FSDK_path> -DCMAKE_INSTALL_PREFIX=./install -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python
+$ cmake .. -DFSDK_ROOT=<FSDK_path> -DLSDK_ROOT=<FSDK_path> -DCMAKE_INSTALL_PREFIX=./install -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python
 -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.lib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7
 ```
 
