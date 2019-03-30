@@ -8,6 +8,7 @@
 #include <pybind11/numpy.h>
 #include "TrackEngineAdapter.hpp"
 #include "../FaceEngineAdapter.hpp"
+#include "TrackEngineCallback.hpp"
 
 namespace py = pybind11;
 
@@ -16,10 +17,6 @@ PyITrackEngine createPyFaceEnginePtr(const PyIFaceEngine& fsdk, const std::strin
 }
 
 PYBIND11_MODULE(TrackEngine, t) {
-	t.def("getSmth", []() -> std::string {
-		return std::string("trackengine smth");
-	});
-
 	t.def("createTrackEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
 		  "Create TrackEngine",
 		  "Create the TrackEngine object\n");
@@ -32,4 +29,20 @@ PYBIND11_MODULE(TrackEngine, t) {
 
 	py::class_<PyIStream>(t, "PyIStream", "Root LUNA SDK object interface\n")
 			.def("pushFrame", &PyIStream::pushFrame,"fuck");
+
+
+	py::class_<PyICallback>(t, "PyICallback", "Root LUNA SDK object interface\n")
+			.def_readonly("type", &PyICallback::type)
+			.def_readonly("image", &PyICallback::image)
+			.def_readonly("landmarks", &PyICallback::landmarks)
+			.def_readonly("bbox", &PyICallback::bbox)
+			.def_readonly("score", &PyICallback::score)
+			.def_readonly("trackId", &PyICallback::trackId)
+			.def_readonly("frameId", &PyICallback::frameId);
+
+	py::enum_<PyICallback::CallbackType>(t, "TrackEngineCallbackType", "Complete or FrontEdition version.\n")
+			.value("ctVisual", PyICallback::CallbackType::ctVisual)
+			.value("ctBestShot", PyICallback::CallbackType::ctBestShot)
+			.value("ctTrackEnd", PyICallback::CallbackType::ctTrackEnd)
+			.export_values();
 }

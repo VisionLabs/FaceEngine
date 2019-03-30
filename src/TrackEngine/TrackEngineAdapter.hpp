@@ -3,13 +3,20 @@
 #include "../FaceEngineAdapter.hpp"
 #include "trackEngine/ITrackEngine.h"
 #include "trackEngine/ITrackCallbacks.h"
+#include "trackEngine/TrackEngineTypes.h"
+#include "TrackEngineCallback.hpp"
 #include <iostream>
+#include <memory>
+#include <list>
+#include <vector>
+#include <mutex>
+
+using CallbacksListPtr =  std::shared_ptr<std::list<PyICallback>>;
 
 struct Observer :
 		tsdk::IBestShotObserver,
 		tsdk::IVisualObserver,
 		tsdk::IBestShotPredicate {
-
 	void bestShot(const tsdk::DetectionDescr& detection) override {
 
 	}
@@ -33,7 +40,6 @@ struct Observer :
 	}
 
 	bool checkBestShot(const tsdk::DetectionDescr& descr) override {
-		//std::cout << "checkBestShot " << std::endl;
 		return true;
 	}
 };
@@ -51,16 +57,38 @@ public:
 
 class PyIStream {
 public:
-	fsdk::Ref<tsdk::IStream> stream;
-	Observer streamObserver;
-	PyIStream (fsdk::Ref<tsdk::IStream> _stream)
+	PyIStream(PyIStream& other):
+			stream{other.stream},
+			streamObserver{other.streamObserver},
+			callbacks{other.callbacks}
+	{}
+
+	PyIStream(PyIStream&& other) noexcept:
+			stream{std::move(other.stream)},
+			streamObserver{std::move(other.streamObserver)},
+			callbacks{std::move(other.callbacks)}
+	{}
+
+	explicit PyIStream(fsdk::Ref<tsdk::IStream>&& _stream)
 	:stream{_stream}
 	{
-		stream->setBestShotObserver(&streamObserver);
-		//stream->setVisualObserver(&streamObserver);
-		//stream->setBestShotPredicate(&streamObserver);
+		if (stream.isNull()) {
+			std::cout << "error: stream is nullptr!!! " << std::endl;
+			return;
+		}
+		callbacks = std::make_shared<std::list<PyICallback>>();
+		streamObserver = std::make_shared<Observer>();
+		stream->setBestShotObserver(streamObserver.get());
+		stream->setVisualObserver(streamObserver.get());
+		stream->setBestShotPredicate(streamObserver.get());
 	}
 
 	void pushFrame(const fsdk::Image& image);
+	std::vector<PyICallback> getCallbacks();
+
+	std::mutex m_mutex;
+	fsdk::Ref<tsdk::IStream> stream;
+	std::shared_ptr<Observer> streamObserver;
+	CallbacksListPtr callbacks;
 };
 
