@@ -8,7 +8,7 @@ public:
 		ctTrackEnd
 	};
 
-	PyICallback(CallbackType _type,
+	/*PyICallback(CallbackType _type,
 				fsdk::Image _image,
 				fsdk::Landmarks5 _landmarks,
 				fsdk::Rect _bbox,
@@ -22,7 +22,7 @@ public:
 			score{_score},
 			trackId{_trackId},
 			frameId{_frameId}
-	{}
+	{}*/
 
 
 	CallbackType type;

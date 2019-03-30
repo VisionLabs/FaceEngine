@@ -23,20 +23,23 @@ PyIStream PyITrackEngine::createStream() {
 }
 
 void PyIStream::pushFrame(const fsdk::Image &image) {
-	std::lock_guard<std::mutex> lock{m_mutex};
 	static uint32_t n = 0;
 	stream->pushFrame(image, n++);
 }
 
 std::vector<PyICallback> PyIStream::getCallbacks() {
-	std::lock_guard<std::mutex> lock{m_mutex};
-	std::vector<PyICallback> ret;
-	ret.reserve(callbacks->size());
+	return streamObserver->getCallbacks();
+}
 
-	for (auto& c: *callbacks) {
-		ret.emplace_back(c);
+PyIStream::PyIStream(fsdk::Ref<tsdk::IStream> &&_stream)
+		:stream{_stream}
+{
+	if (stream.isNull()) {
+		std::cout << "error: stream is nullptr!!! " << std::endl;
+		return;
 	}
-
-	callbacks->clear();
-	return ret;
+	streamObserver = std::make_shared<Observer>();
+	stream->setBestShotObserver(streamObserver.get());
+	stream->setVisualObserver(streamObserver.get());
+	stream->setBestShotPredicate(streamObserver.get());
 }
