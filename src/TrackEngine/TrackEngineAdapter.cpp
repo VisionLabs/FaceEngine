@@ -22,9 +22,8 @@ PyIStream PyITrackEngine::createStream() {
 	return PyIStream{std::move(stream)};
 }
 
-void PyIStream::pushFrame(const fsdk::Image &image) {
-	static uint32_t n = 0;
-	stream->pushFrame(image, n++);
+bool PyIStream::pushFrame(const fsdk::Image &image, int id) {
+	return stream->pushFrame(image, id);
 }
 
 std::vector<PyICallback> PyIStream::getCallbacks() {
@@ -42,4 +41,8 @@ PyIStream::PyIStream(fsdk::Ref<tsdk::IStream> &&_stream)
 	stream->setBestShotObserver(streamObserver.get());
 	stream->setVisualObserver(streamObserver.get());
 	stream->setBestShotPredicate(streamObserver.get());
+}
+
+void PyIStream::waitStream() {
+	stream->join();
 }

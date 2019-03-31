@@ -28,8 +28,9 @@ PYBIND11_MODULE(TrackEngine, t) {
 			.def("createStream", &PyITrackEngine::createStream, "fuck3");
 
 	py::class_<PyIStream>(t, "PyIStream", "Root LUNA SDK object interface\n")
-			.def("pushFrame", &PyIStream::pushFrame,"fuck");
-
+			.def("pushFrame", &PyIStream::pushFrame,"fuck")
+			.def("getCallbacks", &PyIStream::getCallbacks,"fuck")
+			.def("waitStream", &PyIStream::waitStream, "fuck");
 
 	py::class_<PyICallback>(t, "PyICallback", "Root LUNA SDK object interface\n")
 			.def_readonly("type", &PyICallback::type)

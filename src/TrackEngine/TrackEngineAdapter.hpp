@@ -25,10 +25,7 @@ public:
 
 class PyIStream {
 public:
-	PyIStream(PyIStream& other):
-			stream{other.stream},
-			streamObserver{other.streamObserver}
-	{}
+	PyIStream(PyIStream& other) = default;
 
 	PyIStream(PyIStream&& other) noexcept:
 			stream{other.stream},
@@ -37,10 +34,12 @@ public:
 
 	explicit PyIStream(fsdk::Ref<tsdk::IStream>&& _stream);
 
-	void pushFrame(const fsdk::Image& image);
+	bool pushFrame(const fsdk::Image& image, int id);
 	std::vector<PyICallback> getCallbacks();
+	void waitStream();
 private:
 	fsdk::Ref<tsdk::IStream> stream;
 	std::shared_ptr<Observer> streamObserver;
+	uint32_t m_frameId = 0;
 };
 

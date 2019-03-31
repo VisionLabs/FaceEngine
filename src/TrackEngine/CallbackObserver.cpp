@@ -9,9 +9,8 @@ std::vector<PyICallback> Observer::getCallbacks() {
 	std::vector<PyICallback> ret;
 	ret.reserve(m_callbacks->size());
 
-	for (auto& c: *m_callbacks) {
+	for (auto& c: *m_callbacks)
 		ret.emplace_back(c);
-	}
 
 	m_callbacks->clear();
 	return ret;

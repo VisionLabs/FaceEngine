@@ -1,4 +1,5 @@
 #include <fsdk/FaceEngine.h>
+#include <vector>
 
 #pragma once
 
