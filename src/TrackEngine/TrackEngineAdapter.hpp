@@ -18,8 +18,6 @@ public:
 	fsdk::Ref<tsdk::ITrackEngine> trackEngine;
 
 	PyITrackEngine(const PyIFaceEngine& fsdk, const std::string& configPath);
-	std::string getStr();
-	std::string getFSDKVer(const PyIFaceEngine& fsdk);
 	PyIStream createStream();
 };
 

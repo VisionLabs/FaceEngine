@@ -1,5 +1,4 @@
 import sys
-from time import sleep
 
 def help():
     print("python example_detector_warper.py <path to FaceEngine*.so> <path to image>")
@@ -13,6 +12,8 @@ sys.path.append(sys.argv[1])
 # if FaceEngine is installed only
 import FaceEngine as fe
 import TrackEngine as te
+
+
 # correct paths or put directory "data" with example_detector_warper.py
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 trackEngine = te.createTrackEngine(faceEngine, "data/trackengine.conf")
@@ -25,8 +26,13 @@ if __name__ == "__main__":
         print("Image error = ", err_image_loaded)
         exit(-1)
     stream = trackEngine.createStream()
-    print(trackEngine.getStr())
-    print(trackEngine.getFSDKVer(faceEngine))
-    for x in range(0, 200):
-        stream.pushFrame(image)
-    sleep(2)
+    for x in range(0, 20):
+        if not stream.pushFrame(image, x):
+            print("push error {0}".format(x))
+
+    print("All frames are pushed")
+    stream.waitStream()
+    clb = stream.getCallbacks()
+    for c in clb:
+        if c.type == te.ctVisual:
+            print("have callback {0} {1}".format(c.frameId, c.trackId))

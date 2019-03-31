@@ -26,6 +26,7 @@ void Observer::bestShot(const tsdk::DetectionDescr &detection)  {
 	c.bbox = detection.detection.rect;
 	c.landmarks = detection.landmarks;
 	c.score = detection.detection.score;
+	c.isDetection = true;
 	m_callbacks->emplace_back(std::move(c));
 }
 
@@ -41,6 +42,7 @@ void Observer::visual(const tsdk::FrameId &frameId, const fsdk::Image &image, co
 		c.bbox = trackInfo[i].rect;
 		c.landmarks = trackInfo[i].landmarks;
 		c.score = trackInfo[i].lastDetectionScore;
+		c.isDetection = trackInfo[i].isDetector;
 		m_callbacks->emplace_back(std::move(c));
 	}
 }
