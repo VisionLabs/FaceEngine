@@ -12,12 +12,12 @@
 
 namespace py = pybind11;
 
-PyITrackEngine createPyFaceEnginePtr(const PyIFaceEngine& fsdk, const std::string& configPath) {
+PyITrackEngine createPyTrackEnginePtr(const PyIFaceEngine& fsdk, const std::string& configPath) {
 	return PyITrackEngine{fsdk, configPath};
 }
 
 PYBIND11_MODULE(TrackEngine, t) {
-	t.def("createTrackEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
+	t.def("createTrackEngine", &createPyTrackEnginePtr, py::return_value_policy::take_ownership,
 		  "Create TrackEngine",
 		  "Creates the TrackEngine object\n");
 

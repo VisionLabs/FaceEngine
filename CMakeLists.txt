@@ -30,6 +30,13 @@ endif()
 find_package(LivenessEngineSDK REQUIRED)
 include_directories(${LSDK_INCLUDE_DIRS})
 
+if (FSDK_FOUND)
+	if (NOT DEFINED LSDK_ROOT)
+		# We can't just use FSDK_ROOT - it could be relative.
+		set(TSDK_ROOT "${FSDK_INCLUDE_DIRS}/../." CACHE PATH "TSDK directory")
+	endif()
+endif()
+
 find_package(TrackEngineSDK REQUIRED)
 include_directories(${TSDK_INCLUDE_DIRS})
 
