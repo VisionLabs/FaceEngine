@@ -20,17 +20,25 @@ endif()
 find_package(FaceEngineSDK REQUIRED)
 include_directories(${FSDK_INCLUDE_DIRS})
 
+if (FSDK_FOUND)
+	if (NOT DEFINED LSDK_ROOT)
+		# We can't just use FSDK_ROOT - it could be relative.
+		set(LSDK_ROOT "${FSDK_INCLUDE_DIRS}/../." CACHE PATH "LSDK directory")
+	endif()
+endif()
+
 find_package(LivenessEngineSDK REQUIRED)
 include_directories(${LSDK_INCLUDE_DIRS})
 
 find_package(TrackEngineSDK REQUIRED)
 include_directories(${TSDK_INCLUDE_DIRS})
 
-message(${FSDK_LIBRARIES})
-message(${FSDK_INCLUDE_DIRS})
+message("FSDK_LIBRARIES = ${FSDK_LIBRARIES}")
+message("FSDK_INCLUDE_DIRS = ${FSDK_INCLUDE_DIRS}")
 
-message(${LSDK_LIBRARIES})
-message(${LSDK_INCLUDE_DIRS})
+
+message("LSDK_LIBRARIES = ${LSDK_LIBRARIES}")
+message("LSDK_INCLUDE_DIRS = ${LSDK_INCLUDE_DIRS}")
 
 add_subdirectory(pybind11)
 

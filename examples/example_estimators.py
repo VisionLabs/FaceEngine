@@ -53,29 +53,29 @@ def attribute_quality_ethnicity_blackWhite_smile_example(image):
     if err_attribute.isOk:
         print(attribute_result)
     else:
-        print("Failed attribute estimation. Reason: {0}".format(err.what))
+        print("Failed attribute estimation. Reason: {0}".format(err_attribute.what))
         exit(1)
     if err_quality.isOk:
         print(quality_result)
     else:
-        print("Failed quality estimation. Reason: {0}".format(err.what))
+        print("Failed quality estimation. Reason: {0}".format(err_quality.what))
         exit(1)
     if err_ethnicity.isOk:
         print(ethnicity_result)
         print("Ethnicity score: {0}".format(ethnicity_result.getEthnicityScore(fe.Ethnicity.Caucasian)))
         print("Predominant: {0}".format(ethnicity_result.getPredominantEthnicity()))
     else:
-        print("Failed ethnicity estimation. Reason: {0}".format(err.what))
+        print("Failed ethnicity estimation. Reason: {0}".format(err_ethnicity.what))
         exit(1)
     if err_blackWhite.isOk:
         print("BlackWhiteEstimation: ", blackWhite_result)
     else:
-        print("Failed BlackWhiteEstimation estimation. Reason: {0}".format(err.what))
+        print("Failed BlackWhiteEstimation estimation. Reason: {0}".format(err_blackWhite.what))
         exit(1)
     if err_smile.isOk:
         print(smile_result)
     else:
-        print("Failed smile estimation. Reason: {0}".format(err.what))
+        print("Failed smile estimation. Reason: {0}".format(err_smile.what))
         exit(1)
 
 
@@ -95,7 +95,7 @@ def depth_example(depth_image_path):
     if err.isOk:
         print("Depth estimator value: ", result)
     else:
-        print("Failed depth estimation. Reason: {0}".format(err.what))
+        print("Failed depth estimation. Reason: {0}".format(err_depth.what))
         exit(1)
 
 
@@ -104,11 +104,11 @@ def ir_example(ir_image_path):
     ir_image = fe.Image()
     err = ir_image.load(ir_image_path)
     if not ir_image.isValid():
-        print("ir image was not found {0}".format(err))
+        print("IR image load error: {0}".format(err.what))
         exit(1)
     err, ir_result = iREstimator.estimate(ir_image)
     if err.isOk:
-        print("Ir estimator value: ", ir_result)
+        print("IR estimator value: ", ir_result)
     else:
         print("Failed ir estimation. Reason: {0}".format(err.what))
         exit(1)
@@ -129,6 +129,8 @@ def faceFlow_example():
     err, faceFlowResult = faceFlowEstimator.estimate(face_flow_image, sequence)
     if err.isOk:
         print("FaceFlowResult: {0}".format(faceFlowResult))
+    else:
+        print("Failed faceFlowEstimation. Reason: {0}".format(err.what))
 
 
 def eye_example(_warp_image, _transformed_landmarks5):
@@ -236,7 +238,7 @@ if __name__ == "__main__":
         elif err_headPose.isError:
             print("Failed head pose estimation. Reason: {0}".format(err_headPose.what))
             exit(1)
-        elif err_eyes.isOk:
+        elif err_eyes.isError:
             print("Failed eyes estimation. Reason: {0}".format(err_eyes.what))
             exit(1)
         ags_example(faceEngine, image, detection)
