@@ -1,5 +1,8 @@
 #include "TrackEngineAdapter.hpp"
-#include <iostream>
+
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
 
 PyITrackEngine::PyITrackEngine(const PyIFaceEngine &fsdk, const std::string &configPath) {
 	m_trackEngine = fsdk::acquire(tsdk::createTrackEngine(fsdk.faceEnginePtr.get(), configPath.c_str()));
@@ -21,10 +24,8 @@ std::vector<PyICallback> PyIStream::getCallbacks() {
 PyIStream::PyIStream(fsdk::Ref<tsdk::IStream> &&_stream)
 		:m_stream{_stream}
 {
-	if (m_stream.isNull()) {
-		std::cout << "error: stream is nullptr!!! " << std::endl;
-		return;
-	}
+	if (m_stream.isNull())
+		throw py::cast_error("\nPyIStream error: stream is nullptr!");
 	m_streamObserver = std::make_shared<Observer>();
 	m_stream->setBestShotObserver(m_streamObserver.get());
 	m_stream->setVisualObserver(m_streamObserver.get());

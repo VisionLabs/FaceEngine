@@ -1,16 +1,15 @@
 #pragma once
-#include <string>
-#include "../FaceEngineAdapter.hpp"
-#include "trackEngine/ITrackEngine.h"
-#include "trackEngine/ITrackCallbacks.h"
-#include "trackEngine/TrackEngineTypes.h"
-#include "TrackEngineCallback.hpp"
+
 #include "CallbackObserver.hpp"
-#include <iostream>
+
+#include "../FaceEngineAdapter.hpp"
+
+#include "trackEngine/ITrackEngine.h"
+
+#include <pybind11/stl.h>
+
 #include <memory>
-#include <list>
 #include <vector>
-#include <mutex>
 
 class PyIStream;
 class PyITrackEngine {

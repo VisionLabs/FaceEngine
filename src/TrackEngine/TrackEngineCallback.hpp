@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../FaceEngineAdapter.hpp"
+
 class PyICallback {
 public:
 	enum CallbackType {

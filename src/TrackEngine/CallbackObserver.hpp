@@ -1,15 +1,14 @@
 #pragma once
-#include <string>
-#include "../FaceEngineAdapter.hpp"
-#include "trackEngine/ITrackEngine.h"
-#include "trackEngine/ITrackCallbacks.h"
-#include "trackEngine/TrackEngineTypes.h"
+
 #include "TrackEngineCallback.hpp"
-#include <iostream>
-#include <memory>
+
+#include "trackEngine/ITrackEngine.h"
+
 #include <list>
-#include <vector>
+#include <memory>
 #include <mutex>
+#include <vector>
+
 
 using CallbacksListPtr =  std::shared_ptr<std::list<PyICallback>>;
 

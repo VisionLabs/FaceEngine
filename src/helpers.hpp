@@ -3,8 +3,6 @@
 #include <fsdk/FaceEngine.h>
 #include <vector>
 
-#include <vector>
-
 struct Archive: fsdk::IArchive
 {
 	const char* dataOut;
