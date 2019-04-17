@@ -110,40 +110,36 @@ void detector_module(py::module& f) {
 		.def("redetectOne", [](
 				const fsdk::IDetectorPtr& det,
 				fsdk::Face face,
-				const fsdk::DetectionType type,
-				const int tol) {
-				fsdk::ResultValue<fsdk::FSDKError, bool> err = det->redetectOne(face, type, tol);
+				const fsdk::DetectionType type) {
+				fsdk::ResultValue<fsdk::FSDKError, bool> err = det->redetectOne(face, type);
 				if (err.isOk() && err.getValue()) {
 					return std::make_tuple(FSDKErrorValueBool(err), face);
 				}
 				
 				return std::make_tuple(FSDKErrorValueBool(err), fsdk::Face());
-			}, py::arg("face"), py::arg("type"), py::arg("tolerance") = 0,
+			}, py::arg("face"), py::arg("type"),
 			"Redetect face.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (Face): face structure with detection and landmarks.\n"
 			"\t\tparam2 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
-			"\t\tparam3 (int): tolerance allowed face shifting between two nearest detection frames in pixels.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
 		
 		.def("redetect", [](
 				const fsdk::IDetectorPtr& det,
 				std::vector<fsdk::Face>& faces,
-				const fsdk::DetectionType type,
-				const int tol = 0) {
+				const fsdk::DetectionType type) {
 					const fsdk::Span<fsdk::Face> facesSpan(faces.data(), faces.size());
-					fsdk::Result<fsdk::FSDKError> err = det->redetect(facesSpan, type, tol);
+					fsdk::Result<fsdk::FSDKError> err = det->redetect(facesSpan, type);
 					const auto* const ptr = facesSpan.begin();
 					const uint32_t size = facesSpan.size();
 					return std::make_tuple(FSDKErrorResult(err),
 						std::move(std::vector<fsdk::Face>(ptr, ptr + size)));
-				}, py::arg("faces"), py::arg("type"), py::arg("tolerance") = 0,
+				}, py::arg("faces"), py::arg("type"),
 			"Batched redetect faces.\n"
 			"\tArgs:\n"
 			"\t\tparam1 ([Face]): detections list.\n"
 			"\t\tparam2 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
-			"\t\tparam3 (int): tolerance allowed face shifting between two nearest detection frames in pixels.\n"
 			"\tReturns:\n"
 			"\t\t(tuple with FSDKErrorResult code and list of Faces): \n"
 			"\t\t\t tuple with FSDKErrorResult and list of tuples from Detection\n")
