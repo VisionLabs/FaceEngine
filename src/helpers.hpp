@@ -1,7 +1,6 @@
 #pragma once
 
 #include <fsdk/FaceEngine.h>
-
 #include <vector>
 
 struct Archive: fsdk::IArchive
