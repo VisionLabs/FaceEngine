@@ -59,10 +59,12 @@ if __name__ == "__main__":
 
         if not checkLicense(license):
             # check facility for not activated license
-            detector = faceEngine.createDetector(fe.FACE_DET_V1)
-            if detector is None:
-                print("Detector creation failed! License is not activated!")
-
+            try:
+                print("Trying to create detector before activation.")
+                detector = faceEngine.createDetector(fe.FACE_DET_V1)
+                print("Strange, but detector was created sucessfully!")
+            except Exception as ex:
+                print("Detector creation failed. Exception: {0} {1}".format(type(ex).__name__, ex))
 
         if faceEngine.activateLicense(license, licenseConfPath):
             print("License was sucessfully activated!")
@@ -71,9 +73,12 @@ if __name__ == "__main__":
 
         if checkLicense(license):
             # check facility for activated license
-            detector = faceEngine.createDetector(fe.FACE_DET_V1)
-            if detector is not None:
+            try:
+                print("Trying to create detector after activation.")
+                detector = faceEngine.createDetector(fe.FACE_DET_V1)
                 print("Detector creation success! License is activated!")
+            except Exception as ex:
+                print("Strange, but detector creation failed. Exception: {0} {1}".format(type(ex).__name__, ex))
 
     except Exception as ex:
         print(type(ex).__name__, ex)
