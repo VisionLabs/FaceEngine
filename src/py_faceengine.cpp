@@ -553,6 +553,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("dtBBox", fsdk::dtBBox, "Get bounding boxes of faces\n")
 		.value("dt5Landmarks", fsdk::dt5Landmarks, "Get 5 facial landmarks\n")
 		.value("dt68Landmarks", fsdk::dt68Landmarks, "Get 68 facial landmarks\n")
+		.value("dtAll", fsdk::dtAll, "Get all supported parameters.\n")
 		.export_values();
 			;
 	
