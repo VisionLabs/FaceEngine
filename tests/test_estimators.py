@@ -41,7 +41,7 @@ def detect(image_det, max_detections):
     detector = faceEnginePtr.createDetector(f.FACE_DET_V1)
     detector_result = detector.detectOne(image_det,
                                          image_det.getRect(),
-                                         f.DetectionType(f.dt5Landmarks | f.dt68Landmarks))
+                                         f.DetectionType(f.dtAll))
     # for i, item in enumerate(detector_result, 1):
 #     print(i, item)
     return detector_result

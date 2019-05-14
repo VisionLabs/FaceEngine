@@ -150,6 +150,12 @@ class TestFaceEngineDetector(unittest.TestCase):
             image.getRect(),
             fe.DetectionType(fe.dt5Landmarks|fe.dt68Landmarks))
         self.assertTrue(res_one.isOk)
+        # dtAll test
+        res_one, faceOne3 = detector.detectOne(
+            image,
+            image.getRect(),
+            fe.DetectionType(fe.dtAll))
+        self.assertTrue(res_one.isOk)
 
         with open(ptsfilename) as file:
             for i, line in enumerate(file):
@@ -194,6 +200,7 @@ class TestFaceEngineDetector(unittest.TestCase):
                 fe.DetectionType(fe.dtBBox|fe.dt68Landmarks))
             self.compare_detection_lists(_expectedDetection, detect_list, imagesCount)
             self.compare_detections(faceOne2, detect_list[0][0])
+            self.compare_detections(faceOne3, detect_list[0][0])
 
     def humanDetectorTest(self):
         configPath = os.path.join("data", "faceengine.conf")
