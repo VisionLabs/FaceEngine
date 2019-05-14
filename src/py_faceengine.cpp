@@ -362,7 +362,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "FSDKErrorResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
 						+ ", what = " + err.what; })
 			;
 	
@@ -379,7 +379,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 return "LSDKErrorResult: "
 							"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", LSDKError = " + fsdk::ErrorTraits<lsdk::LSDKError >::toString(err.lsdkError)
+						+ ", LSDKError = " + std::to_string(static_cast<uint32_t>(err.lsdkError))
 						+ ", what = " + err.what; })
 		;
 	
@@ -395,8 +395,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "DescriptorBatchResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", DescriptorBatchError = " +
-						fsdk::ErrorTraits<fsdk::IDescriptorBatch::Error>::toString(err.descriptorBatchError)
+						+ ", DescriptorBatchError = " + std::to_string(static_cast<uint32_t>(err.descriptorBatchError))
 						+ ", what = " + err.what; })
 			;
 	
@@ -412,7 +411,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "ImageErrorResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", imageError = " + fsdk::ErrorTraits<fsdk::Image::Error>::toString(err.imageError)
+						+ ", imageError = " + std::to_string(static_cast<uint32_t>(err.imageError))
 						+ ", what = " + err.what; })
 			;
 	
@@ -428,9 +427,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "SettingsProviderResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", SettingsProviderError = " +
-						fsdk::ErrorTraits<fsdk::ISettingsProvider::Error>::
-						toString(err.settingsProviderError)
+						+ ", SettingsProviderError = " + std::to_string(static_cast<uint32_t>(err.settingsProviderError))
 						+ ", what = " + err.what; })
 		;
 	
@@ -446,7 +443,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "FSDKErrorValueInt: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
 						+ ", value = " + std::to_string(err.value)
 						+ ", what = " + err.what; })
 			;
@@ -463,7 +460,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 return "FSDKErrorValueBool: "
 							"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
 						+ ", value = " + std::to_string(err.value)
 						+ ", what = " + err.what; })
 			;
@@ -481,7 +478,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "FSDKErrorValueFloat: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
 						+ ", value = " + std::to_string(err.value)
 						+ ", what = " + err.what;
 			})
@@ -499,7 +496,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "FSDKErrorValueMatching: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
 						+ ", value: (distance = " + std::to_string(err.value.distance) +
 						", similarity = " + std::to_string(err.value.similarity) + ")"
 						+ ", what = " + err.what;
