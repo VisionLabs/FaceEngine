@@ -30,14 +30,12 @@ void liveness_module(py::module& f) {
 		.value("LA_EYE", lsdk::LA_EYE, "Algorithm based on eye blinking.\n")
 		.value("LA_ZOOM", lsdk::LA_ZOOM, "Algorithm based on camera zooming.\n")
 		.value("LA_INFRARED", lsdk::LA_INFRARED, "ALgorithm based on infrared warp analisys.\n")
-		.value("LA_COUNT", lsdk::LA_COUNT, "Not a type; counts number of available types.\n")
 		.export_values();
 			;
 	
 	py::enum_<lsdk::ComplexLivenessAlgorithmType>(f, "ComplexLivenessType", py::arithmetic(),
 			"Liveness type enumeration.\n")
 		.value("CLA_DEPTH", lsdk::CLA_DEPTH, "Algorithm based on depth map analysis.\n")
-		.value("CLA_COUNT", lsdk::CLA_COUNT, "Not a type; counts number of available types.\n")
 		.export_values();
 			;
 	

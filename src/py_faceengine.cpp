@@ -533,7 +533,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("FACE_DET_V1", fsdk::FACE_DET_V1, "First detector type")
 		.value("FACE_DET_V2", fsdk::FACE_DET_V2, "Light detector type")
 		.value("FACE_DET_V3", fsdk::FACE_DET_V3, "Third detector type")
-		.value("FACE_DET_COUNT", fsdk::FACE_DET_COUNT, "Detector type count")
 		.export_values();
 			;
 	
@@ -545,7 +544,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"BestDetection - most centered detection\n")
 		.value("DCT_CENTER_AND_CONFIDANCE", fsdk::DCT_CENTER_AND_CONFIDANCE,
 			"BestDetection - most centered with high score\n")
-		.value("DCT_COUNT", fsdk::DCT_COUNT, "Count\n")
 		.export_values();
 			;
 	
@@ -892,7 +890,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			ObjectDetectorClassType.FACE_DET_V1
 			ObjectDetectorClassType.FACE_DET_V2
 			ObjectDetectorClassType.FACE_DET_V3
-			ObjectDetectorClassType.FACE_DET_COUNT
 			
 			Detection
 			Detection.isValid
@@ -906,7 +903,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			DetectionComparerType.DCT_CONFIDANCE
 			DetectionComparerType.DCT_CENTER
 			DetectionComparerType.DCT_CENTER_AND_CONFIDANCE
-			DetectionComparerType.DCT_COUNT
 
 			DetectionType
 			DetectionType.dtBBox
