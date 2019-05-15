@@ -40,11 +40,11 @@ def detector_redetect_example(_image_det, _max_detections, _next_image, _detecto
         [_image_det.getRect(), _image_det.getRect()],
         _max_detections,
         fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
-    face_list[0][0].img = _next_image
+    # take first image and all its faces, rewrite img
+    for face in face_list[0]:
+        face.img = _next_image
     # DetectionType must be the same as in detect. Take only first type
     redetect_result = detector.redetect(face_list[0], fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
-    # print(face_list[0][0].detection, face_list[0][0].detection.score)
-    # print(redetect_result[0], redetect_result[1][0].detection)
     return redetect_result
 
 
