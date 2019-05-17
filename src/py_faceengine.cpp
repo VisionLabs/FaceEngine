@@ -82,7 +82,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 	
 	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
 		.def(py::init<>())
-		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection optinal\n")
+		.def(py::init<fsdk::Image>())
+		.def_readwrite("img", &fsdk::Face::m_img, "Image\n")
+		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection\n")
 		.def_readwrite("landmarks5_opt", &fsdk::Face::m_landmarks5, "Landmarks5 optinal\n")
 		.def_readwrite("landmarks68_opt", &fsdk::Face::m_landmarks68, "Landmarks68 optinal\n")
 		.def("isValid", &fsdk::Face::isValid, "Valid or not\n")
@@ -383,7 +385,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "FSDKErrorResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
 						+ ", what = " + err.what; })
 			;
 	
@@ -400,7 +402,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 return "LSDKErrorResult: "
 							"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", LSDKError = " + fsdk::ErrorTraits<lsdk::LSDKError >::toString(err.lsdkError)
+						+ ", LSDKError = " + std::to_string(static_cast<uint32_t>(err.lsdkError))
 						+ ", what = " + err.what; })
 		;
 	
@@ -416,8 +418,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "DescriptorBatchResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", DescriptorBatchError = " +
-						fsdk::ErrorTraits<fsdk::IDescriptorBatch::Error>::toString(err.descriptorBatchError)
+						+ ", DescriptorBatchError = " + std::to_string(static_cast<uint32_t>(err.descriptorBatchError))
 						+ ", what = " + err.what; })
 			;
 	
@@ -433,7 +434,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "ImageErrorResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", imageError = " + fsdk::ErrorTraits<fsdk::Image::Error>::toString(err.imageError)
+						+ ", imageError = " + std::to_string(static_cast<uint32_t>(err.imageError))
 						+ ", what = " + err.what; })
 			;
 	
@@ -449,9 +450,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "SettingsProviderResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", SettingsProviderError = " +
-						fsdk::ErrorTraits<fsdk::ISettingsProvider::Error>::
-						toString(err.settingsProviderError)
+						+ ", SettingsProviderError = " + std::to_string(static_cast<uint32_t>(err.settingsProviderError))
 						+ ", what = " + err.what; })
 		;
 	
@@ -467,7 +466,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "FSDKErrorValueInt: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
 						+ ", value = " + std::to_string(err.value)
 						+ ", what = " + err.what; })
 			;
@@ -484,7 +483,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 return "FSDKErrorValueBool: "
 							"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
 						+ ", value = " + std::to_string(err.value)
 						+ ", what = " + err.what; })
 			;
@@ -502,7 +501,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "FSDKErrorValueFloat: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
 						+ ", value = " + std::to_string(err.value)
 						+ ", what = " + err.what;
 			})
@@ -520,7 +519,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "FSDKErrorValueMatching: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + fsdk::ErrorTraits<fsdk::FSDKError >::toString(err.fsdkError)
+						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
 						+ ", value: (distance = " + std::to_string(err.value.distance) +
 						", similarity = " + std::to_string(err.value.similarity) + ")"
 						+ ", what = " + err.what;
@@ -554,7 +553,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("FACE_DET_V1", fsdk::FACE_DET_V1, "First detector type")
 		.value("FACE_DET_V2", fsdk::FACE_DET_V2, "Light detector type")
 		.value("FACE_DET_V3", fsdk::FACE_DET_V3, "Third detector type")
-		.value("FACE_DET_COUNT", fsdk::FACE_DET_COUNT, "Detector type count")
 		.export_values();
 			;
 	
@@ -566,7 +564,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"BestDetection - most centered detection\n")
 		.value("DCT_CENTER_AND_CONFIDANCE", fsdk::DCT_CENTER_AND_CONFIDANCE,
 			"BestDetection - most centered with high score\n")
-		.value("DCT_COUNT", fsdk::DCT_COUNT, "Count\n")
 		.export_values();
 			;
 	
@@ -574,6 +571,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("dtBBox", fsdk::dtBBox, "Get bounding boxes of faces\n")
 		.value("dt5Landmarks", fsdk::dt5Landmarks, "Get 5 facial landmarks\n")
 		.value("dt68Landmarks", fsdk::dt68Landmarks, "Get 68 facial landmarks\n")
+		.value("dtAll", fsdk::dtAll, "Get all supported parameters.\n")
 		.export_values();
 			;
 	
@@ -976,7 +974,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			ObjectDetectorClassType.FACE_DET_V1
 			ObjectDetectorClassType.FACE_DET_V2
 			ObjectDetectorClassType.FACE_DET_V3
-			ObjectDetectorClassType.FACE_DET_COUNT
 			
 			Detection
 			Detection.isValid
@@ -990,7 +987,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			DetectionComparerType.DCT_CONFIDANCE
 			DetectionComparerType.DCT_CENTER
 			DetectionComparerType.DCT_CENTER_AND_CONFIDANCE
-			DetectionComparerType.DCT_COUNT
 
 			DetectionType
 			DetectionType.dtBBox

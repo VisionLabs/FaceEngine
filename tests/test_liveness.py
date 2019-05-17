@@ -59,10 +59,8 @@ print(fe.LA_EYE)
 print(fe.LA_ZOOM)
 print(fe.LA_INFRARED)
 print(fe.LA_EYEBROW)
-print(fe.LA_COUNT)
 
 print(fe.CLA_DEPTH)
-print(fe.CLA_COUNT)
 
 print(fe.LSDKError.Ok)
 print(fe.LSDKError.NotInitialized)

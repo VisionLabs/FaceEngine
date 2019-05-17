@@ -23,7 +23,8 @@ py::class_<fsdk::BaseDetection<T>> detection_class(py::module& this_module, cons
 			return "x = " + std::to_string(r.rect.x) +
 				", y = " + std::to_string(r.rect.y) +
 				", width = " + std::to_string(r.rect.width) +
-				", height = " + std::to_string(r.rect.height);
+				", height = " + std::to_string(r.rect.height) +
+				", score = " + std::to_string(r.score);
 		})
 		;
 	

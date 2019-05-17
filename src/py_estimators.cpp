@@ -529,9 +529,9 @@ void estimators_module(py::module& f) {
 			;
 	
 	py::enum_<fsdk::HeadPoseEstimation::FrontalFaceType>(f, "FrontalFaceType", py::arithmetic())
-		.value("FrontalFace0", fsdk::HeadPoseEstimation::FrontalFace0)
-		.value("FrontalFace1", fsdk::HeadPoseEstimation::FrontalFace1)
-		.value("FrontalFace2", fsdk::HeadPoseEstimation::FrontalFace2)
+		.value("FrontalFace0", fsdk::HeadPoseEstimation::FrontalFace0, "\tNon-frontal face. \n")
+		.value("FrontalFace1", fsdk::HeadPoseEstimation::FrontalFace1, "\tGood for recognition; Doesn't descrease recall and looks fine. \n")
+		.value("FrontalFace2", fsdk::HeadPoseEstimation::FrontalFace2, "\tGOST/ISO angles \n")
 			;
 		
 		py::class_<fsdk::DepthRange>(f, "DepthRange",
@@ -647,7 +647,6 @@ void estimators_module(py::module& f) {
 		.value("Sadness", fsdk::EmotionsEstimation::Sadness)
 		.value("Surprise", fsdk::EmotionsEstimation::Surprise)
 		.value("Neutral", fsdk::EmotionsEstimation::Neutral)
-		.value("Count", fsdk::EmotionsEstimation::Count)
 		;
 	
 	// Gaze
@@ -685,7 +684,6 @@ void estimators_module(py::module& f) {
 		.value("Indian", fsdk::EthnicityEstimation::Indian)
 		.value("Asian", fsdk::EthnicityEstimation::Asian)
 		.value("Caucasian", fsdk::EthnicityEstimation::Caucasian)
-		.value("Count", fsdk::EthnicityEstimation::Count)
 		.export_values();
 			;
 }

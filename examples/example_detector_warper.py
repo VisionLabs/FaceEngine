@@ -33,24 +33,27 @@ def detector_batch_example(_image_det, _max_detections, _detector_type=fe.FACE_D
     return err, detector_result
 
 
-def detector_redetect_example(_image_det, _max_detections, _detector_type=fe.FACE_DET_V1, _config=None):
+def detector_redetect_example(_image_det, _max_detections, _next_image, _detector_type=fe.FACE_DET_V3, _config=None):
     detector = faceEngine.createDetector(_detector_type)
     err, face_list = detector.detect(
         [_image_det, _image_det],
         [_image_det.getRect(), _image_det.getRect()],
         _max_detections,
         fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
-    print(type(face_list))
+    # take first image and all its faces, rewrite img
+    for face in face_list[0]:
+        face.img = _next_image
     # DetectionType must be the same as in detect. Take only first type
     redetect_result = detector.redetect(face_list[0], fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
     return redetect_result
 
 
-def detector_redetect_one_example(_image_det, _detector_type=fe.FACE_DET_V1, _config=None):
+def detector_redetect_one_example(_image_det, _next_image, _detector_type=fe.FACE_DET_V3, _config=None):
     detector = faceEngine.createDetector(_detector_type)
     err, face = detector.detectOne(_image_det, _image_det.getRect(), fe.DetectionType(fe.dt5Landmarks))
     # DetectionType must be the same as in detect
     if face.isValid():
+        face.img = _next_image
         redetect_result = detector.redetectOne(face, fe.dt5Landmarks)
         return redetect_result
     else:
@@ -151,7 +154,6 @@ if __name__ == "__main__":
               " fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks) if need")
         exit(-1)
     (detection, landmarks5, landmarks68) = face.detection, face.landmarks5_opt.value(), face.landmarks68_opt.value()
-
     (warp_image, transformed_landmarks5, transformed_landmarks68) = \
         warper_example(image, detection, landmarks5, landmarks68)
     #
