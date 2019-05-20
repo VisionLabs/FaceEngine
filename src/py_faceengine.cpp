@@ -207,6 +207,27 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"Sets settings provider\n"
 			"\tArgs:\n"
 			"\t\tparam1 (PyISettingsProvider): setting provider\n")
+
+		.def("getLicense", &PyIFaceEngine::getLicense,
+			"Get current License object, which was set for FaceEngine object.\n"
+			"\tReturns:\n"
+			"\t\t(fsdk::ILicensePtr): current license object."
+			)
+
+		.def("activateLicense", [](
+			PyIFaceEngine& faceEngine,
+			const fsdk::ILicensePtr& license,
+			const char * licenseConfPath) {
+				return faceEngine.activateLicense(license, licenseConfPath);
+			},
+			"Makes License activation with some platform specific manner. Network connection is required.\n"
+			"\t\tThis method should be usend only on mobile or ARM platforms.\n"
+			"\tArgs:\n"
+			"\t\t param1 (fsdk::ILicensePtr): license object to activate.\n"
+			"\t\t param2 (str): path to the license.conf file.\n"
+			"\tReturns:\n"
+			"\t\t (bool): True if license was successfully activated, False otherwise."
+			)
 				; // FaceEngine
 	
 	
@@ -583,6 +604,69 @@ PYBIND11_MODULE(FaceEngine, f) {
 		
 		.value("IncompatibleDescriptors", fsdk::FSDKError::IncompatibleDescriptors)
 			;
+
+	py::enum_<fsdk::LicenseFeature>(f, "LicenseFeature", "License features.\n")
+		.value("Detection", fsdk::LicenseFeature::Detection)
+		.value("BestShot", fsdk::LicenseFeature::BestShot)
+		.value("Attributes", fsdk::LicenseFeature::Attributes)
+		.value("Emotions", fsdk::LicenseFeature::Emotions)
+		.value("FaceFeatures", fsdk::LicenseFeature::FaceFeatures)
+		.value("Liveness", fsdk::LicenseFeature::Liveness)
+		.value("Descriptor", fsdk::LicenseFeature::Descriptor)
+		.value("DescriptorIndex", fsdk::LicenseFeature::DescriptorIndex)
+		.value("LivenessEngine", fsdk::LicenseFeature::LivenessEngine)
+		.value("TrackEngine", fsdk::LicenseFeature::TrackEngine)
+		.value("HumanDetection", fsdk::LicenseFeature::HumanDetection)
+			;
+
+	py::class_<fsdk::ILicensePtr>(f, "ILicensePtr",
+		"License objects interface.\n"
+		"Use License objects to adopt FaceEngine functionality.\n")
+		.def("checkFeatureId", [](
+			const fsdk::ILicensePtr& license,
+			uint32_t featureId
+			) {
+				return license->checkFeatureId(featureId);
+			},
+			"Checks if the feature with featureId is available in this license.\n"
+			"\t\t(see fsdk::LicenseFeature for details\n"
+			"\tArgs:\n"
+			"\t\tparam1 (featureId): featureId to check if it available\n"
+			"\tReturns:\n"
+			"\t\t(bool): True if feature is available, False if there is not such feature in this"
+			"\t\tlicense or feature is expired or license was not activated.\n")
+
+		.def("isActivated", [](
+			const fsdk::ILicensePtr& license) {
+				return license->isActivated();
+			},
+			"Checks if current license object is activated and could be used by FaceEngine."
+			"License object which was not activated could not be used because all features are disabled by default.\n"
+			"\tReturns:\n"
+			"\t\tTrue if object is activated, False otherwise.\n")
+
+		.def("loadFromFile", [](
+			const fsdk::ILicensePtr& license,
+			const char * path) {
+				return license->loadFromFile(path);
+			},
+			"Loads license from file.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (str) path to the file.\n"
+			"\tReturns:\n"
+			"\t\t(bool): True if license was read from file successfully, False otherwise.\n")
+
+		.def("saveToFile", [](
+			const fsdk::ILicensePtr& license,
+			const char * path) {
+				return license->saveToFile(path);
+			},
+			"Saves license as raw format to the file. This file could be used in the next run of the application.\n"
+			"\t\tparam1 (str) path to the file.\n"
+			"\tReturns:\n"
+			"\t\t(bool): True if license was saved to file successfully, False otherwise.\n")
+			;
+
 	f.doc() = R"pbdoc(
 
         Python wrapper for LUNA SDK usings pybind11
@@ -968,7 +1052,26 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IIndexBuilderPtr.appendDescriptor
 			IIndexBuilderPtr.removeDescriptor
 			IIndexBuilderPtr.descriptorByIndex
-			
+
+			LicenseFeature
+			LicenseFeature.Detection
+			LicenseFeature.BestShot
+			LicenseFeature.Attributes
+			LicenseFeature.Emotions
+			LicenseFeature.FaceFeatures
+			LicenseFeature.Liveness
+			LicenseFeature.Descriptor
+			LicenseFeature.DescriptorIndex
+			LicenseFeature.LivenessEngine
+			LicenseFeature.TrackEngine
+			LicenseFeature.HumanDetection
+
+			ILicensePtr
+			ILicensePtr.checkFeatureId
+			ILicensePtr.isActivated
+			ILicensePtr.loadFromFile
+			ILicensePtr.saveToFile
+
     )pbdoc";
 }
 

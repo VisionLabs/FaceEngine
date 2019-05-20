@@ -187,3 +187,10 @@ void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }
 
+fsdk::ILicensePtr PyIFaceEngine::getLicense() {
+	return fsdk::ILicensePtr{faceEnginePtr->getLicense()};
+}
+
+bool PyIFaceEngine::activateLicense(const fsdk::ILicensePtr& license, const char* configPath) {
+	return fsdk::activateLicense(license.get(), configPath);
+}
