@@ -79,6 +79,8 @@ py::enum_<fsdk::Format::Type>(f, "FormatType", "Format type enumeration.\n")
 	.value("R16", fsdk::Format::R16,
 		"\tUsed for internal transformations for depth map and "
 		"cannot be saved or downloaded")
+	.value("IR_X8X8X8", fsdk::Format::IR_X8X8X8,
+		"\t3 channel, 8 bit per channel format with InfraRed semantics")
 	;
 py::class_<fsdk::Image>(f, "Image",
 	"Image objects\n"

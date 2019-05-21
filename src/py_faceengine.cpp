@@ -79,7 +79,21 @@ PYBIND11_MODULE(FaceEngine, f) {
 		FrontEndEdition,
 		CompleteEdition
 	};
-	
+
+	py::enum_<fsdk::RecognitionMode>(f, "RecognitionMode", py::arithmetic(), "Recognition mode type.\n")
+		.value("RM_RGB", fsdk::RM_RGB, "RGB image processing mode (default mode)")
+		.value("RM_INFRA_RED", fsdk::RM_INFRA_RED, "IR image processing mode")
+		.export_values();
+			;
+
+	py::enum_<fsdk::ObjectDetectorClassType>(f, "ObjectDetectorClassType", py::arithmetic(), "Object detector type enumeration.\n")
+		.value("FACE_DET_DEFAULT", fsdk::FACE_DET_DEFAULT, "Default detector cpecified in config file")
+		.value("FACE_DET_V1", fsdk::FACE_DET_V1, "First detector type")
+		.value("FACE_DET_V2", fsdk::FACE_DET_V2, "Light detector type")
+		.value("FACE_DET_V3", fsdk::FACE_DET_V3, "Third detector type")
+		.export_values();
+			;
+
 	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
 		.def(py::init<>())
 		.def(py::init<fsdk::Image>())
@@ -143,16 +157,29 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createSmileEstimator", &PyIFaceEngine::createSmileEstimator, "Creates Smile estimator\n")
 		.def("createFaceFlowEstimator", &PyIFaceEngine::createFaceFlowEstimator, "Creates Liveness flow estimator. \n"
 			"Note: this estimator is required only for liveness detection purposes.\n")
-		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator, "Creates Eye estimator\n")
+
+		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator, 
+			"Creates Eye estimator of given recognition mode\n",
+			py::arg("mode") = fsdk::RecognitionMode::RM_RGB,
+			"\tArgs:\n"
+			"\t\tparam2 (enum RecognitionMode): Recognition mode type enumeration.\n"
+			"\tReturns:\n"
+			"\t\tEye estimator instance.")
+
 		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator, "Creates Emotions estimator\n")
 		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n")
 
 		.def("createAGSEstimator", &PyIFaceEngine::createAGSEstimator, "Creates AGS estimator\n")
 
 		.def("createDetector", &PyIFaceEngine::createDetector,
-			"Creates a detector of given type.\n"
+			"Creates a detector of given type.\n", 
+			py::arg("type") = fsdk::ObjectDetectorClassType::FACE_DET_DEFAULT,
+			py::arg("mode") = fsdk::RecognitionMode::RM_RGB,
 			"\tArgs:\n"
-			"\t\tparam1 (enum ObjectDetectorClassType): Object detector type enumeration.\n")
+			"\t\tparam1 (enum ObjectDetectorClassType): Object detector type enumeration.\n"
+			"\t\tparam2 (enum RecognitionMode): Recognition mode type enumeration.\n"
+			"\tReturns:\n"
+			"\t\tDetector instance.")
 		
 		.def("createHumanDetector", &PyIFaceEngine::createHumanDetector,
 			"Creates a human detector.\n")
@@ -547,15 +574,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("EndElementMismatch", fsdk::ISettingsProvider::Error::EndElementMismatch)
 		.value("InvalidStartElement", fsdk::ISettingsProvider::Error::InvalidStartElement)
 			;
-	
-	py::enum_<fsdk::ObjectDetectorClassType>(f, "ObjectDetectorClassType", py::arithmetic(), "Object detector type enumeration.\n")
-		.value("FACE_DET_DEFAULT", fsdk::FACE_DET_DEFAULT, "Default detector cpecified in config file")
-		.value("FACE_DET_V1", fsdk::FACE_DET_V1, "First detector type")
-		.value("FACE_DET_V2", fsdk::FACE_DET_V2, "Light detector type")
-		.value("FACE_DET_V3", fsdk::FACE_DET_V3, "Third detector type")
-		.export_values();
-			;
-	
+
 	py::enum_<fsdk::DetectionComparerType>(f, "DetectionComparerType", py::arithmetic(),
 			"Strategy of BestDetections comparer\n")
 		.value("DCT_CONFIDANCE", fsdk::DCT_CONFIDANCE,

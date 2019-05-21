@@ -14,7 +14,9 @@ public:
 	
 	fsdk::FaceEngineEdition getFaceEngineEdition();
 
-	fsdk::IDetectorPtr createDetector(fsdk::ObjectDetectorClassType type);
+	fsdk::IDetectorPtr createDetector(
+		fsdk::ObjectDetectorClassType type = fsdk::FACE_DET_DEFAULT, 
+		fsdk::RecognitionMode mode = fsdk::RecognitionMode::RM_RGB);
 
 	fsdk::IAttributeEstimatorPtr createAttributeEstimator();
 
@@ -47,7 +49,7 @@ public:
 
 	fsdk::ILivenessFlowEstimatorPtr createFaceFlowEstimator();
 
-	fsdk::IEyeEstimatorPtr createEyeEstimator();
+	fsdk::IEyeEstimatorPtr createEyeEstimator(fsdk::RecognitionMode mode = fsdk::RecognitionMode::RM_RGB);
 
 	fsdk::IEmotionsEstimatorPtr createEmotionsEstimator();
 
