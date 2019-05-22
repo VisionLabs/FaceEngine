@@ -518,33 +518,25 @@ class TestFaceEngineRect(unittest.TestCase):
             # read landmarks68
             for i in range(len(landmarks68)):
                 landmarks68[i] = read_vector_coords(refFile.readline())
-                print("Debug: {0}".format(landmarks68[i]))
             # read landmarks5
             for i in range(len(landmarks5)):
                 landmarks5[i] = read_vector_coords(refFile.readline())
-                print("Debug: {0}".format(landmarks5[i]))
             # read eyes state
             states = read_states(refFile.readline())
             reference.leftEye.state = states[0]
             reference.rightEye.state = states[1]
-            print("Debug: {0}".format(reference.leftEye.state))
-            print("Debug: {0}".format(reference.rightEye.state))
             #read left iris landmarks
             for i in range(len(reference.leftEye.iris)):
                 reference.leftEye.iris[i] = read_vector_coords(refFile.readline())
-                print("Debug: {0}".format(reference.leftEye.iris[i]))
             # read right iris landmarks
             for i in range(len(reference.rightEye.iris)):
                 reference.rightEye.iris[i] = read_vector_coords(refFile.readline())
-                print("Debug: {0}".format(reference.rightEye.iris[i]))
             # read left eyelid landmarks
             for i in range(len(reference.leftEye.eyelid)):
                 reference.leftEye.eyelid[i] = read_vector_coords(refFile.readline())
-                print("Debug: {0}".format(reference.leftEye.eyelid[i]))
             # read right eyelid landmarks
             for i in range(len(reference.rightEye.eyelid)):
                 reference.rightEye.eyelid[i] = read_vector_coords(refFile.readline())
-                print("Debug: {0}".format(reference.rightEye.eyelid[i]))
 
         # crop
         cropper = f.EyeCropper()
