@@ -494,6 +494,78 @@ class TestFaceEngineRect(unittest.TestCase):
         config.setValue("system", "verboseLogging", f.SettingsProviderValue(0))
         faceEnginePtr.setSettingsProvider(config)
 
+    def test_IrEyeEstimator(self):
+        imagePath = "testData/eyes/IrWarp.png"
+        refPath = "testData/eyes/IrEyeRef.txt"
+
+        warp = f.Image()
+        warp.load(imagePath, f.FormatType.IR_X8X8X8)
+
+        landmarks68 = f.Landmarks68()
+        landmarks5 = f.Landmarks5()
+
+        reference = f.EyesEstimation()
+
+        def read_vector_coords(line):
+            tokens = line.strip().split()
+            x, y = float(tokens[0]), float(tokens[1])
+            return f.Vector2f(x, y)
+        def read_states(line):
+            tokens = line.strip().split()
+            return f.State(int(tokens[0])), f.State(int(tokens[1]))
+
+        with open(refPath) as refFile:
+            # read landmarks68
+            for i in range(len(landmarks68)):
+                landmarks68[i] = read_vector_coords(refFile.readline())
+            # read landmarks5
+            for i in range(len(landmarks5)):
+                landmarks5[i] = read_vector_coords(refFile.readline())
+            # read eyes state
+            states = read_states(refFile.readline())
+            reference.leftEye.state = states[0]
+            reference.rightEye.state = states[1]
+            #read left iris landmarks
+            for i in range(len(reference.leftEye.iris)):
+                reference.leftEye.iris[i] = read_vector_coords(refFile.readline())
+            # read right iris landmarks
+            for i in range(len(reference.rightEye.iris)):
+                reference.rightEye.iris[i] = read_vector_coords(refFile.readline())
+            # read left eyelid landmarks
+            for i in range(len(reference.leftEye.eyelid)):
+                reference.leftEye.eyelid[i] = read_vector_coords(refFile.readline())
+            # read right eyelid landmarks
+            for i in range(len(reference.rightEye.eyelid)):
+                reference.rightEye.eyelid[i] = read_vector_coords(refFile.readline())
+
+        # crop
+        cropper = f.EyeCropper()
+        eyeRectsByLandmarks68 = cropper.cropByLandmarks68(warp, landmarks68)
+
+        # create estimator
+        eyeEstimator = faceEnginePtr.createEyeEstimator(f.RecognitionMode.RM_INFRA_RED)
+
+        # estimation
+        errEyes, eyesEstimation = eyeEstimator.estimate(warp, eyeRectsByLandmarks68)
+        self.assertTrue(errEyes.isOk)
+
+        # validation
+        acceptableDiff = 1.0
+        self.assertEqual(eyesEstimation.leftEye.state, reference.leftEye.state)
+        self.assertEqual(eyesEstimation.rightEye.state, reference.rightEye.state)
+        # iris
+        for i in range(len(f.IrisLandmarks())):
+            self.assertAlmostEqual(eyesEstimation.leftEye.iris[i].x, reference.leftEye.iris[i].x, delta=acceptableDiff)
+            self.assertAlmostEqual(eyesEstimation.leftEye.iris[i].y, reference.leftEye.iris[i].y, delta=acceptableDiff)
+            self.assertAlmostEqual(eyesEstimation.rightEye.iris[i].x, reference.rightEye.iris[i].x, delta=acceptableDiff)
+            self.assertAlmostEqual(eyesEstimation.rightEye.iris[i].y, reference.rightEye.iris[i].y, delta=acceptableDiff)
+        # eyelid
+        for i in range(len(f.EyelidLandmarks())):
+            self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].x, reference.leftEye.eyelid[i].x, delta=acceptableDiff)
+            self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].y, reference.leftEye.eyelid[i].y, delta=acceptableDiff)
+            self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
+            self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
+
 if __name__ == '__main__':
     unittest.main()
 

@@ -16,8 +16,10 @@ fsdk::FaceEngineEdition PyIFaceEngine::getFaceEngineEdition() {
 	return faceEnginePtr->getFaceEngineEdition();
 }
 
-fsdk::IDetectorPtr PyIFaceEngine::createDetector(fsdk::ObjectDetectorClassType type) {
-	fsdk::IDetectorPtr detectorPtr = fsdk::acquire(faceEnginePtr->createDetector(type));
+fsdk::IDetectorPtr PyIFaceEngine::createDetector(
+	fsdk::ObjectDetectorClassType type/* = fsdk::FACE_DET_DEFAULT*/, 
+		fsdk::RecognitionMode mode/* = RecognitionMode::RM_RGB*/) {
+	fsdk::IDetectorPtr detectorPtr = fsdk::acquire(faceEnginePtr->createDetector(type, mode));
 	if (!detectorPtr)
 		throw py::cast_error("\nFailed to create detector instance! VERIFY PATH to \"data\" directory!");
 
@@ -128,8 +130,8 @@ fsdk::ILivenessFlowEstimatorPtr PyIFaceEngine::createFaceFlowEstimator() {
 	return livenessFlowEstimatorPtr;
 }
 
-fsdk::IEyeEstimatorPtr PyIFaceEngine::createEyeEstimator() {
-	fsdk::IEyeEstimatorPtr eyeEstimatorPtr = fsdk::acquire(faceEnginePtr->createEyeEstimator());
+fsdk::IEyeEstimatorPtr PyIFaceEngine::createEyeEstimator(fsdk::RecognitionMode mode/* = fsdk::RecognitionMode::RM_RGB*/) {
+	fsdk::IEyeEstimatorPtr eyeEstimatorPtr = fsdk::acquire(faceEnginePtr->createEyeEstimator(mode));
 	if (!eyeEstimatorPtr)
 		throw py::cast_error("\nFailed to create eyes estimator instance! VERIFY PATH to \"data\" directory!");
 	return eyeEstimatorPtr;
