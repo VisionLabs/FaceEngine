@@ -47,21 +47,21 @@ void detector_module(py::module& f) {
 			const fsdk::IDetectorPtr& det,
 			const std::vector<fsdk::Image>& imagesVec,
 			const std::vector<fsdk::Rect>& rectanglesVec,
-			const uint32_t detectionPerImageNum,
+			const int detectionPerImageNum,
 			const fsdk::DetectionType type) {
 				fsdk::Span<const fsdk::Image> images(imagesVec);
 				fsdk::Span<const fsdk::Rect> rectangles(rectanglesVec);
 				fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Face>>> err =
 				det->detect(images, rectangles, detectionPerImageNum, type);
 				if (err.isOk()) {
-					const uint32_t sizeBatch = err.getValue()->getSize();
+					const size_t sizeBatch = err.getValue()->getSize();
 					py::list outList(sizeBatch);
 					
-					for (uint32_t i = 0; i < sizeBatch; ++i) {
+					for (size_t i = 0; i < sizeBatch; ++i) {
 						fsdk::Span<fsdk::Face> resultsSpan = err.getValue()->getResults(i);
-						const uint32_t rowSize = resultsSpan.size();
+						const size_t rowSize = resultsSpan.size();
 						py::list outRow(rowSize);
-						for (uint32_t j = 0; j < rowSize; ++j) {
+						for (size_t j = 0; j < rowSize; ++j) {
 							outRow[j] = resultsSpan.data()[j];
 						}
 						outList[i] = outRow;
@@ -133,7 +133,7 @@ void detector_module(py::module& f) {
 					const fsdk::Span<fsdk::Face> facesSpan(faces.data(), faces.size());
 					fsdk::Result<fsdk::FSDKError> err = det->redetect(facesSpan, type);
 					const auto* const ptr = facesSpan.begin();
-					const uint32_t size = facesSpan.size();
+					const size_t size = facesSpan.size();
 					return std::make_tuple(FSDKErrorResult(err),
 						std::move(std::vector<fsdk::Face>(ptr, ptr + size)));
 				}, py::arg("faces"), py::arg("type"),
@@ -172,14 +172,14 @@ void detector_module(py::module& f) {
 				fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Human>>> err =
 					det->detect(images, rectangles, detectionPerImageNum);
 				if (err.isOk()) {
-					const uint32_t sizeBatch = err.getValue()->getSize();
+					const size_t sizeBatch = err.getValue()->getSize();
 					py::list outList(sizeBatch);
 					
-					for (uint32_t i = 0; i < sizeBatch; ++i) {
+					for (size_t i = 0; i < sizeBatch; ++i) {
 						fsdk::Span<fsdk::Human> resultsSpan = err.getValue()->getResults(i);
-						const uint32_t rowSize = resultsSpan.size();
+						const size_t rowSize = resultsSpan.size();
 						py::list outRow(rowSize);
-						for (uint32_t j = 0; j < rowSize; ++j) {
+						for (size_t j = 0; j < rowSize; ++j) {
 							outRow[j] = resultsSpan.data()[j];
 						}
 						outList[i] = outRow;

@@ -7,7 +7,7 @@ struct Archive: fsdk::IArchive
 {
 	const char* dataOut;
 	uint32_t m_size = 0;
-	int index = 0;
+	size_t index = 0;
 	
 	bool write(const void* data, size_t size) noexcept override {
 		memcpy((void*)dataOut, data, size);
@@ -29,7 +29,7 @@ struct Archive: fsdk::IArchive
 struct VectorArchive: fsdk::IArchive
 {
 	std::vector<uint8_t>& dataOut;
-	int index = 0;
+	size_t index = 0;
 	
 	bool write(const void* data, size_t size) noexcept override {
 		const uint8_t* p = reinterpret_cast<const uint8_t*>(data);

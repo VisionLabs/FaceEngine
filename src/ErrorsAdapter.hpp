@@ -87,7 +87,7 @@ struct FSDKErrorValueInt {
 	bool isError;
 	fsdk::FSDKError fsdkError;
 	const char* what;
-	int value;
+	uint32_t value;
 
 	FSDKErrorValueInt(fsdk::ResultValue<fsdk::FSDKError, int> err) :
 	isOk(err.isOk()),
@@ -102,7 +102,7 @@ struct FSDKErrorValueInt {
 	isError(err.isError()),
 	fsdkError(err.getError()),
 	what(err.what()),
-	value(err.getValue())
+	value(int(err.getValue()))
 	{};
 };
 

@@ -155,12 +155,12 @@ py::class_<fsdk::Image>(f, "Image",
 			throw py::cast_error("\nUnsupported types of image! Convert it to R8G8B8 or R8, or "
 								"point exact format as second parameter, example: "
 								"image.setData(numpy_array, FaceEngine.FormatType.R8G8B8X8)");
-		image.set(size[1], size[0], type, npImage.data());
+		image.set((int)size[1], (int)size[0], type, npImage.data());
 	}, "Set image by numpy array. Convert it to R8G8B8 or R8.\n")
 	
 	.def("setData", [](fsdk::Image& image, py::array npImage, fsdk::Format::Type type) {
 		auto size = npImage.shape();
-		image.set(size[1], size[0], fsdk::Format(type), npImage.data());
+		image.set((int)size[1], (int)size[0], fsdk::Format(type), npImage.data());
 	}, "\n\tSet image by numpy array. Please point format. example: \n"
 		"\t\timage.setData(numpy_array, FaceEngine.FormatType.R8G8B8X8)")
 	

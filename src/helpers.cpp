@@ -81,7 +81,7 @@ bool saveFrameSequence(const std::vector<fsdk::Image>& sequence, std::string pat
 	file.open(path, std::ios::out | std::ios::binary);
 	if(!file.is_open()) return false;
 	
-	int frames = sequence.size();
+	size_t frames = sequence.size();
 	int width = sequence[0].getWidth();
 	int height = sequence[0].getHeight();
 	int type = fsdk::Format::Type(sequence[0].getFormat());
