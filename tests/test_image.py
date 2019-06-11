@@ -196,14 +196,32 @@ class TestFaceEngineImage(unittest.TestCase):
             self.assertTrue(test_image1.isValid(), test_image2.isValid())
             self.assertTrue(np.array_equal(test_image1.getData(), test_image2.getData()))
 
+    def save_image_with_params(self, _new_file_path):
+        _save_error = image.save(_new_file_path)
+        self.assertTrue(os.path.isfile(_new_file_path))
+        self.assertEqual(_save_error.isOk, 1)
+        self.assertEqual(_save_error.isError, 0)
+        self.assertEqual(_save_error.what, 'Ok')
+        self.assertEqual(_save_error.imageError, f.ImageError.Ok)
+        _save_error = image.save(_new_file_path)
+        self.assertEqual(_save_error.isOk, 1)
+        _save_error = image.save(_new_file_path, f.ImageCompression.IC_NO_COMPRESSION)
+        self.assertEqual(_save_error.isOk, 1)
+        _save_error = image.save(_new_file_path, f.ImageCompression.IC_SMALL_COMPRESSION)
+        self.assertEqual(_save_error.isOk, 1)
+        _save_error = image.save(_new_file_path, f.ImageCompression.IC_MEDIUM_COMPRESSION)
+        self.assertEqual(_save_error.isOk, 1)
+        _save_error = image.save(_new_file_path, f.ImageCompression.IC_HARD_COMPRESSION)
+        self.assertEqual(_save_error.isOk, 1)
+        _save_error = image.save(_new_file_path, f.ImageCompression.IC_BEST_COMPRESSION)
+        self.assertEqual(_save_error.isOk, 1)
+        os.remove(_new_file_path)
+
     def test_save(self):
-        self.assertTrue(os.path.isfile(new_file_path))
-        self.assertEqual(save_error.isOk, 1)
-        self.assertEqual(save_error.isError, 0)
-        self.assertEqual(save_error.what, 'Ok')
-        self.assertEqual(save_error.imageError, f.ImageError.Ok)
+        self.save_image_with_params("testData/test-warp1.png")
+        self.save_image_with_params("testData/test-warp1.jpg")
         # print("deleting of saved {0}".format(new_file_path))
-        os.remove(new_file_path)
+
 
 class ExpectedFailureTestCase(unittest.TestCase):
     @unittest.expectedFailure
