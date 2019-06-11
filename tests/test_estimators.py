@@ -220,7 +220,7 @@ class TestFaceEngineRect(unittest.TestCase):
     def test_DepthEstimator(self):
         depthEstimator = faceEnginePtr.createDepthEstimator()
         # depth
-        # loadImage - only for depth image downloading
+        # loadImage - only for depth image downloading saved as binary array
         depthImage = f.loadImage("testData/warp.depth")
         err, depth_result = depthEstimator.estimate(depthImage)
         self.assertTrue(err.isOk)

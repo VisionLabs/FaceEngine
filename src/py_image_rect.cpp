@@ -189,6 +189,13 @@ py::class_<fsdk::Image>(f, "Image",
 		return ImageErrorResult(error);
 	})
 	
+	.def("save", [](const fsdk::Image& image,
+		const char* path,
+		fsdk::Image::ImageCompression additionalFlag) {
+		fsdk::Result<fsdk::Image::Error> error = image.save(path, additionalFlag);
+		return ImageErrorResult(error);
+	})
+	
 	.def("load", [](
 		fsdk::Image& image,
 		const char* path,
@@ -228,7 +235,7 @@ py::enum_<fsdk::Image::Type>(f, "ImageType",
 	.value("PPM", fsdk::Image::Type::PPM)
 	.value("TIFF", fsdk::Image::Type::TIFF)
 	.value("Unknown", fsdk::Image::Type::Unknown)
-	;
+		;
 
 py::enum_<fsdk::Image::Error>(f, "ImageError", "Image error codes.\n")
 	.value("Ok", fsdk::Image::Error::Ok)
@@ -247,5 +254,21 @@ py::enum_<fsdk::Image::Error>(f, "ImageError", "Image error codes.\n")
 	.value("FailedToSave", fsdk::Image::Error::FailedToSave)
 	.value("FailedToLoad", fsdk::Image::Error::FailedToLoad)
 	.value("FailedToInitialize", fsdk::Image::Error::FailedToInitialize)
+		;
+
+py::enum_<fsdk::Image::ImageCompression>(f, "ImageCompression",
+	"Supported compression type is used only for jpg and png types\n"
+	"\t\tJPG case: the higher level of compression corresponds to the lower quality. Compression/decompression speed are constant.\n"
+	"\t\tPNG case: the higher level of compression corresponds to the lower compression speed. Quality are constant.\n")
+	.value("IC_NO_COMPRESSION", fsdk::Image::ImageCompression::IC_NO_COMPRESSION,
+		"no compression (only for png or jpg image\n")
+	.value("IC_SMALL_COMPRESSION", fsdk::Image::ImageCompression::IC_SMALL_COMPRESSION,
+		"compression with minimal (or without) quality loss (only for png or jpg image)\n")
+	.value("IC_MEDIUM_COMPRESSION", fsdk::Image::ImageCompression::IC_MEDIUM_COMPRESSION,
+		"medium compression (only for png or jpg)\n")
+	.value("IC_HARD_COMPRESSION", fsdk::Image::ImageCompression::IC_HARD_COMPRESSION,
+		"more than medium compression (only for png or jpg)")
+	.value("IC_BEST_COMPRESSION", fsdk::Image::ImageCompression::IC_BEST_COMPRESSION,
+		"more than medium compression (only for png or jpg)")
 		;
 }

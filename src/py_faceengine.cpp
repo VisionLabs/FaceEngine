@@ -982,6 +982,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			ImageType
 
 			ImageError
+			ImageCompression
 
 			SettingsProviderError
 
