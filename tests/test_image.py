@@ -4,7 +4,7 @@ import argparse
 import sys
 import os
 import numpy as np
-
+import cv2
 
 
 # if FaceEngine is not instaflled in system
@@ -107,6 +107,45 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(image_temp.getHeight(), h)
         self.assertEqual(image_temp.getWidth(), w)
         self.assertEqual(image_temp.getChannelCount(), c)
+
+    def test_getR16_data_identity(self):
+        depth_image = f.loadImage("testData/warp.depth")
+        image_np = depth_image.getDataR16()
+        w, h, c = image_np.shape
+        self.assertEqual(depth_image.getHeight(), h)
+        self.assertEqual(depth_image.getWidth(), w)
+        self.assertEqual(depth_image.getChannelCount(), c)
+        err_save1 = depth_image.save("testData/test_depth1.png", f.FormatType.R16)
+        self.assertTrue(err_save1.isOk)
+        depth_image_load = f.Image()
+        err_open1 = depth_image_load.load("testData/test_depth1.png", f.FormatType.R16)
+        self.assertTrue(err_open1.isOk)
+        np_depth_arr1 = depth_image.getDataR16()
+        np_depth_arr2 = depth_image_load.getDataR16()
+        image_with_set_data = f.Image()
+        image_with_set_data.setData(np_depth_arr1, f.FormatType.R16)
+        np_depth_arr3 = image_with_set_data.getDataR16()
+        arr_cv = cv2.imread("testData/test_depth1.png", cv2.IMREAD_ANYDEPTH)
+        arr_cv_reshaped = arr_cv.reshape(w, h, c)
+        self.assertTrue(arr_cv_reshaped.dtype == np_depth_arr1.dtype == np.uint16)
+        self.assertTrue(arr_cv_reshaped.dtype == np_depth_arr2.dtype == np.uint16)
+        self.assertTrue(arr_cv_reshaped.dtype == np_depth_arr3.dtype == np.uint16)
+        self.assertTrue(arr_cv_reshaped.shape[0] == np_depth_arr1.shape[0] == np_depth_arr2.shape[0] == np_depth_arr3.shape[0])
+        self.assertTrue(arr_cv_reshaped.shape[1] == np_depth_arr1.shape[1] == np_depth_arr2.shape[1] == np_depth_arr3.shape[1])
+        self.assertTrue(arr_cv_reshaped.shape[2] == np_depth_arr1.shape[2] == np_depth_arr2.shape[2] == np_depth_arr3.shape[2])
+        self.assertTrue(np.equal(image_np, np_depth_arr1).all())
+        self.assertTrue(np.equal(arr_cv_reshaped, np_depth_arr1).all())
+        self.assertTrue(np.equal(arr_cv_reshaped, np_depth_arr2).all())
+        self.assertTrue(np.equal(arr_cv_reshaped, np_depth_arr3).all())
+        self.assertTrue(np.equal(np_depth_arr1, np_depth_arr2).all())
+        self.assertTrue(image_with_set_data.getFormat() == depth_image_load.getFormat())
+        self.assertTrue(image_with_set_data.getWidth() == depth_image_load.getWidth())
+        self.assertTrue(image_with_set_data.getHeight() == depth_image_load.getHeight())
+        self.assertTrue(image_with_set_data.getChannelCount() == depth_image_load.getChannelCount())
+        self.assertTrue(image_with_set_data.getBitDepth() == depth_image_load.getBitDepth())
+        self.assertTrue(image_with_set_data.getByteDepth() == depth_image_load.getByteDepth())
+        self.assertTrue(image_with_set_data.getChannelSize() == depth_image_load.getChannelSize())
+        self.assertTrue(image_with_set_data.getChannelStep() == depth_image_load.getChannelStep())
 
     def test_set_data(self):
         print("Tests for image.setData are enabled.")

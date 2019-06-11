@@ -102,7 +102,16 @@ py::class_<fsdk::Image>(f, "Image",
 		fsdk::Format type = fsdk::Format::Type(image.getFormat());
 		int c = getChannelCount(type);
 		const auto* const data_uint = image.getDataAs<uint8_t>();
-		std::vector<ssize_t> shape { image.getHeight(), image.getWidth(), c };
+		std::array<ssize_t, 3> shape { image.getHeight(), image.getWidth(), c };
+		auto ptr = data_uint;
+		return py::array(shape, ptr);
+	}, "\tReturns image as numpy array.\n")
+	
+	.def("getDataR16", [](const fsdk::Image& image) {
+		fsdk::Format type = fsdk::Format::R16;
+		int c = getChannelCount(type);
+		const auto* const data_uint = image.getDataAs<uint16_t>();
+		std::array<ssize_t, 3> shape { image.getHeight(), image.getWidth(), c };
 		auto ptr = data_uint;
 		return py::array(shape, ptr);
 	}, "\tReturns image as numpy array.\n")
