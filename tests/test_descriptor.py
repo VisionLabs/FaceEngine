@@ -148,23 +148,15 @@ class TestFaceEngineRect(unittest.TestCase):
 
 
     def test_extractor(self):
-        self.extractor(51, 0.9718, True, "auto", "cpu")
         self.extractor(46, 0.9718, True, "auto", "cpu")
         self.extractor(52, 1.0, True, "auto", "cpu")
         self.extractor(46, 0.9718, False, "auto", "cpu")
-        self.extractor(51, 0.9718, False, "auto", "cpu")
         self.extractor(46, 0.9718, False, "cpu", "cpu")
         self.extractor(46, 0.9718, True, "cpu", "cpu")
-        self.extractor(51, 0.9718, False, "cpu", "cpu")
-        self.extractor(51, 0.9718, True, "cpu", "cpu")
         self.extractor(52, 0.8926, False, "cpu", "cpu")
         self.extractor(52, 1.0, True, "cpu", "cpu")
         self.extractor(46, 0.9718, False, "avx2", "cpu")
         self.extractor(46, 0.9718, True, "avx", "cpu")
-        self.extractor(51, 0.9718, False, "avx", "cpu")
-        self.extractor(51, 0.9718, False, "avx2", "cpu")
-        self.extractor(51, 0.9718, True, "avx", "cpu")
-        self.extractor(51, 0.9718, True, "avx2", "cpu")
         self.extractor(52, 0.8926, False, "avx", "cpu")
         self.extractor(52, 0.8926, False, "avx2", "cpu")
         self.extractor(52, 1.0, True, "avx", "cpu")
