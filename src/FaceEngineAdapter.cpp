@@ -144,8 +144,8 @@ fsdk::IEmotionsEstimatorPtr PyIFaceEngine::createEmotionsEstimator() {
 	return emotionsEstimatorPtr;
 }
 
-fsdk::IGazeEstimatorPtr PyIFaceEngine::createGazeEstimator() {
-	fsdk::IGazeEstimatorPtr gazeEstimatorPtr = fsdk::acquire(faceEnginePtr->createGazeEstimator());
+fsdk::IGazeEstimatorPtr PyIFaceEngine::createGazeEstimator(fsdk::RecognitionMode mode /* = fsdk::RecognitionMode::RM_RGB*/) {
+	fsdk::IGazeEstimatorPtr gazeEstimatorPtr = fsdk::acquire(faceEnginePtr->createGazeEstimator(mode));
 	if (!gazeEstimatorPtr)
 		throw py::cast_error("\nFailed to create gaze estimator instance! VERIFY PATH to \"data\" directory!");
 	return gazeEstimatorPtr;

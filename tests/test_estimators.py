@@ -36,6 +36,17 @@ faceEnginePtr = f.createFaceEngine("data",
                                         "data/faceengine.conf")
 
 
+def invoke_file_line_to_vector2f(line):
+    line = line.strip().split()
+    x, y = float(line[0]), float(line[1])
+    return f.Vector2f(x, y)
+
+
+def invoke_file_line_to_list(line):
+    line = line.strip().split()
+    x, y = float(line[0]), float(line[1])
+    return [x, y]
+
 # detector test and example
 def detect(image_det, max_detections):
     detector = faceEnginePtr.createDetector(f.FACE_DET_V1)
@@ -347,14 +358,9 @@ class TestFaceEngineRect(unittest.TestCase):
             warp = f.Image()
             warp.load(imagePath)
 
-            def invoke_vector_coords(line):
-                line = line.strip().split()
-                x, y = float(line[0]), float(line[1])
-                return f.Vector2f(x, y)
-
             with open(lm68Path) as lm68file:
                 for i, line in enumerate(lm68file):
-                    landmarks68_eyes[i] = invoke_vector_coords(line)
+                    landmarks68_eyes[i] = invoke_file_line_to_vector2f(line)
             cropper = f.EyeCropper()
             eyeRectsByLandmarks68 = cropper.cropByLandmarks68(warp, landmarks68_eyes)
             err_eyes, eyesEstimation = eyeEstimator.estimate(warp, eyeRectsByLandmarks68)
@@ -365,20 +371,20 @@ class TestFaceEngineRect(unittest.TestCase):
 
                 # read iris
                 for i, line in enumerate(irisLeftFile):
-                    reference.leftEye.iris[i] = invoke_vector_coords(line)
+                    reference.leftEye.iris[i] = invoke_file_line_to_vector2f(line)
                     # print("irisLeftEye", reference.leftEye.iris[i], eyesEstimation.leftEye.iris[i])
 
                 for i, line in enumerate(irisRightFile):
-                    reference.rightEye.iris[i] = invoke_vector_coords(line)
+                    reference.rightEye.iris[i] = invoke_file_line_to_vector2f(line)
                     # print("irisRightEye", reference.rightEye.iris[i], eyesEstimation.rightEye.iris[i])
 
                 # read eyelid
                 for i, line in enumerate(eyelidLeftFile):
-                    reference.leftEye.eyelid[i] = invoke_vector_coords(line)
+                    reference.leftEye.eyelid[i] = invoke_file_line_to_vector2f(line)
                     # print("eyelidLeftEye", reference.leftEye.eyelid[i], eyesEstimation.leftEye.eyelid[i])
 
                 for i, line in enumerate(eyelidRightFile):
-                    reference.rightEye.eyelid[i] = invoke_vector_coords(line)
+                    reference.rightEye.eyelid[i] = invoke_file_line_to_vector2f(line)
                     # print("eyelidRightEye", reference.rightEye.eyelid[i], eyesEstimation.rightEye.eyelid[i])
 
             reference.leftEye.state = refLeftState
@@ -448,7 +454,7 @@ class TestFaceEngineRect(unittest.TestCase):
         emotions_test("testData/emotions1.ppm", reference1, f.Emotions.Happiness)
         emotions_test("testData/emotions2.ppm", reference2, f.Emotions.Anger)
 
-    def test_GazeEstimator(self):
+    def test_GazeEstimator_RM_INFRA_RED(self):
         with open("testData/gaze.bin", "rb") as file:
             eyesEstimation = f.EyesEstimation()
             headPoseEstimation = readHeadPoseEstimation(file)
@@ -463,14 +469,42 @@ class TestFaceEngineRect(unittest.TestCase):
             expected.leftEye.pitch = -2.1464545992
             expected.rightEye.yaw = -4.9038884727
             expected.rightEye.pitch = -0.13287750706
-            gazeEstimator = faceEnginePtr.createGazeEstimator()
+            gazeEstimator = faceEnginePtr.createGazeEstimator(f.RecognitionMode.RM_INFRA_RED)
             err, actual = gazeEstimator.estimate(headPoseEstimation, eyesEstimation)
             self.assertTrue(err.isOk)
             self.assertAlmostEqual(actual.leftEye.yaw, expected.leftEye.yaw, delta=0.01)
             self.assertAlmostEqual(actual.leftEye.pitch, expected.leftEye.pitch, delta=0.01)
             self.assertAlmostEqual(actual.rightEye.yaw, expected.rightEye.yaw, delta=0.01)
             self.assertAlmostEqual(actual.rightEye.pitch, expected.rightEye.pitch, delta=0.01)
-            # print("GazeEstimation actual = {0}".format(actual))
+
+    def test_GazeEstimator_RM_IRGB(self):
+        gaze_estimator_rgb = faceEnginePtr.createGazeEstimator()
+        image = f.Image()
+        err_load = image.load("testData/00205_9501_p.ppm")
+        self.assertTrue(err_load.isOk)
+        lm5Path = "testData/gaze/landmarks5.pts"
+        lm5rotetedPath = "testData/gaze/rotatedlandmarks5.pts"
+        actual_path = "testData/gaze/actual.pts"
+        landmarks5 = f.Landmarks5()
+        rotated_landmarks5 = f.Landmarks5()
+
+        with open(lm5Path) as lm5file:
+            for i, line in enumerate(lm5file):
+                landmarks5[i] = invoke_file_line_to_vector2f(line)
+
+        with open(lm5rotetedPath) as lmRotated5file:
+            for i, line in enumerate(lmRotated5file):
+                rotated_landmarks5[i] = invoke_file_line_to_vector2f(line)
+
+        actual = []
+        with open(actual_path) as actual_file:
+            for _, line in enumerate(actual_file):
+                actual = invoke_file_line_to_list(line)
+
+        err, eye_angles = gaze_estimator_rgb.estimate(image, landmarks5, rotated_landmarks5)
+        self.assertTrue(err.isOk)
+        self.assertAlmostEqual(eye_angles.yaw, actual[0], delta=0.1)
+        self.assertAlmostEqual(eye_angles.pitch, actual[1], delta=0.1)
 
     def test_AGSEstimator(self):
         config = f.createSettingsProvider("data/faceengine.conf")
