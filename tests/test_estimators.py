@@ -484,7 +484,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(err_load.isOk)
         lm5Path = "testData/gaze/landmarks5.pts"
         lm5rotetedPath = "testData/gaze/rotatedlandmarks5.pts"
-        actual_path = "testData/gaze/actual.pts"
+        actual_path = "testData/gaze/actual.txt"
         landmarks5 = f.Landmarks5()
         rotated_landmarks5 = f.Landmarks5()
 
