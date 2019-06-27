@@ -479,8 +479,8 @@ class TestFaceEngineRect(unittest.TestCase):
 
     def test_GazeEstimator_RM_IRGB(self):
         gaze_estimator_rgb = faceEnginePtr.createGazeEstimator()
-        image = f.Image()
-        err_load = image.load("testData/00205_9501_p.ppm")
+        warp = f.Image()
+        err_load = warp.load("testData/00205_9501_p.ppm")
         self.assertTrue(err_load.isOk)
         lm5Path = "testData/gaze/landmarks5.pts"
         lm5rotetedPath = "testData/gaze/rotatedlandmarks5.pts"
@@ -501,7 +501,7 @@ class TestFaceEngineRect(unittest.TestCase):
             for _, line in enumerate(actual_file):
                 actual = invoke_file_line_to_list(line)
 
-        err, eye_angles = gaze_estimator_rgb.estimate(image, landmarks5, rotated_landmarks5)
+        err, eye_angles = gaze_estimator_rgb.estimate(warp, landmarks5, rotated_landmarks5)
         self.assertTrue(err.isOk)
         self.assertAlmostEqual(eye_angles.yaw, actual[0], delta=0.1)
         self.assertAlmostEqual(eye_angles.pitch, actual[1], delta=0.1)
