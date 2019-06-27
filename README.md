@@ -19,8 +19,8 @@ Other versions may work as well(2.7 and higher), **x64**.
 
 Only basic methods and classes of LUNA SDK were binded.
 
-**On Unix (Linux, Ubuntu 14)**
-* GCC 4.8.5
+**On Unix (Linux, Ubuntu 18)**
+* GCC 4.8.5 or higher
 * A compiler with C++11 support
 * CMake >= 3.6
 * numpy for python
