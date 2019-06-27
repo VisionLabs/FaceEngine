@@ -56,8 +56,10 @@ if __name__ == "__main__":
 
     cap = cv2.VideoCapture(0)
     process = True
+    frame = np.zeros((480, 640, 3))
     while(process):
         # Capture frame-by-frame
+        cv2.imshow('frame', frame)
         ret, frame = cap.read()
         if not ret:
             print("Image is empty")
@@ -65,10 +67,13 @@ if __name__ == "__main__":
             break
         image = fe.Image()
         image.setData(frame)
+        if not image.isValid():
+            continue
         err_detect, face = detect(detector, image)
-        if err_detect.isError:
+        if err_detect.isError or not face.isValid():
+            cv2.waitKey(1)
             print("detection not found")
-            break
+            continue
         if not face.landmarks5_opt.isValid() or not face.landmarks68_opt.isValid() or not face.detection.isValid():
             continue
         (detection, landmarks5, landmarks68) = face.detection, face.landmarks5_opt.value(), face.landmarks68_opt.value()
@@ -82,7 +87,7 @@ if __name__ == "__main__":
         err, eye_angles = gaze_estimator_rgb.estimate(warp, landmarks5, transformed_landmarks5)
         if err.isError:
             continue
-        print(eye_angles)
+        # print(eye_angles)
         transformation = warper.createTransformation(detection, landmarks5)
         center_x_left = landmarks5[0].x + detection.rect.x
         center_y_left = landmarks5[0].y + detection.rect.y
@@ -104,7 +109,7 @@ if __name__ == "__main__":
             landmark = landmarks68[i]
             cv2.circle(frame, (int(landmark.x + detection.rect.x),
                                int(landmark.y + detection.rect.y)), 2, (0, 0, 255), -1)
-        cv2.imshow('frame', frame)
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
