@@ -104,7 +104,7 @@ if __name__ == "__main__":
                     for i in range(len(landmarks68)):
                         landmark = landmarks68[i]
                         cv2.circle(frame, (int(landmark.x + detection.rect.x),
-                                           int(landmark.y + detection.rect.y)), 2, (0, 0, 255), -1)
+                                           int(landmark.y + detection.rect.y)), 1, (0, 0, 255), -1)
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
