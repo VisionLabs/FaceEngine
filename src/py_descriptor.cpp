@@ -352,5 +352,62 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
 		"\t\t\tIDescriptorBatchPtr::getMaxCount()\n"
 		"\t\t(FSDKErrorResult wrapped in list): else - result with error specified by FSDKErrorResult.\n")
+		
+	.def("match",[](
+		const fsdk::IDescriptorMatcherPtr& matcherPtr,
+		const fsdk::IDescriptorPtr& reference,
+		const fsdk::IDescriptorBatchPtr& candidates,
+		const uint32_t k) {
+			std::vector<fsdk::MatchingResult> results(candidates->getCount());
+			fsdk::Result<fsdk::FSDKError> err =
+			matcherPtr->match(reference, candidates, results.data());
+			if (err.isError())
+			 return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>());
+			
+			if(k > 1) {
+				std::vector<uint32_t> indexes(results.size());
+				std::iota(indexes.begin(), indexes.end(), 1);
+				/*std::partial_sort(results.begin(), results.begin() + k, results.end(),
+					[](const auto &a, const auto &b) {
+						return a.distance < b.distance;
+					});
+				result.resize(k);*/
+				
+				std::partial_sort(indexes.begin(), indexes.begin() + k, indexes.end(),
+					[&results](const auto &a, const auto &b) {
+					  return results[a].distance < results[b].distance;
+					});
+				indexes.resize(k);
+				std::vector<fsdk::MatchingResult> resValues;
+				resValues.reserve(k);
+				for(const auto index: index)
+					resValues.push_back( results[index] );
+				
+				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(indexes));
+				
+			} else { // k == 0
+				const auto it = std::min_element(results.begin(), results.end(),
+					[](const auto &a, const auto &b) {
+						return a.distance < b.distance;
+					});
+				std::vector resValues{*t};
+				std::vector resIndexes{it - results.begin()};
+				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(resIndexes));
+			}
+			   
+	     },
+	     "Match descriptors 1:M.\n"
+	     "\tMatches a reference descriptor to a batch of candidate descriptors. "
+	     "The results are layed out in the\n"
+	     "\tsame order as the candidate descriptors in the batch.\n"
+	     "\tArgs\n"
+	     "\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
+	     "\t\tparam2 (IDescriptorPtr): the candidate descriptor batch to match with the reference\n"
+		 "\t\tparam3 (IDescriptorPtr): K - number of closest descriptor"
+	     "\tReturns:\n"
+	     "\t\t(list): if OK - matchig result list.\n"
+	     "\t\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
+	     "\t\t\tIDescriptorBatchPtr::getMaxCount()\n"
+	     "\t\t(FSDKErrorResult wrapped in list): else - result with error specified by FSDKErrorResult.\n")
 	;
 }
