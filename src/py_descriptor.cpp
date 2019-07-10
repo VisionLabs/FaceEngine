@@ -359,42 +359,40 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		const fsdk::IDescriptorBatchPtr& candidates,
 		const uint32_t k) {
 			std::vector<fsdk::MatchingResult> results(candidates->getCount());
-			fsdk::Result<fsdk::FSDKError> err =
-			matcherPtr->match(reference, candidates, results.data());
+			fsdk::Result<fsdk::FSDKError> err =	matcherPtr->match(reference, candidates, results.data());
 			if (err.isError())
-			 return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>());
+			    return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
 			
 			if(k > 1) {
 				std::vector<uint32_t> indexes(results.size());
 				std::iota(indexes.begin(), indexes.end(), 1);
-				/*std::partial_sort(results.begin(), results.begin() + k, results.end(),
-					[](const auto &a, const auto &b) {
-						return a.distance < b.distance;
-					});
-				result.resize(k);*/
+				//std::partial_sort(results.begin(), results.begin() + k, results.end(),
+				//	[](const auto &a, const auto &b) {
+				//		return a.distance < b.distance;
+				//	});
+				//result.resize(k);
 				
 				std::partial_sort(indexes.begin(), indexes.begin() + k, indexes.end(),
-					[&results](const auto &a, const auto &b) {
+					[&results](decltype(*begin(indexes)) a, decltype(*begin(indexes)) b) {
 					  return results[a].distance < results[b].distance;
 					});
 				indexes.resize(k);
 				std::vector<fsdk::MatchingResult> resValues;
 				resValues.reserve(k);
-				for(const auto index: index)
+				for(const auto index: indexes)
 					resValues.push_back( results[index] );
 				
 				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(indexes));
 				
 			} else { // k == 0
 				const auto it = std::min_element(results.begin(), results.end(),
-					[](const auto &a, const auto &b) {
+					[](decltype(*begin(results)) a, decltype(*begin(results)) b) {
 						return a.distance < b.distance;
 					});
-				std::vector resValues{*t};
-				std::vector resIndexes{it - results.begin()};
+				std::vector<fsdk::MatchingResult> resValues{*it};
+				std::vector<uint32_t> resIndexes(std::distance(results.begin(), it));
 				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(resIndexes));
 			}
-			   
 	     },
 	     "Match descriptors 1:M.\n"
 	     "\tMatches a reference descriptor to a batch of candidate descriptors. "
