@@ -58,10 +58,10 @@ expectedDetectionV2.rect.width = 152.0
 expectedDetectionV2.rect.height = 184.0
 expectedDetectionV2.score = 0.99999
 
-expectedDetectionV3.rect.x = 297.0
-expectedDetectionV3.rect.y = 77.0
+expectedDetectionV3.rect.x = 296.0
+expectedDetectionV3.rect.y = 73.0
 expectedDetectionV3.rect.width = 145.0
-expectedDetectionV3.rect.height = 208.0
+expectedDetectionV3.rect.height = 211.0
 expectedDetectionV3.score = 0.99994
 
 expectedRedetectionV3.rect.x = 293.0
@@ -136,7 +136,7 @@ class TestFaceEngineDetector(unittest.TestCase):
 
         det = get_image_prefix(_detectorType)
         prec = "precise"
-        ptsfilename = os.path.join(testDataPath, "image1_lnet2_" + det + "_" + prec + ".txt")
+        ptsfilename = os.path.join(testDataPath, "lnet/image1_lnet2_" + det + "_" + prec + ".txt")
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "image1.ppm"))
         self.assertTrue(err_image.isOk)
