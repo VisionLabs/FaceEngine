@@ -71,15 +71,16 @@ void estimators_module(py::module& f) {
 				const size_t size = resultSpan.size();
 				if (err.isOk())
 					return std::make_tuple(FSDKErrorResult(err),
-					std::move(std::vector<fsdk::AttributeEstimationResult>(ptr, ptr + size)),
-					err.getValue());
-				else return std::make_tuple(FSDKErrorResult(err),
+						std::move(std::vector<fsdk::AttributeEstimationResult>(ptr, ptr + size)),
+						err.getValue());
+				else
+					return std::make_tuple(FSDKErrorResult(err),
 						std::vector<fsdk::AttributeEstimationResult>(),
 						fsdk::AttributeEstimationResult()); },
 			"Estimate the attributes for batch image.\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
-			"\t\tparam1 (list of Image): list with warped images. Format must be R8G8B8\n"
+			"\t\tparam1 (list of Images): list of warped Images. Format must be R8G8B8\n"
 			"\t\tparam2 (AttributeRequest): request with flags to check parameters to estimate\n"
 			"\tReturns:\n"
 			"\t\t(tuple): \n"
