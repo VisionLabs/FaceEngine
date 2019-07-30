@@ -132,10 +132,10 @@ void detector_module(py::module& f) {
 				const fsdk::DetectionType type) {
 					const fsdk::Span<fsdk::Face> facesSpan(faces.data(), faces.size());
 					fsdk::Result<fsdk::FSDKError> err = det->redetect(facesSpan, type);
-					const auto* const ptr = facesSpan.begin();
+					const auto* const Iter = facesSpan.begin();
 					const size_t size = facesSpan.size();
 					return std::make_tuple(FSDKErrorResult(err),
-						std::move(std::vector<fsdk::Face>(ptr, ptr + size)));
+						std::vector<fsdk::Face>(Iter, Iter + size));
 				}, py::arg("faces"), py::arg("type"),
 			"Batched redetect faces.\n"
 			"\tArgs:\n"
