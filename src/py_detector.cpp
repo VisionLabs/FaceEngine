@@ -132,7 +132,7 @@ void detector_module(py::module& f) {
 				const fsdk::DetectionType type) {
 					const fsdk::Span<fsdk::Face> facesSpan(faces.data(), faces.size());
 					fsdk::Result<fsdk::FSDKError> err = det->redetect(facesSpan, type);
-					const auto* const Iter = facesSpan.begin();
+					const auto Iter = facesSpan.begin();
 					const size_t size = facesSpan.size();
 					return std::make_tuple(FSDKErrorResult(err),
 						std::vector<fsdk::Face>(Iter, Iter + size));

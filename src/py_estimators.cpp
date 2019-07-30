@@ -67,7 +67,7 @@ void estimators_module(py::module& f) {
 						fsdk::Span<const fsdk::Image>(warps.data(), warps.size()),
 						request,
 						resultSpan);
-					const auto* const Iter = resultSpan.begin();
+					const auto Iter = resultSpan.begin();
 					const size_t size = resultSpan.size();
 					if (err.isOk())
 						return std::make_tuple(FSDKErrorResult(err),
