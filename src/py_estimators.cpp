@@ -320,20 +320,6 @@ void estimators_module(py::module& f) {
 			"\tInput points should be relative to the same coordinate system. Best results are achieved\n"
 			"\tif coordinate system is tied to image on which input data was retrieved.\n")
 		.def("estimate",[](
-			const fsdk::IGazeEstimatorPtr& est,
-			const fsdk::HeadPoseEstimation& angles,
-			const fsdk::EyesEstimation& eyesEstimation) {
-				fsdk::GazeEstimation out;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(angles, eyesEstimation, out);
-				return std::make_tuple(FSDKErrorResult(err), out);
-			},
-			"Estimate the eye angles.\n"
-			"\tArgs\n"
-			"\t\tparam1 (HeadPoseEstimation): HeadPoseEstimation calculated using landmarks68.\n"
-			"\t\tparam2 (EyesEstimation): EyesEstimation of eyes.\n"
-			"\tReturns:\n"
-			"\t\t(tuple): returns error code FSDKErrorResult and GazeEstimation\n")
-		.def("estimate",[](
 				const fsdk::IGazeEstimatorPtr& est,
 				const fsdk::Image& warp,
 				const fsdk::Landmarks5& landmarks5,

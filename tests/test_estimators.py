@@ -454,29 +454,6 @@ class TestFaceEngineRect(unittest.TestCase):
         emotions_test("testData/emotions1.ppm", reference1, f.Emotions.Happiness)
         emotions_test("testData/emotions2.ppm", reference2, f.Emotions.Anger)
 
-    def test_GazeEstimator_RM_INFRA_RED(self):
-        with open("testData/gaze.bin", "rb") as file:
-            eyesEstimation = f.EyesEstimation()
-            headPoseEstimation = readHeadPoseEstimation(file)
-            eyesEstimation.leftEye.iris = readIrisLandmarks(file)
-            eyesEstimation.rightEye.iris = readIrisLandmarks(file)
-            landmarks68_gaze = readLandmarks68(file)
-            for i in range(6):
-                eyesEstimation.leftEye.eyelid[i] = f.Vector2f(landmarks68_gaze[36 + i].x, landmarks68_gaze[36 + i].y)
-                eyesEstimation.rightEye.eyelid[i] = f.Vector2f(landmarks68_gaze[42 + i].x, landmarks68_gaze[42 + i].y)
-            expected = f.GazeEstimation()
-            expected.leftEye.yaw = -9.0405864578
-            expected.leftEye.pitch = -2.1464545992
-            expected.rightEye.yaw = -4.9038884727
-            expected.rightEye.pitch = -0.13287750706
-            gazeEstimator = faceEnginePtr.createGazeEstimator(f.RecognitionMode.RM_INFRA_RED)
-            err, actual = gazeEstimator.estimate(headPoseEstimation, eyesEstimation)
-            self.assertTrue(err.isOk)
-            self.assertAlmostEqual(actual.leftEye.yaw, expected.leftEye.yaw, delta=0.01)
-            self.assertAlmostEqual(actual.leftEye.pitch, expected.leftEye.pitch, delta=0.01)
-            self.assertAlmostEqual(actual.rightEye.yaw, expected.rightEye.yaw, delta=0.01)
-            self.assertAlmostEqual(actual.rightEye.pitch, expected.rightEye.pitch, delta=0.01)
-
     def test_GazeEstimator_RM_IRGB(self):
         gaze_estimator_rgb = faceEnginePtr.createGazeEstimator()
         warp = f.Image()
