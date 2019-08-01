@@ -57,6 +57,32 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): \n"
 			"\t\t\t tuple with FSDKErrorResult code and EstimatorResult (see AttributeResult)\n")
+		.def("estimate", [](
+				const fsdk::IAttributeEstimatorPtr& est,
+				const std::vector<fsdk::Image>& warps,
+				const fsdk::IAttributeEstimator::EstimationRequest request) {
+					std::vector<fsdk::AttributeEstimationResult> results(warps.size());
+					fsdk::Span<fsdk::AttributeEstimationResult> resultSpan(results.data(), warps.size());
+					fsdk::ResultValue<fsdk::FSDKError, fsdk::AttributeEstimationResult>  err = est->estimate(
+						fsdk::Span<const fsdk::Image>(warps.data(), warps.size()),
+						request,
+						resultSpan);
+					if (err.isOk())
+						return std::make_tuple(FSDKErrorResult(err),
+							std::vector<fsdk::AttributeEstimationResult>(resultSpan.begin(), resultSpan.end()),
+							err.getValue());
+					else
+						return std::make_tuple(FSDKErrorResult(err),
+							std::vector<fsdk::AttributeEstimationResult>(),
+							fsdk::AttributeEstimationResult()); },
+			"Estimate the attributes for batch image.\n"
+			"\t\t(see FSDKErrorResult for details)\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of warped Images. Format must be R8G8B8\n"
+			"\t\tparam2 (AttributeRequest): request with flags to check parameters to estimate\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, attribute result and aggregation of results (see AttributeResult)\n")
 			;
 
 	py::enum_<fsdk::IAttributeEstimator::EstimationRequest>(f, "AttributeRequest", py::arithmetic(),

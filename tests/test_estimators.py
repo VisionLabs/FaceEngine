@@ -135,6 +135,20 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertAlmostEqual(attribute_result.genderScore_opt.value(), 0.01, delta=0.05)
         self.assertAlmostEqual(attribute_result.ethnicity_opt.value().caucasian, 1.0, delta=0.1)
         self.assertAlmostEqual(attribute_result.age_opt.value(), 60.0, delta=2.0)
+        err_batch, list_result, aggregate_result = attributeEstimator.estimate([image, image], attributeRequest)
+        self.assertTrue(err_batch.isOk)
+        print(list_result)
+        print(attribute_result)
+        for result in list_result:
+            self.assertEqual(attribute_result.gender_opt.value(), result.gender_opt.value())
+            self.assertEqual(attribute_result.genderScore_opt.value(), result.genderScore_opt.value())
+            self.assertEqual(attribute_result.ethnicity_opt.value().caucasian, result.ethnicity_opt.value().caucasian)
+            self.assertEqual(attribute_result.age_opt.value(), result.age_opt.value())
+            # batch with each of image
+            self.assertEqual(aggregate_result.gender_opt.value(), result.gender_opt.value())
+            self.assertEqual(aggregate_result.genderScore_opt.value(), result.genderScore_opt.value())
+            self.assertEqual(aggregate_result.ethnicity_opt.value().caucasian, result.ethnicity_opt.value().caucasian)
+            self.assertEqual(aggregate_result.age_opt.value(), result.age_opt.value())
 
     def test_QualityEstimator(self):
         qualityEstimator = faceEnginePtr.createQualityEstimator()
