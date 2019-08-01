@@ -159,9 +159,9 @@ def emotions_example(warp_image):
         exit(1)
 
 
-def gaze_example_infrared(_headPoseEstimation, _eyesEstimation):
+def gaze_example_infrared(_warp_image, _landmarks5, _transformed_landmarks5):
     gaze_estimator = faceEngine.createGazeEstimator(fe.RecognitionMode.RM_INFRA_RED)
-    err, gaze_result = gaze_estimator.estimate(_headPoseEstimation, _eyesEstimation)
+    err, gaze_result = gaze_estimator.estimate(_warp_image, _landmarks5, _transformed_landmarks5 )
     if err.isOk:
         print(gaze_result)
     else:
@@ -244,9 +244,7 @@ if __name__ == "__main__":
         err_headPose, headPoseEstimation = headPose_example(landmarks68)
         err_eyes, eyesEstimation = eye_example(warp_image, transformed_landmarks5)
         gaze_example_rgb(warp_image, landmarks5, transformed_landmarks5)
-        if err_headPose.isOk and err_eyes.isOk:
-            gaze_example_infrared(headPoseEstimation, eyesEstimation)
-        elif err_headPose.isError:
+        if err_headPose.isError:
             print("Failed head pose estimation. Reason: {0}".format(err_headPose.what))
             exit(1)
         elif err_eyes.isError:
