@@ -78,8 +78,9 @@ if __name__ == "__main__":
                 err_transformed_landmarks5, transformed_landmarks5 = warper.warp(landmarks5, transformation)
                 err_warp, warp = warper.warp(image, transformation)
                 if err_warp.isOk and err_transformed_landmarks5.isOk:
-                    err, eye_angles = gaze_estimator_rgb.estimate(warp, landmarks5, transformed_landmarks5)
-                if err.isOk:
+                    err, eye_angles = gaze_estimator_rgb.estimate(warp, transformed_landmarks5)
+                    err_unwarped, eye_angles_unwarped = warper.unwarp(eye_angles, transformation)
+                if err.isOk and err_unwarped.isOk:
                     # print(eye_angles)
                     transformation = warper.createTransformation(detection, landmarks5)
                     center_x_left = landmarks5[0].x + detection.rect.x
@@ -87,8 +88,8 @@ if __name__ == "__main__":
                     center_x_right = landmarks5[1].x + detection.rect.x
                     center_y_right = landmarks5[1].y + detection.rect.y
                     rotated_gaze = rotate_point_3d(gaze[1],
-                                                   eye_angles.pitch / 180 * math.pi,
-                                                   -eye_angles.yaw / 180 * math.pi,
+                                                   eye_angles_unwarped.pitch / 180 * math.pi,
+                                                   -eye_angles_unwarped.yaw / 180 * math.pi,
                                                    0)
                     cv2.line(
                         frame,
