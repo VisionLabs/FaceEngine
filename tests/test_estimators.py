@@ -456,12 +456,15 @@ class TestFaceEngineRect(unittest.TestCase):
 
     def test_GazeEstimator_RM_IRGB(self):
         gaze_estimator_rgb = faceEnginePtr.createGazeEstimator()
+        image_path = "00205_9501_p.ppm"
         warp = f.Image()
-        err_load = warp.load("testData/00205_9501_p.ppm")
+        image_name = image_path[:-4]
+        err_load = warp.load("testData/" + image_path)
         self.assertTrue(err_load.isOk)
-        lm5Path = "testData/gaze/landmarks5.pts"
-        lm5rotetedPath = "testData/gaze/rotatedlandmarks5.pts"
-        actual_path = "testData/gaze/actual.txt"
+        lm5Path = "testData/gaze/" + image_name + "_landmarks5.pts"
+        lm5rotetedPath = "testData/gaze/" + image_name + "_rotatedlandmarks5.pts"
+        actual_path = "testData/gaze/" + image_name + "_actual.txt"
+        actual_path_unwarped = "testData/gaze/" + image_name + "_actual_unwarped.txt"
         landmarks5 = f.Landmarks5()
         rotated_landmarks5 = f.Landmarks5()
 
@@ -478,10 +481,23 @@ class TestFaceEngineRect(unittest.TestCase):
             for _, line in enumerate(actual_file):
                 actual = invoke_file_line_to_list(line)
 
-        err, eye_angles = gaze_estimator_rgb.estimate(warp, landmarks5, rotated_landmarks5)
+        actual_unwarped = []
+        with open(actual_path_unwarped) as actual_file_unwarped:
+            for _, line in enumerate(actual_file_unwarped):
+                actual_unwarped = invoke_file_line_to_list(line)
+
+        err, eye_angles = gaze_estimator_rgb.estimate(warp, rotated_landmarks5)
         self.assertTrue(err.isOk)
         self.assertAlmostEqual(eye_angles.yaw, actual[0], delta=0.1)
         self.assertAlmostEqual(eye_angles.pitch, actual[1], delta=0.1)
+        detection = f.DetectionFloat()
+        rect = warp.getRect()
+        detection.rect = f.RectFloat(rect.x, rect.y, rect.width, rect.height)
+        transformation = warper.createTransformation(detection, landmarks5)
+        err_unwarp, eye_angles_umwarped = warper.unwarp(eye_angles, transformation)
+        self.assertTrue(err_unwarp.isOk)
+        self.assertAlmostEqual(eye_angles_umwarped.yaw, actual_unwarped[0], delta=0.1)
+        self.assertAlmostEqual(eye_angles_umwarped.pitch, actual_unwarped[1], delta=0.1)
 
     def test_AGSEstimator(self):
         config = f.createSettingsProvider("data/faceengine.conf")

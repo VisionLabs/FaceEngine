@@ -322,10 +322,9 @@ void estimators_module(py::module& f) {
 		.def("estimate",[](
 				const fsdk::IGazeEstimatorPtr& est,
 				const fsdk::Image& warp,
-				const fsdk::Landmarks5& landmarks5,
 				const fsdk::Landmarks5& landmarks5Transformed) {
 				fsdk::GazeEstimation::EyeAngles outEyeAngles;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, landmarks5, landmarks5Transformed, outEyeAngles);
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, landmarks5Transformed, outEyeAngles);
 				return std::make_tuple(FSDKErrorResult(err), outEyeAngles);
 			},
 			"Estimate the eye angles.\n"
