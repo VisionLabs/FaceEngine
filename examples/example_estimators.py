@@ -2,7 +2,7 @@ import sys
 # import numpy as np
 # from matplotlib import pyplot as plt
 
-from example_detector_warper import detector_one_example, warper_example
+from example_detector_warper import detector_one_example, warper_example, unwarp_gaze
 
 def help():
     print("python example.py <path to FaceEngine*.so> <path to image>")
@@ -159,23 +159,23 @@ def emotions_example(warp_image):
         exit(1)
 
 
-def gaze_example_infrared(_warp_image, _landmarks5, _transformed_landmarks5):
+def gaze_example_infrared(_warp_image, _transformed_landmarks5):
     gaze_estimator = faceEngine.createGazeEstimator(fe.RecognitionMode.RM_INFRA_RED)
-    err, gaze_result = gaze_estimator.estimate(_warp_image, _landmarks5, _transformed_landmarks5 )
+    err, gaze_result = gaze_estimator.estimate(_warp_image, transformed_landmarks5)
     if err.isOk:
-        print(gaze_result)
+        err, gaze_result
     else:
         print("Failed gaze estimation. Reason: {0}".format(err.what))
         exit(1)
 
 
-def gaze_example_rgb(_warp_image, _landmarks5, _transformed_landmarks5):
+def gaze_example_rgb(_warp_image, _transformed_landmarks5):
     gaze_estimator_rgb = faceEngine.createGazeEstimator()
-    err, gaze_result = gaze_estimator_rgb.estimate(_warp_image, _landmarks5, _transformed_landmarks5 )
+    err, gaze_result = gaze_estimator_rgb.estimate(_warp_image, _transformed_landmarks5)
     if err.isOk:
-        print(gaze_result)
+        return err, gaze_result
     else:
-        print("Failed gaze estimation. Reason: {0}".format(err.what))
+        print("Failed ir gaze estimation. Reason: {0}".format(err.what))
         exit(1)
 
 
@@ -232,7 +232,7 @@ if __name__ == "__main__":
             face.landmarks5_opt.value(), \
             face.landmarks68_opt.value()
         # print_landmarks(landmarks5, "landmarks5: ")
-        (warp_image, transformed_landmarks5, transformed_landmarks68) = \
+        (warp_image, transformed_landmarks5, transformed_landmarks68, transformation) = \
             warper_example(image, detection, landmarks5, landmarks68)
         attribute_quality_ethnicity_blackWhite_smile_example(warp_image)
         # examples with hardcoded paths to images
@@ -243,7 +243,10 @@ if __name__ == "__main__":
         emotions_example(warp_image)
         err_headPose, headPoseEstimation = headPose_example(landmarks68)
         err_eyes, eyesEstimation = eye_example(warp_image, transformed_landmarks5)
-        gaze_example_rgb(warp_image, landmarks5, transformed_landmarks5)
+        err_gaze, gaze_result = gaze_example_rgb(warp_image, transformed_landmarks5)
+        if err_gaze.isOk:
+            gaze = unwarp_gaze(gaze_result, transformation)
+            print(gaze)
         if err_headPose.isError:
             print("Failed head pose estimation. Reason: {0}".format(err_headPose.what))
             exit(1)
