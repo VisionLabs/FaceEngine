@@ -331,10 +331,21 @@ void estimators_module(py::module& f) {
 			"\tArgs\n"
 			"\t\tparam1 (Image): Warped Image.\n"
 			"\t\tparam2 (Landmarks5): Origin Landmarks5 got from face detector.\n"
-			"\t\tparam3 (Landmarks5): Transformed Landmarks5 got from warper. See Warpger.\n"
+			"\t\tparam3 (Landmarks5): Transformed Landmarks5 got from warper. See Warper.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and GazeEstimation\n")
-				;
+		.def("getFaceCenter",[](
+				const fsdk::IGazeEstimatorPtr& est,
+				const fsdk::Landmarks5& landmarks5) {
+				fsdk::GazeEstimation::EyeAngles outEyeAngles;
+				return est->getFaceCenter(landmarks5);
+			},
+			"Estimate the eye angles.\n"
+			"\tArgs\n"
+			"\t\tparam1 (Landmarks5): Transformed Landmarks5 got from warper. See Warper.\n"
+			"\tReturns:\n"
+			"\t\t(Point): point for calculating of gaze projection\n")
+			;
 	
 	py::class_<fsdk::IAGSEstimatorPtr>(f, "IAGSEstimatorPtr",
 		"Approximate Garbage Score estimator interface.\n"

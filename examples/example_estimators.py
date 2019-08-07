@@ -172,6 +172,8 @@ def gaze_example_infrared(_warp_image, _transformed_landmarks5):
 def gaze_example_rgb(_warp_image, _transformed_landmarks5):
     gaze_estimator_rgb = faceEngine.createGazeEstimator()
     err, gaze_result = gaze_estimator_rgb.estimate(_warp_image, _transformed_landmarks5)
+    point = gaze_estimator_rgb.getFaceCenter(_transformed_landmarks5)
+    print("Point for calculating of gaze projection: ", point)
     if err.isOk:
         return err, gaze_result
     else:
