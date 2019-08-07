@@ -667,15 +667,11 @@ void estimators_module(py::module& f) {
 			"\tThese values are produced by IGazeEstimatorPtr object.\n"
 			"\tEach angle is measured in degrees and in [-180, 180] range.\n")
 		.def(py::init<>())
-		.def_readwrite("leftEye", &fsdk::GazeEstimation::leftEye)
-		.def_readwrite("rightEye", &fsdk::GazeEstimation::rightEye)
 		.def("__repr__",
-			[](const fsdk::GazeEstimation &g) {
+			[](const fsdk::GazeEstimation::EyeAngles &g) {
 				return "GazeEstimation: "
-						"leftEye: yaw = " + std::to_string(g.leftEye.yaw) +
-						", pitch = " + std::to_string(g.leftEye.pitch) +
-						", rightEye: yaw = " + std::to_string(g.rightEye.yaw) +
-						", pitch = " + std::to_string(g.rightEye.pitch);
+						" yaw = " + std::to_string(g.yaw) +
+						", pitch = " + std::to_string(g.pitch);
 			})
 		;
 	
