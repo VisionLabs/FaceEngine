@@ -33,28 +33,16 @@ def image_load(image_path):
     return image
 
 
-def attribute_quality_ethnicity_blackWhite_smile_example(image):
-    attributeEstimator = faceEngine.createAttributeEstimator()
+def quality_ethnicity_blackWhite_smile_example(image):
     qualityEstimator = faceEngine.createQualityEstimator()
     ethnicityEstimator = faceEngine.createEthnicityEstimator()
     blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
     smileEstimator = faceEngine.createSmileEstimator()
-
-    attributeRequest = fe.AttributeRequest(
-            fe.AttributeRequest.estimateAge | 
-            fe.AttributeRequest.estimateGender | 
-            fe.AttributeRequest.estimateEthnicity
-        )
-    err_attribute, attribute_result = attributeEstimator.estimate(image, attributeRequest)
     err_quality, quality_result = qualityEstimator.estimate(image)
     err_ethnicity, ethnicity_result = ethnicityEstimator.estimate(image)
     err_blackWhite, blackWhite_result = blackWhiteEstimator.estimate(image)
     err_smile, smile_result = smileEstimator.estimate(image)
-    if err_attribute.isOk:
-        print(attribute_result)
-    else:
-        print("Failed attribute estimation. Reason: {0}".format(err_attribute.what))
-        exit(1)
+
     if err_quality.isOk:
         print(quality_result)
     else:
@@ -76,6 +64,37 @@ def attribute_quality_ethnicity_blackWhite_smile_example(image):
         print(smile_result)
     else:
         print("Failed smile estimation. Reason: {0}".format(err_smile.what))
+        exit(1)
+
+
+def attribute_example(_warp):
+    attribute_estimator = faceEngine.createAttributeEstimator()
+    attribute_request = fe.AttributeRequest(
+        fe.AttributeRequest.estimateAge |
+        fe.AttributeRequest.estimateGender |
+        fe.AttributeRequest.estimateEthnicity
+    )
+    err_attribute, result = attribute_estimator.estimate(_warp, attribute_request)
+    if err_attribute.isOk:
+        print(result)
+        return err_attribute, result
+    else:
+        print("Failed attribute estimation. Reason: {0}".format(err_attribute.what))
+        exit(1)
+
+
+def attribute_batch_example(_warps):
+    attribute_estimator = faceEngine.createAttributeEstimator()
+    attribute_request = fe.AttributeRequest(
+        fe.AttributeRequest.estimateAge |
+        fe.AttributeRequest.estimateGender |
+        fe.AttributeRequest.estimateEthnicity
+    )
+    err_attribute, each_warp_result, aggregate_result = attribute_estimator.estimate(_warps, attribute_request)
+    if err_attribute.isOk:
+        return err_attribute, each_warp_result, aggregate_result
+    else:
+        print("Failed batch attribute estimation. Reason: {0}".format(err_attribute.what))
         exit(1)
 
 
@@ -236,12 +255,16 @@ if __name__ == "__main__":
         # print_landmarks(landmarks5, "landmarks5: ")
         (warp_image, transformed_landmarks5, transformed_landmarks68, transformation) = \
             warper_example(image, detection, landmarks5, landmarks68)
-        attribute_quality_ethnicity_blackWhite_smile_example(warp_image)
+        quality_ethnicity_blackWhite_smile_example(warp_image)
+        err, attribute_result = attribute_example(warp_image)
+        print(attribute_result)
+        # for example list consists two the same images
+        err_attribute_batch, attribute_list_result, aggregate_result = attribute_batch_example([warp_image, warp_image])
+        print("aggregate attribute result: ", aggregate_result)
         # examples with hardcoded paths to images
         depth_example("testData/warp.depth")
         ir_example("testData/irWarp.ppm")
         faceFlow_example()
-
         emotions_example(warp_image)
         err_headPose, headPoseEstimation = headPose_example(landmarks68)
         err_eyes, eyesEstimation = eye_example(warp_image, transformed_landmarks5)
