@@ -349,7 +349,7 @@ void estimators_module(py::module& f) {
 				const fsdk::IGazeEstimatorPtr& est,
 				const fsdk::Image& warp,
 				const fsdk::Landmarks5& landmarks5Transformed) {
-				fsdk::GazeEstimation::EyeAngles outEyeAngles;
+				fsdk::GazeEstimation outEyeAngles;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, landmarks5Transformed, outEyeAngles);
 				return std::make_tuple(FSDKErrorResult(err), outEyeAngles);
 			},
@@ -363,7 +363,7 @@ void estimators_module(py::module& f) {
 		.def("getFaceCenter",[](
 				const fsdk::IGazeEstimatorPtr& est,
 				const fsdk::Landmarks5& landmarks5) {
-				fsdk::GazeEstimation::EyeAngles outEyeAngles;
+				fsdk::GazeEstimation outEyeAngles;
 				return est->getFaceCenter(landmarks5);
 			},
 			"Estimate the eye angles.\n"
@@ -694,18 +694,18 @@ void estimators_module(py::module& f) {
 			"\tEach angle is measured in degrees and in [-180, 180] range.\n")
 		.def(py::init<>())
 		.def("__repr__",
-			[](const fsdk::GazeEstimation::EyeAngles &g) {
+			[](const fsdk::GazeEstimation &g) {
 				return "GazeEstimation: "
 						" yaw = " + std::to_string(g.yaw) +
 						", pitch = " + std::to_string(g.pitch);
 			})
 		;
 	
-	py::class_<fsdk::GazeEstimation::EyeAngles>(f, "EyeAngles", "Eye angles.\n")
-		.def_readwrite("yaw", &fsdk::GazeEstimation::EyeAngles::yaw)
-		.def_readwrite("pitch", &fsdk::GazeEstimation::EyeAngles::pitch)
+	py::class_<fsdk::GazeEstimation>(f, "EyeAngles", "Eye angles.\n")
+		.def_readwrite("yaw", &fsdk::GazeEstimation::yaw)
+		.def_readwrite("pitch", &fsdk::GazeEstimation::pitch)
 		.def("__repr__",
-			[](const fsdk::GazeEstimation::EyeAngles &e) {
+			[](const fsdk::GazeEstimation &e) {
 				return "EyeAngles: "
 						"yaw = " + std::to_string(e.yaw)
 						+ ", pitch = " + std::to_string(e.pitch);

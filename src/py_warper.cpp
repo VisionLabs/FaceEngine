@@ -71,14 +71,14 @@ py::class_<fsdk::IWarperPtr>(f, "IWarperPtr",
 	
 	.def("unwarp",[](
 			const fsdk::IWarperPtr& warper,
-			const fsdk::GazeEstimation::EyeAngles& eyeAngles,
+			const fsdk::GazeEstimation& eyeAngles,
 			const fsdk::Transformation& transformation) {
-			fsdk::GazeEstimation::EyeAngles outEyeAngles;
+			fsdk::GazeEstimation outEyeAngles;
 			fsdk::Result<fsdk::FSDKError> error = warper->unwarp(eyeAngles, transformation, outEyeAngles);
 			if (error.isOk())
 				return std::make_tuple(FSDKErrorResult(error), outEyeAngles);
 			else
-				return std::make_tuple(FSDKErrorResult(error), fsdk::GazeEstimation::EyeAngles()); },
+				return std::make_tuple(FSDKErrorResult(error), fsdk::GazeEstimation()); },
 		"Warp landmarks of size 68\n"
 		"\tArgs:\n"
 		"\t\tparam1 (Landmarks68): landmarks array of size 68\n"
