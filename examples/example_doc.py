@@ -235,8 +235,6 @@ print(fe.GazeEstimation.__init__.__doc__)
 print(fe.GazeEstimation.__repr__.__doc__)
 print(fe.GazeEstimation.__doc__)
 
-print(fe.EyeAngles.__doc__)
-
 print(fe.Ethnicity.__doc__)
 
 print(fe.Transformation.__doc__)

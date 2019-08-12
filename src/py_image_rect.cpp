@@ -100,7 +100,7 @@ py::class_<fsdk::Image>(f, "Image",
 	
 	.def("getData", [](const fsdk::Image& image) {
 		fsdk::Format type = fsdk::Format::Type(image.getFormat());
-		int c = getChannelCount(type);
+		int c = type.getChannelCount();
 		const auto* const data_uint = image.getDataAs<uint8_t>();
 		std::array<ssize_t, 3> shape { image.getHeight(), image.getWidth(), c };
 		auto ptr = data_uint;
@@ -109,7 +109,7 @@ py::class_<fsdk::Image>(f, "Image",
 	
 	.def("getDataR16", [](const fsdk::Image& image) {
 		fsdk::Format type = fsdk::Format::R16;
-		int c = getChannelCount(type);
+		int c = type.getChannelCount();
 		const auto* const data_uint = image.getDataAs<uint16_t>();
 		std::array<ssize_t, 3> shape { image.getHeight(), image.getWidth(), c };
 		auto ptr = data_uint;
@@ -118,7 +118,7 @@ py::class_<fsdk::Image>(f, "Image",
 	
 	.def("getChannelCount", [](const fsdk::Image& image) {
 		fsdk::Format type = fsdk::Format::Type(image.getFormat());
-		return getChannelCount(type);
+		return type.getChannelCount();
 	}, "\tReturns channel count.\n")
 
 	.def("getChannelStep", [](const fsdk::Image& image) {
@@ -152,20 +152,6 @@ py::class_<fsdk::Image>(f, "Image",
 	.def("isValidFormat", [](const fsdk::Image& image) {
 		return image.getFormat().isValid();
 	}, "\tReturns true if image format is one of valid types, i.e. not Unknown.\n")
-	
-	.def("setData", [](fsdk::Image& image, py::array npImage) {
-		auto size = npImage.shape();
-		fsdk::Format type;
-		if (size[2] == 3)
-			type = fsdk::Format::R8G8B8;
-		else if (size[2] == 1)
-			type = fsdk::Format::R8;
-		else
-			throw py::cast_error("\nUnsupported types of image! Convert it to R8G8B8 or R8, or "
-								"point exact format as second parameter, example: "
-								"image.setData(numpy_array, FaceEngine.FormatType.R8G8B8X8)");
-		image.set((int)size[1], (int)size[0], type, npImage.data());
-	}, "Set image by numpy array. Convert it to R8G8B8 or R8.\n")
 	
 	.def("setData", [](fsdk::Image& image, py::array npImage, fsdk::Format::Type type) {
 		auto size = npImage.shape();

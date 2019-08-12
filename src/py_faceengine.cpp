@@ -947,8 +947,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			GazeEstimation.__repr__
 			GazeEstimation
 
-			EyeAngles
-
 			Ethnicity
 
 			Transformation

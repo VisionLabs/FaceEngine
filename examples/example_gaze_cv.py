@@ -67,7 +67,7 @@ if __name__ == "__main__":
             process = False
             break
         image = fe.Image()
-        image.setData(frame)
+        image.setData(frame, fe.FormatType.R8G8B8)
         if not image.isValid():
             continue
         err_detect, face = detect(detector, image)
