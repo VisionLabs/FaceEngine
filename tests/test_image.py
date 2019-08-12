@@ -107,6 +107,13 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(image_temp.getHeight(), h)
         self.assertEqual(image_temp.getWidth(), w)
         self.assertEqual(image_temp.getChannelCount(), c)
+        image_temp.load("testData/smile.ppm", f.FormatType.IR_X8X8X8)
+        image_np = image_temp.getData()
+        w, h, c = image_np.shape
+        self.assertEqual(image_temp.getHeight(), h)
+        self.assertEqual(image_temp.getWidth(), w)
+        self.assertEqual(image_temp.getChannelCount(), c)
+        self.assertEqual(image_temp.getFormat(), f.FormatType.IR_X8X8X8)
 
     def test_getR16_data_identity(self):
         depth_image = f.loadImage("testData/warp.depth")
