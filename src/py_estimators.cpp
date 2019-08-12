@@ -688,29 +688,20 @@ void estimators_module(py::module& f) {
 		;
 	
 	// Gaze
-		py::class_<fsdk::GazeEstimation>(f, "GazeEstimation",
+	py::class_<fsdk::GazeEstimation>(f, "GazeEstimation",
 			"Gaze estimation output.\n"
 			"\tThese values are produced by IGazeEstimatorPtr object.\n"
 			"\tEach angle is measured in degrees and in [-180, 180] range.\n")
 		.def(py::init<>())
+		.def_readwrite("yaw", &fsdk::GazeEstimation::yaw)
+		.def_readwrite("pitch", &fsdk::GazeEstimation::pitch)
 		.def("__repr__",
 			[](const fsdk::GazeEstimation &g) {
 				return "GazeEstimation: "
 						" yaw = " + std::to_string(g.yaw) +
 						", pitch = " + std::to_string(g.pitch);
 			})
-		;
-	
-	py::class_<fsdk::GazeEstimation>(f, "EyeAngles", "Eye angles.\n")
-		.def_readwrite("yaw", &fsdk::GazeEstimation::yaw)
-		.def_readwrite("pitch", &fsdk::GazeEstimation::pitch)
-		.def("__repr__",
-			[](const fsdk::GazeEstimation &e) {
-				return "EyeAngles: "
-						"yaw = " + std::to_string(e.yaw)
-						+ ", pitch = " + std::to_string(e.pitch);
-			})
-		;
+			;
 
 //	Ethnicity
 	py::enum_<fsdk::EthnicityEstimation::Ethnicities>(f, "Ethnicity", "Ethnicity enum.\n")
