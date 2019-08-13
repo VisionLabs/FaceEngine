@@ -41,7 +41,7 @@ class TestFaceEngineRect(unittest.TestCase):
 
     @classmethod
     def setUp(cls):
-        if not make_activation(faceEngine, dataPath):
+        if not make_activation(faceEngine):
             raise ActivationLicenseError("License is not activated!")
 
     # helpers
