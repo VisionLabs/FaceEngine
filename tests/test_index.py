@@ -32,11 +32,7 @@ del(sys.argv[1])
 
 configPath = "data" + "/faceengine.conf"
 testDataPath = "testData"
-faceEngine = fe.createFaceEngine("data",
-                                 configPath)
 
-if not make_activation(faceEngine):
-    raise ActivationLicenseError("License is not activated!")
 
 class IndexTest:
     good = 0
@@ -124,10 +120,11 @@ def load(descrFileName, batchFileName):
 
 
 class TestFaceEngineRect(unittest.TestCase):
-
+    faceEngine = fe.createFaceEngine("data",
+                                     configPath)
     @classmethod
     def setUp(cls):
-        if not make_activation(faceEngine):
+        if not make_activation(cls.faceEngine):
             raise ActivationLicenseError("License is not activated!")
 
     def loadAcquiredDynamicIndex(self, _faceEngine, _indexPath):

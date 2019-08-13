@@ -31,17 +31,16 @@ import FaceEngine as fe
 del(sys.argv[1])
 del(sys.argv[1])
 
-faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
-
-test_data_path = "testData"
-dataPath = "data"
-
 
 class TestFaceEngineRect(unittest.TestCase):
+    faceEngine = None
+    test_data_path = "testData"
+    dataPath = "data"
 
     @classmethod
     def setUp(cls):
-        if not make_activation(faceEngine):
+        cls.faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+        if not make_activation(cls.faceEngine):
             raise ActivationLicenseError("License is not activated!")
 
     # helpers
@@ -51,16 +50,16 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertTrue(desc1[i], desc2[i])
 
     def test_Version(self):
-        extractor = faceEngine.createExtractor()
-        matcher = faceEngine.createMatcher()
-        descriptor = faceEngine.createDescriptor()
-        aggregation = faceEngine.createDescriptor()
+        extractor = self.faceEngine.createExtractor()
+        matcher = self.faceEngine.createMatcher()
+        descriptor = self.faceEngine.createDescriptor()
+        aggregation = self.faceEngine.createDescriptor()
         batch_size = 2
-        descriptorBatch = faceEngine.createDescriptorBatch(2)
+        descriptorBatch = self.faceEngine.createDescriptorBatch(2)
         images = []
         for i in range(batch_size):
             image = fe.Image()
-            err = image.load(os.path.join(test_data_path, "warp1.ppm"))
+            err = image.load(os.path.join(self.test_data_path, "warp1.ppm"))
             self.assertTrue(err.isOk)
             images.append(image)
         self.assertTrue(extractor.extractFromWarpedImage(images[0], descriptor))
@@ -84,8 +83,8 @@ class TestFaceEngineRect(unittest.TestCase):
 
     def extractor(self, version, refGS, useMobileNet, cpuType, device):
         versionString = str(version) + ("", "_mobilenet")[useMobileNet]
-        configPath = os.path.join(dataPath, "faceengine.conf")
-        faceEngine = fe.createFaceEngine(dataPath)
+        configPath = os.path.join(self.dataPath, "faceengine.conf")
+        faceEngine = fe.createFaceEngine(self.dataPath)
         config = fe.createSettingsProvider(configPath)
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
@@ -96,19 +95,19 @@ class TestFaceEngineRect(unittest.TestCase):
 
         faceEngine.setSettingsProvider(config)
         warp = fe.Image()
-        err = warp.load(os.path.join(test_data_path, "warp1.bmp"))
+        err = warp.load(os.path.join(self.test_data_path, "warp1.bmp"))
         self.assertTrue(err.isOk)
-        warp.save(os.path.join(test_data_path, "outbmp.bmp"))
+        warp.save(os.path.join(self.test_data_path, "outbmp.bmp"))
         extractor = faceEngine.createExtractor()
         descriptor = faceEngine.createDescriptor()
         res = extractor.extractFromWarpedImage(warp, descriptor)
         self.assertTrue(res.isOk)
         data1 = descriptor.getData()
-        with open(test_data_path + "/descriptor1_" + versionString + "_actual.bin", "wb") as out_file:
+        with open(self.test_data_path + "/descriptor1_" + versionString + "_actual.bin", "wb") as out_file:
             out_file.write(data1)
 
         self.assertAlmostEqual(refGS, res.value, delta=(0.02, 0.03)[useMobileNet])
-        refPath = os.path.join(test_data_path, "descriptor1_" + versionString + ".bin")
+        refPath = os.path.join(self.test_data_path, "descriptor1_" + versionString + ".bin")
         with open(refPath, "rb") as file:
             read_data = file.read()
             descriptorExpected = faceEngine.createDescriptor()
@@ -153,7 +152,6 @@ class TestFaceEngineRect(unittest.TestCase):
                 self.assertEqual(dataExpected[i], full_data_exp_default2[i + diff_exp_default2])
                 self.assertEqual(dataExpected[i], full_data_exp_no_signature[i + diff_exp_no_signature])
 
-
     def test_extractor(self):
         self.extractor(46, 0.9718, True, "auto", "cpu")
         self.extractor(52, 1.0, True, "auto", "cpu")
@@ -170,28 +168,27 @@ class TestFaceEngineRect(unittest.TestCase):
         self.extractor(52, 1.0, True, "avx2", "cpu")
 
     def extractor_batch(self, version, useMobileNet, cpuType, device):
-        configPath = os.path.join(dataPath, "faceengine.conf")
-        faceEngine = fe.createFaceEngine(dataPath)
+        configPath = os.path.join(self.dataPath, "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
         config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
         config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpuType))
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
-        faceEngine.setSettingsProvider(config)
+        self.faceEngine.setSettingsProvider(config)
         warps = [fe.Image(), fe.Image()]
-        err1 = warps[0].load(os.path.join(test_data_path, "warp1.ppm"))
-        err2 = warps[1].load(os.path.join(test_data_path, "warp2.ppm"))
+        err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
+        err2 = warps[1].load(os.path.join(self.test_data_path, "warp2.ppm"))
         # warps[0].load(os.path.join(test_data_path, "warp1.ppm"))
         # warps[0].load(os.path.join(test_data_path, "warp_eyeglasses.jpg"))
 
-        extractor = faceEngine.createExtractor()
-        batch = faceEngine.createDescriptorBatch(2)
-        descriptor = faceEngine.createDescriptor()
+        extractor = self.faceEngine.createExtractor()
+        batch = self.faceEngine.createDescriptorBatch(2)
+        descriptor = self.faceEngine.createDescriptor()
 
         res_batch = extractor.extractFromWarpedImageBatch(warps, batch, descriptor, 2)
         self.assertTrue(res_batch[0].isOk)
-        with open(test_data_path + "/batch12_" + str(version) + "_actual.bin", "wb") as out_file:
+        with open(self.test_data_path + "/batch12_" + str(version) + "_actual.bin", "wb") as out_file:
             for i in range(2):
                 descriptor_from_batch = batch.getDescriptorFast(i)
                 out_file.write(descriptor_from_batch.getData())
@@ -211,8 +208,8 @@ class TestFaceEngineRect(unittest.TestCase):
         self.extractor_batch(46, False, "auto", "cpu")
 
     def extractor_aggregation(self, version, useMobileNet, cpuType, device):
-        configPath = os.path.join(dataPath, "faceengine.conf")
-        faceEngine = fe.createFaceEngine(dataPath)
+        configPath = os.path.join(self.dataPath, "faceengine.conf")
+        faceEngine = fe.createFaceEngine(self.dataPath)
         config = fe.createSettingsProvider(configPath)
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
@@ -221,8 +218,8 @@ class TestFaceEngineRect(unittest.TestCase):
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
         faceEngine.setSettingsProvider(config)
         warps = [fe.Image(), fe.Image()]
-        err1 = warps[0].load(os.path.join(test_data_path, "warp1.ppm"))
-        err2 = warps[1].load(os.path.join(test_data_path, "warp2.ppm"))
+        err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
+        err2 = warps[1].load(os.path.join(self.test_data_path, "warp2.ppm"))
         extractor = faceEngine.createExtractor()
         batch = faceEngine.createDescriptorBatch(2)
         descriptor = faceEngine.createDescriptor()

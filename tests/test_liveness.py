@@ -39,6 +39,7 @@ dataPath = "data"
 
 liveness_engine = fe.createLivenessEngine(faceEngine, "data")
 
+
 def print_landmarks(landmarks, message=""):
     print(message)
     for i in range(len(landmarks)):
