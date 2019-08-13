@@ -104,10 +104,10 @@ class TestFaceEngineRect(unittest.TestCase):
     max_detections = 3
     image_det = f.Image()
     warper = None
-    warpedImage: f.Image() = None
-    face: f.Face() = None
-    transformedLandmarks5: f.Landmarks5() = None
-    transformedLandmarks68: f.Landmarks68() = None
+    warpedImage = f.Image()
+    face = f.Face()
+    transformedLandmarks5 = f.Landmarks5()
+    transformedLandmarks68 = f.Landmarks68()
 
     @classmethod
     def setUp(cls):
