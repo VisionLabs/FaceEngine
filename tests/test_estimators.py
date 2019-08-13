@@ -102,7 +102,7 @@ def readEyelidLandmarks(fileReader):
 class TestFaceEngineRect(unittest.TestCase):
     faceEngine = None
     max_detections = 3
-    image_det: f.Image() = f.Image()
+    image_det = f.Image()
     warper = None
     warpedImage: f.Image() = None
     face: f.Face() = None
