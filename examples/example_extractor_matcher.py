@@ -2,7 +2,7 @@ import sys
 
 
 def help():
-    print("example_extractor_matcher.py <path to FaceEngine*.so> <path to image> <path to image> ...")
+    print("example_extractor_matcher.py <path to dir with FaceEngine*.so> <path to image> <path to image> ...")
     print("example of using: python3 example_extractor_matcher.py build images/warp1.ppm images/warp2.ppm "
           "images/photo_2017-03-30_14-47-43_p.ppm")
 
@@ -13,6 +13,7 @@ if len(sys.argv) <= 3:
 # if FaceEngine is not installed pass the path to dir with FaceEngine*.so and add it to system paths
 sys.path.append(sys.argv[1])
 import FaceEngine as fe
+from example_license import make_activation
 
 
 def extractor_example(_image_list, _batch_size):
@@ -126,6 +127,9 @@ if __name__ == "__main__":
     batch_size = len(sys.argv) - 2
     # correct path or put directory "data" with example.py
     faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+    if not make_activation(faceEngine):
+        print("failed to activate license!")
+        exit(-1)
     # more detailed description of config see in luna-sdk/doc/ConfigurationGuide.pdf
     set_logging(1)
     image_list = load_list_of_images(batch_size, sys.argv)

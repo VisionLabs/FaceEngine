@@ -152,7 +152,7 @@ If FaceEngine*.so was built from sources by CMake pass the path to directory wit
 **run a script**:
 
 ```bash
-$ python3 your_script.py <path to FaceEngine*.so>
+$ python3 your_script.py <path to dir with FaceEngine*.so>
 ```
 **usage example**
 

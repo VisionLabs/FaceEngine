@@ -1,7 +1,9 @@
 import sys
 
+
 def help():
-    print("python example_detector_warper.py <path to FaceEngine*.so> <path to image>")
+    print("python example_detector_warper.py <path to dir with FaceEngine*.so> <path to image>")
+
 
 if len(sys.argv) != 3:
     help()
@@ -11,6 +13,7 @@ if len(sys.argv) != 3:
 sys.path.append(sys.argv[1])
 # if FaceEngine is installed only
 import FaceEngine as fe
+from example_license import make_activation
 # correct paths or put directory "data" with example_detector_warper.py
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
@@ -119,6 +122,9 @@ def print_landmarks_for_comparing(landmarks1, landmarks2, message=""):
 
 
 if __name__ == "__main__":
+    if not make_activation(faceEngine):
+        print("failed to activate license!")
+        exit(-1)
     image_path = sys.argv[2]
     config = set_logging(0)
     image = fe.Image()

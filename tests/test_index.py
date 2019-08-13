@@ -3,11 +3,12 @@ import unittest
 import argparse
 import sys
 import os
+from license_helper import make_activation, ActivationLicenseError
 
 # if FaceEngine is not installed within the system, add the directory with FaceEngine*.so to system paths
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--bind-path", type=str,
-                    help="path to FaceEngine*.so file - binding of luna-sdk")
+                    help="path to dir with FaceEngine*.so file - binding of luna-sdk")
 
 args = parser.parse_args()
 path_to_binding = args.bind_path
@@ -31,8 +32,9 @@ del(sys.argv[1])
 
 configPath = "data" + "/faceengine.conf"
 testDataPath = "testData"
-faceEnginePtr = fe.createFaceEngine("data",
-                                   configPath)
+faceEngine = fe.createFaceEngine("data",
+                                 configPath)
+
 
 class IndexTest:
     good = 0
@@ -41,6 +43,7 @@ class IndexTest:
     def __init__(self, _good, _bad):
         self.good = _good
         self.bad = _bad
+
 
 # warper example
 max_detections = 3
@@ -119,6 +122,11 @@ def load(descrFileName, batchFileName):
 
 
 class TestFaceEngineRect(unittest.TestCase):
+
+    @classmethod
+    def setUp(cls):
+        if not make_activation(faceEngine):
+            raise ActivationLicenseError("License is not activated!")
 
     def loadAcquiredDynamicIndex(self, _faceEngine, _indexPath):
         loadIndexRes = _faceEngine.loadDynamicIndex(_indexPath)

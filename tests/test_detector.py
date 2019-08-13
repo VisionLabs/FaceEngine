@@ -2,6 +2,7 @@ import unittest
 import argparse
 import sys
 import os
+from license_helper import make_activation, ActivationLicenseError
 
 # if FaceEngine is NOT installed within the system, add the directory with FaceEngine*.so to system paths
 parser = argparse.ArgumentParser()
@@ -78,6 +79,11 @@ def invoke_vector_coords(line):
 
 
 class TestFaceEngineDetector(unittest.TestCase):
+
+    @classmethod
+    def setUp(cls):
+        if not make_activation(faceEngine):
+            raise ActivationLicenseError("License is not activated!")
 
     def compare_detection_lists(self, _expDetection, detect_list, _imagesCount, _expLandmarks68=None):
         for j in range(_imagesCount):

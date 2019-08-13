@@ -4,11 +4,12 @@ import sys
 import os
 import logging
 import struct
+from license_helper import make_activation, ActivationLicenseError
 
 # if FaceEngine is not installed within the system, add the directory with FaceEngine*.so to system paths
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--bind-path", type=str,
-                    help="path to FaceEngine*.so file - binding of luna-sdk")
+                    help="path to dir with FaceEngine*.so file - binding of luna-sdk")
 
 args = parser.parse_args()
 path_to_binding = args.bind_path
@@ -35,7 +36,13 @@ faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 test_data_path = "testData"
 dataPath = "data"
 
+
 class TestFaceEngineRect(unittest.TestCase):
+
+    @classmethod
+    def setUp(cls):
+        if not make_activation(faceEngine, dataPath):
+            raise ActivationLicenseError("License is not activated!")
 
     # helpers
     def are_equal(self, desc1, desc2):

@@ -3,14 +3,14 @@ import unittest
 import argparse
 import sys
 import os
-import glob
 import logging
 import struct
+from license_helper import make_activation, ActivationLicenseError
 
 # if FaceEngine is not installed within the system, add the directory with FaceEngine*.so to system paths
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--bind-path", type=str,
-                    help="path to FaceEngine*.so file - binding of luna-sdk")
+                    help="path to dir with FaceEngine*.so file - binding of luna-sdk")
 
 args = parser.parse_args()
 path_to_binding = args.bind_path
@@ -32,13 +32,13 @@ import FaceEngine as f
 del(sys.argv[1])
 del(sys.argv[1])
 
-faceEnginePtr = f.createFaceEngine("data",
+faceEngine = f.createFaceEngine("data",
                                         "data/faceengine.conf")
 
 
 # detector test and example
 def detect(image_det, max_detections):
-    detector = faceEnginePtr.createDetector(f.FACE_DET_V1)
+    detector = faceEngine.createDetector(f.FACE_DET_V1)
     detector_result = detector.detectOne(image_det,
                                          image_det.getRect(),
                                          f.DetectionType(f.dtAll))
@@ -56,7 +56,7 @@ err, face = detect(image_det, 1)
                                        face.landmarks5_opt.value(), \
                                        face.landmarks68_opt.value()
 
-warper = faceEnginePtr.createWarper()
+warper = faceEngine.createWarper()
 transformation = warper.createTransformation(detection, landmarks5)
 warpedImage = warper.warp(image_det, transformation)
 
@@ -81,6 +81,7 @@ def readHeadPoseEstimation(fileReader):
     headPoseEstimation.roll = struct.unpack('<f', fileReader.read(4))[0]
 
     return headPoseEstimation
+
 
 def readLandmarks68(fileReader):
     landmarks68 = f.Landmarks68()
@@ -117,10 +118,16 @@ def readEyelidLandmarks(fileReader):
 
     return eyelidLandmarks
 
+
 class TestFaceEngineRect(unittest.TestCase):
 
+    @classmethod
+    def setUp(cls):
+        if not make_activation(faceEngine):
+            raise ActivationLicenseError("License is not activated!")
+
     def test_AttributeEstimator(self):
-        attributeEstimator = faceEnginePtr.createAttributeEstimator()
+        attributeEstimator = faceEngine.createAttributeEstimator()
         image = f.Image()
         image.load("testData/00205_9501_p.ppm")
         self.assertTrue(image.isValid())
@@ -151,7 +158,7 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertEqual(aggregate_result.age_opt.value(), result.age_opt.value())
 
     def test_QualityEstimator(self):
-        qualityEstimator = faceEnginePtr.createQualityEstimator()
+        qualityEstimator = faceEngine.createQualityEstimator()
         image = f.Image()
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
         self.assertTrue(image.isValid())
@@ -161,7 +168,7 @@ class TestFaceEngineRect(unittest.TestCase):
 
     def test_EthnicityEstimator(self):
         logging.info("EthnicityEstimator")
-        ethnicityEstimator = faceEnginePtr.createEthnicityEstimator()
+        ethnicityEstimator = faceEngine.createEthnicityEstimator()
         image = f.Image()
         image.load("testData/warp1.ppm")
         self.assertTrue(image.isValid())
@@ -176,15 +183,15 @@ class TestFaceEngineRect(unittest.TestCase):
         config = f.createSettingsProvider("data/faceengine.conf")
         config.setValue("HeadPoseEstimator::Settings","useEstimationByImage", f.SettingsProviderValue(0))
         config.setValue("HeadPoseEstimator::Settings","useEstimationByLandmarks", f.SettingsProviderValue(1))
-        faceEnginePtr.setSettingsProvider(config)
+        faceEngine.setSettingsProvider(config)
         image = f.Image()
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
-        det = faceEnginePtr.createDetector(f.FACE_DET_V1)
+        det = faceEngine.createDetector(f.FACE_DET_V1)
         err_temp, face = detect(image, 3)
         (detection, landmarks5, landmarks68) = face.detection, \
                                                face.landmarks5_opt.value(), \
                                                face.landmarks68_opt.value()
-        headPoseEstimator = faceEnginePtr.createHeadPoseEstimator()
+        headPoseEstimator = faceEngine.createHeadPoseEstimator()
         err, headPoseEstimation = headPoseEstimator.estimate(landmarks68)
         self.assertTrue(err.isOk)
         expected = f.HeadPoseEstimation()
@@ -201,15 +208,15 @@ class TestFaceEngineRect(unittest.TestCase):
         config = f.createSettingsProvider("data/faceengine.conf")
         config.setValue("HeadPoseEstimator::Settings","useEstimationByImage", f.SettingsProviderValue(1))
         config.setValue("HeadPoseEstimator::Settings","useEstimationByLandmarks", f.SettingsProviderValue(0))
-        faceEnginePtr.setSettingsProvider(config)
+        faceEngine.setSettingsProvider(config)
         image = f.Image()
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
-        det = faceEnginePtr.createDetector(f.FACE_DET_V1)
+        det = faceEngine.createDetector(f.FACE_DET_V1)
         _, face = detect(image, 3)
         (detection, landmarks5, landmarks68) = face.detection, \
                                                face.landmarks5_opt.value(), \
                                                face.landmarks68_opt.value()
-        headPoseEstimator = faceEnginePtr.createHeadPoseEstimator()
+        headPoseEstimator = faceEngine.createHeadPoseEstimator()
         err, headPoseEstimation = headPoseEstimator.estimate(image, detection)
         self.assertTrue(err.isOk)
         expected = f.HeadPoseEstimation()
@@ -223,7 +230,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertEqual(f.FrontalFaceType.FrontalFace1, expected.getFrontalFaceType())
 
     def test_BlackWhiteEstimator(self):
-        blackWhiteEstimator = faceEnginePtr.createBlackWhiteEstimator()
+        blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
         image = f.Image()
         image.load("testData/warp1.ppm")
         self.assertTrue(image.isValid())
@@ -232,7 +239,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertFalse(isBlack)
 
     def test_DepthEstimator(self):
-        depthEstimator = faceEnginePtr.createDepthEstimator()
+        depthEstimator = faceEngine.createDepthEstimator()
         # depth
         # loadImage - only for depth image downloading saved as binary array
         depthImage = f.loadImage("testData/warp.depth")
@@ -245,8 +252,8 @@ class TestFaceEngineRect(unittest.TestCase):
         config = f.createSettingsProvider("data/faceengine.conf")
         
         config.setValue("LivenessIREstimator::Settings", "cooperativeMode", f.SettingsProviderValue(1))
-        faceEnginePtr.setSettingsProvider(config)
-        iREstimator = faceEnginePtr.createIREstimator()
+        faceEngine.setSettingsProvider(config)
+        iREstimator = faceEngine.createIREstimator()
         
         irImage = f.Image()
         irImage.load("testData/irWarp.ppm")
@@ -259,8 +266,8 @@ class TestFaceEngineRect(unittest.TestCase):
 
 
         config.setValue("LivenessIREstimator::Settings", "cooperativeMode", f.SettingsProviderValue(0))
-        faceEnginePtr.setSettingsProvider(config)
-        iREstimator = faceEnginePtr.createIREstimator()
+        faceEngine.setSettingsProvider(config)
+        iREstimator = faceEngine.createIREstimator()
         
         irImage.load("testData/irWarpNonCooperative.png")
         self.assertTrue(irImage.isValid())
@@ -270,8 +277,8 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertAlmostEqual(irRestult.score, 0.9935, delta=0.001)
 
     def test_SmileEstimator(self):
-        warper = faceEnginePtr.createWarper()
-        smileEstimator = faceEnginePtr.createSmileEstimator()
+        warper = faceEngine.createWarper()
+        smileEstimator = faceEngine.createSmileEstimator()
         smileImage = f.Image()
         overlapImage = f.Image()
         mouthImage = f.Image()
@@ -330,9 +337,8 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertAlmostEqual(mouth_result.smile, 0.0, delta=0.01)
         self.assertAlmostEqual(mouth_result.occlusion, 0.0, delta=0.01)
 
-
     def test_FaceFlowEstimator(self):
-        faceFlowEstimator = faceEnginePtr.createFaceFlowEstimator()
+        faceFlowEstimator = faceEngine.createFaceFlowEstimator()
         faceFlowImage = f.Image()
         faceFlowImage.load("testData/small.ppm")
         sequence = []
@@ -345,7 +351,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertAlmostEqual(faceFlowScore, 0.9967, delta=0.01)
 
     def test_EyeEstimator(self):
-        eyeEstimator = faceEnginePtr.createEyeEstimator()
+        eyeEstimator = faceEngine.createEyeEstimator()
         def testImage(landmarksCount, refLeftState, refRightState):
 
             reference = f.EyesEstimation()
@@ -420,14 +426,13 @@ class TestFaceEngineRect(unittest.TestCase):
 
         testImage(68, f.State.Open, f.State.Open)
 
-
     def test_EmotionsEstimator(self):
         def emotions_test(path_to_warp_image, reference, predominant):
             acceptable_diff = 0.1
             image = f.Image()
             image.load(path_to_warp_image)
             self.assertTrue(image.isValid())
-            emotionsEstimator = faceEnginePtr.createEmotionsEstimator()
+            emotionsEstimator = faceEngine.createEmotionsEstimator()
             err_emotions, emotionsEstimation = emotionsEstimator.estimate(image)
             self.assertTrue(err_emotions.isOk)
             self.assertAlmostEqual(emotionsEstimation.anger, reference.anger, delta=acceptable_diff)
@@ -477,7 +482,7 @@ class TestFaceEngineRect(unittest.TestCase):
             expected.leftEye.pitch = -2.1464545992
             expected.rightEye.yaw = -4.9038884727
             expected.rightEye.pitch = -0.13287750706
-            gazeEstimator = faceEnginePtr.createGazeEstimator()
+            gazeEstimator = faceEngine.createGazeEstimator()
             err, actual = gazeEstimator.estimate(headPoseEstimation, eyesEstimation)
             self.assertTrue(err.isOk)
             self.assertAlmostEqual(actual.leftEye.yaw, expected.leftEye.yaw, delta=0.01)
@@ -490,8 +495,8 @@ class TestFaceEngineRect(unittest.TestCase):
         config = f.createSettingsProvider("data/faceengine.conf")
         config.setValue("system", "betaMode", f.SettingsProviderValue(1))
         config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
-        faceEnginePtr.setSettingsProvider(config)
-        estimator = faceEnginePtr.createAGSEstimator()
+        faceEngine.setSettingsProvider(config)
+        estimator = faceEngine.createAGSEstimator()
         image = f.Image()
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
 
@@ -506,7 +511,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertFalse(r[0].isError)
         self.assertAlmostEqual(refAGS, r[1], delta=0.01)
         config.setValue("system", "verboseLogging", f.SettingsProviderValue(0))
-        faceEnginePtr.setSettingsProvider(config)
+        faceEngine.setSettingsProvider(config)
 
     def test_IrEyeEstimator(self):
         imagePath = "testData/eyes/IrWarp.png"
@@ -557,7 +562,7 @@ class TestFaceEngineRect(unittest.TestCase):
         eyeRectsByLandmarks68 = cropper.cropByLandmarks68(warp, landmarks68)
 
         # create estimator
-        eyeEstimator = faceEnginePtr.createEyeEstimator(f.RecognitionMode.RM_INFRA_RED)
+        eyeEstimator = faceEngine.createEyeEstimator(f.RecognitionMode.RM_INFRA_RED)
 
         # estimation
         errEyes, eyesEstimation = eyeEstimator.estimate(warp, eyeRectsByLandmarks68)
@@ -579,6 +584,7 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].y, reference.leftEye.eyelid[i].y, delta=acceptableDiff)
             self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
             self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
+
 
 if __name__ == '__main__':
     unittest.main()
