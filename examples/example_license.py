@@ -46,9 +46,9 @@ def check_license(license):
     return license.isActivated()
 
 
-def make_activation(_faceEngine, _licenseConfPath="./data"):
-    license = _faceEngine.getLicense()
-    return _faceEngine.activateLicense(license, _licenseConfPath)
+def make_activation(_face_engine, _license_conf_path="data/license.conf"):
+    _license = _face_engine.getLicense()
+    return _face_engine.activateLicense(_license, _license_conf_path)
 
 
 if __name__ == "__main__":
