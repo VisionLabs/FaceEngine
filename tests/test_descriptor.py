@@ -85,6 +85,7 @@ class TestFaceEngineRect(unittest.TestCase):
         versionString = str(version) + ("", "_mobilenet")[useMobileNet]
         configPath = os.path.join(self.dataPath, "faceengine.conf")
         faceEngine = fe.createFaceEngine(self.dataPath)
+        self.assertTrue(make_activation(faceEngine))
         config = fe.createSettingsProvider(configPath)
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
@@ -210,6 +211,7 @@ class TestFaceEngineRect(unittest.TestCase):
     def extractor_aggregation(self, version, useMobileNet, cpuType, device):
         configPath = os.path.join(self.dataPath, "faceengine.conf")
         faceEngine = fe.createFaceEngine(self.dataPath)
+        self.assertTrue(make_activation(faceEngine))
         config = fe.createSettingsProvider(configPath)
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
