@@ -34,7 +34,8 @@ del(sys.argv[1])
 
 faceEngine = f.createFaceEngine("data",
                                         "data/faceengine.conf")
-
+if not make_activation(faceEngine):
+    raise ActivationLicenseError("License is not activated!")
 
 # detector test and example
 def detect(image_det, max_detections):

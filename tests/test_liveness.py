@@ -31,6 +31,9 @@ del(sys.argv[1])
 
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
+if not make_activation(faceEngine):
+    raise ActivationLicenseError("License is not activated!")
+
 test_data_path = "testData"
 dataPath = "data"
 

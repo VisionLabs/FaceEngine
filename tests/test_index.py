@@ -35,6 +35,8 @@ testDataPath = "testData"
 faceEngine = fe.createFaceEngine("data",
                                  configPath)
 
+if not make_activation(faceEngine):
+    raise ActivationLicenseError("License is not activated!")
 
 class IndexTest:
     good = 0
