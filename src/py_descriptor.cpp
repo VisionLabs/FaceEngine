@@ -366,11 +366,6 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 			if(k > 1) {
 				std::vector<uint32_t> indexes(results.size());
 				std::iota(indexes.begin(), indexes.end(), 1);
-				//std::partial_sort(results.begin(), results.begin() + k, results.end(),
-				//	[](const auto &a, const auto &b) {
-				//		return a.distance < b.distance;
-				//	});
-				//result.resize(k);
 				
 				std::partial_sort(indexes.begin(), indexes.begin() + k, indexes.end(),
 					[&results](decltype(*begin(indexes)) a, decltype(*begin(indexes)) b) {
@@ -384,7 +379,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 				
 				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(indexes));
 				
-			} else { // k == 0
+			} else { // k == 1
 				const auto it = std::min_element(results.begin(), results.end(),
 					[](decltype(*begin(results)) a, decltype(*begin(results)) b) {
 						return a.distance < b.distance;
@@ -395,17 +390,14 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 			}
 	     },
 	     "Match descriptors 1:M.\n"
-	     "\tMatches a reference descriptor to a batch of candidate descriptors. "
-	     "The results are layed out in the\n"
-	     "\tsame order as the candidate descriptors in the batch.\n"
+	     "\tMatches a reference descriptor to a batch of candidate descriptors and returns one K nearest candidates. "
+	     "\tNote: this function allows you to not copy mach data from c++ to python if you need only best candidates.\n"
 	     "\tArgs\n"
 	     "\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
 	     "\t\tparam2 (IDescriptorPtr): the candidate descriptor batch to match with the reference\n"
 		 "\t\tparam3 (IDescriptorPtr): K - number of closest descriptor"
 	     "\tReturns:\n"
-	     "\t\t(list): if OK - matchig result list.\n"
-	     "\t\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
-	     "\t\t\tIDescriptorBatchPtr::getMaxCount()\n"
+	     "\t\tTwo lists (indexes and matching results of K nearest neighbours): if OK - matchig result list.\n"
 	     "\t\t(FSDKErrorResult wrapped in list): else - result with error specified by FSDKErrorResult.\n")
 	;
 }
