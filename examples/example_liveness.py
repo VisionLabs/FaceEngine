@@ -16,10 +16,6 @@ sys.path.append(sys.argv[1])
 import FaceEngine as fe
 from example_license import make_activation
 
-
-
-
-
 def print_landmarks(landmarks, message=""):
     print(message)
     for i in range(len(landmarks)):
@@ -30,10 +26,10 @@ if __name__ == "__main__":
     faceEngine = fe.createFaceEngine("data",
                                      "data/faceengine.conf")
 
-    liveness_engine = fe.createLivenessEngine(faceEngine, "./data")
     if not make_activation(faceEngine):
         print("failed to activate license!")
         exit(1)
+    liveness_engine = fe.createLivenessEngine(faceEngine, "./data")
     video_path = sys.argv[2]
     print("downloading of video: {0}".format(video_path))
 
