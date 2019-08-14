@@ -59,8 +59,8 @@ print(fe.PyISettingsProvider.getValue.__doc__)
 print(fe.IQualityEstimatorPtr.__doc__)
 print(fe.IQualityEstimatorPtr.estimate.__doc__)
 
-print(fe.IAttributeEstimatorPtr.__doc__)
-print(fe.IAttributeEstimatorPtr.estimate.__doc__)
+print(fe.IEthnicityEstimatorPtr.__doc__)
+print(fe.IEthnicityEstimatorPtr.estimate.__doc__)
 
 print(fe.IAttributeEstimatorPtr.__doc__)
 print(fe.IAttributeEstimatorPtr.estimate.__doc__)

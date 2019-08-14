@@ -387,8 +387,8 @@ void estimators_module(py::module& f) {
 		"\tThis estimator is designed to work with a person face image.\n"
 		"\tsee IWarper for details.\n")
 		.def("estimate",[](
-				const fsdk::IGlassesEstimatorPtr& est,
-				const fsdk::Image& warp) {
+			const fsdk::IGlassesEstimatorPtr& est,
+			const fsdk::Image& warp) {
 				fsdk::ResultValue<fsdk::FSDKError, fsdk::GlassesEstimation> err = est->estimate(warp);
 				std::cout << "debug result " << static_cast<int>(err.getValue()) << std::endl;
 				if (err.isOk())
