@@ -151,6 +151,13 @@ fsdk::IGazeEstimatorPtr PyIFaceEngine::createGazeEstimator() {
 	return gazeEstimatorPtr;
 }
 
+fsdk::IGlassesEstimatorPtr PyIFaceEngine::createGlassesEstimator() {
+	fsdk::IGlassesEstimatorPtr glassesEstimatorPtr = fsdk::acquire(faceEnginePtr->createGlassesEstimator());
+	if (!glassesEstimatorPtr)
+		throw py::cast_error("\nFailed to create glasses estimator instance! VERIFY PATH to \"data\" directory!");
+	return glassesEstimatorPtr;
+}
+
 fsdk::IIndexBuilderPtr PyIFaceEngine::createIndexBuilder() {
 	fsdk::IIndexBuilderPtr indexBuilderPtr = fsdk::acquire(faceEnginePtr->createIndexBuilder());
 	

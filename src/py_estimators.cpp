@@ -381,7 +381,27 @@ void estimators_module(py::module& f) {
 				"\tReturns:\n"
 				"\t\t(tuple with FSDKErrorResult and float value): Error code and float value.")
 					;
-
+	
+	py::class_<fsdk::IGlassesEstimatorPtr>(f, "IGlassesEstimatorPtr",
+		"Glasses estimator interface.\n"
+		"\tThis estimator is designed to work with a person face image.\n"
+		"\tsee IWarper for details.\n")
+		.def("estimate",[](
+			const fsdk::IGlassesEstimatorPtr& est,
+			const fsdk::Image& warp) {
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::GlassesEstimation> err = est->estimate(warp);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), err.getValue());
+				return std::make_tuple(FSDKErrorResult(err), fsdk::GlassesEstimation::EstimationError);
+				
+			},
+			"\tChecks whether person wearing any glasses or not.\n"
+			"\tArgs\n"
+			"\t\tparam1 (Image): warped source image in R8G8B8 format.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns error code FSDKErrorResult and GlassesEstimation\n")
+				;
+	
 	py::class_<fsdk::MatchingResult>(f, "MatchingResult", "Result of descriptor matching.")
 		.def(py::init<>(), "Initializes result to default values.")
 
@@ -704,12 +724,21 @@ void estimators_module(py::module& f) {
 			})
 		;
 
-//	Ethnicity
+	//	Ethnicity
 	py::enum_<fsdk::EthnicityEstimation::Ethnicities>(f, "Ethnicity", "Ethnicity enum.\n")
 		.value("AfricanAmerican", fsdk::EthnicityEstimation::AfricanAmerican)
 		.value("Indian", fsdk::EthnicityEstimation::Indian)
 		.value("Asian", fsdk::EthnicityEstimation::Asian)
 		.value("Caucasian", fsdk::EthnicityEstimation::Caucasian)
-		.export_values();
-			;
+		.export_values()
+		;
+	
+	//	Glasses
+	py::enum_<fsdk::GlassesEstimation>(f, "GlassesEstimation", py::arithmetic(), "GlassesEstimation enum\n")
+		.value("NoGlasses", fsdk::GlassesEstimation::NoGlasses, "Person is not wearing glasses\n")
+		.value("EyeGlasses", fsdk::GlassesEstimation::EyeGlasses, "Person is wearing eyeglasses\n")
+		.value("SunGlasses", fsdk::GlassesEstimation::SunGlasses, "Person is wearing sunglasses\n")
+		.value("EstimationError", fsdk::GlassesEstimation::EstimationError, "Failed to estimate\n")
+		.export_values()
+		;
 }
