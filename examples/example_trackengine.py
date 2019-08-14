@@ -19,10 +19,10 @@ from example_license import make_activation
 if __name__ == "__main__":
     # correct paths or put directory "data" with example_detector_warper.py
     faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
-    trackEngine = te.createTrackEngine(faceEngine, "data/trackengine.conf")
     if not make_activation(faceEngine):
         print("failed to activate license!")
         exit(-1)
+    trackEngine = te.createTrackEngine(faceEngine, "data/trackengine.conf")
     image_path = sys.argv[2]
     image = fe.Image()
     err_image_loaded = image.load(image_path)
