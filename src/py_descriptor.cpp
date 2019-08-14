@@ -358,10 +358,13 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		const fsdk::IDescriptorPtr& reference,
 		const fsdk::IDescriptorBatchPtr& candidates,
 		const uint32_t k) {
+			if(k == 0)
+				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
+		
 			std::vector<fsdk::MatchingResult> results(candidates->getCount());
-			fsdk::Result<fsdk::FSDKError> err =	matcherPtr->match(reference, candidates, results.data());
-			if (err.isError())
-			    return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
+			fsdk::Result<fsdk::FSDKError> err = matcherPtr->match(reference, candidates, results.data());
+			if(err.isError())
+				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
 			
 			if(k > 1) {
 				std::vector<uint32_t> indexes(results.size());
@@ -369,7 +372,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 				
 				std::partial_sort(indexes.begin(), indexes.begin() + k, indexes.end(),
 					[&results](decltype(*begin(indexes)) a, decltype(*begin(indexes)) b) {
-					  return results[a].distance < results[b].distance;
+						return results[a].distance < results[b].distance;
 					});
 				indexes.resize(k);
 				std::vector<fsdk::MatchingResult> resValues;
@@ -389,15 +392,15 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(resIndexes));
 			}
 	     },
-	     "Match descriptors 1:M.\n"
-	     "\tMatches a reference descriptor to a batch of candidate descriptors and returns one K nearest candidates. "
-	     "\tNote: this function allows you to not copy mach data from c++ to python if you need only best candidates.\n"
-	     "\tArgs\n"
-	     "\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
-	     "\t\tparam2 (IDescriptorPtr): the candidate descriptor batch to match with the reference\n"
-		 "\t\tparam3 (IDescriptorPtr): K - number of closest descriptor"
-	     "\tReturns:\n"
-	     "\t\tTwo lists (indexes and matching results of K nearest neighbours): if OK - matchig result list.\n"
-	     "\t\t(FSDKErrorResult wrapped in list): else - result with error specified by FSDKErrorResult.\n")
+		"Match descriptors 1:M.\n"
+		"\tMatches a reference descriptor to a batch of candidate descriptors and returns one K nearest candidates. "
+		"\tNote: this function allows you to not copy mach data from c++ to python if you need only best candidates.\n"
+		"\tArgs\n"
+		"\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
+		"\t\tparam2 (IDescriptorPtr): the candidate descriptor batch to match with the reference\n"
+		"\t\tparam3 (IDescriptorPtr): K - number of closest descriptor"
+		"\tReturns:\n"
+		"\t\tTwo lists (indexes and matching results of K nearest neighbours): if OK - matchig result list.\n"
+		"\t\t(FSDKErrorResult wrapped in list): else - result with error specified by FSDKErrorResult.\n")
 	;
 }
