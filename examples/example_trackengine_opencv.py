@@ -11,6 +11,7 @@ sys.path.append(sys.argv[1])
 # if FaceEngine is installed only
 import FaceEngine as fe
 import TrackEngine as te
+from example_license import make_activation
 
 bboxes = {}
 bestshots = {}

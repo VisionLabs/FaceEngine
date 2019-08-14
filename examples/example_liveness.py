@@ -17,10 +17,7 @@ import FaceEngine as fe
 from example_license import make_activation
 
 
-faceEngine = fe.createFaceEngine("data",
-                                 "data/faceengine.conf")
 
-liveness_engine = fe.createLivenessEngine(faceEngine, "./data")
 
 
 def print_landmarks(landmarks, message=""):
@@ -30,11 +27,16 @@ def print_landmarks(landmarks, message=""):
 
 
 if __name__ == "__main__":
-    video_path = sys.argv[2]
-    print("downloading of video: {0}".format(video_path))
+    faceEngine = fe.createFaceEngine("data",
+                                     "data/faceengine.conf")
+
+    liveness_engine = fe.createLivenessEngine(faceEngine, "./data")
     if not make_activation(faceEngine):
         print("failed to activate license!")
         exit(1)
+    video_path = sys.argv[2]
+    print("downloading of video: {0}".format(video_path))
+
     # example of config creating
     config_fe = fe.createSettingsProvider("data/faceengine.conf")
     config_le = fe.createSettingsProvider("data/livenessengine.conf")

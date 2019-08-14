@@ -1,4 +1,5 @@
 import sys
+from example_license import make_activation
 
 def help():
     print("python example_detector_warper.py <path to dir with FaceEngine*.so> <path to image>")
@@ -14,11 +15,11 @@ import FaceEngine as fe
 import TrackEngine as te
 from example_license import make_activation
 
-# correct paths or put directory "data" with example_detector_warper.py
-faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
-trackEngine = te.createTrackEngine(faceEngine, "data/trackengine.conf")
 
 if __name__ == "__main__":
+    # correct paths or put directory "data" with example_detector_warper.py
+    faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+    trackEngine = te.createTrackEngine(faceEngine, "data/trackengine.conf")
     if not make_activation(faceEngine):
         print("failed to activate license!")
         exit(-1)
