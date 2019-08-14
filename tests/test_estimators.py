@@ -192,7 +192,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(err.isOk)
         err = warp2.load("testData/warp_sunglasses.jpg")
         self.assertTrue(err.isOk)
-        glassesEstimator = faceEnginePtr.createGlassesEstimator()
+        glassesEstimator = self.faceEngine.createGlassesEstimator()
 
         err, glasses_estimation = glassesEstimator.estimate(warp0)
         self.assertTrue(err.isOk)
