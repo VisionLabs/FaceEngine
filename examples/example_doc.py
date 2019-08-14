@@ -30,6 +30,7 @@ print(fe.PyIFaceEngine.createFaceFlowEstimator.__doc__)
 print(fe.PyIFaceEngine.createEyeEstimator.__doc__)
 print(fe.PyIFaceEngine.createEmotionsEstimator.__doc__)
 print(fe.PyIFaceEngine.createGazeEstimator.__doc__)
+print(fe.PyIFaceEngine.createGlassesEstimator.__doc__)
 
 print(fe.PyIFaceEngine.createDetector.__doc__)
 print(fe.PyIFaceEngine.createWarper.__doc__)
@@ -61,8 +62,11 @@ print(fe.IQualityEstimatorPtr.estimate.__doc__)
 print(fe.IAttributeEstimatorPtr.__doc__)
 print(fe.IAttributeEstimatorPtr.estimate.__doc__)
 
-print(fe.IEthnicityEstimatorPtr.__doc__)
-print(fe.IEthnicityEstimatorPtr.estimate.__doc__)
+print(fe.IAttributeEstimatorPtr.__doc__)
+print(fe.IAttributeEstimatorPtr.estimate.__doc__)
+
+print(fe.IGlassesEstimatorPtr.__doc__)
+print(fe.IGlassesEstimatorPtr.estimate.__doc__)
 
 print(fe.IDetectorPtr.__doc__)
 print(fe.IDetectorPtr.detect.__doc__)
@@ -238,6 +242,7 @@ print(fe.GazeEstimation.__doc__)
 print(fe.EyeAngles.__doc__)
 
 print(fe.Ethnicity.__doc__)
+print(fe.GlassesEstimation.__doc__)
 
 print(fe.Transformation.__doc__)
 
