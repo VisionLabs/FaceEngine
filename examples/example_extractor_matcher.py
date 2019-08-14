@@ -139,7 +139,7 @@ if __name__ == "__main__":
         # print_descriptor(descriptor1)
         # print_descriptor(descriptor2)
         # as test
-        extractor_test_aggregation(46, True, "cpu", "cpu")
+        extractor_test_aggregation(46, True, "auto", "cpu")
     except RuntimeError as ex:
         print(ex)
         exit(1)
