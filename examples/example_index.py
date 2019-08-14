@@ -151,6 +151,7 @@ def doIndexStuff(getIndex, _search, _report, _completion=None):
 
 
 if __name__ == "__main__":
+    print("This example is only for service platforms!")
     imagePath = sys.argv[2]
     imagesDirPath = sys.argv[3]
     listPath = sys.argv[4]

@@ -10,6 +10,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--bind-path", type=str,
                     help="path to dir with FaceEngine*.so file - binding of luna-sdk")
 
+print("This test is only for service platforms!")
+
 args = parser.parse_args()
 path_to_binding = args.bind_path
 print(path_to_binding)
