@@ -172,7 +172,7 @@ From `FSDK_ROOT`:
 $ python3 pythonBindings/tests/test_image.py --bind-path pythonBindings/build
 $ python3 pythonBindings/tests/test_rect.py --bind-path pythonBindings/build
 $ python3 pythonBindings/tests/test_estimators.py --bind-path pythonBindings/build
-$ python3 pythonBindings/tests/test_index.py --bind-path pythonBindings/build # only for service platforms, not for Jetson
+$ python3 pythonBindings/tests/test_index.py --bind-path pythonBindings/build # only for server platforms, not for Jetson
 $ python3 pythonBindings/tests/test_descriptor.py --bind-path pythonBindings/build
 $ python3 pythonBindings/tests/test_detector.py --bind-path pythonBindings/build
 $ python3 pythonBindings/tests/test_liveness.py --bind-path pythonBindings/build
