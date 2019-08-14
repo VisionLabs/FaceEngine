@@ -16,6 +16,9 @@ import FaceEngine as fe
 from example_license import make_activation
 # correct paths or put directory "data" with example_detector_warper.py
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+if not make_activation(faceEngine):
+    print("failed to activate license!")
+    exit(-1)
 
 
 def detector_batch_example(_image_det, _max_detections, _detector_type=fe.FACE_DET_V1):
