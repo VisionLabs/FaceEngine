@@ -57,6 +57,8 @@ reference = [763, 762, 852, 850, 851, 600, 936, 886, 739, 152]
 def loadAcquiredFaceEngineWithCnn46():
     faceEnginePtr = fe.createFaceEngine("data",
                                         configPath)
+    if not make_activation(faceEnginePtr):
+        raise ActivationLicenseError("License is not activated!")
     config = fe.createSettingsProvider(configPath)
     config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(46))
     faceEnginePtr.setSettingsProvider(config)
