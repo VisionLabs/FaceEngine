@@ -359,7 +359,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		const fsdk::IDescriptorBatchPtr& candidates,
 		const uint32_t k) {
 			if(k == 0)
-				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
+				return std::make_tuple(FSDKErrorResult(fsdk::FSDKError::InvalidInput), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
 		
 			std::vector<fsdk::MatchingResult> results(candidates->getCount());
 			fsdk::Result<fsdk::FSDKError> err = matcherPtr->match(reference, candidates, results.data());
