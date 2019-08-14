@@ -55,6 +55,8 @@ public:
 
 	fsdk::IGazeEstimatorPtr createGazeEstimator();
 	
+	fsdk::IGlassesEstimatorPtr createGlassesEstimator();
+	
 	fsdk::IIndexBuilderPtr createIndexBuilder();
 	
 	fsdk::Ref<fsdk::IHumanDetector> createHumanDetector();
