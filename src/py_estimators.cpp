@@ -390,11 +390,9 @@ void estimators_module(py::module& f) {
 			const fsdk::IGlassesEstimatorPtr& est,
 			const fsdk::Image& warp) {
 				fsdk::ResultValue<fsdk::FSDKError, fsdk::GlassesEstimation> err = est->estimate(warp);
-				std::cout << "debug result " << static_cast<int>(err.getValue()) << std::endl;
 				if (err.isOk())
 					return std::make_tuple(FSDKErrorResult(err), err.getValue());
-				else
-					return std::make_tuple(FSDKErrorResult(err), fsdk::GlassesEstimation::EstimationError);
+				return std::make_tuple(FSDKErrorResult(err), fsdk::GlassesEstimation::EstimationError);
 				
 			},
 			"\tChecks whether person wearing any glasses or not.\n"

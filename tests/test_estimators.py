@@ -176,14 +176,11 @@ class TestFaceEngineRect(unittest.TestCase):
         warp0 = f.Image()
         warp1 = f.Image()
         warp2 = f.Image()
-        warp3 = f.Image()
         err = warp0.load("testData/warp_noglasses.jpg")
         self.assertTrue(err.isOk)
         err = warp1.load("testData/warp_eyeglasses.jpg")
         self.assertTrue(err.isOk)
         err = warp2.load("testData/warp_sunglasses.jpg")
-        self.assertTrue(err.isOk)
-        err = warp3.load("testData/warp_obama.jpg")
         self.assertTrue(err.isOk)
         glassesEstimator = faceEnginePtr.createGlassesEstimator()
 
@@ -198,10 +195,6 @@ class TestFaceEngineRect(unittest.TestCase):
         err, glasses_estimation = glassesEstimator.estimate(warp2)
         self.assertTrue(err.isOk)
         self.assertEqual(glasses_estimation, f.GlassesEstimation.SunGlasses)
-
-        err, glasses_estimation = glassesEstimator.estimate(warp3)
-        self.assertTrue(err.isOk)
-        self.assertEqual(glasses_estimation, f.NoGlasses)
 
     def test_HeadPoseEstimatorLandmarks(self):
         config = f.createSettingsProvider("data/faceengine.conf")

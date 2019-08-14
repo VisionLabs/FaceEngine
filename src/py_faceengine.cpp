@@ -168,7 +168,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator, "Creates Emotions estimator\n")
 		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n")
-		.def("createGlassesEstimator", &PyIFaceEngine::createGlassesEstimator, "Creates glasses estimator\n")
+		.def("createGlassesEstimator", &PyIFaceEngine::createGlassesEstimator, "Creates Glasses estimator\n")
 		.def("createAGSEstimator", &PyIFaceEngine::createAGSEstimator, "Creates AGS estimator\n")
 
 		.def("createDetector", &PyIFaceEngine::createDetector,
