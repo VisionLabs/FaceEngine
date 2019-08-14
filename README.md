@@ -8,18 +8,18 @@ In pythonBindings there are some supplementary materials you may find useful.
 Look into *cmake/* folder for a CMake find script for the SDK. You are not forced to use
 CMake but we advise for it.
 
-Currently we support Linux and Windows.
+Currently we support Linux, Jetson and Windows.
 
 Note, that the SDK is officially supported on RedHat
 Linux families (RHEL, CentOS, Fedora). 
 
 **Python version**
-PythonBindings were tested with python 3.4 and python 3.6.
+PythonBindings were tested with python 3.4, 3.5 and python 3.6.
 Other versions may work as well(2.7 and higher), **x64**. 
 
 Only basic methods and classes of LUNA SDK were binded.
 
-**On Unix (Linux, Ubuntu 18)**
+**On Unix (Linux, Ubuntu 18, Jetson)**
 * GCC 4.8.5 or higher
 * A compiler with C++11 support
 * CMake >= 3.6
@@ -32,7 +32,7 @@ Only basic methods and classes of LUNA SDK were binded.
 * Bindings were tested only with "Visual Studio 14 2015".
 * numpy for python
 
-## Building on Linux
+## Building on Linux, Jetson
 From source files of pythonBindings generated a shared library `FaceEngine*.so`.
 This library can be installed in system or used without installing.
  
@@ -172,7 +172,7 @@ From `FSDK_ROOT`:
 $ python3 pythonBindings/tests/test_image.py --bind-path pythonBindings/build
 $ python3 pythonBindings/tests/test_rect.py --bind-path pythonBindings/build
 $ python3 pythonBindings/tests/test_estimators.py --bind-path pythonBindings/build
-$ python3 pythonBindings/tests/test_index.py --bind-path pythonBindings/build
+$ python3 pythonBindings/tests/test_index.py --bind-path pythonBindings/build # only for service platforms, not for Jetson
 $ python3 pythonBindings/tests/test_descriptor.py --bind-path pythonBindings/build
 $ python3 pythonBindings/tests/test_detector.py --bind-path pythonBindings/build
 $ python3 pythonBindings/tests/test_liveness.py --bind-path pythonBindings/build
@@ -191,7 +191,7 @@ $ python3 pythonBindings/examples/example_estimators.py pythonBindings/build tes
 # Detecting and warping
 $ python3 pythonBindings/examples/example_detector_warper.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm
 
-# Index building
+# Index building, only for service platforms, not for Jetson
 $ python3 pythonBindings/examples/example_index.py pythonBindings/build testData/emotions1.ppm testData testData/imageListIndex.txt 0.3
 ```
 **usage of FaceEngine, example**
