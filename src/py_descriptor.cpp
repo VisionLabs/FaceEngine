@@ -297,7 +297,12 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\t\t1 - face on the input warp; 0 - garbage on the input warp.\n"
 		"\t\t\t Score is fake if extractor uses mobile net version of extraction model.\n"
 		"\t\t(FSDKErrorResult): else - result with error code specified by FSDKError\n See FSDKErrorResult.\n")
-	;
+		.def("getModelVersion",[](
+				const fsdk::IDescriptorExtractorPtr& extractorPtr) {
+				return extractorPtr->getModelVersion();
+			},
+			"Get algorithm model version this extractor works with.\n")
+		;
 	
 	py::class_<fsdk::IDescriptorMatcherPtr>(f, "IDescriptorMatcherPtr",
 		"Descriptor matcher interface.\n"
@@ -359,7 +364,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		const fsdk::IDescriptorBatchPtr& candidates,
 		const uint32_t k) {
 			if(k == 0)
-				return std::make_tuple(FSDKErrorResult(fsdk::FSDKError::InvalidInput), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
+				return std::make_tuple(FSDKErrorResult(fsdk::Result<fsdk::FSDKError>(fsdk::FSDKError::InvalidInput)), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
 		
 			std::vector<fsdk::MatchingResult> results(candidates->getCount());
 			fsdk::Result<fsdk::FSDKError> err = matcherPtr->match(reference, candidates, results.data());
@@ -402,5 +407,11 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\tReturns:\n"
 		"\t\tTwo lists (indexes and matching results of K nearest neighbours): if OK - matchig result list.\n"
 		"\t\t(FSDKErrorResult wrapped in list): else - result with error specified by FSDKErrorResult.\n")
-	;
+		
+		.def("getModelVersion",[](
+				const fsdk::IDescriptorMatcherPtr& matcherPtr) {
+				return matcherPtr->getModelVersion();
+			},
+			"Get algorithm model version this matcher works with.\n")
+			;
 }

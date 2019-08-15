@@ -58,29 +58,29 @@ fsdk::IWarperPtr PyIFaceEngine::createWarper() {
 	return warperPtr;
 }
 //	descriptor
-fsdk::IDescriptorPtr PyIFaceEngine::createDescriptor() {
-	fsdk::IDescriptorPtr descriptorPtr = fsdk::acquire(faceEnginePtr->createDescriptor());
+fsdk::IDescriptorPtr PyIFaceEngine::createDescriptor(const uint32_t version) {
+	fsdk::IDescriptorPtr descriptorPtr = fsdk::acquire(faceEnginePtr->createDescriptor(version));
 	if (!descriptorPtr)
 		throw py::cast_error("\nFailed to create descriptor instance, possible you use front-edition version!");
 	return descriptorPtr;
 }
 
-fsdk::IDescriptorBatchPtr PyIFaceEngine::createDescriptorBatch(int32_t size, int32_t version = 0) {
+fsdk::IDescriptorBatchPtr PyIFaceEngine::createDescriptorBatch(int32_t size, int32_t version) {
 	fsdk::IDescriptorBatchPtr descriptorBatchPtr = fsdk::acquire(faceEnginePtr->createDescriptorBatch(size, version));
 	if (!descriptorBatchPtr)
 		throw py::cast_error("\nFailed to create descriptor batch instance, possible you use front-edition version!");
 	return descriptorBatchPtr;
 }
 
-fsdk::IDescriptorExtractorPtr PyIFaceEngine::createExtractor() {
-	fsdk::IDescriptorExtractorPtr descriptorExtractorPtr = fsdk::acquire(faceEnginePtr->createExtractor());
+fsdk::IDescriptorExtractorPtr PyIFaceEngine::createExtractor(const uint32_t version) {
+	fsdk::IDescriptorExtractorPtr descriptorExtractorPtr = fsdk::acquire(faceEnginePtr->createExtractor(version));
 	if (!descriptorExtractorPtr)
 		throw py::cast_error("\nFailed to create descriptor extractor instance! VERIFY PATH to \"data\" directory!");
 	return descriptorExtractorPtr;
 }
 
-fsdk::IDescriptorMatcherPtr PyIFaceEngine::createMatcher() {
-	fsdk::IDescriptorMatcherPtr descriptorMatcherPtr = fsdk::acquire(faceEnginePtr->createMatcher());
+fsdk::IDescriptorMatcherPtr PyIFaceEngine::createMatcher(const uint32_t version) {
+	fsdk::IDescriptorMatcherPtr descriptorMatcherPtr = fsdk::acquire(faceEnginePtr->createMatcher(version));
 	if (!descriptorMatcherPtr)
 		throw py::cast_error("\nFailed to create descriptor matcher instance! VERIFY PATH to \"data\" directory!");
 	return descriptorMatcherPtr;

@@ -28,13 +28,13 @@ public:
 	fsdk::IWarperPtr createWarper();
 	
 //	descriptor
-	fsdk::IDescriptorPtr createDescriptor();
+	fsdk::IDescriptorPtr createDescriptor(const uint32_t version  = 0);
 
-	fsdk::IDescriptorBatchPtr createDescriptorBatch(int32_t size, int32_t version);
+	fsdk::IDescriptorBatchPtr createDescriptorBatch(int32_t size, int32_t version = 0);
 
-	fsdk::IDescriptorExtractorPtr createExtractor();
+	fsdk::IDescriptorExtractorPtr createExtractor(const uint32_t version = 0);
 
-	fsdk::IDescriptorMatcherPtr createMatcher();
+	fsdk::IDescriptorMatcherPtr createMatcher(const uint32_t version = 0);
 
 //	second part of estimators
 	fsdk::IHeadPoseEstimatorPtr createHeadPoseEstimator();
