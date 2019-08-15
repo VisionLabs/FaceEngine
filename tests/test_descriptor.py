@@ -50,10 +50,31 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertTrue(desc1[i], desc2[i])
 
     def test_Version(self):
-        extractor = self.faceEngine.createExtractor()
-        matcher = self.faceEngine.createMatcher()
-        descriptor = self.faceEngine.createDescriptor()
-        aggregation = self.faceEngine.createDescriptor()
+        extractor_default = self.faceEngine.createExtractor()
+        matcher_default = self.faceEngine.createMatcher()
+        descriptor_default = self.faceEngine.createDescriptor()
+        aggregation_default = self.faceEngine.createDescriptor()
+
+        extractor46 = self.faceEngine.createExtractor(46)
+        matcher46 = self.faceEngine.createMatcher(46)
+        descriptor46 = self.faceEngine.createDescriptor(46)
+        aggregation46 = self.faceEngine.createDescriptor(46)
+
+        extractor52 = self.faceEngine.createExtractor(52)
+        matcher52 = self.faceEngine.createMatcher(52)
+        descriptor52 = self.faceEngine.createDescriptor(52)
+        aggregation52 = self.faceEngine.createDescriptor(52)
+
+        self.assertEqual(46, extractor46.getModelVersion())
+        self.assertEqual(46, matcher46.getModelVersion())
+        self.assertEqual(46, descriptor46.getModelVersion())
+        self.assertEqual(46, aggregation46.getModelVersion())
+
+        self.assertEqual(52, extractor52.getModelVersion())
+        self.assertEqual(52, matcher52.getModelVersion())
+        self.assertEqual(52, descriptor52.getModelVersion())
+        self.assertEqual(52, aggregation52.getModelVersion())
+
         batch_size = 2
         descriptorBatch = self.faceEngine.createDescriptorBatch(2)
         images = []
@@ -62,21 +83,21 @@ class TestFaceEngineRect(unittest.TestCase):
             err = image.load(os.path.join(self.test_data_path, "warp1.ppm"))
             self.assertTrue(err.isOk)
             images.append(image)
-        self.assertTrue(extractor.extractFromWarpedImage(images[0], descriptor))
-        self.assertTrue(extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation, batch_size))
+        self.assertTrue(extractor_default.extractFromWarpedImage(images[0], descriptor_default))
+        self.assertTrue(extractor_default.extractFromWarpedImageBatch(images, descriptorBatch, aggregation_default, batch_size))
 
         def assertMatchingResult(result):
             self.assertEqual(result.similarity, 1.0)
             self.assertEqual(result.distance, 0.0)
 
         def checkDescriptorsEquality(desc1, desc2):
-            result = matcher.match(desc1, desc2)
+            result = matcher_default.match(desc1, desc2)
             self.assertTrue(result.isOk)
             assertMatchingResult(result.value)
 
-        checkDescriptorsEquality(aggregation, descriptor)
-        checkDescriptorsEquality(aggregation, aggregation)
-        result = matcher.match(aggregation, descriptorBatch)
+        checkDescriptorsEquality(aggregation_default, descriptor_default)
+        checkDescriptorsEquality(aggregation_default, aggregation_default)
+        result = matcher_default.match(aggregation_default, descriptorBatch)
         self.assertTrue(result[0].isOk)
         assertMatchingResult(result[1][0])
         assertMatchingResult(result[1][1])
