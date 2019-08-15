@@ -101,33 +101,22 @@ def readEyelidLandmarks(fileReader):
 
 class TestFaceEngineRect(unittest.TestCase):
     faceEngine = None
-    max_detections = 3
-    image_det = f.Image()
     warper = None
-    warpedImage = f.Image()
     face = f.Face()
-    transformedLandmarks5 = f.Landmarks5()
-    transformedLandmarks68 = f.Landmarks68()
 
     @classmethod
     def setUp(cls):
         cls.faceEngine = f.createFaceEngine("data", "data/faceengine.conf")
         if not make_activation(cls.faceEngine):
             raise ActivationLicenseError("License is not activated!")
-        err = cls.image_det.load("testData/00205_9501_p.ppm")
-
-        err, cls.face = detect(cls.image_det, cls.faceEngine)
+        image_det = f.Image()
+        err = image_det.load("testData/00205_9501_p.ppm")
+        err, cls.face = detect(image_det, cls.faceEngine)
         (detection, landmarks5, landmarks68) = cls.face.detection, \
                                                cls.face.landmarks5_opt.value(), \
                                                cls.face.landmarks68_opt.value()
 
         cls.warper = cls.faceEngine.createWarper()
-        transformation = cls.warper.createTransformation(detection, landmarks5)
-        cls.warpedImage = cls.warper.warp(cls.image_det, transformation)
-
-        cls.transformedLandmarks5 = cls.warper.warp(landmarks5, transformation)
-        cls. transformedLandmarks68 = cls.warper.warp(landmarks68, transformation)
-
 
     def test_AttributeEstimator(self):
         attributeEstimator = self.faceEngine.createAttributeEstimator()
@@ -304,7 +293,6 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertAlmostEqual(irRestult.score, 0.9935, delta=0.001)
 
     def test_SmileEstimator(self):
-        warper = self.faceEngine.createWarper()
         smileEstimator = self.faceEngine.createSmileEstimator()
         smileImage = f.Image()
         overlapImage = f.Image()
@@ -323,8 +311,8 @@ class TestFaceEngineRect(unittest.TestCase):
             face.landmarks5_opt.value(), \
             face.landmarks68_opt.value()
 
-        transformation_overlap = warper.createTransformation(detection_overlap, landmarks5_overlap)
-        err1, warped_overlap_image = warper.warp(overlapImage, transformation_overlap)
+        transformation_overlap = self.warper.createTransformation(detection_overlap, landmarks5_overlap)
+        err1, warped_overlap_image = self.warper.warp(overlapImage, transformation_overlap)
         self.assertTrue(err1.isOk)
         self.assertTrue(warped_overlap_image.isValid())
         err_smile1, smile_result = smileEstimator.estimate(warped_overlap_image)
@@ -338,8 +326,8 @@ class TestFaceEngineRect(unittest.TestCase):
         (detection_smile, landmarks5_smile, landmarks68_smile) = face.detection, \
                                                                  face.landmarks5_opt.value(), \
                                                                  face.landmarks68_opt.value()
-        transformation_smile = warper.createTransformation(detection_smile, landmarks5_smile)
-        err2, warped_overlap_image = warper.warp(smileImage, transformation_smile)
+        transformation_smile = self.warper.createTransformation(detection_smile, landmarks5_smile)
+        err2, warped_overlap_image = self.warper.warp(smileImage, transformation_smile)
         self.assertTrue(err2.isOk)
         self.assertTrue(warped_overlap_image.isValid())
         err_smile2, smile_result = smileEstimator.estimate(warped_overlap_image)
@@ -352,8 +340,8 @@ class TestFaceEngineRect(unittest.TestCase):
         (detection_mouth, landmarks5_mouth, landmarks68_mouth) = face.detection, \
                                                                  face.landmarks5_opt.value(), \
                                                                  face.landmarks68_opt.value()
-        transformation_mouth = warper.createTransformation(detection_mouth, landmarks5_mouth)
-        err3, warped_mouth_image = warper.warp(mouthImage, transformation_mouth)
+        transformation_mouth = self.warper.createTransformation(detection_mouth, landmarks5_mouth)
+        err3, warped_mouth_image = self.warper.warp(mouthImage, transformation_mouth)
         self.assertTrue(err3.isOk)
         self.assertTrue(warped_mouth_image.isValid())
         err, mouth_result = smileEstimator.estimate(warped_mouth_image)

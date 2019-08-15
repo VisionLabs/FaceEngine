@@ -1,5 +1,4 @@
 import sys
-from example_license import make_activation
 
 def help():
     print("python example_detector_warper.py <path to dir with FaceEngine*.so> <path to image>")

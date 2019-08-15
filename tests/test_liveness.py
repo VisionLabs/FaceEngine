@@ -131,11 +131,6 @@ complex_liveness.reset()
 
 class TestFaceEngineLiveness(unittest.TestCase):
 
-    @classmethod
-    def setUp(cls):
-        if not make_activation(faceEngine):
-            raise ActivationLicenseError("License is not activated!")
-
     def simpleLivenessTest(self, type, path):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)

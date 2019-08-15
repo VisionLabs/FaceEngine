@@ -190,10 +190,9 @@ class TestFaceEngineRect(unittest.TestCase):
         self.faceEngine.setSettingsProvider(config)
         warps = [fe.Image(), fe.Image()]
         err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
+        self.assertTrue(err1.isOk)
         err2 = warps[1].load(os.path.join(self.test_data_path, "warp2.ppm"))
-        # warps[0].load(os.path.join(test_data_path, "warp1.ppm"))
-        # warps[0].load(os.path.join(test_data_path, "warp_eyeglasses.jpg"))
-
+        self.assertTrue(err2.isOk)
         extractor = self.faceEngine.createExtractor()
         batch = self.faceEngine.createDescriptorBatch(2)
         descriptor = self.faceEngine.createDescriptor()
@@ -232,14 +231,13 @@ class TestFaceEngineRect(unittest.TestCase):
         faceEngine.setSettingsProvider(config)
         warps = [fe.Image(), fe.Image()]
         err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
+        self.assertTrue(err1.isOk)
         err2 = warps[1].load(os.path.join(self.test_data_path, "warp2.ppm"))
+        self.assertTrue(err2.isOk)
         extractor = faceEngine.createExtractor()
         batch = faceEngine.createDescriptorBatch(2)
         descriptor = faceEngine.createDescriptor()
         aggr = faceEngine.createDescriptor()
-
-        # res_batch = extractor.extractFromWarpedImageBatch(warps, None, aggr, 1)
-        # self.assertFalse(res_batch.isError)
         res = extractor.extractFromWarpedImageBatch(warps, batch, aggr, 1)
         self.assertFalse(res[0].isError)
         res = extractor.extractFromWarpedImage(warps[0], descriptor)
