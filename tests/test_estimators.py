@@ -109,13 +109,6 @@ class TestFaceEngineRect(unittest.TestCase):
         cls.faceEngine = f.createFaceEngine("data", "data/faceengine.conf")
         if not make_activation(cls.faceEngine):
             raise ActivationLicenseError("License is not activated!")
-        image_det = f.Image()
-        err = image_det.load("testData/00205_9501_p.ppm")
-        err, cls.face = detect(image_det, cls.faceEngine)
-        (detection, landmarks5, landmarks68) = cls.face.detection, \
-                                               cls.face.landmarks5_opt.value(), \
-                                               cls.face.landmarks68_opt.value()
-
         cls.warper = cls.faceEngine.createWarper()
 
     def test_AttributeEstimator(self):
