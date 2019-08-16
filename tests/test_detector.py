@@ -68,6 +68,7 @@ expectedRedetectionV3.rect.width = 150.0
 expectedRedetectionV3.rect.height = 192.0
 expectedRedetectionV3.score = 0.99954
 
+
 # helper
 def invoke_vector_coords(line):
     line = line.strip().split()
@@ -173,6 +174,7 @@ class TestFaceEngineDetector(unittest.TestCase):
             for i in range(count):
                 image = fe.Image()
                 err = image.load(os.path.join(testDataPath, "image1.ppm"))
+                self.assertTrue(err.isOk)
                 images.append(image)
                 self.assertTrue(image.isValid())
                 rectangles.append(images[i].getRect())
@@ -252,6 +254,7 @@ class TestFaceEngineDetector(unittest.TestCase):
     def test_RedetectorOne(self):
         self.redetectTest(fe.FACE_DET_V1, expectedRedetectionV1)
         self.redetectTest(fe.FACE_DET_V3, expectedRedetectionV3)
+
 
 if __name__ == '__main__':
     unittest.main()
