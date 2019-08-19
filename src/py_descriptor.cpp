@@ -297,7 +297,12 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\t\t1 - face on the input warp; 0 - garbage on the input warp.\n"
 		"\t\t\t Score is fake if extractor uses mobile net version of extraction model.\n"
 		"\t\t(FSDKErrorResult): else - result with error code specified by FSDKError\n See FSDKErrorResult.\n")
-	;
+		.def("getModelVersion",[](
+				const fsdk::IDescriptorExtractorPtr& extractorPtr) {
+				return extractorPtr->getModelVersion();
+			},
+			"Get algorithm model version this extractor works with.\n")
+		;
 	
 	py::class_<fsdk::IDescriptorMatcherPtr>(f, "IDescriptorMatcherPtr",
 		"Descriptor matcher interface.\n"
@@ -352,5 +357,61 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
 		"\t\t\tIDescriptorBatchPtr::getMaxCount()\n"
 		"\t\t(FSDKErrorResult wrapped in list): else - result with error specified by FSDKErrorResult.\n")
-	;
+		
+	.def("match",[](
+		const fsdk::IDescriptorMatcherPtr& matcherPtr,
+		const fsdk::IDescriptorPtr& reference,
+		const fsdk::IDescriptorBatchPtr& candidates,
+		const uint32_t k) {
+			if(k == 0)
+				return std::make_tuple(FSDKErrorResult(fsdk::Result<fsdk::FSDKError>(fsdk::FSDKError::InvalidInput)), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
+		
+			std::vector<fsdk::MatchingResult> results(candidates->getCount());
+			fsdk::Result<fsdk::FSDKError> err = matcherPtr->match(reference, candidates, results.data());
+			if(err.isError())
+				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
+			
+			if(k > 1) {
+				std::vector<uint32_t> indexes(results.size());
+				std::iota(indexes.begin(), indexes.end(), 1);
+				
+				std::partial_sort(indexes.begin(), indexes.begin() + k, indexes.end(),
+					[&results](decltype(*begin(indexes)) a, decltype(*begin(indexes)) b) {
+						return results[a].distance < results[b].distance;
+					});
+				indexes.resize(k);
+				std::vector<fsdk::MatchingResult> resValues;
+				resValues.reserve(k);
+				for(const auto index: indexes)
+					resValues.push_back( results[index] );
+				
+				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(indexes));
+				
+			} else { // k == 1
+				const auto it = std::min_element(results.begin(), results.end(),
+					[](decltype(*begin(results)) a, decltype(*begin(results)) b) {
+						return a.distance < b.distance;
+					});
+				std::vector<fsdk::MatchingResult> resValues{*it};
+				std::vector<uint32_t> resIndexes(std::distance(results.begin(), it));
+				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(resIndexes));
+			}
+	     },
+		"Match descriptors 1:M.\n"
+		"\tMatches a reference descriptor to a batch of candidate descriptors and returns one K nearest candidates. "
+		"\tNote: this function allows you to not copy mach data from c++ to python if you need only best candidates.\n"
+		"\tArgs\n"
+		"\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
+		"\t\tparam2 (IDescriptorPtr): the candidate descriptor batch to match with the reference\n"
+		"\t\tparam3 (IDescriptorPtr): K - number of closest descriptor"
+		"\tReturns:\n"
+		"\t\tTwo lists (indexes and matching results of K nearest neighbours): if OK - matchig result list.\n"
+		"\t\t(FSDKErrorResult wrapped in list): else - result with error specified by FSDKErrorResult.\n")
+		
+		.def("getModelVersion",[](
+				const fsdk::IDescriptorMatcherPtr& matcherPtr) {
+				return matcherPtr->getModelVersion();
+			},
+			"Get algorithm model version this matcher works with.\n")
+			;
 }

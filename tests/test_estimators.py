@@ -183,6 +183,30 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertAlmostEqual(ethnicity_result.asian, 0.0, delta=0.1)
         self.assertAlmostEqual(ethnicity_result.caucasian, 1.0, delta=0.1)
 
+    def test_GlassesEstimator(self):
+        warp0 = f.Image()
+        warp1 = f.Image()
+        warp2 = f.Image()
+        err = warp0.load("testData/warp_noglasses.jpg")
+        self.assertTrue(err.isOk)
+        err = warp1.load("testData/warp_eyeglasses.jpg")
+        self.assertTrue(err.isOk)
+        err = warp2.load("testData/warp_sunglasses.jpg")
+        self.assertTrue(err.isOk)
+        glassesEstimator = faceEnginePtr.createGlassesEstimator()
+
+        err, glasses_estimation = glassesEstimator.estimate(warp0)
+        self.assertTrue(err.isOk)
+        self.assertEqual(glasses_estimation, f.GlassesEstimation.NoGlasses)
+
+        err, glasses_estimation = glassesEstimator.estimate(warp1)
+        self.assertTrue(err.isOk)
+        self.assertEqual(glasses_estimation, f.GlassesEstimation.EyeGlasses)
+
+        err, glasses_estimation = glassesEstimator.estimate(warp2)
+        self.assertTrue(err.isOk)
+        self.assertEqual(glasses_estimation, f.GlassesEstimation.SunGlasses)
+
     def test_HeadPoseEstimatorLandmarks(self):
         config = f.createSettingsProvider("data/faceengine.conf")
         config.setValue("HeadPoseEstimator::Settings","useEstimationByImage", f.SettingsProviderValue(0))

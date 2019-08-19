@@ -168,7 +168,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator, "Creates Emotions estimator\n")
 		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n", py::arg("mode") = fsdk::RecognitionMode::RM_RGB)
-
+		.def("createGlassesEstimator", &PyIFaceEngine::createGlassesEstimator, "Creates Glasses estimator\n")
 		.def("createAGSEstimator", &PyIFaceEngine::createAGSEstimator, "Creates AGS estimator\n")
 
 		.def("createDetector", &PyIFaceEngine::createDetector,
@@ -185,15 +185,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"Creates a human detector.\n")
 		
 		.def("createWarper", &PyIFaceEngine::createWarper, "Creates warper\n")
-		.def("createDescriptor", &PyIFaceEngine::createDescriptor, "Creates Descriptor\n")
+		.def("createDescriptor", &PyIFaceEngine::createDescriptor, py::arg("version") = 0, "Creates Descriptor\n")
 		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0,
 			"Creates Batch of descriptors\n"
 			"\tArgs:\n"
 			"\t\tparam1 (int): amount of descriptors in batch\n"
 			"\t\tparam2 (str): descriptor version in batch. If 0 - use default version from config\n")
 		
-		.def("createExtractor", &PyIFaceEngine::createExtractor, "Creates descriptor extractor\n")
-		.def("createMatcher", &PyIFaceEngine::createMatcher, "Creates descriptor matcher\n")
+		.def("createExtractor", &PyIFaceEngine::createExtractor, py::arg("version") = 0, "Creates descriptor extractor\n")
+		.def("createMatcher", &PyIFaceEngine::createMatcher, py::arg("version") = 0, "Creates descriptor matcher\n")
 		
 		// Index
 		.def("createIndexBuilder", &PyIFaceEngine::createIndexBuilder, "Creates index builder.\n")
@@ -719,6 +719,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createEyeEstimator
 			PyIFaceEngine.createEmotionsEstimator
 			PyIFaceEngine.createGazeEstimator
+			PyIFaceEngine.createGlassesEstimator
 
 			PyIFaceEngine.createDetector
 			PyIFaceEngine.createWarper
@@ -747,6 +748,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IAttributeEstimatorPtr
 			IAttributeEstimatorPtr.estimate
+
+			IGlassesEstimatorPtr
+			IGlassesEstimatorPtr.estimate
 
 			IEthnicityEstimator
 			IEthnicityEstimator.estimate
@@ -948,6 +952,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			GazeEstimation
 
 			Ethnicity
+
+			GlassesEstimation
 
 			Transformation
 

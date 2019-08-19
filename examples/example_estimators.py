@@ -223,6 +223,16 @@ def ags_example(_faceEngine, _image, _detection):
     _faceEngine.setSettingsProvider(config)
 
 
+def glasses_example(_faceEngine, _warp):
+    glasses_estimator = _faceEngine.createGlassesEstimator()
+    err, glasses_estimation = glasses_estimator.estimate(_warp)
+    if err.isOk:
+        print(glasses_estimation)
+    else:
+        print("Failed glasses estimation. Reason: {0}".format(err.what))
+        exit(1)
+
+
 def print_landmarks(landmarks, message=""):
     print(message)
     for i in range(len(landmarks)):
@@ -256,6 +266,7 @@ if __name__ == "__main__":
         (warp_image, transformed_landmarks5, transformed_landmarks68, transformation) = \
             warper_example(image, detection, landmarks5, landmarks68)
         quality_ethnicity_blackWhite_smile_example(warp_image)
+        glasses_example(faceEngine, warp_image)
         err, attribute_result = attribute_example(warp_image)
         print(attribute_result)
         # for example list consists two the same images
