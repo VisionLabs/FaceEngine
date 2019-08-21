@@ -27,10 +27,6 @@ def detect(detector, image_det):
 
 
 def rotate_point_3d(point, pitch, yaw, roll):
-    # pointRoll = [0, 0, 0]
-    # pointRoll[0] = point[0] * math.cos(roll) - point[1] * math.sin(roll)
-    # pointRoll[1] = point[0] * math.sin(roll) + point[1] * math.cos(roll)
-    # pointRoll[2] = point[2]
     # roll is usually 0 and we needn't recalculate it
     point_roll = point
 
@@ -50,9 +46,7 @@ def rotate_point_3d(point, pitch, yaw, roll):
 if __name__ == "__main__":
     detector = faceEngine.createDetector(fe.FACE_DET_V3)
     warper = faceEngine.createWarper()
-    gaze_estimator_rgb = faceEngine.createGazeEstimator()
-    eyeEstimator = faceEngine.createEyeEstimator()
-    cropper = fe.EyeCropper()
+    gaze_estimator_rgb = faceEngine.createGazeEstimator(fe.RecognitionMode.RM_RGB)
     segment = 100
     gaze = [(0, 0, 0), (0, 0, segment)]
 
@@ -63,7 +57,7 @@ if __name__ == "__main__":
         # Capture frame-by-frame
         ret, frame = cap.read()
         if not ret:
-            print("Image is empty")
+            print("Could not read frame!")
             process = False
             break
         image = fe.Image()

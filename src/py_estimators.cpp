@@ -366,7 +366,7 @@ void estimators_module(py::module& f) {
 				fsdk::GazeEstimation outEyeAngles;
 				return est->getFaceCenter(landmarks5);
 			},
-			"Estimate the eye angles.\n"
+			"Estimate the point for calculating of gaze projection.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Landmarks5): Transformed Landmarks5 got from warper. See Warper.\n"
 			"\tReturns:\n"
@@ -721,7 +721,7 @@ void estimators_module(py::module& f) {
 						" yaw = " + std::to_string(g.yaw) +
 						", pitch = " + std::to_string(g.pitch);
 			})
-			;
+		;
 
 	//	Ethnicity
 	py::enum_<fsdk::EthnicityEstimation::Ethnicities>(f, "Ethnicity", "Ethnicity enum.\n")

@@ -71,22 +71,22 @@ def detector_one_example(_image_det, _detector_type=fe.FACE_DET_V1):
 
 def warper_example(image_det, _detection, _landmarks5, _landmarks68):
     warper = faceEngine.createWarper()
-    transformation = warper.createTransformation(_detection, _landmarks5)
-    print(transformation)
-    warp_result = warper.warp(image_det, transformation)
+    _transformation = warper.createTransformation(_detection, _landmarks5)
+    print(_transformation)
+    warp_result = warper.warp(image_det, _transformation)
     if warp_result[0].isError:
         print("Failed image warping.")
         return None
     _warp_image = warp_result[1]
-    err_transformed_landmarks5, _transformed_landmarks5 = warper.warp(_landmarks5, transformation)
+    err_transformed_landmarks5, _transformed_landmarks5 = warper.warp(_landmarks5, _transformation)
     if err_transformed_landmarks5.isError:
         print("Failed extraction of transformed landmarsks5.")
         return None
-    err_transformed_landmarks68, _transformed_landmarks68 = warper.warp(_landmarks68, transformation)
+    err_transformed_landmarks68, _transformed_landmarks68 = warper.warp(_landmarks68, _transformation)
     if err_transformed_landmarks68.isError:
         print("Failed extraction of transformed landmarsks68.")
         return None
-    return (_warp_image, _transformed_landmarks5, _transformed_landmarks68, transformation)
+    return (_warp_image, _transformed_landmarks5, _transformed_landmarks68, _transformation)
 
 
 def unwarp_gaze(eye_angles, _transformation):
