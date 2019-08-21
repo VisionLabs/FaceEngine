@@ -10,7 +10,7 @@ import cv2
 # if FaceEngine is not instaflled in system
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--bind-path", type=str,
-                    help="path to FaceEngine*.so file - binding of luna-sdk")
+                    help="path to dir with FaceEngine*.so file - binding of luna-sdk")
 args = parser.parse_args()
 path_to_binding = args.bind_path
 print("Directory {0} with python bindings of FaceEngine was included".format(path_to_binding))

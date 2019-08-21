@@ -2,13 +2,12 @@ import unittest
 import argparse
 import sys
 import os
-import logging
-import struct
+from license_helper import make_activation, ActivationLicenseError
 
 # if FaceEngine is not installed within the system, add the directory with FaceEngine*.so to system paths
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--bind-path", type=str,
-                    help="path to FaceEngine*.so file - binding of luna-sdk")
+                    help="path to dir with FaceEngine*.so file - binding of luna-sdk")
 
 args = parser.parse_args()
 path_to_binding = args.bind_path
@@ -32,10 +31,14 @@ del(sys.argv[1])
 
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
+if not make_activation(faceEngine):
+    raise ActivationLicenseError("License is not activated!")
+
 test_data_path = "testData"
 dataPath = "data"
 
 liveness_engine = fe.createLivenessEngine(faceEngine, "data")
+
 
 def print_landmarks(landmarks, message=""):
     print(message)
@@ -127,6 +130,7 @@ complex_liveness.reset()
 
 
 class TestFaceEngineLiveness(unittest.TestCase):
+
     def simpleLivenessTest(self, type, path):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
