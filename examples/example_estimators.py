@@ -2,7 +2,7 @@ import sys
 # import numpy as np
 # from matplotlib import pyplot as plt
 
-from example_detector_warper import detector_one_example, warper_example
+from example_detector_warper import detector_one_example, warper_example, unwarp_gaze
 from example_license import make_activation
 
 
