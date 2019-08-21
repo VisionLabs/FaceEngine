@@ -479,25 +479,25 @@ class TestFaceEngineRect(unittest.TestCase):
         emotions_test("testData/emotions2.ppm", reference2, f.Emotions.Anger)
 
     def test_GazeEstimator_RM_IRGB(self):
-        gaze_estimator_rgb = faceEnginePtr.createGazeEstimator()
+        gaze_estimator_rgb = self.faceEngine.createGazeEstimator()
         image_path = "00205_9501_p.ppm"
         warp = f.Image()
         image_name = image_path[:-4]
         err_load = warp.load("testData/" + image_path)
         self.assertTrue(err_load.isOk)
-        lm5Path = "testData/gaze/" + image_name + "_landmarks5.pts"
-        lm5rotetedPath = "testData/gaze/" + image_name + "_rotatedlandmarks5.pts"
+        lm5_path = "testData/gaze/" + image_name + "_landmarks5.pts"
+        lm5_roteted_path = "testData/gaze/" + image_name + "_rotatedlandmarks5.pts"
         actual_path = "testData/gaze/" + image_name + "_actual.txt"
         actual_path_unwarped = "testData/gaze/" + image_name + "_actual_unwarped.txt"
         landmarks5 = f.Landmarks5()
         rotated_landmarks5 = f.Landmarks5()
 
-        with open(lm5Path) as lm5file:
+        with open(lm5_path) as lm5file:
             for i, line in enumerate(lm5file):
                 landmarks5[i] = invoke_file_line_to_vector2f(line)
 
-        with open(lm5rotetedPath) as lmRotated5file:
-            for i, line in enumerate(lmRotated5file):
+        with open(lm5_roteted_path) as lm_rotated5_file:
+            for i, line in enumerate(lm_rotated5_file):
                 rotated_landmarks5[i] = invoke_file_line_to_vector2f(line)
 
         actual = []
@@ -517,8 +517,8 @@ class TestFaceEngineRect(unittest.TestCase):
         detection = f.DetectionFloat()
         rect = warp.getRect()
         detection.rect = f.RectFloat(rect.x, rect.y, rect.width, rect.height)
-        transformation = warper.createTransformation(detection, landmarks5)
-        err_unwarp, eye_angles_umwarped = warper.unwarp(eye_angles, transformation)
+        transformation = self.warper.createTransformation(detection, landmarks5)
+        err_unwarp, eye_angles_umwarped = self.warper.unwarp(eye_angles, transformation)
         self.assertTrue(err_unwarp.isOk)
         self.assertAlmostEqual(eye_angles_umwarped.yaw, actual_unwarped[0], delta=0.1)
         self.assertAlmostEqual(eye_angles_umwarped.pitch, actual_unwarped[1], delta=0.1)
