@@ -220,8 +220,8 @@ class TestFaceEngineDetector(unittest.TestCase):
         self.assertTrue(err_human_detector.isOk)
         self.assertEqual(74, list_of_list_of_detections[0][0].detection.rect.x)
         self.assertEqual(235, list_of_list_of_detections[0][0].detection.rect.y)
-        self.assertEqual(154, list_of_list_of_detections[0][0].detection.rect.width)
-        self.assertEqual(300, list_of_list_of_detections[0][0].detection.rect.height)
+        self.assertEqual(153, list_of_list_of_detections[0][0].detection.rect.width)
+        self.assertEqual(298, list_of_list_of_detections[0][0].detection.rect.height)
 
     def test_Detector(self):
         self.detectorTest(fe.FACE_DET_V1, expectedDetectionV1)
