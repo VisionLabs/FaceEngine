@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
         image = fe.Image()
         rgbframe = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        image.setData(rgbframe)
+        image.setData(rgbframe, fe.FormatType.R8G8B8)
 
         if not stream.pushFrame(image, x):
             print("push error {0}".format(x))

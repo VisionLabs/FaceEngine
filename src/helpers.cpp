@@ -4,24 +4,6 @@
 #include <fsdk/FaceEngine.h>
 #include "helpers.hpp"
 
-
-int getChannelCount(const fsdk::Format t) {
-	switch(t) {
-		case fsdk::Format::B8G8R8X8:
-			return 4;
-		case fsdk::Format::R8G8B8X8:
-			return 4;
-		case fsdk::Format::B8G8R8:
-		case fsdk::Format::R8G8B8:
-			return 3;
-		case fsdk::Format::R8:
-		case fsdk::Format::R16:
-			return 1;
-		default:
-			return 0;
-	}
-};
-
 fsdk::Image loadImage(const char* name) {
 	std::ifstream file(name, std::ios::in|std::ios::binary);
 	

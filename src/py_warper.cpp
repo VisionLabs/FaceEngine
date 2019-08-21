@@ -69,6 +69,23 @@ py::class_<fsdk::IWarperPtr>(f, "IWarperPtr",
 		"\tReturns:\n"
 		"\t\t(tuple): tuple with FSDKErrorResult and transformed landmarks68\n")
 	
+	.def("unwarp",[](
+			const fsdk::IWarperPtr& warper,
+			const fsdk::GazeEstimation& eyeAngles,
+			const fsdk::Transformation& transformation) {
+			fsdk::GazeEstimation outEyeAngles;
+			fsdk::Result<fsdk::FSDKError> error = warper->unwarp(eyeAngles, transformation, outEyeAngles);
+			if (error.isOk())
+				return std::make_tuple(FSDKErrorResult(error), outEyeAngles);
+			else
+				return std::make_tuple(FSDKErrorResult(error), fsdk::GazeEstimation()); },
+		"Warp landmarks of size 68\n"
+		"\tArgs:\n"
+		"\t\tparam1 (Landmarks68): landmarks array of size 68\n"
+		"\t\tparam2 (Transformation): transformation data\n"
+		"\tReturns:\n"
+		"\t\t(tuple): tuple with FSDKErrorResult and transformed landmarks68\n")
+		
 	.def("createTransformation",[](
 		const fsdk::IWarperPtr& warper,
 		// cast to detection<int> inside c++ interface

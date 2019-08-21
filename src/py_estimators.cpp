@@ -346,19 +346,31 @@ void estimators_module(py::module& f) {
 			"\tInput points should be relative to the same coordinate system. Best results are achieved\n"
 			"\tif coordinate system is tied to image on which input data was retrieved.\n")
 		.def("estimate",[](
-			const fsdk::IGazeEstimatorPtr& est,
-			const fsdk::HeadPoseEstimation& angles,
-			const fsdk::EyesEstimation& eyesEstimation) {
-				fsdk::GazeEstimation out;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(angles, eyesEstimation, out);
-				return std::make_tuple(FSDKErrorResult(err), out);
+				const fsdk::IGazeEstimatorPtr& est,
+				const fsdk::Image& warp,
+				const fsdk::Landmarks5& landmarks5Transformed) {
+				fsdk::GazeEstimation outEyeAngles;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, landmarks5Transformed, outEyeAngles);
+				return std::make_tuple(FSDKErrorResult(err), outEyeAngles);
 			},
 			"Estimate the eye angles.\n"
 			"\tArgs\n"
-			"\t\tparam1 (HeadPoseEstimation): HeadPoseEstimation calculated using landmarks68.\n"
-			"\t\tparam2 (EyesEstimation): EyesEstimation of eyes.\n"
+			"\t\tparam1 (Image): Warped Image.\n"
+			"\t\tparam2 (Landmarks5): Origin Landmarks5 got from face detector.\n"
+			"\t\tparam3 (Landmarks5): Transformed Landmarks5 got from warper. See Warper.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and GazeEstimation\n")
+		.def("getFaceCenter",[](
+				const fsdk::IGazeEstimatorPtr& est,
+				const fsdk::Landmarks5& landmarks5) {
+				fsdk::GazeEstimation outEyeAngles;
+				return est->getFaceCenter(landmarks5);
+			},
+			"Estimate the point for calculating of gaze projection.\n"
+			"\tArgs\n"
+			"\t\tparam1 (Landmarks5): Transformed Landmarks5 got from warper. See Warper.\n"
+			"\tReturns:\n"
+			"\t\t(Point): point for calculating of gaze projection\n")
 			;
 	
 	py::class_<fsdk::IAGSEstimatorPtr>(f, "IAGSEstimatorPtr",
@@ -696,31 +708,18 @@ void estimators_module(py::module& f) {
 		;
 	
 	// Gaze
-		py::class_<fsdk::GazeEstimation>(f, "GazeEstimation",
+	py::class_<fsdk::GazeEstimation>(f, "GazeEstimation",
 			"Gaze estimation output.\n"
 			"\tThese values are produced by IGazeEstimatorPtr object.\n"
 			"\tEach angle is measured in degrees and in [-180, 180] range.\n")
 		.def(py::init<>())
-		.def_readwrite("leftEye", &fsdk::GazeEstimation::leftEye)
-		.def_readwrite("rightEye", &fsdk::GazeEstimation::rightEye)
+		.def_readwrite("yaw", &fsdk::GazeEstimation::yaw)
+		.def_readwrite("pitch", &fsdk::GazeEstimation::pitch)
 		.def("__repr__",
 			[](const fsdk::GazeEstimation &g) {
 				return "GazeEstimation: "
-						"leftEye: yaw = " + std::to_string(g.leftEye.yaw) +
-						", pitch = " + std::to_string(g.leftEye.pitch) +
-						", rightEye: yaw = " + std::to_string(g.rightEye.yaw) +
-						", pitch = " + std::to_string(g.rightEye.pitch);
-			})
-		;
-	
-	py::class_<fsdk::GazeEstimation::EyeAngles>(f, "EyeAngles", "Eye angles.\n")
-		.def_readwrite("yaw", &fsdk::GazeEstimation::EyeAngles::yaw)
-		.def_readwrite("pitch", &fsdk::GazeEstimation::EyeAngles::pitch)
-		.def("__repr__",
-			[](const fsdk::GazeEstimation::EyeAngles &e) {
-				return "EyeAngles: "
-						"yaw = " + std::to_string(e.yaw)
-						+ ", pitch = " + std::to_string(e.pitch);
+						" yaw = " + std::to_string(g.yaw) +
+						", pitch = " + std::to_string(g.pitch);
 			})
 		;
 

@@ -167,7 +167,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\tEye estimator instance.")
 
 		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator, "Creates Emotions estimator\n")
-		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n")
+		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n", py::arg("mode") = fsdk::RecognitionMode::RM_RGB)
 		.def("createGlassesEstimator", &PyIFaceEngine::createGlassesEstimator, "Creates Glasses estimator\n")
 		.def("createAGSEstimator", &PyIFaceEngine::createAGSEstimator, "Creates AGS estimator\n")
 
@@ -950,8 +950,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			GazeEstimation.__init__
 			GazeEstimation.__repr__
 			GazeEstimation
-
-			EyeAngles
 
 			Ethnicity
 

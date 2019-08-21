@@ -53,7 +53,7 @@ if __name__ == "__main__":
                 process = False
                 break
             image = fe.Image()
-            image.setData(ir_frame_cv)
+            image.setData(ir_frame_cv, fe.FormatType.R8G8B8)
             # full image saving
             # image.save("path to save/dump/" + str(n) + ".jpg")
             result, liveness_success = liveness.update(image)

@@ -51,9 +51,6 @@ struct VectorArchive: fsdk::IArchive
 	{}
 };
 
-
-int getChannelCount(const fsdk::Format t);
-
 // only for depth test
 fsdk::Image loadImage(const char* name);
 

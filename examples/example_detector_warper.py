@@ -77,22 +77,31 @@ def detector_one_example(_image_det, _detector_type=fe.FACE_DET_V1):
 
 def warper_example(image_det, _detection, _landmarks5, _landmarks68):
     warper = faceEngine.createWarper()
-    transformation = warper.createTransformation(_detection, _landmarks5)
-    print(transformation)
-    warp_result = warper.warp(image_det, transformation)
+    _transformation = warper.createTransformation(_detection, _landmarks5)
+    print(_transformation)
+    warp_result = warper.warp(image_det, _transformation)
     if warp_result[0].isError:
         print("Failed image warping.")
         return None
     _warp_image = warp_result[1]
-    err_transformed_landmarks5, _transformed_landmarks5 = warper.warp(_landmarks5, transformation)
+    err_transformed_landmarks5, _transformed_landmarks5 = warper.warp(_landmarks5, _transformation)
     if err_transformed_landmarks5.isError:
         print("Failed extraction of transformed landmarsks5.")
         return None
-    err_transformed_landmarks68, _transformed_landmarks68 = warper.warp(_landmarks68, transformation)
+    err_transformed_landmarks68, _transformed_landmarks68 = warper.warp(_landmarks68, _transformation)
     if err_transformed_landmarks68.isError:
         print("Failed extraction of transformed landmarsks68.")
         return None
-    return (_warp_image, _transformed_landmarks5, _transformed_landmarks68)
+    return (_warp_image, _transformed_landmarks5, _transformed_landmarks68, _transformation)
+
+
+def unwarp_gaze(eye_angles, _transformation):
+    warper = faceEngine.createWarper()
+    unwarp_error, unwarp_result = warper.unwarp(eye_angles, _transformation)
+    if unwarp_error.isError:
+        print("Failed gaze unwarping.")
+        return None
+    return unwarp_result
 
 
 def set_logging(value):
@@ -163,9 +172,9 @@ if __name__ == "__main__":
               " fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks) if need")
         exit(-1)
     (detection, landmarks5, landmarks68) = face.detection, face.landmarks5_opt.value(), face.landmarks68_opt.value()
-    (warp_image, transformed_landmarks5, transformed_landmarks68) = \
+    (warp_image, transformed_landmarks5, transformed_landmarks68, transformation) = \
         warper_example(image, detection, landmarks5, landmarks68)
-    #
+
     print_landmarks(landmarks5, "landmarks5: ")
     print_landmarks(transformed_landmarks5, "transformedLandmarks5: ")
     # print_landmarks_for_comparing(landmarks5, landmarks5_warp, "Comparing landmarks")
