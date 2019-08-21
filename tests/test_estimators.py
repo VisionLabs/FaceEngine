@@ -117,7 +117,7 @@ def readEyelidLandmarks(fileReader):
 
     return eyelidLandmarks
 
-class TestFaceEngineRect(unittest.TestCase):
+class TestFaceEngineEstimators(unittest.TestCase):
 
     def test_AttributeEstimator(self):
         attributeEstimator = faceEnginePtr.createAttributeEstimator()
@@ -531,6 +531,40 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertAlmostEqual(refAGS, r[1], delta=0.01)
         config.setValue("system", "verboseLogging", f.SettingsProviderValue(0))
         faceEnginePtr.setSettingsProvider(config)
+
+    def test_MouthEstimator(self):
+        config = f.createSettingsProvider("data/faceengine.conf")
+        config.setValue("system", "betaMode", f.SettingsProviderValue(1))
+        config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
+        faceEnginePtr.setSettingsProvider(config)
+        estimator = faceEnginePtr.createMouthEstimator()
+        warper = faceEnginePtr.createWarper()
+        image = f.Image()
+
+        def mouthRunner(imageName, isOpened, isSmiling, isOccluded):
+            err = image.load(imageName)
+            self.assertTrue(err.isOk)
+            detStatus, face = detect(image, 1)
+            self.assertTrue(detStatus.isOk)
+            (detection, landmarks5, landmarks68) = face.detection, \
+                                               face.landmarks5_opt.value(), \
+                                               face.landmarks68_opt.value()
+
+            transformation = warper.createTransformation(detection, landmarks5)
+            warpStatus, warpedImage = warper.warp(image, transformation)
+            self.assertTrue(detStatus.isOk)
+            
+            status, output = estimator.estimate(warpedImage)
+            self.assertTrue(status.isOk)
+            self.assertEqual(isOpened, output.isOpened)
+            self.assertEqual(isSmiling, output.isSmiling)
+            self.assertEqual(isOccluded, output.isOccluded)
+
+        mouthRunner("testData/overlap.ppm", False, False, True)
+        mouthRunner("testData/mouth.ppm", False, False, False)
+        mouthRunner("testData/emotions1.ppm", False, True, False)
+        mouthRunner("testData/child_image1.jpg", True, False, False)
+        mouthRunner("testData/warp_obama.jpg", True, True, False)
 
     def test_IrEyeEstimator(self):
         imagePath = "testData/eyes/IrWarp.png"

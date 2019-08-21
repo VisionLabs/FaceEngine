@@ -57,6 +57,8 @@ public:
 	
 	fsdk::IGlassesEstimatorPtr createGlassesEstimator();
 	
+	fsdk::IMouthEstimatorPtr createMouthEstimator();
+	
 	fsdk::IIndexBuilderPtr createIndexBuilder();
 	
 	fsdk::Ref<fsdk::IHumanDetector> createHumanDetector();

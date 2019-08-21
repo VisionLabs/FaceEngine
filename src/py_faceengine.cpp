@@ -170,7 +170,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n")
 		.def("createGlassesEstimator", &PyIFaceEngine::createGlassesEstimator, "Creates Glasses estimator\n")
 		.def("createAGSEstimator", &PyIFaceEngine::createAGSEstimator, "Creates AGS estimator\n")
-
+		.def("createMouthEstimator", &PyIFaceEngine::createMouthEstimator, "Creates Mouth estimator\n")
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			"Creates a detector of given type.\n", 
 			py::arg("type") = fsdk::ObjectDetectorClassType::FACE_DET_DEFAULT,
