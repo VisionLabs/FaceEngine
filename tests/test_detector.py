@@ -2,6 +2,7 @@ import unittest
 import argparse
 import sys
 import os
+from license_helper import make_activation, ActivationLicenseError
 
 # if FaceEngine is NOT installed within the system, add the directory with FaceEngine*.so to system paths
 parser = argparse.ArgumentParser()
@@ -29,9 +30,6 @@ testDataPath = "testData"
 # erase two first arguments for unittest argument parsing
 del(sys.argv[1])
 del(sys.argv[1])
-
-faceEngine = fe.createFaceEngine("data",
-                                   "data/faceengine.conf")
 
 expectedDetectionV1 = fe.DetectionFloat()
 expectedDetectionV1 = fe.DetectionFloat()
@@ -70,6 +68,7 @@ expectedRedetectionV3.rect.width = 150.0
 expectedRedetectionV3.rect.height = 192.0
 expectedRedetectionV3.score = 0.99954
 
+
 # helper
 def invoke_vector_coords(line):
     line = line.strip().split()
@@ -78,6 +77,14 @@ def invoke_vector_coords(line):
 
 
 class TestFaceEngineDetector(unittest.TestCase):
+
+    faceEngine = None
+
+    @classmethod
+    def setUp(cls):
+        cls.faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+        if not make_activation(cls.faceEngine):
+            raise ActivationLicenseError("License is not activated!")
 
     def compare_detection_lists(self, _expDetection, detect_list, _imagesCount, _expLandmarks68=None):
         for j in range(_imagesCount):
@@ -123,8 +130,8 @@ class TestFaceEngineDetector(unittest.TestCase):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
         # config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
-        faceEngine.setSettingsProvider(config)
-        detector = faceEngine.createDetector(_detectorType)
+        self.faceEngine.setSettingsProvider(config)
+        detector = self.faceEngine.createDetector(_detectorType)
         lnetExpected = fe.Landmarks68()
         def get_image_prefix(_detectorType):
             if _detectorType == fe.FACE_DET_V1:
@@ -167,6 +174,7 @@ class TestFaceEngineDetector(unittest.TestCase):
             for i in range(count):
                 image = fe.Image()
                 err = image.load(os.path.join(testDataPath, "image1.ppm"))
+                self.assertTrue(err.isOk)
                 images.append(image)
                 self.assertTrue(image.isValid())
                 rectangles.append(images[i].getRect())
@@ -204,7 +212,7 @@ class TestFaceEngineDetector(unittest.TestCase):
 
     def humanDetectorTest(self):
         configPath = os.path.join("data", "faceengine.conf")
-        humanDetector = faceEngine.createHumanDetector()
+        humanDetector = self.faceEngine.createHumanDetector()
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "0_Parade_marchingband_1_620.ppm"))
         self.assertTrue(err_image.isOk)
@@ -226,8 +234,8 @@ class TestFaceEngineDetector(unittest.TestCase):
         config = fe.createSettingsProvider(configPath)
         if _detectorType == fe.FACE_DET_V3:
             config.setValue("FaceDetV3::Settings", "RedetectExpandCoef", fe.SettingsProviderValue(0.7))
-        faceEngine.setSettingsProvider(config)
-        detector = faceEngine.createDetector(_detectorType)
+        self.faceEngine.setSettingsProvider(config)
+        detector = self.faceEngine.createDetector(_detectorType)
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "image1.ppm"))
         self.assertTrue(err_image.isOk)
@@ -246,6 +254,7 @@ class TestFaceEngineDetector(unittest.TestCase):
     def test_RedetectorOne(self):
         self.redetectTest(fe.FACE_DET_V1, expectedRedetectionV1)
         self.redetectTest(fe.FACE_DET_V3, expectedRedetectionV3)
+
 
 if __name__ == '__main__':
     unittest.main()

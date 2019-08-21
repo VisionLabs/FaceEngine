@@ -3,9 +3,10 @@ import sys
 # from matplotlib import pyplot as plt
 
 from example_detector_warper import detector_one_example, warper_example
+from example_license import make_activation
 
 def help():
-    print("python example.py <path to FaceEngine*.so> <path to image>")
+    print("python example.py <path to dir with FaceEngine*.so> <path to image>")
 
 
 if len(sys.argv) != 3:
@@ -238,6 +239,9 @@ if __name__ == "__main__":
     faceEngine = fe.createFaceEngine("data",
                                      "data/faceengine.conf")
     get_info()
+    if not make_activation(faceEngine):
+        print("failed to activate license!")
+        exit(-1)
     image_path = sys.argv[2]
     image = image_load(image_path)
     try:

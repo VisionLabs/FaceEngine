@@ -1,8 +1,9 @@
 import sys
+from example_license import make_activation
 
 
 def help():
-    print("Usage: python", sys.argv[1], " <path to FaceEngine*.so> <image> <imagesDir> <list> <threshold>\n"
+    print("Usage: python", sys.argv[1], " <path to dir with FaceEngine*.so> <image> <imagesDir> <list> <threshold>\n"
     " *image - path to image\n"
     " *imagesDir - path to images directory\n"
     " *list - path to images names list\n"
@@ -150,6 +151,7 @@ def doIndexStuff(getIndex, _search, _report, _completion=None):
 
 
 if __name__ == "__main__":
+    print("This example is only for server platforms!")
     imagePath = sys.argv[2]
     imagesDirPath = sys.argv[3]
     listPath = sys.argv[4]
@@ -163,6 +165,9 @@ if __name__ == "__main__":
     # Create FaceEngine root SDK object.
     faceEngine = fe.createFaceEngine("data",
                                      "data/faceengine.conf")
+    if not make_activation(faceEngine):
+        print("failed to activate license!")
+        exit(-1)
     if faceEngine.getFaceEngineEdition() != fe.CompleteEdition:
         print("FaceEngine SDK Frontend edition doesn't support face descriptors. Use FaceEngine SDK Complete edition")
         exit(-1)
