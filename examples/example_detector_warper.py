@@ -1,7 +1,9 @@
 import sys
 
+
 def help():
-    print("python example_detector_warper.py <path to FaceEngine*.so> <path to image>")
+    print("python example_detector_warper.py <path to dir with FaceEngine*.so> <path to image>")
+
 
 if len(sys.argv) != 3:
     help()
@@ -11,8 +13,12 @@ if len(sys.argv) != 3:
 sys.path.append(sys.argv[1])
 # if FaceEngine is installed only
 import FaceEngine as fe
+from example_license import make_activation
 # correct paths or put directory "data" with example_detector_warper.py
 faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+if not make_activation(faceEngine):
+    print("failed to activate license!")
+    exit(-1)
 
 
 def detector_batch_example(_image_det, _max_detections, _detector_type=fe.FACE_DET_V1):
@@ -71,22 +77,31 @@ def detector_one_example(_image_det, _detector_type=fe.FACE_DET_V1):
 
 def warper_example(image_det, _detection, _landmarks5, _landmarks68):
     warper = faceEngine.createWarper()
-    transformation = warper.createTransformation(_detection, _landmarks5)
-    print(transformation)
-    warp_result = warper.warp(image_det, transformation)
+    _transformation = warper.createTransformation(_detection, _landmarks5)
+    print(_transformation)
+    warp_result = warper.warp(image_det, _transformation)
     if warp_result[0].isError:
         print("Failed image warping.")
         return None
     _warp_image = warp_result[1]
-    err_transformed_landmarks5, _transformed_landmarks5 = warper.warp(_landmarks5, transformation)
+    err_transformed_landmarks5, _transformed_landmarks5 = warper.warp(_landmarks5, _transformation)
     if err_transformed_landmarks5.isError:
         print("Failed extraction of transformed landmarsks5.")
         return None
-    err_transformed_landmarks68, _transformed_landmarks68 = warper.warp(_landmarks68, transformation)
+    err_transformed_landmarks68, _transformed_landmarks68 = warper.warp(_landmarks68, _transformation)
     if err_transformed_landmarks68.isError:
         print("Failed extraction of transformed landmarsks68.")
         return None
-    return (_warp_image, _transformed_landmarks5, _transformed_landmarks68)
+    return (_warp_image, _transformed_landmarks5, _transformed_landmarks68, _transformation)
+
+
+def unwarp_gaze(eye_angles, _transformation):
+    warper = faceEngine.createWarper()
+    unwarp_error, unwarp_result = warper.unwarp(eye_angles, _transformation)
+    if unwarp_error.isError:
+        print("Failed gaze unwarping.")
+        return None
+    return unwarp_result
 
 
 def set_logging(value):
@@ -119,6 +134,9 @@ def print_landmarks_for_comparing(landmarks1, landmarks2, message=""):
 
 
 if __name__ == "__main__":
+    if not make_activation(faceEngine):
+        print("failed to activate license!")
+        exit(-1)
     image_path = sys.argv[2]
     config = set_logging(0)
     image = fe.Image()
@@ -154,9 +172,9 @@ if __name__ == "__main__":
               " fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks) if need")
         exit(-1)
     (detection, landmarks5, landmarks68) = face.detection, face.landmarks5_opt.value(), face.landmarks68_opt.value()
-    (warp_image, transformed_landmarks5, transformed_landmarks68) = \
+    (warp_image, transformed_landmarks5, transformed_landmarks68, transformation) = \
         warper_example(image, detection, landmarks5, landmarks68)
-    #
+
     print_landmarks(landmarks5, "landmarks5: ")
     print_landmarks(transformed_landmarks5, "transformedLandmarks5: ")
     # print_landmarks_for_comparing(landmarks5, landmarks5_warp, "Comparing landmarks")

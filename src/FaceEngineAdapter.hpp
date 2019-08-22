@@ -53,7 +53,7 @@ public:
 
 	fsdk::IEmotionsEstimatorPtr createEmotionsEstimator();
 
-	fsdk::IGazeEstimatorPtr createGazeEstimator();
+	fsdk::IGazeEstimatorPtr createGazeEstimator(fsdk::RecognitionMode mode = fsdk::RecognitionMode::RM_RGB);
 	
 	fsdk::IGlassesEstimatorPtr createGlassesEstimator();
 	

@@ -10,7 +10,7 @@ import cv2
 # if FaceEngine is not instaflled in system
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--bind-path", type=str,
-                    help="path to FaceEngine*.so file - binding of luna-sdk")
+                    help="path to dir with FaceEngine*.so file - binding of luna-sdk")
 args = parser.parse_args()
 path_to_binding = args.bind_path
 print("Directory {0} with python bindings of FaceEngine was included".format(path_to_binding))
@@ -107,6 +107,13 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(image_temp.getHeight(), h)
         self.assertEqual(image_temp.getWidth(), w)
         self.assertEqual(image_temp.getChannelCount(), c)
+        image_temp.load("testData/smile.ppm", f.FormatType.IR_X8X8X8)
+        image_np = image_temp.getData()
+        w, h, c = image_np.shape
+        self.assertEqual(image_temp.getHeight(), h)
+        self.assertEqual(image_temp.getWidth(), w)
+        self.assertEqual(image_temp.getChannelCount(), c)
+        self.assertEqual(image_temp.getFormat(), f.FormatType.IR_X8X8X8)
 
     def test_getR16_data_identity(self):
         depth_image = f.loadImage("testData/warp.depth")
@@ -153,20 +160,19 @@ class TestFaceEngineImage(unittest.TestCase):
         test_image2 = f.Image()
         test_image1.load("testData/overlap_image1.jpg")
         test_image2.load("testData/overlap_image1_copy.jpg")
-        image_np1 = test_image1.getData()
-        image_np2 = test_image2.getData()
-        self.assertTrue(np.array_equal(image_np1, image_np2))
+        image_np_rgb_1 = test_image1.getData()
+        image_np_rgb_2 = test_image2.getData()
+        self.assertTrue(np.array_equal(image_np_rgb_1, image_np_rgb_2))
 
-        test_image2.setData(image_np2, f.FormatType.R8G8B8X8)
-        image_np2_4_channels = test_image2.getData()
-        self.assertEqual(4, test_image2.getChannelCount())
+        test_image2.setData(image_np_rgb_2, f.FormatType.R8G8B8X8)
+        image_np_rgbx_2 = test_image2.getData()
+        _, _, c = image_np_rgbx_2.shape
+        self.assertEqual(c, test_image2.getChannelCount())
         self.assertEqual(f.FormatType.R8G8B8X8, test_image2.getFormat())
         self.assertEqual("FormatType.R8G8B8X8", str(test_image2.getFormat()))
-        # by default numpy is converted to R8G8B8 or R8
-        test_image2.setData(image_np1)
-        image_np3 = test_image2.getData()
-        self.assertTrue(np.array_equal(image_np3, image_np1))
-        self.assertFalse(np.array_equal(image_np3, image_np2_4_channels))
+        image_np_rgbx_3 = test_image2.getData()
+        self.assertTrue(np.array_equal(image_np_rgb_2, image_np_rgb_1))
+        self.assertTrue(np.array_equal(image_np_rgbx_3, image_np_rgbx_2))
 
     def test_load_from_memory(self):
         with open("testData/6big.ppm", 'rb') as file:

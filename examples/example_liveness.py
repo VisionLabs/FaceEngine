@@ -14,12 +14,7 @@ if len(sys.argv) != 3:
 
 sys.path.append(sys.argv[1])
 import FaceEngine as fe
-
-faceEngine = fe.createFaceEngine("data",
-                                 "data/faceengine.conf")
-
-liveness_engine = fe.createLivenessEngine(faceEngine, "./data")
-
+from example_license import make_activation
 
 def print_landmarks(landmarks, message=""):
     print(message)
@@ -28,8 +23,16 @@ def print_landmarks(landmarks, message=""):
 
 
 if __name__ == "__main__":
+    faceEngine = fe.createFaceEngine("data",
+                                     "data/faceengine.conf")
+
+    if not make_activation(faceEngine):
+        print("failed to activate license!")
+        exit(1)
+    liveness_engine = fe.createLivenessEngine(faceEngine, "./data")
     video_path = sys.argv[2]
     print("downloading of video: {0}".format(video_path))
+
     # example of config creating
     config_fe = fe.createSettingsProvider("data/faceengine.conf")
     config_le = fe.createSettingsProvider("data/livenessengine.conf")
@@ -50,7 +53,7 @@ if __name__ == "__main__":
                 process = False
                 break
             image = fe.Image()
-            image.setData(ir_frame_cv)
+            image.setData(ir_frame_cv, fe.FormatType.R8G8B8)
             # full image saving
             # image.save("path to save/dump/" + str(n) + ".jpg")
             result, liveness_success = liveness.update(image)

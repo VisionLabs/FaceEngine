@@ -11,6 +11,7 @@ sys.path.append(sys.argv[1])
 # if FaceEngine is installed only
 import FaceEngine as fe
 import TrackEngine as te
+from example_license import make_activation
 
 bboxes = {}
 bestshots = {}
@@ -51,6 +52,9 @@ def draw_bounding_boxes(frame_to_draw, bboxes_to_draw):
 if __name__ == "__main__":
     cap = cv2.VideoCapture(int(sys.argv[2]))
     faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+    if not make_activation(faceEngine):
+        print("failed to activate license!")
+        exit(-1)
     trackEngine = te.createTrackEngine(faceEngine, "data/trackengine.conf")
     stream = trackEngine.createStream()
     x = 0
@@ -60,7 +64,7 @@ if __name__ == "__main__":
 
         image = fe.Image()
         rgbframe = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        image.setData(rgbframe)
+        image.setData(rgbframe, fe.FormatType.R8G8B8)
 
         if not stream.pushFrame(image, x):
             print("push error {0}".format(x))
