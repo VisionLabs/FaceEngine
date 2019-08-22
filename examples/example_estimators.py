@@ -111,7 +111,7 @@ def mouth_example(_warp):
     if err.isOk:
         print(mouthEstimation)
     else:
-	    print("Failed to estimate mouth state! Reason: {}".format(err.what()))
+        print("Failed to estimate mouth state! Reason: {}".format(err.what()))
     return
 
 def depth_example(depth_image_path):

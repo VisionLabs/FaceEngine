@@ -745,14 +745,14 @@ void estimators_module(py::module& f) {
 	//	Mouth
 	py::class_<fsdk::MouthEstimation>(f, "MouthEstimation",
 		"MouthEstimatorPtr output structure\n"
-		"Stores flags that indicates wich mouth feature is present.\n"
-		"Probability scores are defined in [0,1] range.\n")
-		.def_readwrite("opened", &fsdk::MouthEstimation::opened, "Mouth opened score")
-		.def_readwrite("smile", &fsdk::MouthEstimation::smile, "Person is smiling score")
-		.def_readwrite("occluded", &fsdk::MouthEstimation::occluded, "Mouth is occluded score")
-		.def_readwrite("isOpened", &fsdk::MouthEstimation::isOpened, "Mouth is opened flag")
-		.def_readwrite("isSmiling", &fsdk::MouthEstimation::isSmiling, "Person is smiling flag")
-		.def_readwrite("isOccluded", &fsdk::MouthEstimation::isOccluded, "Mouth is occluded flag")
+		"\tStores flags that indicates wich mouth feature is present.\n"
+		"\tProbability scores are defined in [0,1] range.\n")
+		.def_readwrite("opened", &fsdk::MouthEstimation::opened, "Mouth opened score\n")
+		.def_readwrite("smile", &fsdk::MouthEstimation::smile, "Person is smiling score\n")
+		.def_readwrite("occluded", &fsdk::MouthEstimation::occluded, "Mouth is occluded score\n")
+		.def_readwrite("isOpened", &fsdk::MouthEstimation::isOpened, "Mouth is opened flag\n")
+		.def_readwrite("isSmiling", &fsdk::MouthEstimation::isSmiling, "Person is smiling flag\n")
+		.def_readwrite("isOccluded", &fsdk::MouthEstimation::isOccluded, "Mouth is occluded flag\n")
 		.def("__repr__", [](const fsdk::MouthEstimation& e) {
 				return "Mouth State: \n"
 					"opened score = " + std::to_string(e.opened) + "\n" +
@@ -764,15 +764,20 @@ void estimators_module(py::module& f) {
 			})
 		;
 
-	py::class_<fsdk::IMouthEstimatorPtr>(f, "MouthEstimatorPtr",
-		"Mouth estimator interface"
-		"predicts person's mouth state.")
+	py::class_<fsdk::IMouthEstimatorPtr>(f, "IMouthEstimatorPtr",
+		"Mouth estimator interface.\n"
+		"\tPredicts person's mouth state.\n")
 		.def("estimate", [](
 			const fsdk::IMouthEstimatorPtr& estimator,
 			const fsdk::Image& warp) {
 			fsdk::MouthEstimation out = {};
 			fsdk::Result<fsdk::FSDKError> status = estimator->estimate(warp, out);
 			return std::make_tuple(FSDKErrorResult(status), out);
-			})
+			},
+			"\tEstimate MouthEstimation probabilities.\n"
+			"\tArgs\n"
+			"\t\tparam1 (warp): warped source image in R8G8B8 format.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns error code FSDKErrorResult and MouthEstimation\n")
 		;
 }

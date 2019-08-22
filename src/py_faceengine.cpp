@@ -720,6 +720,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createEmotionsEstimator
 			PyIFaceEngine.createGazeEstimator
 			PyIFaceEngine.createGlassesEstimator
+			PyIFaceEngine.createMouthEstimator
+
 
 			PyIFaceEngine.createDetector
 			PyIFaceEngine.createWarper
@@ -751,6 +753,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IGlassesEstimatorPtr
 			IGlassesEstimatorPtr.estimate
+
+			IMouthEstimatorPtr
+			IMouthEstimatorPtr.estimate
 
 			IEthnicityEstimator
 			IEthnicityEstimator.estimate
@@ -956,6 +961,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Ethnicity
 
 			GlassesEstimation
+
+			MouthEstimation
 
 			Transformation
 
