@@ -545,17 +545,14 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.faceEngine.setSettingsProvider(config)
 
     def test_MouthEstimator(self):
-        config = f.createSettingsProvider("data/faceengine.conf")
-        config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
-        faceEnginePtr.setSettingsProvider(config)
-        estimator = faceEnginePtr.createMouthEstimator()
-        warper = faceEnginePtr.createWarper()
+        estimator = self.faceEngine.createMouthEstimator()
+        warper = self.faceEngine.createWarper()
         image = f.Image()
 
         def mouthRunner(imageName, isOpened, isSmiling, isOccluded):
             err = image.load(imageName)
             self.assertTrue(err.isOk)
-            detStatus, face = detect(image, 1)
+            detStatus, face = detect(image, self.faceEngine)
             self.assertTrue(detStatus.isOk)
             (detection, landmarks5, landmarks68) = face.detection, \
                                                face.landmarks5_opt.value(), \
