@@ -170,7 +170,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n", py::arg("mode") = fsdk::RecognitionMode::RM_RGB)
 		.def("createGlassesEstimator", &PyIFaceEngine::createGlassesEstimator, "Creates Glasses estimator\n")
 		.def("createAGSEstimator", &PyIFaceEngine::createAGSEstimator, "Creates AGS estimator\n")
-
+		.def("createMouthEstimator", &PyIFaceEngine::createMouthEstimator, "Creates Mouth estimator\n")
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			"Creates a detector of given type.\n", 
 			py::arg("type") = fsdk::ObjectDetectorClassType::FACE_DET_DEFAULT,
@@ -720,6 +720,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createEmotionsEstimator
 			PyIFaceEngine.createGazeEstimator
 			PyIFaceEngine.createGlassesEstimator
+			PyIFaceEngine.createMouthEstimator
+
 
 			PyIFaceEngine.createDetector
 			PyIFaceEngine.createWarper
@@ -751,6 +753,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IGlassesEstimatorPtr
 			IGlassesEstimatorPtr.estimate
+
+			IMouthEstimatorPtr
+			IMouthEstimatorPtr.estimate
 
 			IEthnicityEstimator
 			IEthnicityEstimator.estimate
@@ -954,6 +959,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Ethnicity
 
 			GlassesEstimation
+
+			MouthEstimation
 
 			Transformation
 

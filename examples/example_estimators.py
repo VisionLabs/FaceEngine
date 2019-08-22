@@ -107,6 +107,14 @@ def headPose_example(_landmarks68):
         print(headPoseEstimation)
     return err, headPoseEstimation
 
+def mouth_example(_warp):
+    mouthEstimator = faceEngine.createMouthEstimator()
+    err, mouthEstimation = mouthEstimator.estimate(_warp)
+    if err.isOk:
+        print(mouthEstimation)
+    else:
+        print("Failed to estimate mouth state! Reason: {}".format(err.what()))
+    return
 
 def depth_example(depth_image_path):
     depthEstimator = faceEngine.createDepthEstimator()
@@ -282,6 +290,7 @@ if __name__ == "__main__":
         ir_example("testData/irWarp.ppm")
         faceFlow_example()
         emotions_example(warp_image)
+        mouth_example(warp_image)
         err_headPose, headPoseEstimation = headPose_example(landmarks68)
         err_eyes, eyesEstimation = eye_example(warp_image, transformed_landmarks5)
         err_gaze, gaze_result = gaze_example_rgb(warp_image, transformed_landmarks5)

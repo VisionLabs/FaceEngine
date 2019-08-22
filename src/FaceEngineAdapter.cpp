@@ -192,6 +192,13 @@ fsdk::IAGSEstimatorPtr PyIFaceEngine::createAGSEstimator() {
 	return agsEstimatorPtr;
 }
 
+fsdk::IMouthEstimatorPtr PyIFaceEngine::createMouthEstimator() {
+	fsdk::IMouthEstimatorPtr mouthEstimator = fsdk::acquire(faceEnginePtr->createMouthEstimator());
+	if (!mouthEstimator)
+		throw py::cast_error("\nFailed to create mouth estimator instance! VERIFY PATH to \"data\" directory!");
+	return mouthEstimator;
+}
+
 void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }
