@@ -534,7 +534,6 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
     def test_MouthEstimator(self):
         config = f.createSettingsProvider("data/faceengine.conf")
-        config.setValue("system", "betaMode", f.SettingsProviderValue(1))
         config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
         faceEnginePtr.setSettingsProvider(config)
         estimator = faceEnginePtr.createMouthEstimator()
