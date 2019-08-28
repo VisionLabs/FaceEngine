@@ -8,7 +8,7 @@ def help():
     print("python example.py <path to dir with FaceEngine*.so> <path to video>")
 
 
-if len(sys.argv) != 3:
+if len(sys.argv) != 2:
     help()
     exit(1)
 
