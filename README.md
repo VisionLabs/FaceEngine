@@ -191,6 +191,9 @@ $ python3 pythonBindings/examples/example_estimators.py pythonBindings/build tes
 # Detecting and warping
 $ python3 pythonBindings/examples/example_detector_warper.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm
 
+# Gaze Estimation demo, requires connected video camera
+$ python3 pythonBindings/examples/example_gaze_cv.py pythonBindings/build
+
 # Index building, only for server platforms, not for Jetson
 $ python3 pythonBindings/examples/example_index.py pythonBindings/build testData/emotions1.ppm testData testData/imageListIndex.txt 0.3
 ```
