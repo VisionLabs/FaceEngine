@@ -5,9 +5,9 @@ import math
 
 
 def help():
-    print("python example.py <path to dir with FaceEngine*.so> <path to video>")
+    print("python example.py <path to dir with FaceEngine*.so>")
 
-
+print(len(sys.argv))
 if len(sys.argv) != 2:
     help()
     exit(1)
