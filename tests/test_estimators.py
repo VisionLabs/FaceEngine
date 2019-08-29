@@ -258,14 +258,17 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
     def test_DepthEstimator(self):
         depthEstimator = self.faceEngine.createDepthEstimator()
-        # depth
-        # loadImage - only for depth image downloading saved as binary array
-        depthImage = f.loadImage("testData/warp.depth")
-        err, depth_result = depthEstimator.estimate(depthImage)
-        self.assertTrue(err.isOk)
-        # print("Depth estimation result = {0}".format(depth_result))
-        self.assertAlmostEqual(depth_result, 1.0, delta=0.01)
+        
+        def runner(path, reference):
+            depthImage = f.Image()
+            depthImage.load(path)
+            err, depth_result = depthEstimator.estimate(depthImage)
+            self.assertTrue(err.isOk)
+            self.assertAlmostEqual(depth_result, reference, delta=0.001)
 
+        runner("testData/warpeddepth8186.png", 0.8186)
+        runner("testData/warpeddepth9397.png", 0.9397)
+ 
     def test_IREstimator(self):
         config = f.createSettingsProvider("data/faceengine.conf")
         
