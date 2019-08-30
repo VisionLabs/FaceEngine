@@ -35,9 +35,9 @@ def image_load(image_path):
     return image
 
 
-def liveness_flying_faces_example(_image, _detection):
+def liveness_flying_faces_example(faces):
     flying_faces_estimator = faceEngine.createLivenessFlyingFacesEstimator()
-    err, score = flying_faces_estimator.estimate(_image, _detection)
+    err, score = flying_faces_estimator.estimate(faces)
     if err.isOk:
         print("liveness flying faces score: ", score)
     else:
@@ -45,9 +45,9 @@ def liveness_flying_faces_example(_image, _detection):
         exit(1)
 
 
-def liveness_flying_faces_batch_example(_image, _detections):
+def liveness_flying_faces_batch_example(face):
     flying_faces_estimator = faceEngine.createLivenessFlyingFacesEstimator()
-    err, scores = flying_faces_estimator.estimate(_image, _detections)
+    err, scores = flying_faces_estimator.estimate(face)
     if err.isOk:
         for i, _score in enumerate(scores):
             print("liveness flying faces score {0}: {1}".format(i, _score))
@@ -127,6 +127,7 @@ def headPose_example(_landmarks68):
     if err.isOk:
         print(headPoseEstimation)
     return err, headPoseEstimation
+
 
 def mouth_example(_warp):
     mouthEstimator = faceEngine.createMouthEstimator()
@@ -326,8 +327,8 @@ if __name__ == "__main__":
             print("Failed eyes estimation. Reason: {0}".format(err_eyes.what))
             exit(1)
         ags_example(faceEngine, image, detection)
-        liveness_flying_faces_example(image, detection)
-        liveness_flying_faces_batch_example(image, [detection, detection])
+        liveness_flying_faces_example(face)
+        liveness_flying_faces_batch_example([face, face])
     except Exception as ex:
         print(type(ex).__name__, ex)
         exit(-1)

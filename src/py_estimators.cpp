@@ -257,10 +257,9 @@ void estimators_module(py::module& f) {
 		
 		.def("estimate",[](
 				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
-				const fsdk::Image& image,
-				const fsdk::BaseDetection<float> detection) {
+				const fsdk::Face& face) {
 				float score = 0.0;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, score);
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(face, score);
 				return std::make_tuple(FSDKErrorResult(err), score);
 			},
 			"Check whether or not detections corresponds to the real person.\n"
@@ -271,17 +270,10 @@ void estimators_module(py::module& f) {
 			"\t\t(tuple):  tuple with Error code and score in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real\n")
 		.def("estimate",[](
 				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
-				const fsdk::Image& image,
-				const std::vector<fsdk::BaseDetection<float>>& detections) {
-				std::vector<float> scores(detections.size());
-				std::vector<fsdk::Detection> detectionsInt;
-				for (uint32_t i = 0; i < detections.size(); ++i) {
-					detectionsInt.push_back(fsdk::Detection(detections[i]));
-				}
-				assert(detectionsInt.size() == scores.size());
+				const std::vector<fsdk::Face> faces) {
+				std::vector<float> scores(faces.size());
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(
-					image,
-					fsdk::Span<const fsdk::Detection>(detectionsInt.data(), detectionsInt.size()),
+					fsdk::Span<const fsdk::Face>(faces.data(), faces.size()),
 					fsdk::Span<float>(scores.data(), scores.size()));
 				return std::make_tuple(FSDKErrorResult(err), scores);
 			},

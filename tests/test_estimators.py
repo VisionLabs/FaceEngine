@@ -369,12 +369,12 @@ class TestFaceEngineEstimators(unittest.TestCase):
         flying_faces_estimator = self.faceEngine.createLivenessFlyingFacesEstimator()
         image = f.Image()
         image.load("testData/0_Parade_Parade_0_12.jpg")
-        detection = f.DetectionFloat()
-        detection.rect = f.RectFloat(397, 174, 428 - 397, 213 - 174)
-        detection.score = 0.999
-        detections = [detection, detection]
-        err, score = flying_faces_estimator.estimate(image, detection)
-        errs, scores = flying_faces_estimator.estimate(image, detections)
+        face = f.Face()
+        face.detection.rect = f.RectFloat(397, 174, 428 - 397, 213 - 174)
+        face.detection.score = 0.999
+        faces = [face, face]
+        err, score = flying_faces_estimator.estimate(face)
+        errs, scores = flying_faces_estimator.estimate(faces)
         self.assertTrue(err.isOk)
         self.assertTrue(errs.isOk)
         self.assertAlmostEqual(score, 0.260, delta=0.001)
