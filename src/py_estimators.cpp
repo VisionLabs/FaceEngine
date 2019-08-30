@@ -251,6 +251,48 @@ void estimators_module(py::module& f) {
 			"\t\t(tuple):  tuple with Error code and irEstimation\n")
 				;
 	
+	py::class_<fsdk::ILivenessFlyingFacesEstimatorPtr>(f, "ILivenessFlyingFacesEstimatorPtr",
+		"Flying faces liveness estimator interface.\n"
+		"\t\nThis estimator helps determine whether a person is real or not.\n")
+		
+		.def("estimate",[](
+				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
+				const fsdk::Image& image,
+				const fsdk::BaseDetection<float> detection) {
+				float score = 0.0;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, score);
+				return std::make_tuple(FSDKErrorResult(err), score);
+			},
+			"Check whether or not detections corresponds to the real person.\n"
+			"\tArgs\n"
+			"\t\tparam1 (Image): input image. Format must be R8G8B8.\n"
+			"\t\tparam2 (Detection): detection (human face), coords in image space.\n"
+			"\tReturns:\n"
+			"\t\t(tuple):  tuple with Error code and score in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real\n")
+		.def("estimate",[](
+				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
+				const fsdk::Image& image,
+				const std::vector<fsdk::BaseDetection<float>>& detections) {
+				std::vector<float> scores(detections.size());
+				std::vector<fsdk::Detection> detectionsInt;
+				for (uint32_t i = 0; i < detections.size(); ++i) {
+					detectionsInt.push_back(fsdk::Detection(detections[i]));
+				}
+				assert(detectionsInt.size() == scores.size());
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(
+					image,
+					fsdk::Span<const fsdk::Detection>(detectionsInt.data(), detectionsInt.size()),
+					fsdk::Span<float>(scores.data(), scores.size()));
+				return std::make_tuple(FSDKErrorResult(err), scores);
+			},
+			"Check whether or not detections corresponds to the real person.\n"
+			"\tArgs\n"
+			"\t\tparam1 (Image): input image. Format must be R8G8B8.\n"
+			"\t\tparam2 (Detection): detection (human face), coords in image space.\n"
+			"\tReturns:\n"
+			"\t\t(tuple):  tuple with Error code and score in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real\n")
+		;
+	
 	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr",
 		"Smile estimator interface.\n"
 		"\tThis estimator is designed for smile/mouth/mouth overlap detection.\n"

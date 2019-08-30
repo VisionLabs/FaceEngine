@@ -154,6 +154,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createBlackWhiteEstimator", &PyIFaceEngine::createBlackWhiteEstimator, "Creates Black/White estimator\n")
 		.def("createDepthEstimator", &PyIFaceEngine::createDepthEstimator, "Creates Liveness Depth estimator\n")
 		.def("createIREstimator", &PyIFaceEngine::createIREstimator, "Creates Liveness Infrared estimator\n")
+		.def("createLivenessFlyingFacesEstimator", &PyIFaceEngine::createLivenessFlyingFacesEstimator, "Creates Liveness Flying Faces estimator\n")
 		.def("createSmileEstimator", &PyIFaceEngine::createSmileEstimator, "Creates Smile estimator\n")
 		.def("createFaceFlowEstimator", &PyIFaceEngine::createFaceFlowEstimator, "Creates Liveness flow estimator. \n"
 			"Note: this estimator is required only for liveness detection purposes.\n")

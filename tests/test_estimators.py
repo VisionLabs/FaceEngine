@@ -365,6 +365,22 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertTrue(err.isOk)
         self.assertAlmostEqual(faceFlowScore, 0.9967, delta=0.01)
 
+    def test_LivenessFlyingFlowEstimator(self):
+        flying_faces_estimator = self.faceEngine.createLivenessFlyingFacesEstimator()
+        image = f.Image()
+        image.load("testData/0_Parade_Parade_0_12.jpg")
+        detection = f.DetectionFloat()
+        detection.rect = f.RectFloat(397, 174, 428 - 397, 213 - 174)
+        detection.score = 0.999
+        detections = [detection, detection]
+        err, score = flying_faces_estimator.estimate(image, detection)
+        errs, scores = flying_faces_estimator.estimate(image, detections)
+        self.assertTrue(err.isOk)
+        self.assertTrue(errs.isOk)
+        self.assertAlmostEqual(score, 0.260, delta=0.001)
+        self.assertAlmostEqual(scores[0], 0.260, delta=0.001)
+        self.assertAlmostEqual(scores[1], 0.260, delta=0.001)
+
     def test_EyeEstimator(self):
         eyeEstimator = self.faceEngine.createEyeEstimator()
         def testImage(landmarksCount, refLeftState, refRightState):

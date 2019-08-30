@@ -116,6 +116,14 @@ fsdk::ILivenessIREstimatorPtr PyIFaceEngine::createIREstimator() {
 	return livenessIREstimatorPtr;
 }
 
+fsdk::ILivenessFlyingFacesEstimatorPtr PyIFaceEngine::createLivenessFlyingFacesEstimator() {
+	fsdk::ILivenessFlyingFacesEstimatorPtr livenessIREstimatorPtr = fsdk::acquire(faceEnginePtr->createLivenessFlyingFacesEstimator());
+	
+	if (!livenessIREstimatorPtr)
+		throw py::cast_error("\nFailed to create liveness estimator instance! VERIFY PATH to \"data\" directory!");
+	return livenessIREstimatorPtr;
+}
+
 fsdk::ISmileEstimatorPtr PyIFaceEngine::createSmileEstimator() {
 	fsdk::ISmileEstimatorPtr smileEstimatorPtr = fsdk::acquire(faceEnginePtr->createSmileEstimator());
 	if (!smileEstimatorPtr)

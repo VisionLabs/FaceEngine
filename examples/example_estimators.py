@@ -35,6 +35,27 @@ def image_load(image_path):
     return image
 
 
+def liveness_flying_faces_example(_image, _detection):
+    flying_faces_estimator = faceEngine.createLivenessFlyingFacesEstimator()
+    err, score = flying_faces_estimator.estimate(_image, _detection)
+    if err.isOk:
+        print("liveness flying faces score: ", score)
+    else:
+        print("Failed liveness flying faces estimation. Reason: {0}".format(err.what))
+        exit(1)
+
+
+def liveness_flying_faces_batch_example(_image, _detections):
+    flying_faces_estimator = faceEngine.createLivenessFlyingFacesEstimator()
+    err, scores = flying_faces_estimator.estimate(_image, _detections)
+    if err.isOk:
+        for i, _score in enumerate(scores):
+            print("liveness flying faces score {0}: {1}".format(i, _score))
+    else:
+        print("Failed liveness flying faces estimation. Reason: {0}".format(err.what))
+        exit(1)
+
+
 def quality_ethnicity_blackWhite_smile_example(image):
     qualityEstimator = faceEngine.createQualityEstimator()
     ethnicityEstimator = faceEngine.createEthnicityEstimator()
@@ -115,6 +136,7 @@ def mouth_example(_warp):
     else:
         print("Failed to estimate mouth state! Reason: {}".format(err.what()))
     return
+
 
 def depth_example(depth_image_path):
     depthEstimator = faceEngine.createDepthEstimator()
@@ -304,6 +326,8 @@ if __name__ == "__main__":
             print("Failed eyes estimation. Reason: {0}".format(err_eyes.what))
             exit(1)
         ags_example(faceEngine, image, detection)
+        liveness_flying_faces_example(image, detection)
+        liveness_flying_faces_batch_example(image, [detection, detection])
     except Exception as ex:
         print(type(ex).__name__, ex)
         exit(-1)
