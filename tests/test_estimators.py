@@ -372,6 +372,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
         face = f.Face()
         face.detection.rect = f.RectFloat(397, 174, 428 - 397, 213 - 174)
         face.detection.score = 0.999
+        face.img = image
         faces = [face, face]
         err, score = flying_faces_estimator.estimate(face)
         errs, scores = flying_faces_estimator.estimate(faces)
