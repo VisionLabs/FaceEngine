@@ -262,10 +262,9 @@ void estimators_module(py::module& f) {
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(face, score);
 				return std::make_tuple(FSDKErrorResult(err), score);
 			},
-			"Check whether or not detections corresponds to the real person.\n"
+			"Checks whether or not detection corresponds to the real person.\n"
 			"\tArgs\n"
-			"\t\tparam1 (Image): input image. Format must be R8G8B8.\n"
-			"\t\tparam2 (Detection): detection (human face), coords in image space.\n"
+			"\t\tparam1 (Face): Face with valid input image and Detection. Image format must be R8G8B8.\n"
 			"\tReturns:\n"
 			"\t\t(tuple):  tuple with Error code and score in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real\n")
 		.def("estimate",[](
@@ -279,10 +278,10 @@ void estimators_module(py::module& f) {
 			},
 			"Check whether or not detections corresponds to the real person.\n"
 			"\tArgs\n"
-			"\t\tparam1 (Image): input image. Format must be R8G8B8.\n"
-			"\t\tparam2 (Detection): detection (human face), coords in image space.\n"
+			"\t\tparam1 (Faces): List of Faces with valid Images and corresponding Detections.\n"
+			"\t\t\tImage format must be R8G8B8. Images inside Faces should be the same.\n"
 			"\tReturns:\n"
-			"\t\t(tuple):  tuple with Error code and score in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real\n")
+			"\t\t(tuple): tuple with Error code and list of scores in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real\n")
 		;
 	
 	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr",
