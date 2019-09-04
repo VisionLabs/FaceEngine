@@ -121,7 +121,7 @@ def depth_example(depth_image_path):
     # loadImage is used only for depth test
     depth_image = fe.loadImage(depth_image_path)
     err_depth, result = depthEstimator.estimate(depth_image)
-    if err.isOk:
+    if err_depth.isOk:
         print("Depth estimator value: ", result)
     else:
         print("Failed depth estimation. Reason: {0}".format(err_depth.what))

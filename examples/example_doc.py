@@ -306,6 +306,8 @@ print(fe.FrontalFaceType.__doc__)
 
 print(fe.DepthRange.__doc__)
 print(fe.DepthRange.__repr__.__doc__)
+print(fe.DepthEstimation.__doc__)
+print(fe.DepthEstimation.__repr__.__doc__)
 print(fe.loadImage.__doc__)
 print(fe.EyeAngles.__doc__)
 

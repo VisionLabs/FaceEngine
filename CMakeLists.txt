@@ -1,14 +1,13 @@
 
-SET(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/")
-
 cmake_minimum_required(VERSION 3.5)
 project(FaceEnginePythonBinding)
 
+set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(CMAKE_MODULE_PATH
 	${CMAKE_MODULE_PATH}
 	"${CMAKE_SOURCE_DIR}/cmake/"
 	)
-SET(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/")
 
 if (MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
