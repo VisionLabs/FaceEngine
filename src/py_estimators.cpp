@@ -269,7 +269,7 @@ void estimators_module(py::module& f) {
 			"\t\t(tuple):  tuple with Error code and score in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real\n")
 		.def("estimate",[](
 				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
-				const std::vector<fsdk::Face> faces) {
+				const std::vector<fsdk::Face>& faces) {
 				std::vector<float> scores(faces.size());
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(
 					fsdk::Span<const fsdk::Face>(faces.data(), faces.size()),
@@ -279,7 +279,7 @@ void estimators_module(py::module& f) {
 			"Check whether or not detections corresponds to the real person.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Faces): List of Faces with valid Images and corresponding Detections.\n"
-			"\t\t\tImage format must be R8G8B8. Images inside list of Faces should be the same.\n"
+			"\t\t\tImage format must be R8G8B8.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with Error code and list of scores in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real\n")
 		;
