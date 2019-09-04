@@ -260,15 +260,17 @@ class TestFaceEngineEstimators(unittest.TestCase):
         depthEstimator = self.faceEngine.createDepthEstimator()
         
         def runner(path, reference):
+            print(reference)
             depthImage = f.Image()
             depthImage.load(path)
             err, depth_result = depthEstimator.estimate(depthImage)
+            print(depth_result)
             self.assertTrue(err.isOk)
-            self.assertTrue(depth_result.isReal, reference.isReal)
+            self.assertEqual(depth_result.isReal, reference.isReal)
             self.assertAlmostEqual(depth_result.score, reference.score, delta=0.001)
 
-        runner("testData/warpeddepth8186.png", f.DepthEstimation(0.8186, True))
         runner("testData/warpeddepth9397.png", f.DepthEstimation(0.9397, True))
+        runner("testData/warpeddepth8186.png", f.DepthEstimation(0, False))
  
     def test_IREstimator(self):
         config = f.createSettingsProvider("data/faceengine.conf")
