@@ -271,9 +271,10 @@ void estimators_module(py::module& f) {
 				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
 				const std::vector<fsdk::Face>& faces) {
 				std::vector<float> scores(faces.size());
+				auto scoreSpan = fsdk::Span<float>(scores.data(), scores.size());
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(
 					fsdk::Span<const fsdk::Face>(faces.data(), faces.size()),
-					fsdk::Span<float>(scores.data(), scores.size()));
+					scoreSpan);
 				return std::make_tuple(FSDKErrorResult(err), scores);
 			},
 			"Check whether or not detections corresponds to the real person.\n"
