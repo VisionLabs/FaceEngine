@@ -190,23 +190,20 @@ void estimators_module(py::module& f) {
 			"\tThis estimator is designed for face analysis using depth map. "
 			"It works with 16 bit depth map of face warp.\n"
 			"\tSee IWarper for details")
-	
 		.def("estimate",[](
 			const fsdk::ILivenessDepthEstimatorPtr& est,
 			const fsdk::Image& image) {
-				fsdk::ResultValue<fsdk::FSDKError, float> err = est->estimate(image);
-				if (err.isOk())
-					return std::make_tuple(FSDKErrorResult(err), err.getValue());
-				else
-					return std::make_tuple(FSDKErrorResult(err), 0.0f); },
+				fsdk::DepthEstimation out = {};
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, out);
+				return std::make_tuple(FSDKErrorResult(err), out); 
+			},
 			"Check whether or not depth map corresponds to the real person.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Image): warped depth image with R16 format.\n"
 			"\tReturns:\n"
-			"\t\t(tuple): tuple with error code and score of estimation.\n"
+			"\t\t(tuple): tuple with error code and fsdk::DepthEstimation output structure.\n"
 			"\t\t\tEstimation score normalized between 0.0 and 1.0,\n"
 			"\t\t\twhere 1.0 equals to 100% confidence that person on image is alive, and 0.0 equals to 0%.\n")
-		
 		.def("setRange",[](
 			const fsdk::ILivenessDepthEstimatorPtr& est,
 			const fsdk::DepthRange& range) {
@@ -592,21 +589,33 @@ void estimators_module(py::module& f) {
 		.value("FrontalFace2", fsdk::HeadPoseEstimation::FrontalFace2, "\tGOST/ISO angles \n")
 			;
 		
-		py::class_<fsdk::DepthRange>(f, "DepthRange",
-			"Depth range configuration structure in millimeters.\n"
-			"\tSpecifies working range of distances for depth estimator.\n"
-			"\tAverage depth map value should belong to this range.\n"
-			"\tBy default configured for kinect depth sensor.\n")
-		.def_readwrite("min", &fsdk::DepthRange::min)
-		.def_readwrite("max", &fsdk::DepthRange::max)
-		.def("isOk", &fsdk::DepthRange::isOk)
-		.def("__repr__",
-			[](const fsdk::DepthRange &h) {
-				return "<DepthRange: "
-						", min = " + std::to_string(h.min)
-						+ ", max = " + std::to_string(h.max);
-			})
-			;
+	py::class_<fsdk::DepthRange>(f, "DepthRange",
+		"Depth range configuration structure in millimeters.\n"
+		"\tSpecifies working range of distances for depth estimator.\n"
+		"\tAverage depth map value should belong to this range.\n"
+		"\tBy default configured for kinect depth sensor.\n")
+	.def_readwrite("min", &fsdk::DepthRange::min)
+	.def_readwrite("max", &fsdk::DepthRange::max)
+	.def("isOk", &fsdk::DepthRange::isOk)
+	.def("__repr__",
+		[](const fsdk::DepthRange &h) {
+			return "<DepthRange: "
+					", min = " + std::to_string(h.min)
+					+ ", max = " + std::to_string(h.max);
+		})
+		;
+
+	py::class_<fsdk::DepthEstimation>(f, "DepthEstimation", "Depth estimator output structure\n")
+	.def(py::init<>())
+	.def(py::init<float, bool>())
+	.def_readwrite("score", &fsdk::DepthEstimation::score)
+	.def_readwrite("isReal", &fsdk::DepthEstimation::isReal)
+	.def("__repr__",
+		[](const fsdk::DepthEstimation &d) {
+			return "DepthEstimation: "
+					" score = " + std::to_string(d.score) +
+					", isReal = " + std::to_string(d.isReal);
+		});
 	
 	py::class_<fsdk::SmileEstimation>(f, "SmileEstimation")
 		.def(py::init<>())

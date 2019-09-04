@@ -1053,6 +1053,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			DepthRange
 			DepthRange.__repr__
+			DepthEstimation
+			DepthEstimation.__repr__
 			loadImage
 			EyeAngles
 
