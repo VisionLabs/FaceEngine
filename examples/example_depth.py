@@ -7,12 +7,12 @@ import numpy as np
 parser = argparse.ArgumentParser(description = 'Luna SDK realsense depth demo')
 group = parser.add_argument_group('Required arguments')
 group.add_argument('--data', required = True, help = 'absolute path to Luna SDK data directory')
-group.add_argument('--lunaPath', required = True, help = 'absolute path to Luna SDK bindings directory')
-group.add_argument('--rsPath', required = True, help = 'absolute path to realsense bindings directory')
+group.add_argument('--bindPath', required = True, help = 'absolute path to Luna SDK bindings directory')
+group.add_argument('--rsbindPath', required = True, help = 'absolute path to realsense bindings directory')
 args = parser.parse_args()
-print("Arguments are: data: {} lunaPath: {} rsPath: {}".format(args.data, args.lunaPath, args.rsPath))
+print("Arguments are: data: {} bindPath: {} rsbindPath: {}".format(args.data, args.bindPath, args.rsbindPath))
 
-sys.path += (args.lunaPath, args.rsPath)
+sys.path += (args.bindPath, args.rsbindPath)
 import FaceEngine as fe
 import pyrealsense2 as rs
 
