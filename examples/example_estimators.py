@@ -37,22 +37,23 @@ def image_load(image_path):
 
 def liveness_flying_faces_example(faces):
     flying_faces_estimator = faceEngine.createLivenessFlyingFacesEstimator()
-    err, score = flying_faces_estimator.estimate(faces)
+    err, flying_faces_estimation = flying_faces_estimator.estimate(faces)
     if err.isOk:
-        print("liveness flying faces score: ", score)
+        print(flying_faces_estimation)
     else:
         print("Failed liveness flying faces estimation. Reason: {0}".format(err.what))
         exit(1)
 
 
 def liveness_flying_faces_batch_example(face):
+    print("\nLiveness Flying Faces batch example: ")
     flying_faces_estimator = faceEngine.createLivenessFlyingFacesEstimator()
-    err, scores = flying_faces_estimator.estimate(face)
-    if err.isOk:
-        for i, _score in enumerate(scores):
-            print("liveness flying faces score {0}: {1}".format(i, _score))
+    flying_faces_err, flying_faces_estimations = flying_faces_estimator.estimate(face)
+    if flying_faces_err.isOk:
+        for i, _estimation in enumerate(flying_faces_estimations):
+            print("{0}) {1}".format(i, _estimation))
     else:
-        print("Failed liveness flying faces estimation. Reason: {0}".format(err.what))
+        print("Failed liveness flying faces estimation. Reason: {0}".format(flying_faces_err.what))
         exit(1)
 
 

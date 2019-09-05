@@ -258,31 +258,33 @@ void estimators_module(py::module& f) {
 		.def("estimate",[](
 				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
 				const fsdk::Face& face) {
-				float score = 0.0;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(face, score);
-				return std::make_tuple(FSDKErrorResult(err), score);
+				fsdk::LivenessFlyingFacesEstimation estimation = {};
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(face, estimation);
+				return std::make_tuple(FSDKErrorResult(err), estimation);
 			},
 			"Checks whether or not detection corresponds to the real person.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Face): Face with valid input image and Detection. Image format must be R8G8B8.\n"
 			"\tReturns:\n"
-			"\t\t(tuple):  tuple with Error code and score in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real\n")
+			"\t\t(tuple):  tuple with Error code and estimations with score and bool variable.\n"
+			"\t\t\t Score is returned in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real\n")
 		.def("estimate",[](
 				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
 				const std::vector<fsdk::Face>& faces) {
-				std::vector<float> scores(faces.size());
-				auto scoreSpan = fsdk::Span<float>(scores.data(), scores.size());
+				std::vector<fsdk::LivenessFlyingFacesEstimation> out(faces.size());
+				auto scoreSpan = fsdk::Span<fsdk::LivenessFlyingFacesEstimation>(out.data(), out.size());
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(
 					fsdk::Span<const fsdk::Face>(faces.data(), faces.size()),
 					scoreSpan);
-				return std::make_tuple(FSDKErrorResult(err), scores);
+				return std::make_tuple(FSDKErrorResult(err), out);
 			},
 			"Check whether or not detections corresponds to the real person.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Faces): List of Faces with valid Images and corresponding Detections.\n"
 			"\t\t\tImage format must be R8G8B8.\n"
 			"\tReturns:\n"
-			"\t\t(tuple): tuple with Error code and list of scores in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real\n")
+			"\t\t(tuple): tuple with Error code and list of estimations with scores and bool variable,\n"
+			"\t\t\tScores are returned in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real.\n")
 		;
 	
 	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr",
@@ -755,6 +757,21 @@ void estimators_module(py::module& f) {
 						" yaw = " + std::to_string(g.yaw) +
 						", pitch = " + std::to_string(g.pitch);
 			})
+		;
+	
+	// LivenessFlyingFaces
+	py::class_<fsdk::LivenessFlyingFacesEstimation>(f, "LivenessFlyingFacesEstimation",
+			 "LivenessFlyingFaces estimation output.\n"
+			 "\tThese values are produced by ILivenessFlyingFacesEstimatorPtr object.\n")
+		.def(py::init<>())
+		.def_readwrite("score", &fsdk::LivenessFlyingFacesEstimation::score, "\tscore in range [0,1]\n")
+		.def_readwrite("isReal", &fsdk::LivenessFlyingFacesEstimation::isReal, "\tis real person or not\n")
+		.def("__repr__",
+			 [](const fsdk::LivenessFlyingFacesEstimation &est) {
+				 return "LivenessFlyingFacesEstimation: "
+						" score = " + std::to_string(est.score) +
+						", isReal = " + std::to_string(est.isReal);
+			 })
 		;
 
 	//	Ethnicity

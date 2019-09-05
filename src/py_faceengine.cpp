@@ -958,7 +958,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			GazeEstimation
 			GazeEstimation.__init__
 			GazeEstimation.__repr__
-			GazeEstimation
+
+			LivenessFlyingFacesEstimation
+			LivenessFlyingFacesEstimation.__init__
+			LivenessFlyingFacesEstimation.__repr__
 
 			Ethnicity
 

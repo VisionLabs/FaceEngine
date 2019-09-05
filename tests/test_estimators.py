@@ -374,13 +374,14 @@ class TestFaceEngineEstimators(unittest.TestCase):
         face.detection.score = 0.999
         face.img = image
         faces = [face, face]
-        err, score = flying_faces_estimator.estimate(face)
-        errs, scores = flying_faces_estimator.estimate(faces)
+        err, flying_faces_estimation = flying_faces_estimator.estimate(face)
+        errs, flying_faces_estimations = flying_faces_estimator.estimate(faces)
         self.assertTrue(err.isOk)
         self.assertTrue(errs.isOk)
-        self.assertAlmostEqual(score, 0.260, delta=0.001)
-        self.assertAlmostEqual(scores[0], 0.260, delta=0.001)
-        self.assertAlmostEqual(scores[1], 0.260, delta=0.001)
+        self.assertAlmostEqual(flying_faces_estimation.score, 0.260, delta=0.001)
+        self.assertAlmostEqual(flying_faces_estimations[0].score, 0.260, delta=0.001)
+        self.assertAlmostEqual(flying_faces_estimations[1].score, 0.260, delta=0.001)
+        self.assertFalse(flying_faces_estimation.isReal)
 
     def test_EyeEstimator(self):
         eyeEstimator = self.faceEngine.createEyeEstimator()

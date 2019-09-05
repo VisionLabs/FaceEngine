@@ -245,7 +245,11 @@ print(fe.Emotions.__doc__)
 print(fe.GazeEstimation.__doc__)
 print(fe.GazeEstimation.__init__.__doc__)
 print(fe.GazeEstimation.__repr__.__doc__)
-print(fe.GazeEstimation.__doc__)
+
+print(fe.LivenessFlyingFacesEstimation.__doc__)
+print(fe.LivenessFlyingFacesEstimation.__init__.__doc__)
+print(fe.LivenessFlyingFacesEstimation.__repr__.__doc__)
+print(fe.LivenessFlyingFacesEstimation.__repr__.__doc__)
 
 print(fe.Ethnicity.__doc__)
 print(fe.GlassesEstimation.__doc__)
