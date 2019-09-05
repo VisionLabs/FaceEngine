@@ -81,30 +81,31 @@ if __name__ == "__main__":
 
 			#perform detection
 			err, face = detector.detectOne(rgbImage, rgbImage.getRect(), fe.DetectionType(fe.dt5Landmarks))
-#			print(face.detection)
-			
-			cvRGBImage = cv2.cvtColor(rgbFrame, cv2.COLOR_BGR2RGB)
-			if(err.isOk and face.isValid()):
-				box = face.detection.rect
-				cv2.rectangle(cvRGBImage, (int(box.x), int(box.y)), (int(box.x + box.width), int(box.y + box.height)), (0,255,0), 2)
 
-				#warp depth image
-				transformation = warper.createTransformation(face.detection, face.landmarks5_opt.value())
-				warpResult, warpImage = warper.warp(depthImage, transformation)
-				if warpResult.isError:
-					print("Failed to warp image!")
-					continue
-				
-				error, output = estimator.estimate(warpImage)
-				if(error.isOk):
-					color = (0, 0, 255)
-					if(output.isReal):
-						color = (0, 255, 0)
-					cv2.rectangle(cvRGBImage,
-						(int(box.x), int(box.y)),
-						(int(box.x + box.width), int(box.y + box.height)),
-						color, 2)
-					print(output)
+			#prepare cv image for visualisation
+			cvRGBImage = cv2.cvtColor(rgbFrame, cv2.COLOR_BGR2RGB)
+
+			if(err.isError):
+				print("Failed to detect!")
+			else:
+				if(face.isValid() and face.landmarks5_opt.isValid()):	
+					#warp depth image
+					transformation = warper.createTransformation(face.detection, face.landmarks5_opt.value())
+					warpResult, warpImage = warper.warp(depthImage, transformation)
+					if warpResult.isError:
+						print("Failed to warp image!")
+					
+					#perform depth liveness estimation
+					error, output = estimator.estimate(warpImage)
+					if(error.isOk):
+						color = (0, 255, 0) if output.isReal else (0, 0, 255)
+						box = face.detection.rect
+						#draw bbox
+						cv2.rectangle(cvRGBImage,
+							(int(box.x), int(box.y)),
+							(int(box.x + box.width), int(box.y + box.height)),
+							color, 2)
+						print(output)
 
 			cv2.imshow('Realsense depth example', cvRGBImage)
 			key = cv2.waitKey(1)

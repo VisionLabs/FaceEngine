@@ -203,6 +203,7 @@ $ python3 pythonBindings/examples/example_depth.py --data data --bindPpath pytho
 
 ***Note for Linux users***
 If you built realsense sdk from source make sure to tell the system where these libraries are located:
+
 ```
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:<absolute_path_to_realsense_libraries>
 ```
