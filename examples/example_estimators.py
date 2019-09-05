@@ -35,7 +35,7 @@ def image_load(image_path):
     return image
 
 
-def liveness_flying_faces_example(faces):
+def liveness_flying_face_example(faces):
     flying_faces_estimator = faceEngine.createLivenessFlyingFacesEstimator()
     err, flying_faces_estimation = flying_faces_estimator.estimate(faces)
     if err.isOk:
@@ -45,8 +45,7 @@ def liveness_flying_faces_example(faces):
         exit(1)
 
 
-def liveness_flying_faces_batch_example(face):
-    print("\nLiveness Flying Faces batch example: ")
+def liveness_flying_face_batch_example(face):
     flying_faces_estimator = faceEngine.createLivenessFlyingFacesEstimator()
     flying_faces_err, flying_faces_estimations = flying_faces_estimator.estimate(face)
     if flying_faces_err.isOk:
@@ -328,8 +327,8 @@ if __name__ == "__main__":
             print("Failed eyes estimation. Reason: {0}".format(err_eyes.what))
             exit(1)
         ags_example(faceEngine, image, detection)
-        liveness_flying_faces_example(face)
-        liveness_flying_faces_batch_example([face, face])
+        liveness_flying_face_example(face)
+        liveness_flying_face_batch_example([face, face])
     except Exception as ex:
         print(type(ex).__name__, ex)
         exit(-1)

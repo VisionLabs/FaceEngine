@@ -253,38 +253,36 @@ void estimators_module(py::module& f) {
 	
 	py::class_<fsdk::ILivenessFlyingFacesEstimatorPtr>(f, "ILivenessFlyingFacesEstimatorPtr",
 		"Flying faces liveness estimator interface.\n"
-		"\t\nThis estimator helps determine whether a person is real or not.\n")
+		"\t\tThis estimator helps determine whether a person is real or not.\n")
 		
 		.def("estimate",[](
 				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
 				const fsdk::Face& face) {
-				fsdk::LivenessFlyingFacesEstimation estimation = {};
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(face, estimation);
-				return std::make_tuple(FSDKErrorResult(err), estimation);
+					fsdk::LivenessFlyingFacesEstimation estimation = {};
+					fsdk::Result<fsdk::FSDKError> err = est->estimate(face, estimation);
+					return std::make_tuple(FSDKErrorResult(err), estimation);
 			},
 			"Checks whether or not detection corresponds to the real person.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Face): Face with valid input image and Detection. Image format must be R8G8B8.\n"
 			"\tReturns:\n"
-			"\t\t(tuple):  tuple with Error code and estimations with score and bool variable.\n"
-			"\t\t\t Score is returned in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real\n")
+			"\t\t(tuple): tuple with Error code and LivenessFlyingFacesEstimation.\n")
 		.def("estimate",[](
 				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
 				const std::vector<fsdk::Face>& faces) {
-				std::vector<fsdk::LivenessFlyingFacesEstimation> out(faces.size());
-				auto scoreSpan = fsdk::Span<fsdk::LivenessFlyingFacesEstimation>(out.data(), out.size());
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(
-					fsdk::Span<const fsdk::Face>(faces.data(), faces.size()),
-					scoreSpan);
-				return std::make_tuple(FSDKErrorResult(err), out);
+					std::vector<fsdk::LivenessFlyingFacesEstimation> out(faces.size());
+					auto scoreSpan = fsdk::Span<fsdk::LivenessFlyingFacesEstimation>(out.data(), out.size());
+					fsdk::Result<fsdk::FSDKError> err = est->estimate(
+						fsdk::Span<const fsdk::Face>(faces.data(), faces.size()),
+						scoreSpan);
+					return std::make_tuple(FSDKErrorResult(err), out);
 			},
-			"Check whether or not detections corresponds to the real person.\n"
+			"Checks whether or not detections corresponds to the real persons.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Faces): List of Faces with valid Images and corresponding Detections.\n"
 			"\t\t\tImage format must be R8G8B8.\n"
 			"\tReturns:\n"
-			"\t\t(tuple): tuple with Error code and list of estimations with scores and bool variable,\n"
-			"\t\t\tScores are returned in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real.\n")
+			"\t\t(tuple): tuple with Error code and list of LivenessFlyingFacesEstimations.\n")
 		;
 	
 	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr",
@@ -761,8 +759,10 @@ void estimators_module(py::module& f) {
 	
 	// LivenessFlyingFaces
 	py::class_<fsdk::LivenessFlyingFacesEstimation>(f, "LivenessFlyingFacesEstimation",
-			 "LivenessFlyingFaces estimation output.\n"
-			 "\tThese values are produced by ILivenessFlyingFacesEstimatorPtr object.\n")
+			"LivenessFlyingFaces estimation output.\n"
+			"\tThese values are produced by ILivenessFlyingFacesEstimatorPtr object.\n"
+			"\tScore is returned in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real, "
+			"\tisReal - is boolean answer, true - person is real, false - fake.\n")
 		.def(py::init<>())
 		.def_readwrite("score", &fsdk::LivenessFlyingFacesEstimation::score, "\tscore in range [0,1]\n")
 		.def_readwrite("isReal", &fsdk::LivenessFlyingFacesEstimation::isReal, "\tis real person or not\n")
