@@ -8,48 +8,45 @@
 #include <fstream>
 
 struct FSDKErrorResult {
-
 	bool isOk;
 	bool isError;
-	fsdk::FSDKError fsdkError;
+	fsdk::FSDKError error;
 	const char* what;
 
 	FSDKErrorResult(fsdk::Result<fsdk::FSDKError> err) :
 	isOk(err.isOk()),
 	isError(err.isError()),
-	fsdkError(err.getError()),
+	error(err.getError()),
 	what(err.what())
 	{};
 };
 
 // liveness error
 struct LSDKErrorResult {
-	
 	bool isOk;
 	bool isError;
-	lsdk::LSDKError lsdkError;
+	lsdk::LSDKError error;
 	const char* what;
 	
 	LSDKErrorResult(fsdk::ResultValue<lsdk::LSDKError, bool> err) :
 		isOk(err.isOk()),
 		isError(err.isError()),
-		lsdkError(err.getError()),
+		error(err.getError()),
 		what(err.what())
 	{};
 };
 
 
 struct SerializeErrorResult {
-	
 	bool isOk;
 	bool isError;
-	fsdk::ISerializableObject::Error serializeError;
+	fsdk::ISerializableObject::Error error;
 	const char* what;
 	
 	SerializeErrorResult(fsdk::Result<fsdk::ISerializableObject::Error> err) :
 	isOk(err.isOk()),
 	isError(err.isError()),
-	serializeError(err.getError()),
+	error(err.getError()),
 	what(err.what())
 	{};
 };
@@ -57,13 +54,13 @@ struct SerializeErrorResult {
 struct ImageErrorResult {
 	bool isOk;
 	bool isError;
-	fsdk::Image::Error imageError;
+	fsdk::Image::Error error;
 	const char* what;
 
 	ImageErrorResult(fsdk::Result<fsdk::Image::Error> err) :
 	isOk(err.isOk()),
 	isError(err.isError()),
-	imageError(err.getError()),
+	error(err.getError()),
 	what(err.what())
 	{};
 };
@@ -71,13 +68,13 @@ struct ImageErrorResult {
 struct DescriptorBatchResult {
 	bool isOk;
 	bool isError;
-	fsdk::IDescriptorBatch::Error descriptorBatchError;
+	fsdk::IDescriptorBatch::Error error;
 	const char* what;
 
 	DescriptorBatchResult(fsdk::Result<fsdk::IDescriptorBatch::Error> err) :
 	isOk(err.isOk()),
 	isError(err.isError()),
-	descriptorBatchError(err.getError()),
+	error(err.getError()),
 	what(err.what())
 	{};
 };
@@ -85,14 +82,14 @@ struct DescriptorBatchResult {
 struct FSDKErrorValueInt {
 	bool isOk;
 	bool isError;
-	fsdk::FSDKError fsdkError;
+	fsdk::FSDKError error;
 	const char* what;
 	uint32_t value;
 
 	FSDKErrorValueInt(fsdk::ResultValue<fsdk::FSDKError, int> err) :
 	isOk(err.isOk()),
 	isError(err.isError()),
-	fsdkError(err.getError()),
+	error(err.getError()),
 	what(err.what()),
 	value(err.getValue())
 	{};
@@ -100,7 +97,7 @@ struct FSDKErrorValueInt {
 	FSDKErrorValueInt(fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err) :
 	isOk(err.isOk()),
 	isError(err.isError()),
-	fsdkError(err.getError()),
+	error(err.getError()),
 	what(err.what()),
 	value(int(err.getValue()))
 	{};
@@ -109,14 +106,14 @@ struct FSDKErrorValueInt {
 struct FSDKErrorValueBool {
 	bool isOk;
 	bool isError;
-	fsdk::FSDKError fsdkError;
+	fsdk::FSDKError error;
 	const char* what;
 	int value;
 	
 	FSDKErrorValueBool(fsdk::ResultValue<fsdk::FSDKError, bool> err) :
 		isOk(err.isOk()),
 		isError(err.isError()),
-		fsdkError(err.getError()),
+		error(err.getError()),
 		what(err.what()),
 		value(err.getValue())
 	{};
@@ -125,57 +122,45 @@ struct FSDKErrorValueBool {
 struct FSDKErrorValueFloat {
 	bool isOk;
 	bool isError;
-	fsdk::FSDKError fsdkError;
+	fsdk::FSDKError error;
 	const char* what;
 	float value;
 
 	FSDKErrorValueFloat(fsdk::ResultValue<fsdk::FSDKError, float> err) :
 	isOk(err.isOk()),
 	isError(err.isError()),
-	fsdkError(err.getError()),
+	error(err.getError()),
 	what(err.what()),
 	value(err.getValue())
 	{};
-
 };
 
 struct FSDKErrorValueMatching {
 	bool isOk;
 	bool isError;
-	fsdk::FSDKError fsdkError;
+	fsdk::FSDKError error;
 	const char* what;
 	fsdk::MatchingResult value;
 
 	FSDKErrorValueMatching(fsdk::ResultValue<fsdk::FSDKError, fsdk::MatchingResult> err) :
 	isOk(err.isOk()),
 	isError(err.isError()),
-	fsdkError(err.getError()),
+	error(err.getError()),
 	what(err.what()),
 	value(err.getValue())
 	{};
-
 };
-
-//struct DetectionResult {
-//	fsdk::Detection detection;
-//	fsdk::Landmarks5 landmarks5;
-//	fsdk::Landmarks68 landmarks68;
-//	DetectionResult(const fsdk::Detection &detection,
-//					const fsdk::Landmarks5& landmarks5,
-//					const fsdk::Landmarks68&) :
-//	detection(detection), landmarks5(landmarks5), landmarks68(landmarks68) {}
-//};
 
 struct SettingsProviderResult {
 	bool isOk;
 	bool isError;
-	fsdk::ISettingsProvider::Error settingsProviderError;
+	fsdk::ISettingsProvider::Error error;
 	const char* what;
 
 	SettingsProviderResult(fsdk::Result<fsdk::ISettingsProvider::Error> err) :
 	isOk(err.isOk()),
 	isError(err.isError()),
-	settingsProviderError(err.getError()),
+	error(err.getError()),
 	what(err.what())
 	{};
 };

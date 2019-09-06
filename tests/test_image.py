@@ -52,7 +52,7 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(load_error.isOk, 1)
         self.assertEqual(load_error.isError, 0)
         self.assertEqual(load_error.what, 'Ok')
-        self.assertEqual(load_error.imageError, f.ImageError.Ok)
+        self.assertEqual(load_error.error, f.ImageError.Ok)
 
     def test_load_format(self):
         self.assertEqual(load_error_B8G8R8X8.isOk, 1)
@@ -208,7 +208,7 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(_save_error.isOk, 1)
         self.assertEqual(_save_error.isError, 0)
         self.assertEqual(_save_error.what, 'Ok')
-        self.assertEqual(_save_error.imageError, f.ImageError.Ok)
+        self.assertEqual(_save_error.error, f.ImageError.Ok)
         _save_error = image.save(_new_file_path)
         self.assertEqual(_save_error.isOk, 1)
         _save_error = image.save(_new_file_path, f.ImageCompression.IC_NO_COMPRESSION)
