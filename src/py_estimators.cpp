@@ -251,6 +251,40 @@ void estimators_module(py::module& f) {
 			"\t\t(tuple):  tuple with Error code and irEstimation\n")
 				;
 	
+	py::class_<fsdk::ILivenessFlyingFacesEstimatorPtr>(f, "ILivenessFlyingFacesEstimatorPtr",
+		"Flying faces liveness estimator interface.\n"
+		"\t\tThis estimator helps determine whether a person is real or not.\n")
+		
+		.def("estimate",[](
+				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
+				const fsdk::Face& face) {
+					fsdk::LivenessFlyingFacesEstimation estimation = {};
+					fsdk::Result<fsdk::FSDKError> err = est->estimate(face, estimation);
+					return std::make_tuple(FSDKErrorResult(err), estimation);
+			},
+			"Checks whether or not detection corresponds to the real person.\n"
+			"\tArgs\n"
+			"\t\tparam1 (Face): Face with valid input image and Detection. Image format must be R8G8B8.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with Error code and LivenessFlyingFacesEstimation.\n")
+		.def("estimate",[](
+				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
+				const std::vector<fsdk::Face>& faces) {
+					std::vector<fsdk::LivenessFlyingFacesEstimation> out(faces.size());
+					auto scoreSpan = fsdk::Span<fsdk::LivenessFlyingFacesEstimation>(out.data(), out.size());
+					fsdk::Result<fsdk::FSDKError> err = est->estimate(
+						fsdk::Span<const fsdk::Face>(faces.data(), faces.size()),
+						scoreSpan);
+					return std::make_tuple(FSDKErrorResult(err), out);
+			},
+			"Checks whether or not detections corresponds to the real persons.\n"
+			"\tArgs\n"
+			"\t\tparam1 (Faces): List of Faces with valid Images and corresponding Detections.\n"
+			"\t\t\tImage format must be R8G8B8.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with Error code and list of LivenessFlyingFacesEstimations.\n")
+		;
+	
 	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr",
 		"Smile estimator interface.\n"
 		"\tThis estimator is designed for smile/mouth/mouth overlap detection.\n"
@@ -721,6 +755,23 @@ void estimators_module(py::module& f) {
 						" yaw = " + std::to_string(g.yaw) +
 						", pitch = " + std::to_string(g.pitch);
 			})
+		;
+	
+	// LivenessFlyingFaces
+	py::class_<fsdk::LivenessFlyingFacesEstimation>(f, "LivenessFlyingFacesEstimation",
+			"LivenessFlyingFaces estimation output.\n"
+			"\tThese values are produced by ILivenessFlyingFacesEstimatorPtr object.\n"
+			"\tScore is returned in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real, "
+			"\tisReal - is boolean answer, true - person is real, false - fake.\n")
+		.def(py::init<>())
+		.def_readwrite("score", &fsdk::LivenessFlyingFacesEstimation::score, "\tscore in range [0,1]\n")
+		.def_readwrite("isReal", &fsdk::LivenessFlyingFacesEstimation::isReal, "\tis real person or not\n")
+		.def("__repr__",
+			 [](const fsdk::LivenessFlyingFacesEstimation &est) {
+				 return "LivenessFlyingFacesEstimation: "
+						" score = " + std::to_string(est.score) +
+						", isReal = " + std::to_string(est.isReal);
+			 })
 		;
 
 	//	Ethnicity

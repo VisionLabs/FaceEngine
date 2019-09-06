@@ -44,6 +44,8 @@ public:
 	fsdk::ILivenessDepthEstimatorPtr createDepthEstimator();
 
 	fsdk::ILivenessIREstimatorPtr createIREstimator();
+	
+	fsdk::ILivenessFlyingFacesEstimatorPtr createLivenessFlyingFacesEstimator();
 
 	fsdk::ISmileEstimatorPtr createSmileEstimator();
 

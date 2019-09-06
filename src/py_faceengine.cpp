@@ -152,6 +152,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createBlackWhiteEstimator", &PyIFaceEngine::createBlackWhiteEstimator, "Creates Black/White estimator\n")
 		.def("createDepthEstimator", &PyIFaceEngine::createDepthEstimator, "Creates Liveness Depth estimator\n")
 		.def("createIREstimator", &PyIFaceEngine::createIREstimator, "Creates Liveness Infrared estimator\n")
+		.def("createLivenessFlyingFacesEstimator", &PyIFaceEngine::createLivenessFlyingFacesEstimator, "Creates Liveness Flying Faces estimator\n")
 		.def("createSmileEstimator", &PyIFaceEngine::createSmileEstimator, "Creates Smile estimator\n")
 		.def("createFaceFlowEstimator", &PyIFaceEngine::createFaceFlowEstimator, "Creates Liveness flow estimator. \n"
 			"Note: this estimator is required only for liveness detection purposes.\n")
@@ -707,6 +708,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createAttributeEstimator
 			PyIFaceEngine.createQualityEstimator
 			PyIFaceEngine.createEthnicityEstimator
+			PyIFaceEngine.createLivenessFlyingFacesEstimator
 
 			PyIFaceEngine.createHeadPoseEstimator
 			PyIFaceEngine.createBlackWhiteEstimator
@@ -719,8 +721,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createGazeEstimator
 			PyIFaceEngine.createGlassesEstimator
 			PyIFaceEngine.createMouthEstimator
-
-
+	
 			PyIFaceEngine.createDetector
 			PyIFaceEngine.createWarper
 			PyIFaceEngine.createDescriptor
@@ -757,6 +758,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IEthnicityEstimator
 			IEthnicityEstimator.estimate
+
+			ILivenessFlyingFacesEstimatorPtr
+			ILivenessFlyingFacesEstimatorPtr.estimate
 
 			IDetectorPtr
 			IDetectorPtr.detect
@@ -952,7 +956,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			GazeEstimation
 			GazeEstimation.__init__
 			GazeEstimation.__repr__
-			GazeEstimation
+
+			LivenessFlyingFacesEstimation
+			LivenessFlyingFacesEstimation.__init__
+			LivenessFlyingFacesEstimation.__repr__
 
 			Ethnicity
 
@@ -1052,7 +1059,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			DepthRange
 			DepthRange.__repr__
 			loadImage
-			EyeAngles
 
 			IIndexPtr
 			IIndexPtr.search
