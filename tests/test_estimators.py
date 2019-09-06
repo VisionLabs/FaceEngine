@@ -269,7 +269,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
     def test_IREstimator(self):
         config = f.createSettingsProvider("data/faceengine.conf")
         
-        config.setValue("LivenessIREstimator::Settings", "cooperativeMode", f.SettingsProviderValue(1))
+        config.setValue("LivenessIREstimator::Settings", "name", f.SettingsProviderValue("universal"))
         self.faceEngine.setSettingsProvider(config)
         iREstimator = self.faceEngine.createIREstimator()
         
@@ -283,11 +283,11 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertAlmostEqual(irRestult.score, 1.0, delta=0.01)
 
 
-        config.setValue("LivenessIREstimator::Settings", "cooperativeMode", f.SettingsProviderValue(0))
+        config.setValue("LivenessIREstimator::Settings", "universal", f.SettingsProviderValue(0))
         self.faceEngine.setSettingsProvider(config)
         iREstimator = self.faceEngine.createIREstimator()
         
-        irImage.load("testData/irWarpNonCooperative.png")
+        irImage.load("testData/irWarp.ppm")
         self.assertTrue(irImage.isValid())
         err, irRestult = iREstimator.estimate(irImage)
         self.assertTrue(err.isOk)
