@@ -172,7 +172,7 @@ class TestFaceEngineRect(unittest.TestCase):
         self.checkDescriptorsEquality(batchDescr, newDescr)
         # test bad
         emptyDescr = _faceEngine.createDescriptor()
-        self.assertEqual(_storage.descriptorByIndex(index.bad, emptyDescr)[0].FSDKError, fe.FSDKError.InvalidInput)
+        self.assertEqual(_storage.descriptorByIndex(index.bad, emptyDescr)[0].error, fe.FSDKError.InvalidInput)
 
     def testIndexSearchResult(self):
         similarity = 0.6543

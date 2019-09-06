@@ -9,7 +9,6 @@
 
 namespace py = pybind11;
 
-
 void liveness_module(py::module& f) {
 	
 	py::class_<PyILivenessEngine>(f, "PyILivenessEngine", "Root Liveness object interface\n")

@@ -59,9 +59,7 @@ void set_optional_class(py::module& f)
 	auto optionalLandmarks68 = optional_class<fsdk::Landmarks68>(f, "OptionalLandmarks68");
 	auto optionalfloat = optional_class<float>(f, "Optionalfloat");
 	auto optionalEthnicityEstimation = optional_class<fsdk::EthnicityEstimation>(f, "OptionalEthnicityEstimation");
-
 }
-
 
 PYBIND11_MODULE(FaceEngine, f) {
 	
@@ -275,7 +273,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"\tAn enum should specify a result code.\n")
 		.def_readonly("isOk", &SerializeErrorResult::isOk)
 		.def_readonly("isError", &SerializeErrorResult::isError)
-		.def_readonly("serializeError", &SerializeErrorResult::serializeError)
+		.def_readonly("serializeError", &SerializeErrorResult::error)
 		.def_readonly("what", &SerializeErrorResult::what)
 		.def("__repr__",
 			[](const SerializeErrorResult &err) {
@@ -283,7 +281,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
 						+ ", serializeError = " +
-						fsdk::ErrorTraits<fsdk::ISerializableObject::Error>::toString(err.serializeError)
+						fsdk::ErrorTraits<fsdk::ISerializableObject::Error>::toString(err.error)
 						+ ", what = " + err.what; })
 			;
 	
@@ -405,14 +403,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"\tAn enum should specify a result code.\n")
 		.def_readonly("isOk", &FSDKErrorResult::isOk)
 		.def_readonly("isError", &FSDKErrorResult::isError)
-		.def_readonly("FSDKError", &FSDKErrorResult::fsdkError)
+		.def_readonly("error", &FSDKErrorResult::error)
 		.def_readonly("what", &FSDKErrorResult::what)
 		.def("__repr__",
 			[](const FSDKErrorResult &err) {
 				return "FSDKErrorResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
+						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.error))
 						+ ", what = " + err.what; })
 			;
 	
@@ -422,14 +420,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\tAn enum should specify a result code.\n")
 		.def_readonly("isOk", &LSDKErrorResult::isOk)
 		.def_readonly("isError", &LSDKErrorResult::isError)
-		.def_readonly("LSDKError", &LSDKErrorResult::lsdkError)
+		.def_readonly("error", &LSDKErrorResult::error)
 		.def_readonly("what", &LSDKErrorResult::what)
 		.def("__repr__",
 			 [](const LSDKErrorResult &err) {
 				 return "LSDKErrorResult: "
 							"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", LSDKError = " + std::to_string(static_cast<uint32_t>(err.lsdkError))
+						+ ", error = " + std::to_string(static_cast<uint32_t>(err.error))
 						+ ", what = " + err.what; })
 		;
 	
@@ -438,14 +436,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"\tAn enum should specify a result code.\n")
 		.def_readonly("isOk", &DescriptorBatchResult::isOk)
 		.def_readonly("isError", &DescriptorBatchResult::isError)
-		.def_readonly("DescriptorBatchError", &DescriptorBatchResult::descriptorBatchError)
+		.def_readonly("error", &DescriptorBatchResult::error)
 		.def_readonly("what", &DescriptorBatchResult::what)
 		.def("__repr__",
 			[](const DescriptorBatchResult &err) {
 				return "DescriptorBatchResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", DescriptorBatchError = " + std::to_string(static_cast<uint32_t>(err.descriptorBatchError))
+						+ ", error = " + std::to_string(static_cast<uint32_t>(err.error))
 						+ ", what = " + err.what; })
 			;
 	
@@ -454,14 +452,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"\tAn enum should specify a result code.\n")
 		.def_readonly("isOk", &ImageErrorResult::isOk)
 		.def_readonly("isError", &ImageErrorResult::isError)
-		.def_readonly("imageError", &ImageErrorResult::imageError)
+		.def_readonly("error", &ImageErrorResult::error)
 		.def_readonly("what", &ImageErrorResult::what)
 		.def("__repr__",
 			[](const ImageErrorResult &err) {
 				return "ImageErrorResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", imageError = " + std::to_string(static_cast<uint32_t>(err.imageError))
+						+ ", error = " + std::to_string(static_cast<uint32_t>(err.error))
 						+ ", what = " + err.what; })
 			;
 	
@@ -470,14 +468,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"\ttAn enum should specify a result code.\n")
 		.def_readonly("isOk", &SettingsProviderResult::isOk)
 		.def_readonly("isError", &SettingsProviderResult::isError)
-		.def_readonly("SettingsProviderResult", &SettingsProviderResult::settingsProviderError)
+		.def_readonly("error", &SettingsProviderResult::error)
 		.def_readonly("what", &SettingsProviderResult::what)
 		.def("__repr__",
 			[](const SettingsProviderResult &err) {
 				return "SettingsProviderResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", SettingsProviderError = " + std::to_string(static_cast<uint32_t>(err.settingsProviderError))
+						+ ", error = " + std::to_string(static_cast<uint32_t>(err.error))
 						+ ", what = " + err.what; })
 		;
 	
@@ -485,7 +483,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"value aside the result.\n")
 		.def_readonly("isOk", &FSDKErrorValueInt::isOk)
 		.def_readonly("isError", &FSDKErrorValueInt::isError)
-		.def_readonly("FSDKError", &FSDKErrorValueInt::fsdkError)
+		.def_readonly("error", &FSDKErrorValueInt::error)
 		.def_readonly("what", &FSDKErrorValueInt::what)
 		.def_readonly("value", &FSDKErrorValueInt::value)
 		.def("__repr__",
@@ -493,7 +491,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "FSDKErrorValueInt: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
+						+ ", error = " + std::to_string(static_cast<uint32_t>(err.error))
 						+ ", value = " + std::to_string(err.value)
 						+ ", what = " + err.what; })
 			;
@@ -502,7 +500,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"value aside the result.\n")
 		.def_readonly("isOk", &FSDKErrorValueBool::isOk)
 		.def_readonly("isError", &FSDKErrorValueBool::isError)
-		.def_readonly("FSDKError", &FSDKErrorValueBool::fsdkError)
+		.def_readonly("error", &FSDKErrorValueBool::error)
 		.def_readonly("what", &FSDKErrorValueBool::what)
 		.def_readonly("value", &FSDKErrorValueBool::value)
 		.def("__repr__",
@@ -510,7 +508,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				 return "FSDKErrorValueBool: "
 							"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
+						+ ", error = " + std::to_string(static_cast<uint32_t>(err.error))
 						+ ", value = " + std::to_string(err.value)
 						+ ", what = " + err.what; })
 			;
@@ -520,7 +518,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"float value aside the result.\n")
 		.def_readonly("isOk", &FSDKErrorValueFloat::isOk)
 		.def_readonly("isError", &FSDKErrorValueFloat::isError)
-		.def_readonly("FSDKError", &FSDKErrorValueFloat::fsdkError)
+		.def_readonly("error", &FSDKErrorValueFloat::error)
 		.def_readonly("what", &FSDKErrorValueFloat::what)
 		.def_readonly("value", &FSDKErrorValueFloat::value)
 		.def("__repr__",
@@ -528,7 +526,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "FSDKErrorValueFloat: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
+						+ ", error = " + std::to_string(static_cast<uint32_t>(err.error))
 						+ ", value = " + std::to_string(err.value)
 						+ ", what = " + err.what;
 			})
@@ -538,7 +536,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"some Matching value (distance, similarity) aside the result.\n")
 		.def_readonly("isOk", &FSDKErrorValueMatching::isOk)
 		.def_readonly("isError", &FSDKErrorValueMatching::isError)
-		.def_readonly("FSDKError", &FSDKErrorValueMatching::fsdkError)
+		.def_readonly("error", &FSDKErrorValueMatching::error)
 		.def_readonly("what", &FSDKErrorValueMatching::what)
 		.def_readonly("value", &FSDKErrorValueMatching::value)
 		.def("__repr__",
@@ -546,7 +544,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				return "FSDKErrorValueMatching: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.fsdkError))
+						+ ", error = " + std::to_string(static_cast<uint32_t>(err.error))
 						+ ", value: (distance = " + std::to_string(err.value.distance) +
 						", similarity = " + std::to_string(err.value.similarity) + ")"
 						+ ", what = " + err.what;
