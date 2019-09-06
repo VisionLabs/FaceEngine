@@ -292,7 +292,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
         err, irRestult = iREstimator.estimate(irImage)
         self.assertTrue(err.isOk)
         self.assertTrue(irRestult.isReal)
-        self.assertAlmostEqual(irRestult.score, 0.9935, delta=0.001)
+        self.assertAlmostEqual(irRestult.score, 0.9999, delta=0.001)
 
     def test_SmileEstimator(self):
         smileEstimator = self.faceEngine.createSmileEstimator()
