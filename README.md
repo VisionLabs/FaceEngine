@@ -196,8 +196,20 @@ $ python3 pythonBindings/examples/example_gaze_cv.py pythonBindings/build
 
 # Index building, only for server platforms, not for Jetson
 $ python3 pythonBindings/examples/example_index.py pythonBindings/build testData/emotions1.ppm testData testData/imageListIndex.txt 0.3
+
+# Depth example.
+$ python3 pythonBindings/examples/example_depth.py --data data --bindPpath pythonBindings/build/release --rsbindPath <absolute_path_to_realsense_python_bindings_libraries>
 ```
+
+***Note for Linux users***
+If you built realsense sdk from source make sure to tell the system where these libraries are located:
+
+```
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:<absolute_path_to_realsense_libraries>
+```
+
 **usage of FaceEngine, example**
+```
 
 ```python
 import FaceEngine as fe
@@ -241,6 +253,7 @@ $ python3 pythonBindings/tests/test_index.py --bind-path pythonBindings/build/re
 $ python3 pythonBindings/tests/test_descriptor.py --bind-path pythonBindings/build/release
 $ python3 pythonBindings/tests/test_detector.py --bind-path pythonBindings/build/release
 $ python3 pythonBindings/tests/test_liveness.py --bind-path pythonBindings/build/release
+$ python3 pythonBindings/examples/example_depth.py --data ./data --bindPpath pythonBindings/build/release --rsbindPath <absolute_path_to_realsense_python_bindings_libraries>
 ```
 
 ## About pybind11

@@ -20,6 +20,7 @@ print(fe.PyIFaceEngine.getFaceEngineEdition.__doc__)
 print(fe.PyIFaceEngine.createAttributeEstimator.__doc__)
 print(fe.PyIFaceEngine.createQualityEstimator.__doc__)
 print(fe.PyIFaceEngine.createEthnicityEstimator.__doc__)
+print(fe.PyIFaceEngine.createLivenessFlyingFacesEstimator.__doc__)
 
 print(fe.PyIFaceEngine.createHeadPoseEstimator.__doc__)
 print(fe.PyIFaceEngine.createBlackWhiteEstimator.__doc__)
@@ -62,6 +63,9 @@ print(fe.IQualityEstimatorPtr.estimate.__doc__)
 
 print(fe.IEthnicityEstimatorPtr.__doc__)
 print(fe.IEthnicityEstimatorPtr.estimate.__doc__)
+
+print(fe.ILivenessFlyingFacesEstimatorPtr.__doc__)
+print(fe.ILivenessFlyingFacesEstimatorPtr.estimate.__doc__)
 
 print(fe.IAttributeEstimatorPtr.__doc__)
 print(fe.IAttributeEstimatorPtr.estimate.__doc__)
@@ -241,7 +245,10 @@ print(fe.Emotions.__doc__)
 print(fe.GazeEstimation.__doc__)
 print(fe.GazeEstimation.__init__.__doc__)
 print(fe.GazeEstimation.__repr__.__doc__)
-print(fe.GazeEstimation.__doc__)
+
+print(fe.LivenessFlyingFacesEstimation.__doc__)
+print(fe.LivenessFlyingFacesEstimation.__init__.__doc__)
+print(fe.LivenessFlyingFacesEstimation.__repr__.__doc__)
 
 print(fe.Ethnicity.__doc__)
 print(fe.GlassesEstimation.__doc__)
@@ -306,8 +313,9 @@ print(fe.FrontalFaceType.__doc__)
 
 print(fe.DepthRange.__doc__)
 print(fe.DepthRange.__repr__.__doc__)
+print(fe.DepthEstimation.__doc__)
+print(fe.DepthEstimation.__repr__.__doc__)
 print(fe.loadImage.__doc__)
-print(fe.EyeAngles.__doc__)
 
 print(fe.IIndexPtr.__doc__)
 print(fe.IIndexPtr.search.__doc__)
