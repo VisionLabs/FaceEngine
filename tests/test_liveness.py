@@ -29,26 +29,22 @@ import FaceEngine as fe
 del(sys.argv[1])
 del(sys.argv[1])
 
-faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
 
-if not make_activation(faceEngine):
-    raise ActivationLicenseError("License is not activated!")
+def createLivenessEngine(preparedConfig):
+    faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+    faceEngine.setSettingsProvider(preparedConfig)
+    if not make_activation(faceEngine):
+        raise ActivationLicenseError("License is not activated!")
+    liveness_engine = fe.createLivenessEngine(faceEngine, "data")
+    return liveness_engine
 
 test_data_path = "testData"
 dataPath = "data"
-
-liveness_engine = fe.createLivenessEngine(faceEngine, "data")
-
 
 def print_landmarks(landmarks, message=""):
     print(message)
     for i in range(len(landmarks)):
         print(landmarks[i])
-
-print(liveness_engine)
-
-config = fe.createSettingsProvider("data/faceengine.conf")
-config_path = config.getDefaultPath()
 
 #implementation
 print(fe.LA_PITCH_DOWN)
@@ -85,6 +81,9 @@ eye_states.left = 0
 eye_states.right = 1
 print("eye_states {0}, {1} ".format(eye_states.left, eye_states.right))
 
+configPath = os.path.join("data", "faceengine.conf")
+config = fe.createSettingsProvider(configPath)
+liveness_engine = createLivenessEngine(config)
 liveness = liveness_engine.createLiveness(fe.LA_INFRARED)
 complex_liveness = liveness_engine.createComplexLiveness(fe.CLA_DEPTH)
 image = fe.Image()
@@ -135,9 +134,8 @@ class TestFaceEngineLiveness(unittest.TestCase):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
         config.setValue("system", "defaultDetectorType", fe.SettingsProviderValue("FaceDetV1"))
-        faceEngine.setSettingsProvider(config)
+        liveness_engine = createLivenessEngine(config)
         liveness = liveness_engine.createLiveness(type)
-        # image_list = fe.loadFrameSequence(test_data_path + "/smile.bin")
         image_list = fe.loadFrameSequence(path)
         result = None
         success = False
@@ -153,7 +151,8 @@ class TestFaceEngineLiveness(unittest.TestCase):
         configPath = os.path.join("data", "faceengine.conf")
         config = fe.createSettingsProvider(configPath)
         config.setValue("system", "defaultDetectorType", fe.SettingsProviderValue("FaceDetV1"))
-        faceEngine.setSettingsProvider(config)
+        config.setValue("DepthEstimator::Settings", "zeroDepthThreshold", fe.SettingsProviderValue(0.5))
+        liveness_engine = createLivenessEngine(config)
         complex_liveness = liveness_engine.createComplexLiveness(type)
         color_image_list = fe.loadFrameSequence(color_path)
         depth_image_list = fe.loadFrameSequence(depth_path)

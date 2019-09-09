@@ -1,14 +1,12 @@
 
-SET(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/")
-
 cmake_minimum_required(VERSION 3.5)
 project(FaceEnginePythonBinding)
 
-set(CMAKE_MODULE_PATH
-	${CMAKE_MODULE_PATH}
-	"${CMAKE_SOURCE_DIR}/cmake/"
-	)
-SET(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/")
+option(BUILD_TE_BINDINGS "Building Track Engine Bindings library" ON)
+
+set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 if (MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
@@ -37,8 +35,12 @@ if (FSDK_FOUND)
 	endif()
 endif()
 
-find_package(TrackEngineSDK REQUIRED)
-include_directories(${TSDK_INCLUDE_DIRS})
+if(BUILD_TE_BINDINGS)
+	find_package(TrackEngineSDK REQUIRED)
+	include_directories(${TSDK_INCLUDE_DIRS})
+	message("TSDK_LIBRARIES = ${TSDK_LIBRARIES}")
+	message("TSDK_INCLUDE_DIRS = ${TSDK_INCLUDE_DIRS}")
+endif()
 
 message("FSDK_LIBRARIES = ${FSDK_LIBRARIES}")
 message("FSDK_INCLUDE_DIRS = ${FSDK_INCLUDE_DIRS}")
@@ -46,30 +48,29 @@ message("FSDK_INCLUDE_DIRS = ${FSDK_INCLUDE_DIRS}")
 message("LSDK_LIBRARIES = ${LSDK_LIBRARIES}")
 message("LSDK_INCLUDE_DIRS = ${LSDK_INCLUDE_DIRS}")
 
-message("TSDK_LIBRARIES = ${TSDK_LIBRARIES}")
-message("TSDK_INCLUDE_DIRS = ${TSDK_INCLUDE_DIRS}")
 
 add_subdirectory(pybind11)
 
 file(GLOB SOURCES src/*.cpp)
-
 message("FaceEngine sources: ${SOURCES}")
-
 pybind11_add_module(FaceEngine ${SOURCES})
 target_link_libraries(FaceEngine PRIVATE pybind11::module ${FSDK_LIBRARIES} ${LSDK_LIBRARIES})
-
-file(GLOB SOURCES src/TrackEngine/*.cpp)
-
-message("TrackEngine sources: ${SOURCES}")
-
-pybind11_add_module(TrackEngine ${SOURCES})
-target_link_libraries(TrackEngine PRIVATE pybind11::module ${FSDK_LIBRARIES} ${LSDK_LIBRARIES} ${TSDK_LIBRARIES})
-
-message(${CMAKE_INSTALL_PREFIX})
 
 install(TARGETS FaceEngine
 	LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT libs)
 
-install(TARGETS TrackEngine
-		LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT libs)
+message(STATUS "install path is ${CMAKE_INSTALL_PREFIX}")
+
+if(BUILD_TE_BINDINGS)
+	file(GLOB SOURCES src/TrackEngine/*.cpp)
+	message("TrackEngine sources: ${SOURCES}")
+	
+	pybind11_add_module(TrackEngine ${SOURCES})
+	target_link_libraries(TrackEngine PRIVATE pybind11::module ${FSDK_LIBRARIES} ${LSDK_LIBRARIES} ${TSDK_LIBRARIES})
+	
+	install(TARGETS TrackEngine
+			LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT libs)
+endif()
+
+
 
