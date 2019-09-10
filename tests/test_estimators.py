@@ -272,7 +272,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
         runner("testData/warpeddepth9397.png", f.DepthEstimation(0.9397, True))
         runner("testData/warpeddepth8186.png", f.DepthEstimation(0, False))
  
-    def test_IREstimator(self):
+    def test_IREstimator_Universal(self):
         config = f.createSettingsProvider("data/faceengine.conf")
         
         config.setValue("LivenessIREstimator::Settings", "name", f.SettingsProviderValue("universal"))
@@ -280,25 +280,44 @@ class TestFaceEngineEstimators(unittest.TestCase):
         iREstimator = self.faceEngine.createIREstimator()
         
         irImage = f.Image()
-        irImage.load("testData/irWarp.ppm")
+        irImage.load("testData/ir_Universal_real.jpg")
         self.assertTrue(irImage.isValid())
         err, irRestult = iREstimator.estimate(irImage)
         self.assertTrue(err.isOk)
         # print("irResult = ", irRestult)
         self.assertTrue(irRestult.isReal)
-        self.assertAlmostEqual(irRestult.score, 1.0, delta=0.01)
+        self.assertAlmostEqual(irRestult.score, 0.9999, delta=0.01)
 
+        irImage.load("testData/ir_Universal_fake.jpg")
+        self.assertTrue(irImage.isValid())
+        err, irRestult = iREstimator.estimate(irImage)
+        self.assertTrue(err.isOk)
+        # print("irResult = ", irRestult)
+        self.assertFalse(irRestult.isReal)
+        self.assertAlmostEqual(irRestult.score, 0.2499, delta=0.01)
 
-        config.setValue("LivenessIREstimator::Settings", "universal", f.SettingsProviderValue(0))
+    def test_IREstimator_Ambarella(self):
+        config = f.createSettingsProvider("data/faceengine.conf")
+        
+        config.setValue("LivenessIREstimator::Settings", "name", f.SettingsProviderValue("ambarella"))
         self.faceEngine.setSettingsProvider(config)
         iREstimator = self.faceEngine.createIREstimator()
         
-        irImage.load("testData/irWarp.ppm")
+        irImage = f.Image()
+        irImage.load("testData/ir_Ambarella_real.jpg")
         self.assertTrue(irImage.isValid())
         err, irRestult = iREstimator.estimate(irImage)
         self.assertTrue(err.isOk)
         self.assertTrue(irRestult.isReal)
-        self.assertAlmostEqual(irRestult.score, 0.9999, delta=0.001)
+        self.assertAlmostEqual(irRestult.score, 0.8933, delta=0.01)
+
+
+        irImage.load("testData/ir_Ambarella_fake.jpg")
+        self.assertTrue(irImage.isValid())
+        err, irRestult = iREstimator.estimate(irImage)
+        self.assertTrue(err.isOk)
+        self.assertFalse(irRestult.isReal)
+        self.assertAlmostEqual(irRestult.score,  0.6871, delta=0.01)
 
     def test_SmileEstimator(self):
         smileEstimator = self.faceEngine.createSmileEstimator()
