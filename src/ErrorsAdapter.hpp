@@ -91,7 +91,7 @@ struct FSDKErrorValueInt {
 	isError(err.isError()),
 	error(err.getError()),
 	what(err.what()),
-	value(err.getValue())
+	value(err.isOk() ? err.getValue() : 0)
 	{};
 	
 	FSDKErrorValueInt(fsdk::ResultValue<fsdk::FSDKError, fsdk::DescriptorId> err) :
@@ -99,7 +99,7 @@ struct FSDKErrorValueInt {
 	isError(err.isError()),
 	error(err.getError()),
 	what(err.what()),
-	value(int(err.getValue()))
+	value(err.isOk() ? int(err.getValue()) : 0)
 	{};
 };
 
@@ -108,14 +108,14 @@ struct FSDKErrorValueBool {
 	bool isError;
 	fsdk::FSDKError error;
 	const char* what;
-	int value;
+	bool value;
 	
 	FSDKErrorValueBool(fsdk::ResultValue<fsdk::FSDKError, bool> err) :
 		isOk(err.isOk()),
 		isError(err.isError()),
 		error(err.getError()),
 		what(err.what()),
-		value(err.getValue())
+		value(err.isOk() ? err.getValue() : false)
 	{};
 };
 
@@ -131,7 +131,7 @@ struct FSDKErrorValueFloat {
 	isError(err.isError()),
 	error(err.getError()),
 	what(err.what()),
-	value(err.getValue())
+	value(err.isOk() ? err.getValue() : 0.f)
 	{};
 };
 
@@ -147,7 +147,7 @@ struct FSDKErrorValueMatching {
 	isError(err.isError()),
 	error(err.getError()),
 	what(err.what()),
-	value(err.getValue())
+	value(err.isOk() ? err.getValue() : fsdk::MatchingResult{})
 	{};
 };
 
