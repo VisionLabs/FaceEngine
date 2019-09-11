@@ -132,6 +132,43 @@ def print_landmarks_for_comparing(landmarks1, landmarks2, message=""):
             landmarks1[i].x - landmarks2[i].x,
             landmarks1[i].y - landmarks2[i].y))
 
+def human_redetectOne_example(image1, image2):
+    detector = faceEngine.createHumanDetector()
+
+    # Make detection on the first image
+    result = detector.detect([image1], [image1.getRect()], 1)
+    if not result[0].isOk:
+        print("human_redetect_example - failed to detect! Reason: {0}".format(result.what))
+        return
+
+    # Get human list result for the first image
+    humanList = result[1][0]
+    if len(humanList) == 0:
+        print("human_redetect_example - no any human on the image!")
+        return
+    # Get the first human from the results on the first image
+    human = humanList[0]
+    if not human.isValid():
+        print("human_redetect_example - something goes wrong! Human structure is invalid after detect!")
+        return
+
+    print("human_redetect_example - detect result:\n{0}".format(human))
+    # Set for the Human structure new image
+    human.img = image2
+    # And make a redetect
+    result = detector.redetectOne(human)
+    if not result[0].isOk:
+        print("human_redetect_example - failed to redetectOne! Reason: {0}".format(result[0].what))
+        return
+    if not result[0].value:
+        print("human_redetect_example - no human was found during redetectOne!")
+        return
+    if not human.isValid():
+        print("human_redetect_example - something goes wrong! Human structure is invalid after redetectOne!")
+        return
+    print("human_redetect_example - redetectOne result:\n{0}".format(human))
+
+
 
 if __name__ == "__main__":
     if not make_activation(faceEngine):
@@ -196,9 +233,4 @@ if __name__ == "__main__":
     # list of human detections
     print("Human result: ", human_result[0].isOk, human_result[1])
 
-
-
-
-
-
-
+    human_redetectOne_example(image, image)
