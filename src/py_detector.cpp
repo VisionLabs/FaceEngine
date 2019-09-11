@@ -166,27 +166,26 @@ void detector_module(py::module& f) {
 				const std::vector<fsdk::Image>& imagesVec,
 				const std::vector<fsdk::Rect>& rectanglesVec,
 				const uint32_t detectionPerImageNum) {
-				fsdk::Span<const fsdk::Image> images(imagesVec);
-				fsdk::Span<const fsdk::Rect> rectangles(rectanglesVec);
-				fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Human>>> err =
-					det->detect(images, rectangles, detectionPerImageNum);
-				if (err.isOk()) {
-					const size_t sizeBatch = err.getValue()->getSize();
-					py::list outList(sizeBatch);
-					
-					for (size_t i = 0; i < sizeBatch; ++i) {
-						fsdk::Span<fsdk::Human> resultsSpan = err.getValue()->getResults(i);
-						const size_t rowSize = resultsSpan.size();
-						py::list outRow(rowSize);
-						for (size_t j = 0; j < rowSize; ++j) {
-							outRow[j] = resultsSpan.data()[j];
+					fsdk::Span<const fsdk::Image> images(imagesVec);
+					fsdk::Span<const fsdk::Rect> rectangles(rectanglesVec);
+					fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Human>>> err =
+						det->detect(images, rectangles, detectionPerImageNum);
+					if (err.isOk()) {
+						const size_t sizeBatch = err.getValue()->getSize();
+						py::list outList(sizeBatch);
+
+						for (size_t i = 0; i < sizeBatch; ++i) {
+							fsdk::Span<fsdk::Human> resultsSpan = err.getValue()->getResults(i);
+							const size_t rowSize = resultsSpan.size();
+							py::list outRow(rowSize);
+							for (size_t j = 0; j < rowSize; ++j) {
+								outRow[j] = resultsSpan.data()[j];
+							}
+							outList[i] = outRow;
 						}
-						outList[i] = outRow;
-					}
-					return std::make_tuple(FSDKErrorResult(err), outList);
-				} else
-					return std::make_tuple(FSDKErrorResult(err), py::list());
-				
+						return std::make_tuple(FSDKErrorResult(err), outList);
+					} else
+						return std::make_tuple(FSDKErrorResult(err), py::list());
 			},
 			"Detects humans\n"
 				"\tArgs:\n"
