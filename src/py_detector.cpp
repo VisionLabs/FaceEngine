@@ -147,6 +147,7 @@ void detector_module(py::module& f) {
 	py::class_<fsdk::Human>(f, "Human", "Human detection\n")
 		.def(py::init<>())
 		.def_readwrite("detection", &fsdk::Human::m_detection, "Object bounding box")
+		.def_readwrite("img", &fsdk::Human::m_img, "Image\n")
 		.def("isValid", &fsdk::Human::isValid)
 		.def("__repr__",
 			[](const fsdk::Human& d) {
@@ -196,7 +197,21 @@ void detector_module(py::module& f) {
 				"\tReturns:\n"
 				"\t\t(tuple): \n"
 				"\t\t\ttuple with FSDKErrorResult code and list of lists of Detections\n")
+
+		.def("redetectOne", [](
+				const fsdk::Ref<fsdk::IHumanDetector>& det,
+				const fsdk::Human& human) {
+					fsdk::Human inOutHuman = human;
+					fsdk::ResultValue<fsdk::FSDKError, bool> resValue = 
+						det->redetectOne(inOutHuman);
+					return std::make_tuple(FSDKErrorValueBool(resValue), inOutHuman);
+			},
+			"Redetects one human based on the previous detection on the new image\n"
+			"\tArgs:\n"
+			"\t\tparam1 (Human): human structure with detection and image\n"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with FSDKErrorValueBool and Human structure\n")
 			;
-	
+
 }
 
