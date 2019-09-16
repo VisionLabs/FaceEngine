@@ -916,9 +916,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			AttributeResult.__init__
 			AttributeResult.__repr__
 
-			Quality
-			Quality.__init__
-			Quality.getQuality
+			SubjectiveQuality
+			SubjectiveQuality.__init__
 
 			EthnicityEstimation
 			EthnicityEstimation.__init__

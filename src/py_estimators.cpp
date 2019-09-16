@@ -23,7 +23,7 @@ void estimators_module(py::module& f) {
 		.def("estimate",[](
 			const fsdk::IQualityEstimatorPtr& est,
 			const fsdk::Image &warp) {
-				fsdk::Quality out;
+				fsdk::SubjectiveQuality out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
 				return std::make_tuple(FSDKErrorResult(err), out);
 			},
@@ -550,27 +550,30 @@ void estimators_module(py::module& f) {
 			; //EyelidLandmarks
 
 //	Quality
-	py::class_<fsdk::Quality>(f, "Quality",
-		"Quality estimation structure\n"
+	py::class_<fsdk::SubjectiveQuality>(f, "SubjectiveQuality",
+		"SubjectiveQuality estimation structure\n"
 		"\tEach estimation is given in normalized [0, 1] range. Parameter meanings:\n"
+		"\t\tblur: image blur degree. 1 - ok, 0 - too blured.\n"
 		"\t\tlight: image overlighting degree. 1 - ok, 0 - overlighted;\n"
-		"\t\tdark: image darkness degree. 1 - ok, 0 - to dark;\n"
-		"\t\tgray: image grayness degree 1 - ok, 0 - to gray;\n"
-		"\t\tblur: image blur degree. 1 - ok, 0 - to blured.\n")
+		"\t\tdark: image darkness degree. 1 - ok, 0 - too dark;\n"
+		"\t\tillumination: image illumination degree 1 - ok;\n"
+		"\t\tspecularity: image specularity degree 1 - ok;\n")
 		.def(py::init<>())
-		.def_readwrite("light", &fsdk::Quality::light)
-		.def_readwrite("dark", &fsdk::Quality::dark)
-		.def_readwrite("gray", &fsdk::Quality::gray)
-		.def_readwrite("blur", &fsdk::Quality::blur)
+		.def_readwrite("blur", &fsdk::SubjectiveQuality::blur)
+		.def_readwrite("light", &fsdk::SubjectiveQuality::light)
+		.def_readwrite("dark", &fsdk::SubjectiveQuality::dark)
+		.def_readwrite("illumination", &fsdk::SubjectiveQuality::illumination)
+		.def_readwrite("specularity", &fsdk::SubjectiveQuality::specularity)
 		.def("__repr__",
-			[](const fsdk::Quality &q) {
-				return "Quality: "
-						"light = " + std::to_string(q.light)
+			[](const fsdk::SubjectiveQuality &q) {
+				return "SubjectiveQuality: "
+						"blur = " + std::to_string(q.blur)
+						+ ", light = " + std::to_string(q.light)
 						+ ", dark = " + std::to_string(q.dark)
-						+ ", gray = " + std::to_string(q.gray)
-						+ ", blur = " + std::to_string(q.blur);
+						+ ", illumination = " + std::to_string(q.illumination)
+						+ ", specularity = " + std::to_string(q.specularity);
 			})
-		.def("getQuality", &fsdk::Quality::getQuality)
+//		.def("getQuality", &fsdk::Quality::getQuality)
 		;
 
 //	Ethnicity
