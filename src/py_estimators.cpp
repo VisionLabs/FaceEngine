@@ -558,7 +558,7 @@ void estimators_module(py::module& f) {
 		"\t\tdark: image darkness degree. 1 - ok, 0 - too dark;\n"
 		"\t\tillumination: image illumination uniformity degree. 1 - ok, 0 - is too illuminated;\n"
 		"\t\tspecularity: image specularity degree. 1 - ok, 0 - is not specular;\n"
-		"\t\tisBlured image is blured flag;\n"
+		"\t\tisBlurred image is blurred flag;\n"
 		"\t\tisHighlighted image is overlighted flag;\n"
 		"\t\tisDark image image is too dark flag;\n"
 		"\t\tisIlluminated image is too illuminated flag;\n"
@@ -569,7 +569,7 @@ void estimators_module(py::module& f) {
 		.def_readwrite("darkness", &fsdk::SubjectiveQuality::darkness)
 		.def_readwrite("illumination", &fsdk::SubjectiveQuality::illumination)
 		.def_readwrite("specularity", &fsdk::SubjectiveQuality::specularity)
-		.def_readwrite("isBlured", &fsdk::SubjectiveQuality::isBlured)
+		.def_readwrite("isBlurred", &fsdk::SubjectiveQuality::isBlurred)
 		.def_readwrite("isHighlighted", &fsdk::SubjectiveQuality::isHighlighted)
 		.def_readwrite("isDark", &fsdk::SubjectiveQuality::isDark)
 		.def_readwrite("isIlluminated", &fsdk::SubjectiveQuality::isIlluminated)
@@ -582,7 +582,7 @@ void estimators_module(py::module& f) {
 						+ ", darkness = " + std::to_string(q.darkness)
 						+ ", illumination = " + std::to_string(q.illumination)
 						+ ", specularity = " + std::to_string(q.specularity)
-						+ ", isBlured = " + std::to_string(q.isBlured)
+						+ ", isBlurred = " + std::to_string(q.isBlurred)
 						+ ", isHighlighted = " + std::to_string(q.isHighlighted)
 						+ ", isDark = " + std::to_string(q.isDark)
 						+ ", isIlluminated = " + std::to_string(q.isIlluminated)
