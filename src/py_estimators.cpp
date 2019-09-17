@@ -556,14 +556,24 @@ void estimators_module(py::module& f) {
 		"\t\tblur: image blur degree. 1 - ok, 0 - too blured.\n"
 		"\t\tlight: image overlighting degree. 1 - ok, 0 - overlighted;\n"
 		"\t\tdark: image darkness degree. 1 - ok, 0 - too dark;\n"
-		"\t\tillumination: image illumination degree 1 - ok;\n"
-		"\t\tspecularity: image specularity degree 1 - ok;\n")
+		"\t\tillumination: image illumination uniformity degree. 1 - ok, 0 - is too illuminated;\n"
+		"\t\tspecularity: image specularity degree. 1 - ok, 0 - is not specular;\n"
+		"\t\tisBlured image is blured flag;\n"
+		"\t\tisHighlighted image is overlighted flag;\n"
+		"\t\tisDark image image is too dark flag;\n"
+		"\t\tisIlluminated image is too illuminated flag;\n"
+		"\t\tisSpecular image is not specular flag;\n")
 		.def(py::init<>())
 		.def_readwrite("blur", &fsdk::SubjectiveQuality::blur)
 		.def_readwrite("light", &fsdk::SubjectiveQuality::light)
-		.def_readwrite("dark", &fsdk::SubjectiveQuality::dark)
+		.def_readwrite("darkness", &fsdk::SubjectiveQuality::darkness)
 		.def_readwrite("illumination", &fsdk::SubjectiveQuality::illumination)
 		.def_readwrite("specularity", &fsdk::SubjectiveQuality::specularity)
+		.def_readwrite("isBlured", &fsdk::SubjectiveQuality::isBlured)
+		.def_readwrite("isHighlighted", &fsdk::SubjectiveQuality::isHighlighted)
+		.def_readwrite("isDark", &fsdk::SubjectiveQuality::isDark)
+		.def_readwrite("isIlluminated", &fsdk::SubjectiveQuality::isIlluminated)
+		.def_readwrite("isSpecular", &fsdk::SubjectiveQuality::isSpecular)
 		.def("__repr__",
 			[](const fsdk::SubjectiveQuality &q) {
 				return "SubjectiveQuality: "
@@ -571,7 +581,12 @@ void estimators_module(py::module& f) {
 						+ ", light = " + std::to_string(q.light)
 						+ ", dark = " + std::to_string(q.dark)
 						+ ", illumination = " + std::to_string(q.illumination)
-						+ ", specularity = " + std::to_string(q.specularity);
+						+ ", specularity = " + std::to_string(q.specularity)
+						+ ", isBlured = " + std::to_string(q.isBlured)
+						+ ", isHighlighted = " + std::to_string(q.isHighlighted)
+						+ ", isDark = " + std::to_string(q.isDark)
+						+ ", isIlluminated = " + std::to_string(q.isIlluminated)
+						+ ", isSpecular = " + std::to_string(q.isSpecular);
 			})
 //		.def("getQuality", &fsdk::Quality::getQuality)
 		;
