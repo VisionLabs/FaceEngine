@@ -117,11 +117,20 @@ fsdk::ILivenessIREstimatorPtr PyIFaceEngine::createIREstimator() {
 }
 
 fsdk::ILivenessFlyingFacesEstimatorPtr PyIFaceEngine::createLivenessFlyingFacesEstimator() {
-	fsdk::ILivenessFlyingFacesEstimatorPtr livenessIREstimatorPtr = fsdk::acquire(faceEnginePtr->createLivenessFlyingFacesEstimator());
-	
-	if (!livenessIREstimatorPtr)
-		throw py::cast_error("\nFailed to create liveness estimator instance! VERIFY PATH to \"data\" directory!");
-	return livenessIREstimatorPtr;
+	fsdk::ILivenessFlyingFacesEstimatorPtr livenessFlyingFacesEstimatorPtr = fsdk::acquire(faceEnginePtr->createLivenessFlyingFacesEstimator());
+
+	if (!livenessFlyingFacesEstimatorPtr)
+		throw py::cast_error("\nFailed to create liveness flying faces estimator instance! VERIFY PATH to \"data\" directory!");
+	return livenessFlyingFacesEstimatorPtr;
+}
+
+
+fsdk::ILivenessRGBMEstimatorPtr PyIFaceEngine::createLivenessRGBMEstimator() {
+	fsdk::ILivenessRGBMEstimatorPtr estimatorPtr = fsdk::acquire(faceEnginePtr->createLivenessRGBMEstimator());
+
+	if (!estimatorPtr)
+		throw py::cast_error("\nFailed to create liveness rgbm estimator instance! VERIFY PATH to \"data\" directory!");
+	return estimatorPtr;
 }
 
 fsdk::ISmileEstimatorPtr PyIFaceEngine::createSmileEstimator() {
