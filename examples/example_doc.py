@@ -33,6 +33,7 @@ print(fe.PyIFaceEngine.createEmotionsEstimator.__doc__)
 print(fe.PyIFaceEngine.createGazeEstimator.__doc__)
 print(fe.PyIFaceEngine.createGlassesEstimator.__doc__)
 print(fe.PyIFaceEngine.createMouthEstimator.__doc__)
+print(fe.PyIFaceEngine.createOverlapEstimator.__doc__)
 
 print(fe.PyIFaceEngine.createDetector.__doc__)
 print(fe.PyIFaceEngine.createWarper.__doc__)
@@ -66,6 +67,10 @@ print(fe.IEthnicityEstimatorPtr.estimate.__doc__)
 
 print(fe.ILivenessFlyingFacesEstimatorPtr.__doc__)
 print(fe.ILivenessFlyingFacesEstimatorPtr.estimate.__doc__)
+
+print(fe.IOverlapEstimatorPtr.__doc__)
+print(fe.IOverlapEstimatorPtr.estimate.__doc__)
+
 
 print(fe.IAttributeEstimatorPtr.__doc__)
 print(fe.IAttributeEstimatorPtr.estimate.__doc__)
@@ -252,6 +257,7 @@ print(fe.LivenessFlyingFacesEstimation.__repr__.__doc__)
 
 print(fe.Ethnicity.__doc__)
 print(fe.GlassesEstimation.__doc__)
+print(fe.OverlapEstimation.__doc__)
 print(fe.MouthEstimation.__doc__)
 
 print(fe.Transformation.__doc__)

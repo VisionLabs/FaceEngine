@@ -138,8 +138,6 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertAlmostEqual(attribute_result.age_opt.value(), 60.0, delta=2.0)
         err_batch, list_result, aggregate_result = attributeEstimator.estimate([image, image], attributeRequest)
         self.assertTrue(err_batch.isOk)
-        print(list_result)
-        print(attribute_result)
         for result in list_result:
             self.assertEqual(attribute_result.gender_opt.value(), result.gender_opt.value())
             self.assertEqual(attribute_result.genderScore_opt.value(), result.genderScore_opt.value())
@@ -172,6 +170,21 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertAlmostEqual(ethnicity_result.indian, 0.0, delta=0.1)
         self.assertAlmostEqual(ethnicity_result.asian, 0.0, delta=0.1)
         self.assertAlmostEqual(ethnicity_result.caucasian, 1.0, delta=0.1)
+
+    def test_OverlapEstimator(self):
+        image = f.Image()
+        err = image.load("testData/overlap_image1.jpg")
+        self.assertTrue(err.isOk)
+        overlapEstimator = self.faceEngine.createOverlapEstimator()
+        detection = f.DetectionFloat()
+        detection.score = 0.999
+        # rect = image.getRect()
+        detection.rect = f.RectFloat(0, 0, 240, 240)
+        err, overlap_estimation = overlapEstimator.estimate(image, detection)
+        self.assertTrue(err.isOk)
+        self.assertAlmostEqual(0.996921, overlap_estimation.overlapValue, delta=0.1)
+        self.assertTrue(overlap_estimation.overlapped)
+
 
     def test_GlassesEstimator(self):
         warp0 = f.Image()
@@ -260,11 +273,9 @@ class TestFaceEngineEstimators(unittest.TestCase):
         depthEstimator = self.faceEngine.createDepthEstimator()
         
         def runner(path, reference):
-            print(reference)
             depthImage = f.Image()
             depthImage.load(path)
             err, depth_result = depthEstimator.estimate(depthImage)
-            print(depth_result)
             self.assertTrue(err.isOk)
             self.assertEqual(depth_result.isReal, reference.isReal)
             self.assertAlmostEqual(depth_result.score, reference.score, delta=0.001)

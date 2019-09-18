@@ -61,6 +61,8 @@ public:
 	
 	fsdk::IMouthEstimatorPtr createMouthEstimator();
 	
+	fsdk::IOverlapEstimatorPtr createOverlapEstimator();
+	
 	fsdk::IIndexBuilderPtr createIndexBuilder();
 	
 	fsdk::Ref<fsdk::IHumanDetector> createHumanDetector();

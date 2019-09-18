@@ -170,6 +170,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createGlassesEstimator", &PyIFaceEngine::createGlassesEstimator, "Creates Glasses estimator\n")
 		.def("createAGSEstimator", &PyIFaceEngine::createAGSEstimator, "Creates AGS estimator\n")
 		.def("createMouthEstimator", &PyIFaceEngine::createMouthEstimator, "Creates Mouth estimator\n")
+		.def("createOverlapEstimator", &PyIFaceEngine::createOverlapEstimator, "Creates Overlap estimator\n")
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			"Creates a detector of given type.\n", 
 			py::arg("type") = fsdk::ObjectDetectorClassType::FACE_DET_DEFAULT,
@@ -721,6 +722,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createGazeEstimator
 			PyIFaceEngine.createGlassesEstimator
 			PyIFaceEngine.createMouthEstimator
+			PyIFaceEngine.createOverlapEstimator
 	
 			PyIFaceEngine.createDetector
 			PyIFaceEngine.createWarper
@@ -755,6 +757,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IMouthEstimatorPtr
 			IMouthEstimatorPtr.estimate
+
+			IOverlapEstimatorPtr
+			IOverlapEstimatorPtr.estimate
 
 			IEthnicityEstimator
 			IEthnicityEstimator.estimate
@@ -964,6 +969,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Ethnicity
 
 			GlassesEstimation
+
+			OverlapEstimation
 
 			MouthEstimation
 
