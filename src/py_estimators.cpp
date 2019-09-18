@@ -854,9 +854,9 @@ void estimators_module(py::module& f) {
 		"Overlap estimator interface.\n"
 		"\tEstimates the face overlap.\n")
 		.def("estimate", [](
-				const fsdk::IOverlapEstimatorPtr& estimator,
-				const fsdk::Image& image,
-				const fsdk::BaseDetection<float>& detection) {
+			const fsdk::IOverlapEstimatorPtr& estimator,
+			const fsdk::Image& image,
+			const fsdk::BaseDetection<float>& detection) {
 				fsdk::OverlapEstimation out = {};
 				fsdk::Result<fsdk::FSDKError> status = estimator->estimate(image, detection, out);
 				return std::make_tuple(FSDKErrorResult(status), out);
