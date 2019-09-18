@@ -71,7 +71,6 @@ print(fe.ILivenessFlyingFacesEstimatorPtr.estimate.__doc__)
 print(fe.IOverlapEstimatorPtr.__doc__)
 print(fe.IOverlapEstimatorPtr.estimate.__doc__)
 
-
 print(fe.IAttributeEstimatorPtr.__doc__)
 print(fe.IAttributeEstimatorPtr.estimate.__doc__)
 
