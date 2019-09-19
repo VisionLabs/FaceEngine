@@ -156,6 +156,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createSmileEstimator", &PyIFaceEngine::createSmileEstimator, "Creates Smile estimator\n")
 		.def("createFaceFlowEstimator", &PyIFaceEngine::createFaceFlowEstimator, "Creates Liveness flow estimator. \n"
 			"Note: this estimator is required only for liveness detection purposes.\n")
+		.def("createLivenessRGBMEstimator", &PyIFaceEngine::createLivenessRGBMEstimator, "Creates Liveness RGBM estimator. \n")
 
 		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator, 
 			"Creates Eye estimator of given recognition mode\n",
@@ -710,6 +711,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createQualityEstimator
 			PyIFaceEngine.createEthnicityEstimator
 			PyIFaceEngine.createLivenessFlyingFacesEstimator
+			PyIFaceEngine.createLivenessRGBMEstimator
 
 			PyIFaceEngine.createHeadPoseEstimator
 			PyIFaceEngine.createBlackWhiteEstimator
@@ -766,6 +768,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			ILivenessFlyingFacesEstimatorPtr
 			ILivenessFlyingFacesEstimatorPtr.estimate
+
+			ILivenessRGBMEstimatorPtr
+			ILivenessRGBMEstimatorPtr.update
+			ILivenessRGBMEstimatorPtr.estimate
 
 			IDetectorPtr
 			IDetectorPtr.detect
@@ -965,6 +971,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			LivenessFlyingFacesEstimation
 			LivenessFlyingFacesEstimation.__init__
 			LivenessFlyingFacesEstimation.__repr__
+
+			LivenessRGBMEstimation
+			LivenessRGBMEstimation.__init__
+			LivenessRGBMEstimation.__repr__
 
 			Ethnicity
 

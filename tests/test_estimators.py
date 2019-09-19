@@ -417,6 +417,24 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertAlmostEqual(flying_faces_estimations[1].score, 0.986, delta=0.001)
         self.assertTrue(flying_faces_estimation.isReal)
 
+
+    def test_LivenessRGBMEstimator(self):
+        estimator = self.faceEngine.createLivenessRGBMEstimator()
+        background = f.Image();
+        load_err = background.load("testData/rgbm_liveness_background_real.png")
+        self.assertTrue(load_err.isOk)
+        frame = f.Image()
+        load_err = frame.load("testData/rgbm_liveness_frame_real.png")
+        self.assertTrue(load_err.isOk)
+        detection = f.DetectionFloat()
+        detection.rect = f.RectFloat(315, 206, 175, 221)
+        detection.score = 0.999
+        estimation_err, estimation = estimator.estimate(frame, detection, background)
+        self.assertTrue(estimation_err.isOk)
+        self.assertTrue(estimation.isReal)
+        self.assertAlmostEqual(estimation.score, 0.8281, delta=0.001)
+
+
     def test_EyeEstimator(self):
         eyeEstimator = self.faceEngine.createEyeEstimator()
         def testImage(landmarksCount, refLeftState, refRightState):
