@@ -929,6 +929,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			SubjectiveQuality
 			SubjectiveQuality.__init__
+			SubjectiveQuality.isGood
 
 			EthnicityEstimation
 			EthnicityEstimation.__init__

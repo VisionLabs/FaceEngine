@@ -215,6 +215,7 @@ print(fe.FSDKErrorValueMatching.__doc__)
 
 print(fe.SubjectiveQuality.__doc__)
 print(fe.SubjectiveQuality.__init__.__doc__)
+print(fe.SubjectiveQuality.isGood.__doc__)
 
 print(fe.EthnicityEstimation.__doc__)
 print(fe.EthnicityEstimation.__init__.__doc__)

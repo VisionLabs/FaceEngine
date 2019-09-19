@@ -640,7 +640,7 @@ void estimators_module(py::module& f) {
 						+ ", isIlluminated = " + std::to_string(q.isIlluminated)
 						+ ", isNotSpecular = " + std::to_string(q.isNotSpecular);
 			})
-		.def("isGood", &fsdk::SubjectiveQuality::isGood)
+		.def("isGood", &fsdk::SubjectiveQuality::isGood, "\tIf all boolean flags are false returns true - high quality, else false - low quality.\n")
 		;
 
 //	Ethnicity
