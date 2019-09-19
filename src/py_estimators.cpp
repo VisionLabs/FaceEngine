@@ -281,7 +281,59 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with Error code and list of LivenessFlyingFacesEstimations.\n")
 		;
-	
+
+	py::class_<fsdk::ILivenessRGBMEstimatorPtr>(f, "ILivenessRGBMEstimatorPtr",
+		"LivenessRGBMEstimator interface.\n"
+		"\t\tThis estimator helps determine whether a person is real or not.\n")
+
+		.def("update", [](
+			const fsdk::ILivenessRGBMEstimatorPtr& est,
+			const fsdk::Image& image,
+			uint32_t iFrame,
+			const fsdk::Image& background) {
+				fsdk::Image resultBackground = background;
+				auto result = est->update(
+						image,
+						iFrame,
+						resultBackground
+					);
+				return std::make_tuple(FSDKErrorResult(result), resultBackground);
+			},
+			"Prepare background method. Pass here every frame from the stream to extract the background\n"
+			"\tArgs\n"
+			"\t\tparam1 (Image): current frame\n"
+			"\t\t\tImage format must be R8G8B8.\n"
+			"\t\tparam2 (uint32_t): current frame number\n"
+			"\t\tparam3 (Image): current accumulated background (empty for the first call and result of the previous calls for next calls\n"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with Error code and accumulated background\n")
+
+		.def("estimate", [](
+			const fsdk::ILivenessRGBMEstimatorPtr& est,
+			const fsdk::Image& image,
+			// cast to detection<int> inside c++ interface
+			const fsdk::BaseDetection<float>& detection,
+			const fsdk::Image& background) {
+				fsdk::LivenessRGBMEstimation estimation;
+				auto result = est->estimate(
+						image,
+						detection,
+						background,
+						estimation
+					);
+				return std::make_tuple(FSDKErrorResult(result), estimation);
+			},
+			"Checks whether or not detections corresponds to the real persons.\n"
+			"\tArgs\n"
+			"\t\tparam1 (Image): source image\n"
+			"\t\t\tImage format must be R8G8B8.\n"
+			"\t\tparam2 (Detection): detection\n"
+			"\t\tparam3 (Image): accumulated background.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with Error code and LivenessRGBMEstimation structure\n")
+		;
+
+
 	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr",
 		"Smile estimator interface.\n"
 		"\tThis estimator is designed for smile/mouth/mouth overlap detection.\n"
@@ -796,6 +848,23 @@ void estimators_module(py::module& f) {
 		.def("__repr__",
 			 [](const fsdk::LivenessFlyingFacesEstimation &est) {
 				 return "LivenessFlyingFacesEstimation: "
+						" score = " + std::to_string(est.score) +
+						", isReal = " + std::to_string(est.isReal);
+			 })
+		;
+
+	// LivenessRGBMEstimation
+	py::class_<fsdk::LivenessRGBMEstimation>(f, "LivenessRGBMEstimation",
+			"LivenessRGBMEstimator estimation output.\n"
+			"\tThese values are produced by ILivenessRGBMEstimatorPtr object.\n"
+			"\tScore is returned in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real, "
+			"\tisReal - is boolean answer, true - person is real, false - fake.\n")
+		.def(py::init<>())
+		.def_readwrite("score", &fsdk::LivenessRGBMEstimation::score, "\tscore in range [0,1]\n")
+		.def_readwrite("isReal", &fsdk::LivenessRGBMEstimation::isReal, "\tis real person or not\n")
+		.def("__repr__",
+			 [](const fsdk::LivenessRGBMEstimation &est) {
+				 return "LivenessRGBMEstimation: "
 						" score = " + std::to_string(est.score) +
 						", isReal = " + std::to_string(est.isReal);
 			 })
