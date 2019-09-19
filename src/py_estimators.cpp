@@ -904,9 +904,19 @@ void estimators_module(py::module& f) {
 					"opened score = " + std::to_string(e.opened) + "\n" +
 					"smile score = " + std::to_string(e.smile) + "\n" +
 					"occlusion score = " + std::to_string(e.occluded) + "\n" +
-					"isOpened = " + std::string(e.isOpened ? "true\n" : "false\n") +
-					"isSmiling = " + std::string(e.isSmiling ? "true\n" : "false\n") +
-					"isOccluded = " + std::string(e.isOccluded ? "true\n" : "false\n");
+					"isOpened = " + std::string(e.isOpened ? "True\n" : "False\n") +
+					"isSmiling = " + std::string(e.isSmiling ? "True\n" : "False\n") +
+					"isOccluded = " + std::string(e.isOccluded ? "True\n" : "False\n");
+			})
+		;
+	
+	py::class_<fsdk::OverlapEstimation>(f, "OverlapEstimation", "Face overlap estimation output.\n")
+		.def_readwrite("overlapValue", &fsdk::OverlapEstimation::overlapValue, "Mouth opened score\n")
+		.def_readwrite("overlapped", &fsdk::OverlapEstimation::overlapped, "Person is smiling score\n")
+		.def("__repr__", [](const fsdk::OverlapEstimation& e) {
+			return "OverlapEstimation: \n"
+				"overlapValue = " + std::to_string(e.overlapValue) + "\n" +
+				"isOpened = " + std::string(e.overlapped ? "True\n" : "False\n");
 			})
 		;
 
@@ -920,10 +930,29 @@ void estimators_module(py::module& f) {
 			fsdk::Result<fsdk::FSDKError> status = estimator->estimate(warp, out);
 			return std::make_tuple(FSDKErrorResult(status), out);
 			},
-			"\tEstimate MouthEstimation probabilities.\n"
+			"\tEstimates MouthEstimation probabilities.\n"
 			"\tArgs\n"
 			"\t\tparam1 (warp): warped source image in R8G8B8 format.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and MouthEstimation\n")
+		;
+	
+	py::class_<fsdk::IOverlapEstimatorPtr>(f, "IOverlapEstimatorPtr",
+		"Overlap estimator interface.\n"
+		"\tEstimates the face overlap.\n")
+		.def("estimate", [](
+			const fsdk::IOverlapEstimatorPtr& estimator,
+			const fsdk::Image& image,
+			const fsdk::BaseDetection<float>& detection) {
+				fsdk::OverlapEstimation out = {};
+				fsdk::Result<fsdk::FSDKError> status = estimator->estimate(image, detection, out);
+				return std::make_tuple(FSDKErrorResult(status), out);
+			},
+			"\tEstimates the face overlap.\n"
+			"\tArgs\n"
+			"\t\tparam1 (image): image source image in R8G8B8 format.\n"
+			"\t\tparam2 (detection): detection coords in image space.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns error code FSDKErrorResult and OverlapEstimation\n")
 		;
 }
