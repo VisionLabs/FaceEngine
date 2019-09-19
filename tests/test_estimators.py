@@ -156,6 +156,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertTrue(image.isValid())
         err, quality_result = qualityEstimator.estimate(image)
         self.assertTrue(err.isOk)
+        self.assertTrue(quality_result.isGood())
 
     def test_EthnicityEstimator(self):
         logging.info("EthnicityEstimator")

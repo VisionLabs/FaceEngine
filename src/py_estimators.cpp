@@ -605,8 +605,8 @@ void estimators_module(py::module& f) {
 	py::class_<fsdk::SubjectiveQuality>(f, "SubjectiveQuality",
 		"SubjectiveQuality estimation structure\n"
 		"\tEach estimation is given in normalized [0, 1] range. Parameter meanings:\n"
-		"\t\tblur: image blur degree. 1 - ok, 0 - too blured.\n"
-		"\t\tlight: image overlighting degree. 1 - ok, 0 - overlighted;\n"
+		"\t\tblur: image blur degree. 1 - ok, 0 - too blured;\n"
+		"\t\tlight: image brightness degree. 1 - ok, 0 - too bright;\n"
 		"\t\tdark: image darkness degree. 1 - ok, 0 - too dark;\n"
 		"\t\tillumination: image illumination uniformity degree. 1 - ok, 0 - is too illuminated;\n"
 		"\t\tspecularity: image specularity degree. 1 - ok, 0 - is not specular;\n"
@@ -640,7 +640,7 @@ void estimators_module(py::module& f) {
 						+ ", isIlluminated = " + std::to_string(q.isIlluminated)
 						+ ", isNotSpecular = " + std::to_string(q.isNotSpecular);
 			})
-//		.def("getQuality", &fsdk::Quality::getQuality)
+		.def("isGood", &fsdk::SubjectiveQuality::isGood)
 		;
 
 //	Ethnicity
