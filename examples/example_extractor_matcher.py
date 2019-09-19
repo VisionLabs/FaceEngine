@@ -89,11 +89,6 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
     config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpu_type))
     config.setValue("system", "verboseLogging", fe.SettingsProviderValue(1))
-    # config.setValue("QualityEstimator::Settings", "logGray", f.SettingsProviderValue(0.05, 3.3, 0.05, 0.012))
-    faceEngine.setSettingsProvider(config)
-    # val = config.getValue("QualityEstimator::Settings", "platt")
-    # val = config.getValue("QualityEstimator::Settings", "expBlur")
-
     faceEngine.setSettingsProvider(config)
     val = config.getValue("FaceDetV1::Settings", "scaleFactor")
     print(val.asFloat())
