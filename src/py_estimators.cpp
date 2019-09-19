@@ -609,7 +609,7 @@ void estimators_module(py::module& f) {
 		"\t\tlight: image brightness degree. 1 - ok, 0 - too bright;\n"
 		"\t\tdark: image darkness degree. 1 - ok, 0 - too dark;\n"
 		"\t\tillumination: image illumination uniformity degree. 1 - ok, 0 - is too illuminated;\n"
-		"\t\tspecularity: image specularity degree. 1 - ok, 0 - is not specular;\n"
+		"\t\tspecularity: image specularity degree. 1 - ok, 0 - too specular;\n"
 		"\t\tisBlurred image is blurred flag;\n"
 		"\t\tisHighlighted image is overlighted flag;\n"
 		"\t\tisDark image image is too dark flag;\n"
