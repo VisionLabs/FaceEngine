@@ -266,6 +266,16 @@ def glasses_example(_faceEngine, _warp):
         exit(1)
 
 
+def overlap_example(_face_engine, _image, _detection):
+    overlap_estimator = _face_engine.createOverlapEstimator()
+    err_overlap, overlap_estimation = overlap_estimator.estimate(_image, _detection)
+    if err_overlap.isOk:
+        print(overlap_estimation)
+    else:
+        print("Failed overlap estimation. Reason: {0}".format(err.what))
+        exit(1)
+
+
 def print_landmarks(landmarks, message=""):
     print(message)
     for i in range(len(landmarks)):
@@ -303,6 +313,7 @@ if __name__ == "__main__":
             warper_example(image, detection, landmarks5, landmarks68)
         quality_ethnicity_blackWhite_smile_example(warp_image)
         glasses_example(faceEngine, warp_image)
+        overlap_example(faceEngine, image, detection)
         err, attribute_result = attribute_example(warp_image)
         print(attribute_result)
         # for example list consists two the same images

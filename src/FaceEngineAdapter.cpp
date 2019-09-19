@@ -216,6 +216,13 @@ fsdk::IMouthEstimatorPtr PyIFaceEngine::createMouthEstimator() {
 	return mouthEstimator;
 }
 
+fsdk::IOverlapEstimatorPtr PyIFaceEngine::createOverlapEstimator() {
+	fsdk::IOverlapEstimatorPtr estimator = fsdk::acquire(faceEnginePtr->createOverlapEstimator());
+	if (!estimator)
+		throw py::cast_error("\nFailed to create overlap estimator instance! VERIFY PATH to \"data\" directory!");
+	return estimator;
+}
+
 void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }
