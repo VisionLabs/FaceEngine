@@ -23,7 +23,7 @@ void estimators_module(py::module& f) {
 		.def("estimate",[](
 			const fsdk::IQualityEstimatorPtr& est,
 			const fsdk::Image &warp) {
-				fsdk::Quality out;
+				fsdk::SubjectiveQuality out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
 				return std::make_tuple(FSDKErrorResult(err), out);
 			},
@@ -602,27 +602,45 @@ void estimators_module(py::module& f) {
 			; //EyelidLandmarks
 
 //	Quality
-	py::class_<fsdk::Quality>(f, "Quality",
-		"Quality estimation structure\n"
+	py::class_<fsdk::SubjectiveQuality>(f, "SubjectiveQuality",
+		"SubjectiveQuality estimation structure\n"
 		"\tEach estimation is given in normalized [0, 1] range. Parameter meanings:\n"
-		"\t\tlight: image overlighting degree. 1 - ok, 0 - overlighted;\n"
-		"\t\tdark: image darkness degree. 1 - ok, 0 - to dark;\n"
-		"\t\tgray: image grayness degree 1 - ok, 0 - to gray;\n"
-		"\t\tblur: image blur degree. 1 - ok, 0 - to blured.\n")
+		"\t\tblur: image blur degree. 1 - ok, 0 - too blured;\n"
+		"\t\tlight: image brightness degree. 1 - ok, 0 - too bright;\n"
+		"\t\tdark: image darkness degree. 1 - ok, 0 - too dark;\n"
+		"\t\tillumination: image illumination uniformity degree. 1 - ok, 0 - is too illuminated;\n"
+		"\t\tspecularity: image specularity degree. 1 - ok, 0 - too specular;\n"
+		"\t\tisBlurred image is blurred flag;\n"
+		"\t\tisHighlighted image is overlighted flag;\n"
+		"\t\tisDark image image is too dark flag;\n"
+		"\t\tisIlluminated image is too illuminated flag;\n"
+		"\t\tisNotSpecular image is not specular flag;\n")
 		.def(py::init<>())
-		.def_readwrite("light", &fsdk::Quality::light)
-		.def_readwrite("dark", &fsdk::Quality::dark)
-		.def_readwrite("gray", &fsdk::Quality::gray)
-		.def_readwrite("blur", &fsdk::Quality::blur)
+		.def_readwrite("blur", &fsdk::SubjectiveQuality::blur)
+		.def_readwrite("light", &fsdk::SubjectiveQuality::light)
+		.def_readwrite("darkness", &fsdk::SubjectiveQuality::darkness)
+		.def_readwrite("illumination", &fsdk::SubjectiveQuality::illumination)
+		.def_readwrite("specularity", &fsdk::SubjectiveQuality::specularity)
+		.def_readwrite("isBlurred", &fsdk::SubjectiveQuality::isBlurred)
+		.def_readwrite("isHighlighted", &fsdk::SubjectiveQuality::isHighlighted)
+		.def_readwrite("isDark", &fsdk::SubjectiveQuality::isDark)
+		.def_readwrite("isIlluminated", &fsdk::SubjectiveQuality::isIlluminated)
+		.def_readwrite("isNotSpecular", &fsdk::SubjectiveQuality::isNotSpecular)
 		.def("__repr__",
-			[](const fsdk::Quality &q) {
-				return "Quality: "
-						"light = " + std::to_string(q.light)
-						+ ", dark = " + std::to_string(q.dark)
-						+ ", gray = " + std::to_string(q.gray)
-						+ ", blur = " + std::to_string(q.blur);
+			[](const fsdk::SubjectiveQuality &q) {
+				return "SubjectiveQuality: "
+						"blur = " + std::to_string(q.blur)
+						+ ", light = " + std::to_string(q.light)
+						+ ", darkness = " + std::to_string(q.darkness)
+						+ ", illumination = " + std::to_string(q.illumination)
+						+ ", specularity = " + std::to_string(q.specularity)
+						+ ", isBlurred = " + std::to_string(q.isBlurred)
+						+ ", isHighlighted = " + std::to_string(q.isHighlighted)
+						+ ", isDark = " + std::to_string(q.isDark)
+						+ ", isIlluminated = " + std::to_string(q.isIlluminated)
+						+ ", isNotSpecular = " + std::to_string(q.isNotSpecular);
 			})
-		.def("getQuality", &fsdk::Quality::getQuality)
+		.def("isGood", &fsdk::SubjectiveQuality::isGood, "\tIf all boolean flags are false returns true - high quality, else false - low quality.\n")
 		;
 
 //	Ethnicity
