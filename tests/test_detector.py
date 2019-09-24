@@ -260,8 +260,12 @@ class TestFaceEngineDetector(unittest.TestCase):
         for i, _ in enumerate(landmarks5):
             landmarks5[i] = fe.Vector2f(float(i), float(i))
         optional_landmarks5_1 = fe.OptionalLandmarks5(landmarks5)
+        self.assertTrue(optional_landmarks5_1.isValid())
         optional_landmarks5_2 = fe.OptionalLandmarks5()
+        # invalid befor initialization
+        self.assertFalse(optional_landmarks5_2.isValid())
         optional_landmarks5_2.set(landmarks5)
+        self.assertTrue(optional_landmarks5_2.isValid())
         landmarks5_from_optional1 = optional_landmarks5_1.value()
         landmarks5_from_optional2 = optional_landmarks5_2.value()
         for i, _ in enumerate(landmarks5_from_optional1):
@@ -273,8 +277,12 @@ class TestFaceEngineDetector(unittest.TestCase):
         for i, _ in enumerate(landmarks68):
             landmarks68[i] = fe.Vector2f(float(i), float(i))
         optional_landmarks68_1 = fe.OptionalLandmarks68(landmarks68)
+        self.assertTrue(optional_landmarks68_1.isValid())
         optional_landmarks68_2 = fe.OptionalLandmarks68()
+        # invalid befor initialization
+        self.assertFalse(optional_landmarks68_2.isValid())
         optional_landmarks68_2.set(landmarks68)
+        self.assertTrue(optional_landmarks68_2.isValid())
         landmarks68_from_optional1 = optional_landmarks68_1.value()
         landmarks68_from_optional2 = optional_landmarks68_2.value()
         for i, _ in enumerate(landmarks68_from_optional1):
