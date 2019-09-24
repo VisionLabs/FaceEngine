@@ -31,7 +31,7 @@ void Observer::bestShot(const tsdk::DetectionDescr &detection, const tsdk::Addit
 }
 
 void Observer::visual(const tsdk::FrameId &frameId, const fsdk::Image &image, const tsdk::TrackInfo *trackInfo,
-					  const int nTrack) {
+					  const int nTrack, const tsdk::AdditionalFrameData* data) {
 	std::lock_guard<std::mutex> lock{m_mutex};
 	for (int i = 0; i < nTrack; i++) {
 		PyICallback c;

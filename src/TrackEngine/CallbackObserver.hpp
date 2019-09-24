@@ -23,7 +23,8 @@ struct Observer :
 	void visual(const tsdk::FrameId &frameId,
 				const fsdk::Image &image,
 				const tsdk::TrackInfo * trackInfo,
-				const int nTrack) override;
+				const int nTrack,
+				const tsdk::AdditionalFrameData* data) override;
 
 	void trackEnd(const tsdk::TrackId& trackId) override;
 
