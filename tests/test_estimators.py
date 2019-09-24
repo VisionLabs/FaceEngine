@@ -716,6 +716,24 @@ class TestFaceEngineEstimators(unittest.TestCase):
             self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
             self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
 
+    def test_SimpleOptionalType(self):
+        value = 5.0
+        x = f.Optionalfloat(value)
+        y = f.Optionalfloat()
+        y.set(value)
+        self.assertEqual(x.value(), value)
+        self.assertEqual(y.value(), value)
+        eth_value = f.EthnicityEstimation()
+        eth_value.africanAmerican = 0.3
+        eth_value.indian = 0.8
+        eth1 = f.OptionalEthnicityEstimation(eth_value)
+        eth2 = f.OptionalEthnicityEstimation()
+        eth2.set(eth_value)
+        self.assertTrue(eth1.value().indian != 0.0)
+        self.assertTrue(eth1.value().africanAmerican != 0.0)
+        self.assertEqual(eth1.value().getPredominantEthnicity(), eth_value.getPredominantEthnicity())
+        self.assertEqual(eth2.value().getPredominantEthnicity(), eth_value.getPredominantEthnicity())
+
 
 if __name__ == '__main__':
     unittest.main()

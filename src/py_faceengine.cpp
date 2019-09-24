@@ -43,11 +43,19 @@ py::class_<fsdk::Optional<T>> optional_class(py::module& this_module, const char
 {
 	py::class_<fsdk::Optional<T>>class_instance(this_module, name);
 	
+	class_instance.def(py::init<>());
+	class_instance.def(py::init<T>());
+	
 	class_instance.def("value", [](const fsdk::Optional<T>& self) {
-			return self.value();
-		});
+		return self.value();
+	});
 	class_instance.def("isValid", [](const fsdk::Optional<T>& self) {
 		return self.valid();
+	});
+	
+	class_instance.def("set", [](fsdk::Optional<T>& self, const T& param) {
+		self = param;
+		return self;
 	});
 	
 	return class_instance;

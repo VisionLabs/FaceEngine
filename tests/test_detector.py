@@ -255,6 +255,33 @@ class TestFaceEngineDetector(unittest.TestCase):
         self.redetectTest(fe.FACE_DET_V1, expectedRedetectionV1)
         self.redetectTest(fe.FACE_DET_V3, expectedRedetectionV3)
 
+    def test_OptionalLandmarks(self):
+        landmarks5 = fe.Landmarks5()
+        for i, _ in enumerate(landmarks5):
+            landmarks5[i] = fe.Vector2f(float(i), float(i))
+        optional_landmarks5_1 = fe.OptionalLandmarks5(landmarks5)
+        optional_landmarks5_2 = fe.OptionalLandmarks5()
+        optional_landmarks5_2.set(landmarks5)
+        landmarks5_from_optional1 = optional_landmarks5_1.value()
+        landmarks5_from_optional2 = optional_landmarks5_2.value()
+        for i, _ in enumerate(landmarks5_from_optional1):
+            self.assertTrue(landmarks5_from_optional1 != 0)
+            self.assertEqual(landmarks5[i], landmarks5_from_optional1[i])
+            self.assertEqual(landmarks5[i], landmarks5_from_optional2[i])
+
+        landmarks68 = fe.Landmarks68()
+        for i, _ in enumerate(landmarks68):
+            landmarks68[i] = fe.Vector2f(float(i), float(i))
+        optional_landmarks68_1 = fe.OptionalLandmarks68(landmarks68)
+        optional_landmarks68_2 = fe.OptionalLandmarks68()
+        optional_landmarks68_2.set(landmarks68)
+        landmarks68_from_optional1 = optional_landmarks68_1.value()
+        landmarks68_from_optional2 = optional_landmarks68_2.value()
+        for i, _ in enumerate(landmarks68_from_optional1):
+            self.assertTrue(landmarks68_from_optional1 != 0)
+            self.assertEqual(landmarks68[i], landmarks68_from_optional1[i])
+            self.assertEqual(landmarks68[i], landmarks68_from_optional2[i])
+
 
 if __name__ == '__main__':
     unittest.main()
