@@ -245,13 +245,22 @@ class TestFaceEngineDetector(unittest.TestCase):
         # redetection
         iteraionsNumber = 1
         for i in range(iteraionsNumber):
-            err_redetect, face_redection = detector.redetectOne(face, fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
-            self.assertAlmostEqual(refDetection.rect.x, face_redection.detection.rect.x, delta=3)
-            self.assertAlmostEqual(refDetection.rect.y, face_redection.detection.rect.y, delta=3)
-            self.assertAlmostEqual(refDetection.rect.width, face_redection.detection.rect.width, delta=3)
-            self.assertAlmostEqual(refDetection.rect.height, face_redection.detection.rect.height, delta=3)
+            err_redetect1, face_redection1 = detector.redetectOne(face, fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
+            self.assertTrue(err_redetect1.isOk)
+            self.assertTrue(face_redection1.isValid())
+            self.assertAlmostEqual(refDetection.rect.x, face_redection1.detection.rect.x, delta=3)
+            self.assertAlmostEqual(refDetection.rect.y, face_redection1.detection.rect.y, delta=3)
+            self.assertAlmostEqual(refDetection.rect.width, face_redection1.detection.rect.width, delta=3)
+            self.assertAlmostEqual(refDetection.rect.height, face_redection1.detection.rect.height, delta=3)
+            err_redetect2, face_redection2 = detector.redetectOne(image, face.detection, fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
+            self.assertTrue(err_redetect2.isOk)
+            self.assertTrue(face_redection2.isValid())
+            self.assertAlmostEqual(refDetection.rect.x, face_redection2.detection.rect.x, delta=3)
+            self.assertAlmostEqual(refDetection.rect.y, face_redection2.detection.rect.y, delta=3)
+            self.assertAlmostEqual(refDetection.rect.width, face_redection2.detection.rect.width, delta=3)
+            self.assertAlmostEqual(refDetection.rect.height, face_redection2.detection.rect.height, delta=3)
 
-    def test_RedetectorOne(self):
+def test_RedetectorOne(self):
         self.redetectTest(fe.FACE_DET_V1, expectedRedetectionV1)
         self.redetectTest(fe.FACE_DET_V3, expectedRedetectionV3)
 
