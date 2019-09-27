@@ -7,12 +7,14 @@
 
 namespace py = pybind11;
 
-template<class T>
+template<class T, class Y>
 py::class_<fsdk::BaseDetection<T>> detection_class(py::module& this_module, const char* name)
 {
 	py::class_<fsdk::BaseDetection<T>> class_instance(this_module, name);
 	
 	class_instance.def(py::init<>());
+	class_instance.def(py::init<fsdk::BaseDetection<Y>>());
+	
 	class_instance.def_readwrite("rect", &fsdk::BaseDetection<T>::rect, "Object bounding box\n");
 	class_instance.def_readwrite("score", &fsdk::BaseDetection<T>::score, "Object detection score\n");
 	class_instance.def("isValid", &fsdk::BaseDetection<T>::isValid, 
@@ -27,14 +29,38 @@ py::class_<fsdk::BaseDetection<T>> detection_class(py::module& this_module, cons
 				", score = " + std::to_string(r.score);
 		})
 		;
+	class_instance.def("set", [](fsdk::BaseDetection<T>& self, fsdk::BaseDetection<Y>& other) {
+		self = other;
+		return self;
+	});
+	
+	class_instance.def(py::init(
+		[](const fsdk::BaseRect<T>& rect,
+			const float score) {
+			fsdk::BaseDetection<T> detection;
+			detection.rect = rect;
+			detection.score = score;
+			return detection;
+		}
+		));
+	
+	class_instance.def(py::init(
+		[](const fsdk::BaseRect<Y>& rect,
+			const float score) {
+			fsdk::BaseDetection<T> detection;
+			detection.rect = rect;
+			detection.score = score;
+			return detection;
+		}
+	));
 	
 	return class_instance;
 }
 
 void set_detection_class(py::module& f)
 {
-	auto detection = detection_class<int>(f, "Detection");
-	auto detectionFloat = detection_class<float>(f, "DetectionFloat");
+	auto detection = detection_class<int, float>(f, "Detection");
+	auto detectionFloat = detection_class<float, int>(f, "DetectionFloat");
 }
 
 
