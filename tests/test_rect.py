@@ -54,7 +54,6 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(rect1.isValid())
         self.assertTrue(rect2.isValid())
         self.assertEqual(rect1.x, rect2.x)
-        self.assertEqual(rect1.x, rect2.x)
         self.assertEqual(rect1.y, rect2.y)
         self.assertEqual(rect1.width, rect2.width)
         self.assertEqual(rect1.height, rect2.height)
