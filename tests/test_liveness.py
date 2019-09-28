@@ -31,7 +31,7 @@ del(sys.argv[1])
 
 
 def createLivenessEngine(preparedConfig):
-    faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+    faceEngine = fe.createFaceEngine("data")
     faceEngine.setSettingsProvider(preparedConfig)
     if not make_activation(faceEngine):
         raise ActivationLicenseError("License is not activated!")

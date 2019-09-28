@@ -290,8 +290,7 @@ def get_info():
 
 if __name__ == "__main__":
     # correct path or put directory "data" with example.py
-    faceEngine = fe.createFaceEngine("data",
-                                     "data/faceengine.conf")
+    faceEngine = fe.createFaceEngine("data")
     get_info()
     if not make_activation(faceEngine):
         print("failed to activate license!")
