@@ -53,9 +53,7 @@ def make_activation(_face_engine, _license_conf_path="data/license.conf"):
 
 if __name__ == "__main__":
     # correct path or put directory "data" with example.py
-    faceEngine = fe.createFaceEngine(
-        "data",
-        "data/faceengine.conf")
+    faceEngine = fe.createFaceEngine("data")
     get_info()
 
     if len(sys.argv) != 3:
