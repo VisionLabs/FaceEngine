@@ -269,7 +269,7 @@ class TestFaceEngineDetector(unittest.TestCase):
         landmarks5_from_optional1 = optional_landmarks5_1.value()
         landmarks5_from_optional2 = optional_landmarks5_2.value()
         for i, _ in enumerate(landmarks5_from_optional1):
-            self.assertTrue(landmarks5_from_optional1 != 0)
+            self.assertTrue(landmarks5_from_optional1[i] != 0.0)
             self.assertEqual(landmarks5[i], landmarks5_from_optional1[i])
             self.assertEqual(landmarks5[i], landmarks5_from_optional2[i])
 
@@ -286,7 +286,7 @@ class TestFaceEngineDetector(unittest.TestCase):
         landmarks68_from_optional1 = optional_landmarks68_1.value()
         landmarks68_from_optional2 = optional_landmarks68_2.value()
         for i, _ in enumerate(landmarks68_from_optional1):
-            self.assertTrue(landmarks68_from_optional1 != 0)
+            self.assertTrue(landmarks68_from_optional1[i] != 0.0)
             self.assertEqual(landmarks68[i], landmarks68_from_optional1[i])
             self.assertEqual(landmarks68[i], landmarks68_from_optional2[i])
 
