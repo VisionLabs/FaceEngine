@@ -119,12 +119,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 	});
 	
 	f.def("createFaceEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
-		"Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr,
+		"Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr, py::arg("runtimeConfPath") = nullptr,
 		"Create the LUNA SDK root object\n"
 		"\tArgs:\n"
 		"\t\tparam1 (str): [optional] path to folder with FSDK data.\n"
-		"\t\tparam2 (str): [optional] path to faceengine.conf file. Default: <dataPath>/faceengine.cong\n");
-	
+		"\t\tparam2 (str): [optional] path to faceengine.conf file. Default: <dataPath>/faceengine.cong\n"
+		"\t\tparam3 (str): [optional] path to runtime.conf file. Default: <dataPath>/runtime.cong\n");
+
 	f.def("createSettingsProvider", &createSettingsProviderPtr, py::return_value_policy::take_ownership,
 		"Create object SettingsProvider\n"
 		"\tArgs:\n"
