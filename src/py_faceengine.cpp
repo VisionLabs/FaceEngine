@@ -24,8 +24,11 @@ void descriptor_module(py::module& f);
 void warper_module(py::module& f);
 void liveness_module(py::module& f);
 
-PyIFaceEngine createPyFaceEnginePtr(const char* dataPath = nullptr, const char* configPath = nullptr) {
-	return PyIFaceEngine(dataPath, configPath);
+PyIFaceEngine createPyFaceEnginePtr(
+	const char* dataPath = nullptr,
+	const char* configPath = nullptr,
+	const char* runtimeConfigPath = nullptr) {
+	return PyIFaceEngine(dataPath, configPath, runtimeConfigPath);
 }
 
 PyILivenessEngine createPyLivenessEnginePtr(

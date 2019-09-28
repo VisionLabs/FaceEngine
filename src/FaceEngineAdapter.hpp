@@ -10,7 +10,7 @@ class PyIFaceEngine {
 public:
 	fsdk::IFaceEnginePtr faceEnginePtr;
 	
-	PyIFaceEngine(const char* dataPath, const char* configPath, const char* runtimeConfPath);
+	PyIFaceEngine(const char* dataPath, const char* configPath, const char* runtimeConfigPath);
 	
 	fsdk::FaceEngineEdition getFaceEngineEdition();
 

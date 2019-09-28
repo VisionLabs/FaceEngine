@@ -8,8 +8,8 @@
 namespace py = pybind11;
 
 
-PyIFaceEngine::PyIFaceEngine(const char* dataPath = nullptr, const char* configPath = nullptr, const char* runtimeConfPath = nullptr) {
-	faceEnginePtr = fsdk::acquire(fsdk::createFaceEngine(dataPath, configPath, runtimeConfPath));
+PyIFaceEngine::PyIFaceEngine(const char* dataPath = nullptr, const char* configPath = nullptr, const char* runtimeConfigPath = nullptr) {
+	faceEnginePtr = fsdk::acquire(fsdk::createFaceEngine(dataPath, configPath, runtimeConfigPath));
 }
 
 fsdk::FaceEngineEdition PyIFaceEngine::getFaceEngineEdition() {
