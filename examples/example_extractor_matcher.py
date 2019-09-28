@@ -82,14 +82,16 @@ def set_logging(value):
 def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print("Extractor_test_aggregation")
     config = fe.createSettingsProvider("data/faceengine.conf")
+    runtimeConfig = fe.createSettingsProvider("data/runtime.conf")
     configPath = config.getDefaultPath()
     print("Default path = ", configPath)
     config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
     config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(use_mobile_net))
-    config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
-    config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpu_type))
     config.setValue("system", "verboseLogging", fe.SettingsProviderValue(1))
+    runtimeConfig.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
+    runtimeConfig.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpu_type))
     faceEngine.setSettingsProvider(config)
+    faceEngine.setRuntimeSettingsProvider(runtimeConfig)
     val = config.getValue("FaceDetV1::Settings", "scaleFactor")
     print(val.asFloat())
 
@@ -121,7 +123,7 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
 if __name__ == "__main__":
     batch_size = len(sys.argv) - 2
     # correct path or put directory "data" with example.py
-    faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+    faceEngine = fe.createFaceEngine("data")
     if not make_activation(faceEngine):
         print("failed to activate license!")
         exit(-1)

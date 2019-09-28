@@ -163,8 +163,7 @@ if __name__ == "__main__":
           "threshold: {3}\n", imagePath, imagesDirPath, listPath, threshold)
     # correct path or put directory "data" with example.py
     # Create FaceEngine root SDK object.
-    faceEngine = fe.createFaceEngine("data",
-                                     "data/faceengine.conf")
+    faceEngine = fe.createFaceEngine("data")
     if not make_activation(faceEngine):
         print("failed to activate license!")
         exit(-1)

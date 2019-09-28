@@ -227,6 +227,10 @@ void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }
 
+void PyIFaceEngine::setRuntimeSettingsProvider(PyISettingsProvider& provider) {
+	faceEnginePtr->setRuntimeSettingsProvider(provider.settingsProviderPtr);
+}
+
 fsdk::ILicensePtr PyIFaceEngine::getLicense() {
 	return fsdk::ILicensePtr{faceEnginePtr->getLicense()};
 }

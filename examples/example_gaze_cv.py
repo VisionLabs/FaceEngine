@@ -15,8 +15,7 @@ if len(sys.argv) != 2:
 sys.path.append(sys.argv[1])
 import FaceEngine as fe
 
-faceEngine = fe.createFaceEngine("data",
-                                 "data/faceengine.conf")
+faceEngine = fe.createFaceEngine("data")
 
 
 def detect(detector, image_det):

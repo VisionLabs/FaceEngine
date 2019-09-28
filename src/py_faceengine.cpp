@@ -236,6 +236,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\tArgs:\n"
 			"\t\tparam1 (PyISettingsProvider): setting provider\n")
 
+		.def("setRuntimeSettingsProvider", &PyIFaceEngine::setRuntimeSettingsProvider,
+			"Sets settings provider\n"
+			"\tArgs:\n"
+			"\t\tparam1 (PyISettingsProvider): setting provider\n")
+
 		.def("getLicense", &PyIFaceEngine::getLicense,
 			"Get current License object, which was set for FaceEngine object.\n"
 			"\tReturns:\n"
@@ -733,6 +738,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createExtractor
 			PyIFaceEngine.createMatcher
 			PyIFaceEngine.setSettingsProvider
+			PyIFaceEngine.setRuntimeSettingsProvider
 			PyIFaceEngine.createIndexBuilder
 			PyIFaceEngine.loadDenseIndex
 			PyIFaceEngine.loadDynamicIndex

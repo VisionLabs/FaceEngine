@@ -79,6 +79,8 @@ public:
 
 	void setSettingsProvider(PyISettingsProvider& provider);
 	
+	void setRuntimeSettingsProvider(PyISettingsProvider& provider);
+
 	fsdk::ILicensePtr getLicense();
 
 	bool activateLicense(const fsdk::ILicensePtr& license, const char* configPath);

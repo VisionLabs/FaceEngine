@@ -23,8 +23,7 @@ def print_landmarks(landmarks, message=""):
 
 
 if __name__ == "__main__":
-    faceEngine = fe.createFaceEngine("data",
-                                     "data/faceengine.conf")
+    faceEngine = fe.createFaceEngine("data")
 
     if not make_activation(faceEngine):
         print("failed to activate license!")
