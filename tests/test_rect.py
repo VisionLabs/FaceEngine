@@ -26,8 +26,7 @@ import FaceEngine as f
 del(sys.argv[1])
 del(sys.argv[1])
 
-faceEnginePtr = f.createFaceEngine("data",
-                                        "data/faceengine.conf")
+faceEnginePtr = f.createFaceEngine("data")
 
 
 class TestFaceEngineRect(unittest.TestCase):

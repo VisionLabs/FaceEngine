@@ -82,7 +82,7 @@ class TestFaceEngineDetector(unittest.TestCase):
 
     @classmethod
     def setUp(cls):
-        cls.faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+        cls.faceEngine = fe.createFaceEngine("data")
         if not make_activation(cls.faceEngine):
             raise ActivationLicenseError("License is not activated!")
 

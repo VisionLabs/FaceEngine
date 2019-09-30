@@ -24,8 +24,11 @@ void descriptor_module(py::module& f);
 void warper_module(py::module& f);
 void liveness_module(py::module& f);
 
-PyIFaceEngine createPyFaceEnginePtr(const char* dataPath = nullptr, const char* configPath = nullptr) {
-	return PyIFaceEngine(dataPath, configPath);
+PyIFaceEngine createPyFaceEnginePtr(
+	const char* dataPath = nullptr,
+	const char* configPath = nullptr,
+	const char* runtimeConfigPath = nullptr) {
+	return PyIFaceEngine(dataPath, configPath, runtimeConfigPath);
 }
 
 PyILivenessEngine createPyLivenessEnginePtr(
@@ -98,9 +101,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def(py::init<fsdk::Image, fsdk::Detection>())
 		.def(py::init<fsdk::Image, fsdk::BaseDetection<float>>())
 		.def_readwrite("img", &fsdk::Face::m_img, "Image\n")
-		.def_readwrite("detection", &fsdk::Face::m_detection, "Detection\n")
-		.def_readwrite("landmarks5_opt", &fsdk::Face::m_landmarks5, "Landmarks5 optinal\n")
-		.def_readwrite("landmarks68_opt", &fsdk::Face::m_landmarks68, "Landmarks68 optinal\n")
+		.def_readwrite("detection", &fsdk::Face::detection, "Detection\n")
+		.def_readwrite("landmarks5_opt", &fsdk::Face::landmarks5, "Landmarks5 optinal\n")
+		.def_readwrite("landmarks68_opt", &fsdk::Face::landmarks68, "Landmarks68 optinal\n")
 		.def("isValid", &fsdk::Face::isValid, "Valid or not\n")
 			;
 	
@@ -121,12 +124,13 @@ PYBIND11_MODULE(FaceEngine, f) {
 	});
 	
 	f.def("createFaceEngine", &createPyFaceEnginePtr, py::return_value_policy::take_ownership,
-		"Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr,
+		"Create FaceEngine", py::arg("dataPath") = nullptr, py::arg("configPath") = nullptr, py::arg("runtimeConfigPath") = nullptr,
 		"Create the LUNA SDK root object\n"
 		"\tArgs:\n"
 		"\t\tparam1 (str): [optional] path to folder with FSDK data.\n"
-		"\t\tparam2 (str): [optional] path to faceengine.conf file. Default: <dataPath>/faceengine.cong\n");
-	
+		"\t\tparam2 (str): [optional] path to faceengine.conf file. Default: <dataPath>/faceengine.cong\n"
+		"\t\tparam3 (str): [optional] path to runtime.conf file. Default: <dataPath>/runtime.cong\n");
+
 	f.def("createSettingsProvider", &createSettingsProviderPtr, py::return_value_policy::take_ownership,
 		"Create object SettingsProvider\n"
 		"\tArgs:\n"
@@ -234,6 +238,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\t(tuple with FSDKErrorResult and dense index): error code FSDKErrorResult and output dynamic index.\n")
 		
 		.def("setSettingsProvider", &PyIFaceEngine::setSettingsProvider,
+			"Sets settings provider\n"
+			"\tArgs:\n"
+			"\t\tparam1 (PyISettingsProvider): setting provider\n")
+
+		.def("setRuntimeSettingsProvider", &PyIFaceEngine::setRuntimeSettingsProvider,
 			"Sets settings provider\n"
 			"\tArgs:\n"
 			"\t\tparam1 (PyISettingsProvider): setting provider\n")
@@ -735,6 +744,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createExtractor
 			PyIFaceEngine.createMatcher
 			PyIFaceEngine.setSettingsProvider
+			PyIFaceEngine.setRuntimeSettingsProvider
 			PyIFaceEngine.createIndexBuilder
 			PyIFaceEngine.loadDenseIndex
 			PyIFaceEngine.loadDynamicIndex

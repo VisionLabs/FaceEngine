@@ -10,7 +10,7 @@ class PyIFaceEngine {
 public:
 	fsdk::IFaceEnginePtr faceEnginePtr;
 	
-	PyIFaceEngine(const char* dataPath, const char* configPath);
+	PyIFaceEngine(const char* dataPath, const char* configPath, const char* runtimeConfigPath);
 	
 	fsdk::FaceEngineEdition getFaceEngineEdition();
 
@@ -79,6 +79,8 @@ public:
 
 	void setSettingsProvider(PyISettingsProvider& provider);
 	
+	void setRuntimeSettingsProvider(PyISettingsProvider& provider);
+
 	fsdk::ILicensePtr getLicense();
 
 	bool activateLicense(const fsdk::ILicensePtr& license, const char* configPath);
