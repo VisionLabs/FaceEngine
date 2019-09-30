@@ -253,7 +253,7 @@ $ python3 pythonBindings/tests/test_index.py --bind-path pythonBindings/build/re
 $ python3 pythonBindings/tests/test_descriptor.py --bind-path pythonBindings/build/release
 $ python3 pythonBindings/tests/test_detector.py --bind-path pythonBindings/build/release
 $ python3 pythonBindings/tests/test_liveness.py --bind-path pythonBindings/build/release
-$ python3 pythonBindings/examples/example_depth.py --data ./data --bindPpath pythonBindings/build/release --rsbindPath <absolute_path_to_realsense_python_bindings_libraries>
+$ python3 pythonBindings/examples/example_depth.py --data ./data --bindPath pythonBindings/build/release --rsbindPath <absolute_path_to_realsense_python_bindings_libraries>
 ```
 
 ## About pybind11
