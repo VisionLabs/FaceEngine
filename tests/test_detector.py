@@ -281,6 +281,12 @@ class TestFaceEngineDetector(unittest.TestCase):
         self.assertFalse(detection_int.isValid())
         detection_int.set(detection_float)
         self.compare_detections(detection_int, detection_float)
+        detection_int2 = detection_int.asInt()
+        detection_float2 = detection_int.asFloat()
+        self.compare_detections(detection_int2, detection_float2)
+        detection_int3 = detection_float.asInt()
+        detection_float3 = detection_float.asFloat()
+        self.compare_detections(detection_int3, detection_float3)
 
     def test_Face(self):
         face = fe.Face()

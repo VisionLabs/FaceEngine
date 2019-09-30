@@ -54,6 +54,20 @@ py::class_<fsdk::BaseDetection<T>> detection_class(py::module& this_module, cons
 		}
 	));
 	
+	class_instance.def("asInt", [](fsdk::BaseDetection<T>& self) {
+		fsdk::BaseDetection<int> detection;
+		detection.rect = self.rect;
+		detection.score = self.score;
+		return detection;
+	});
+	
+	class_instance.def("asFloat", [](fsdk::BaseDetection<T>& self) {
+		fsdk::BaseDetection<float> detection;
+		detection.rect = self.rect;
+		detection.score = self.score;
+		return detection;
+	});
+	
 	return class_instance;
 }
 
