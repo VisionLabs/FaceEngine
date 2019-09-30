@@ -198,7 +198,7 @@ $ python3 pythonBindings/examples/example_gaze_cv.py pythonBindings/build
 $ python3 pythonBindings/examples/example_index.py pythonBindings/build testData/emotions1.ppm testData testData/imageListIndex.txt 0.3
 
 # Depth example.
-$ python3 pythonBindings/examples/example_depth.py --data data --bindPpath pythonBindings/build/release --rsbindPath <absolute_path_to_realsense_python_bindings_libraries>
+$ python3 pythonBindings/examples/example_depth.py --data data --bindPath pythonBindings/build --rsbindPath <absolute_path_to_realsense_python_bindings_libraries>
 ```
 
 ***Note for Linux users***
