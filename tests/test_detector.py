@@ -106,12 +106,10 @@ class TestFaceEngineDetector(unittest.TestCase):
                         _expLandmarks68[k].y,
                         _face.detection.rect.y + _face.landmarks68_opt.value()[j].y, 4)
 
-    def compare_detections(self, face1, face2):
-        self.assertEqual(face1.detection.score, face2.detection.score)
-        self.assertEqual(face1.detection.rect.x, face2.detection.rect.x)
-        self.assertEqual(face1.detection.rect.y, face2.detection.rect.y)
-        self.assertEqual(face1.detection.rect.width, face2.detection.rect.width)
-        self.assertEqual(face1.detection.rect.height, face2.detection.rect.height)
+    def compare_faces(self, face1, face2):
+        self.assertTrue(face1.isValid())
+        self.assertTrue(face2.isValid())
+        self.compare_detections(face1.detection, face2.detection)
         if face1.landmarks68_opt.isValid() and face2.landmarks68_opt.isValid():
             for k in range(len(face2.landmarks68_opt.value())):
                 self.assertEqual(face1.landmarks68_opt.value()[k].x,
@@ -184,7 +182,7 @@ class TestFaceEngineDetector(unittest.TestCase):
             self.assertEqual(len(detect_list), imagesCount)
             self.assertFalse(res.isError)
             self.compare_detection_lists(_expectedDetection, detect_list, imagesCount)
-            self.compare_detections(faceOne1, detect_list[0][0])
+            self.compare_faces(faceOne1, detect_list[0][0])
 
             # without lnet
             res, detect_list = detector.detect(
@@ -198,7 +196,7 @@ class TestFaceEngineDetector(unittest.TestCase):
                 _expectedDetection,
                 detect_list,
                 imagesCount)
-            self.compare_detections(faceOne1, detect_list[0][0])
+            self.compare_faces(faceOne1, detect_list[0][0])
 
             # with lnet
             res, detect_list = detector.detect(
@@ -207,8 +205,8 @@ class TestFaceEngineDetector(unittest.TestCase):
                 count,
                 fe.DetectionType(fe.dtBBox|fe.dt68Landmarks))
             self.compare_detection_lists(_expectedDetection, detect_list, imagesCount)
-            self.compare_detections(faceOne2, detect_list[0][0])
-            self.compare_detections(faceOne3, detect_list[0][0])
+            self.compare_faces(faceOne2, detect_list[0][0])
+            self.compare_faces(faceOne3, detect_list[0][0])
 
     def humanDetectorTest(self):
         configPath = os.path.join("data", "faceengine.conf")
@@ -245,15 +243,64 @@ class TestFaceEngineDetector(unittest.TestCase):
         # redetection
         iteraionsNumber = 1
         for i in range(iteraionsNumber):
-            err_redetect, face_redection = detector.redetectOne(face, fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
-            self.assertAlmostEqual(refDetection.rect.x, face_redection.detection.rect.x, delta=3)
-            self.assertAlmostEqual(refDetection.rect.y, face_redection.detection.rect.y, delta=3)
-            self.assertAlmostEqual(refDetection.rect.width, face_redection.detection.rect.width, delta=3)
-            self.assertAlmostEqual(refDetection.rect.height, face_redection.detection.rect.height, delta=3)
+            err_redetect1, face_redection1 = detector.redetectOne(face, fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
+            self.assertTrue(err_redetect1.isOk)
+            self.assertTrue(face_redection1.isValid())
+            self.assertAlmostEqual(refDetection.rect.x, face_redection1.detection.rect.x, delta=3)
+            self.assertAlmostEqual(refDetection.rect.y, face_redection1.detection.rect.y, delta=3)
+            self.assertAlmostEqual(refDetection.rect.width, face_redection1.detection.rect.width, delta=3)
+            self.assertAlmostEqual(refDetection.rect.height, face_redection1.detection.rect.height, delta=3)
+            err_redetect2, face_redection2 = detector.redetectOne(image, face.detection, fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
+            self.assertTrue(err_redetect2.isOk)
+            self.assertTrue(face_redection2.isValid())
+            self.assertAlmostEqual(refDetection.rect.x, face_redection2.detection.rect.x, delta=3)
+            self.assertAlmostEqual(refDetection.rect.y, face_redection2.detection.rect.y, delta=3)
+            self.assertAlmostEqual(refDetection.rect.width, face_redection2.detection.rect.width, delta=3)
+            self.assertAlmostEqual(refDetection.rect.height, face_redection2.detection.rect.height, delta=3)
 
-    def test_RedetectorOne(self):
+    def test_RedetectOne(self):
         self.redetectTest(fe.FACE_DET_V1, expectedRedetectionV1)
         self.redetectTest(fe.FACE_DET_V3, expectedRedetectionV3)
+
+    def compare_detections(self, detection1, detection2):
+        self.assertTrue(detection1.isValid())
+        self.assertTrue(detection2.isValid())
+        self.assertEqual(detection1.rect.x, detection2.rect.x)
+        self.assertEqual(detection1.rect.y, detection2.rect.y)
+        self.assertEqual(detection1.rect.width, detection2.rect.width)
+        self.assertEqual(detection1.rect.height, detection2.rect.height)
+        self.assertEqual(detection1.score, detection2.score)
+
+    def test_BaseDetection(self):
+        detection_int = fe.Detection(fe.Rect(10, 11, 12, 13), 0.97)
+        detection_float = fe.DetectionFloat(fe.RectFloat(10.0, 11.0, 12.0, 13.0), 0.97)
+        self.compare_detections(detection_int, detection_float)
+        detection_float = fe.DetectionFloat(fe.Rect(10, 11, 12, 13), 0.97)
+        self.compare_detections(detection_int, detection_float)
+        detection_int = fe.Detection()
+        self.assertFalse(detection_int.isValid())
+        detection_int.set(detection_float)
+        self.compare_detections(detection_int, detection_float)
+        detection_int2 = detection_int.asInt()
+        detection_float2 = detection_int.asFloat()
+        self.compare_detections(detection_int2, detection_float2)
+        detection_int3 = detection_float.asInt()
+        detection_float3 = detection_float.asFloat()
+        self.compare_detections(detection_int3, detection_float3)
+
+    def test_Face(self):
+        face = fe.Face()
+        self.assertFalse(face.isValid())
+        image = fe.Image()
+        err_image = image.load(os.path.join(testDataPath, "image1.ppm"))
+        self.assertTrue(err_image.isOk)
+        self.assertTrue(image.isValid())
+        face = fe.Face(image)
+        self.assertFalse(face.isValid())
+        face_initiated_by_int = fe.Face(image, fe.Detection(image.getRect(), 0.97))
+        face_initiated_by_float = fe.Face(image, fe.DetectionFloat(image.getRect(), 0.97))
+        self.compare_faces(face_initiated_by_int, face_initiated_by_float)
+        self.assertTrue(face_initiated_by_float.isValid())
 
 
 if __name__ == '__main__':

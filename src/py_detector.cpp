@@ -7,12 +7,14 @@
 
 namespace py = pybind11;
 
-template<class T>
+template<class T, class Y>
 py::class_<fsdk::BaseDetection<T>> detection_class(py::module& this_module, const char* name)
 {
 	py::class_<fsdk::BaseDetection<T>> class_instance(this_module, name);
 	
 	class_instance.def(py::init<>());
+	class_instance.def(py::init<fsdk::BaseDetection<Y>>());
+	
 	class_instance.def_readwrite("rect", &fsdk::BaseDetection<T>::rect, "Object bounding box\n");
 	class_instance.def_readwrite("score", &fsdk::BaseDetection<T>::score, "Object detection score\n");
 	class_instance.def("isValid", &fsdk::BaseDetection<T>::isValid, 
@@ -27,14 +29,52 @@ py::class_<fsdk::BaseDetection<T>> detection_class(py::module& this_module, cons
 				", score = " + std::to_string(r.score);
 		})
 		;
+	class_instance.def("set", [](fsdk::BaseDetection<T>& self, fsdk::BaseDetection<Y>& other) {
+		self = other;
+		return self;
+	});
+	
+	class_instance.def(py::init(
+		[](const fsdk::BaseRect<T>& rect,
+			const float score) {
+			fsdk::BaseDetection<T> detection;
+			detection.rect = rect;
+			detection.score = score;
+			return detection;
+		}
+	));
+	
+	class_instance.def(py::init(
+		[](const fsdk::BaseRect<Y>& rect,
+			const float score) {
+			fsdk::BaseDetection<T> detection;
+			detection.rect = rect;
+			detection.score = score;
+			return detection;
+		}
+	));
+	
+	class_instance.def("asInt", [](fsdk::BaseDetection<T>& self) {
+		fsdk::BaseDetection<int> detection;
+		detection.rect = self.rect;
+		detection.score = self.score;
+		return detection;
+	});
+	
+	class_instance.def("asFloat", [](fsdk::BaseDetection<T>& self) {
+		fsdk::BaseDetection<float> detection;
+		detection.rect = self.rect;
+		detection.score = self.score;
+		return detection;
+	});
 	
 	return class_instance;
 }
 
 void set_detection_class(py::module& f)
 {
-	auto detection = detection_class<int>(f, "Detection");
-	auto detectionFloat = detection_class<float>(f, "DetectionFloat");
+	auto detection = detection_class<int, float>(f, "Detection");
+	auto detectionFloat = detection_class<float, int>(f, "DetectionFloat");
 }
 
 
@@ -108,16 +148,17 @@ void detector_module(py::module& f) {
 				 "\tReturns:\n"
 				 "\t\t(tuple): \n"
 				 "\t\t\twith error code and Face object (detection bbox, landmarks, etc)\n")
+				 
 		.def("redetectOne", [](
 				const fsdk::IDetectorPtr& det,
 				fsdk::Face face,
 				const fsdk::DetectionType type) {
 				fsdk::ResultValue<fsdk::FSDKError, bool> err = det->redetectOne(face, type);
 				if (err.isOk() && err.getValue()) {
-					return std::make_tuple(FSDKErrorValueBool(err), face);
+					return std::make_tuple(FSDKErrorResult(err), face);
 				}
 				
-				return std::make_tuple(FSDKErrorValueBool(err), fsdk::Face());
+				return std::make_tuple(FSDKErrorResult(err), fsdk::Face());
 			}, py::arg("face"), py::arg("type"),
 			"Redetect face.\n"
 			"\tArgs:\n"
@@ -126,6 +167,25 @@ void detector_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
 		
+		.def("redetectOne", [](
+				const fsdk::IDetectorPtr& det,
+				const fsdk::Image& image,
+				const fsdk::BaseDetection<float>& detection,
+				const fsdk::DetectionType type) {
+					fsdk::ResultValue<fsdk::FSDKError, fsdk::Face> result = det->redetectOne(image, detection, type);
+					if (result.isOk()) {
+						return std::make_tuple(FSDKErrorResult(result), result.getValue());
+					}
+					return std::make_tuple(FSDKErrorResult(result), fsdk::Face());
+				}, py::arg("image"), py::arg("detection"), py::arg("type"),
+			"Redetect face.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (image): input image. Format must be R8G8B8.\n"
+			"\t\tparam2 (Detection): input face detection.\n"
+			"\t\tparam3 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
+			
 		.def("redetect", [](
 				const fsdk::IDetectorPtr& det,
 				std::vector<fsdk::Face>& faces,

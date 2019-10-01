@@ -98,6 +98,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
 		.def(py::init<>())
 		.def(py::init<fsdk::Image>())
+		.def(py::init<fsdk::Image, fsdk::Detection>())
+		.def(py::init<fsdk::Image, fsdk::BaseDetection<float>>())
 		.def_readwrite("img", &fsdk::Face::img, "Image\n")
 		.def_readwrite("detection", &fsdk::Face::detection, "Detection\n")
 		.def_readwrite("landmarks5_opt", &fsdk::Face::landmarks5, "Landmarks5 optinal\n")
