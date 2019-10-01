@@ -115,7 +115,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
     @classmethod
     def setUp(cls):
-        cls.faceEngine = f.createFaceEngine("data", "data/faceengine.conf")
+        cls.faceEngine = f.createFaceEngine("data")
         if not make_activation(cls.faceEngine):
             raise ActivationLicenseError("License is not activated!")
         cls.warper = cls.faceEngine.createWarper()

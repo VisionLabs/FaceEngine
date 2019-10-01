@@ -39,7 +39,7 @@ class TestFaceEngineRect(unittest.TestCase):
 
     @classmethod
     def setUp(cls):
-        cls.faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+        cls.faceEngine = fe.createFaceEngine("data")
         if not make_activation(cls.faceEngine):
             raise ActivationLicenseError("License is not activated!")
 
@@ -105,17 +105,23 @@ class TestFaceEngineRect(unittest.TestCase):
     def extractor(self, version, refGS, useMobileNet, cpuType, device):
         versionString = str(version) + ("", "_mobilenet")[useMobileNet]
         configPath = os.path.join(self.dataPath, "faceengine.conf")
+        runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
+
         faceEngine = fe.createFaceEngine(self.dataPath)
         self.assertTrue(make_activation(faceEngine))
         config = fe.createSettingsProvider(configPath)
+        runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
+
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
-        config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
-        config.setValue("flower", "verboseLogging", fe.SettingsProviderValue(4))
-        config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpuType))
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
+        runtimeConf.setValue("Runtime", "verboseLogging", fe.SettingsProviderValue(4))
+        runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
 
         faceEngine.setSettingsProvider(config)
+        faceEngine.setRuntimeSettingsProvider(runtimeConf)
+
         warp = fe.Image()
         err = warp.load(os.path.join(self.test_data_path, "warp1.bmp"))
         self.assertTrue(err.isOk)
@@ -181,13 +187,22 @@ class TestFaceEngineRect(unittest.TestCase):
 
     def extractor_batch(self, version, useMobileNet, cpuType, device):
         configPath = os.path.join(self.dataPath, "faceengine.conf")
+        runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
+
+        faceEngine = fe.createFaceEngine(self.dataPath)
+        self.assertTrue(make_activation(faceEngine))
         config = fe.createSettingsProvider(configPath)
+        runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
+
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
-        config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
-        config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpuType))
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
-        self.faceEngine.setSettingsProvider(config)
+        runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
+        runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
+
+        faceEngine.setSettingsProvider(config)
+        faceEngine.setRuntimeSettingsProvider(runtimeConf)
+
         warps = [fe.Image(), fe.Image()]
         err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
         self.assertTrue(err1.isOk)
@@ -219,16 +234,24 @@ class TestFaceEngineRect(unittest.TestCase):
         self.extractor_batch(46, False, "auto", "cpu")
 
     def extractor_aggregation(self, version, useMobileNet, cpuType, device):
+
         configPath = os.path.join(self.dataPath, "faceengine.conf")
+        runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
+
         faceEngine = fe.createFaceEngine(self.dataPath)
         self.assertTrue(make_activation(faceEngine))
         config = fe.createSettingsProvider(configPath)
+        runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
+
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
-        config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
-        config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpuType))
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
+        runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
+
         faceEngine.setSettingsProvider(config)
+        faceEngine.setRuntimeSettingsProvider(runtimeConf)
+
         warps = [fe.Image(), fe.Image()]
         err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
         self.assertTrue(err1.isOk)

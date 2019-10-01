@@ -8,8 +8,8 @@
 namespace py = pybind11;
 
 
-PyIFaceEngine::PyIFaceEngine(const char* dataPath = nullptr, const char* configPath = nullptr) {
-	faceEnginePtr = fsdk::acquire(fsdk::createFaceEngine(dataPath, configPath));
+PyIFaceEngine::PyIFaceEngine(const char* dataPath = nullptr, const char* configPath = nullptr, const char* runtimeConfigPath = nullptr) {
+	faceEnginePtr = fsdk::acquire(fsdk::createFaceEngine(dataPath, configPath, runtimeConfigPath));
 }
 
 fsdk::FaceEngineEdition PyIFaceEngine::getFaceEngineEdition() {
@@ -225,6 +225,10 @@ fsdk::IOverlapEstimatorPtr PyIFaceEngine::createOverlapEstimator() {
 
 void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
+}
+
+void PyIFaceEngine::setRuntimeSettingsProvider(PyISettingsProvider& provider) {
+	faceEnginePtr->setRuntimeSettingsProvider(provider.settingsProviderPtr);
 }
 
 fsdk::ILicensePtr PyIFaceEngine::getLicense() {
