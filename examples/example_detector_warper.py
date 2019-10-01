@@ -54,7 +54,7 @@ def detector_redetect_example(_image_det, _max_detections, _next_image, _detecto
     return redetect_result
 
 
-def detector_redetect_example(_image_det, _next_image, _detector_type=fe.FACE_DET_V3):
+def detector_redetect_one_example(_image_det, _next_image, _detector_type=fe.FACE_DET_V3):
     detector = faceEngine.createDetector(_detector_type)
     err, face = detector.detectOne(_image_det, _image_det.getRect(), fe.DetectionType(fe.dt5Landmarks))
     # DetectionType must be the same as in detect
@@ -73,7 +73,6 @@ def simple_redetect_example(image1, image2, _detector_type=fe.FACE_DET_V3):
     if det_result.isError or not face.isValid:
         print("simple_redetect_example - failed to detect! Reason: {0}".format(det_result.what))
         return
-    # Set new image and make redetect
     redetect_result, redetected_face = detector.redetectOne(image2, face.detection, fe.dt5Landmarks)
 
     if redetect_result.isError:
