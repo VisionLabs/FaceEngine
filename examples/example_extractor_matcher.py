@@ -16,65 +16,86 @@ import FaceEngine as fe
 from example_license import make_activation
 
 
-def extractor_example(_image_list, _batch_size):
+def extractor_example(image_list, batch_size):
     print("Batch descriptor example")
-    assert(len(_image_list) == _batch_size)
-    print("batchSize {0}".format(_batch_size))
-    descriptor_batch = faceEngine.createDescriptorBatch(_batch_size)
-    extractor = faceEngine.createExtractor()
-    # descriptor, creating objects
+    assert(len(image_list) == batch_size)
+    print("BatchSize: {0}".format(batch_size))
+    descriptor_batch = face_engine.createDescriptorBatch(batch_size)
+    extractor = face_engine.createExtractor()
     print("Creating descriptors")
-    descriptor1 = faceEngine.createDescriptor()
-    descriptor2 = faceEngine.createDescriptor()
-    aggregation = faceEngine.createDescriptor()
-    ext1 = extractor.extractFromWarpedImage(_image_list[0], descriptor1)
-    ext2 = extractor.extractFromWarpedImage(_image_list[1], descriptor2)
+    descriptor1 = face_engine.createDescriptor()
+    descriptor2 = face_engine.createDescriptor()
+    aggregation = face_engine.createDescriptor()
 
-    ext_batch1 = extractor.extractFromWarpedImageBatch(_image_list, descriptor_batch, aggregation, _batch_size)
-    print("aggregation: ", aggregation.getModelVersion(), aggregation.getDescriptorLength())
-    ext_batch2 = extractor.extractFromWarpedImageBatch(_image_list, descriptor_batch, _batch_size)
+    res1, _ = extractor.extractFromWarpedImage(image_list[0], descriptor1)
+    if res1.isError:
+        print("Failed to extract descriptor1, reason: ", res1.what)
+        exit(-1)
 
-    print("Garbage score list1 = ", ext_batch1)
-    print("Garbage score list2 = ", ext_batch2)
-    print("Descriptor batch test after", descriptor_batch.getMaxCount(), descriptor_batch.getCount(),
-          descriptor_batch.getModelVersion(), descriptor_batch.getDescriptorSize())
+    res2, _ = extractor.extractFromWarpedImage(image_list[1], descriptor2)
+    if res2.isError:
+        print("Failed to extract descriptor2, reason: ", res2.what)
+        exit(-1)
+
+    res_batch1, aggregated_garbage_score, value_batch_1 = extractor.extractFromWarpedImageBatch(image_list, descriptor_batch, aggregation, batch_size)
+    if res_batch1.isError:
+        print("Failed to extract batch descriptor1, reason: ", res_batch1.what)
+        exit(-1)
+
+    print("aggregation: version = {0}, desciptor size = {1}".format(aggregation.getModelVersion(), aggregation.getDescriptorLength()))
+    print("Garbage score list1:", value_batch_1)
+    res_batch2, value_batch_2 = extractor.extractFromWarpedImageBatch(image_list, descriptor_batch, batch_size)
+    if res_batch2.isError:
+        print("Failed to extract batch descriptor2, reason: ", res_batch2.what)
+        exit(-1)
+    print("Garbage score list2:", value_batch_2)
+    print("Descriptor batch test: count = {0}, version = {1}, desciptor size = {2}".format(descriptor_batch.getCount(),
+          descriptor_batch.getModelVersion(), descriptor_batch.getDescriptorSize()))
     return descriptor1, descriptor2, descriptor_batch
 
 
-def matcher_example(_descriptor1, _descriptor2, _descriptor_batch):
+def matcher_example(descriptor1, descriptor2, descriptor_batch):
     print("\nMatcher example")
-    matcher = faceEngine.createMatcher()
-    result1 = matcher.match(_descriptor1, _descriptor2)
-    result2 = matcher.match(_descriptor1, _descriptor_batch)
-    print("Match result of different descriptors: {0}".format(result1.value))
-    print("Match result of descriptor and descriptor batch: {0}".format(result2))
+    matcher = face_engine.createMatcher()
+
+    err1, value1 = matcher.match(descriptor1, descriptor2)
+    if err1.isError:
+        print("Failed to match descriptors, reason", err1.what)
+        exit(-1)
+    print("Matching result of different descriptors: {0}".format(value1))
+
+    err2, value2 = matcher.match(descriptor1, descriptor_batch)
+    if err2.isError:
+        print("Failed to match descriptors, reason", err2.what)
+        exit(-1)
+    print("Matching result of descriptor and descriptor batch: {0}".format(value2))
 
 
-def load_list_of_images(_batch_size, _sys_argv):
+def load_list_of_images(batch_size, sys_argv):
     image_list = []
-    for i in range(_batch_size):
+    for i in range(batch_size):
         image = fe.Image()
-        print("Adding image {0}".format(_sys_argv[i + 2]))
-        image.load(_sys_argv[i + 2])
+        print("Adding image {0}".format(sys_argv[i + 2]))
+        image.load(sys_argv[i + 2])
         if not image.isValid():
-            print("Failed list creating: one of images is not found {0}".format(_sys_argv[i + 2]))
+            print("Failed list creating: one of images is not found {0}".format(sys_argv[i + 2]))
             exit(1)
         image_list.append(image)
     return image_list
 
 
 def print_descriptor(descriptor):
-    py_list_descriptor = descriptor.getDescriptor()
-    for item_descriptor in py_list_descriptor:
+    descriptor_list = descriptor.getDescriptor()
+    for item_descriptor in descriptor_list:
         print(item_descriptor)
 
 
 def set_logging(value):
     config = fe.createSettingsProvider("data/faceengine.conf")
-    configPath = config.getDefaultPath()
-    print("Config settings: DefaultPath {0}".format(configPath))
+    config_path = config.getDefaultPath()
+    print("Config settings: DefaultPath {0}".format(config_path))
     config.setValue("system", "verboseLogging", fe.SettingsProviderValue(value))
-    faceEngine.setSettingsProvider(config)
+    face_engine.setSettingsProvider(config)
     val = config.getValue("system", "verboseLogging")
     print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val.asInt()))
 
@@ -82,49 +103,57 @@ def set_logging(value):
 def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     print("Extractor_test_aggregation")
     config = fe.createSettingsProvider("data/faceengine.conf")
-    runtimeConfig = fe.createSettingsProvider("data/runtime.conf")
-    configPath = config.getDefaultPath()
-    print("Default path = ", configPath)
+    runtime_config = fe.createSettingsProvider("data/runtime.conf")
+    config_path = config.getDefaultPath()
+    print("Default path = ", config_path)
     config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
     config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(use_mobile_net))
     config.setValue("system", "verboseLogging", fe.SettingsProviderValue(1))
-    runtimeConfig.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
-    runtimeConfig.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpu_type))
-    faceEngine.setSettingsProvider(config)
-    faceEngine.setRuntimeSettingsProvider(runtimeConfig)
-    val = config.getValue("FaceDetV1::Settings", "scaleFactor")
-    print(val.asFloat())
-
+    runtime_config.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
+    runtime_config.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpu_type))
+    face_engine.setSettingsProvider(config)
+    face_engine.setRuntimeSettingsProvider(runtime_config)
     warps = [fe.Image(), fe.Image()]
+    err_load_warp1 = warps[0].load("testData/warp1.ppm")
+    err_load_warp2 = warps[1].load("testData/warp2.ppm")
+    if err_load_warp1.isError or not warps[0].isValid():
+        print("invalid warp image1: ", err_load_warp1.what)
+        exit(-1)
+    if err_load_warp2.isError or not warps[1].isValid():
+        print("invalid warp image2:", err_load_warp2.what)
+        exit(-1)
+    batch_size = len(warps)
+    descriptor_extractor = face_engine.createExtractor()
+    batch = face_engine.createDescriptorBatch(batch_size)
+    descriptor1 = face_engine.createDescriptor()
+    descriptor2 = face_engine.createDescriptor()
+    aggregation = face_engine.createDescriptor()
 
-    warps[0].load("testData/warp1.ppm")
-    warps[1].load("testData/warp2.ppm")
-    batchSize = len(warps)
-    descriptorExtractor = faceEngine.createExtractor()
-    batch = faceEngine.createDescriptorBatch(batchSize)
-    descriptor = faceEngine.createDescriptor()
-    descriptor2 = faceEngine.createDescriptor()
-    aggregation = faceEngine.createDescriptor()
+    result, aggregated_garbage_score, garbage_scores = descriptor_extractor.extractFromWarpedImageBatch(warps, batch, aggregation, batch_size)
+    if result.isError:
+        print("aggregation: failed to extract descriptor batch, reason:", result.what)
+        exit(-1)
+    print("Garbage scores:", garbage_scores)
+    print("Agregated garbage score:", aggregated_garbage_score)
 
-    result1 = descriptorExtractor.extractFromWarpedImageBatch(warps, batch, aggregation, batchSize)
-    print("GarbageScore: ", result1)
-    result2 = descriptorExtractor.extractFromWarpedImage(warps[0], descriptor)
-    result3 = descriptorExtractor.extractFromWarpedImage(warps[1], descriptor2)
-    print("Result value 2: ", result2.value)
-    print("Result value 3: ", result3.value)
-    # print("Result2 value: ", result2.value)
-    desc = descriptor.getDescriptor()
+    result1, garbage_score1 = descriptor_extractor.extractFromWarpedImage(warps[0], descriptor1)
+    if result1.isError:
+        print("aggregation: failed to extract descriptor, reason:", result1.what)
+        exit(-1)
+    print("Garbage score1:", garbage_score1)
 
-    # for i, element in enumerate(desc1):
-    #     print(i, ")", desc[i], desc_from_batch[i])
-    # print("Descriptors are equal {0}".format(are_equal(desc1, desc2)))
+    result2, garbage_score2 = descriptor_extractor.extractFromWarpedImage(warps[1], descriptor2)
+    if result2.isError:
+        print("aggregation: failed to extract descriptor, reason:", result2.what)
+        exit(-1)
+    print("Garbage score2:", garbage_score2)
 
 
 if __name__ == "__main__":
     batch_size = len(sys.argv) - 2
     # correct path or put directory "data" with example.py
-    faceEngine = fe.createFaceEngine("data")
-    if not make_activation(faceEngine):
+    face_engine = fe.createFaceEngine("data")
+    if not make_activation(face_engine):
         print("failed to activate license!")
         exit(-1)
     # more detailed description of config see in luna-sdk/doc/ConfigurationGuide.pdf
