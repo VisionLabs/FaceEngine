@@ -29,14 +29,10 @@ def detector_batch_example(_image_det, _max_detections, _detector_type=fe.FACE_D
     rect_list = [_image_det.getRect(),
                  _image_det.getRect(),
                  _image_det.getRect()]
-    err, detector_result = detector.detect(image_list,
-                                           rect_list,
-                                           _max_detections,
-                                           fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
-    print(detector_result[0][0].detection)
-    print("Batch Landmarks5 validity ", detector_result[0][0].landmarks5_opt.isValid())
-    print("Batch Landmarks68 validity ", detector_result[0][0].landmarks68_opt.isValid())
-    return err, detector_result
+    return detector.detect(image_list,
+                           rect_list,
+                           _max_detections,
+                           fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
 
 
 def detector_redetect_example(_image_det, _max_detections, _next_image, _detector_type=fe.FACE_DET_V3, _config=None):
@@ -224,7 +220,7 @@ if __name__ == "__main__":
     print("\nBatch interface example: ")
     n_detections = 3
     err_batch, detect_list_batch = detector_batch_example(image, n_detections, fe.FACE_DET_V3)
-    if err_batch.isError:
+    if err_batch.isError or not detect_list_batch[0]:
         print("detector_batch_example: faces are not found")
         exit(-1)
     # print all detections in list
