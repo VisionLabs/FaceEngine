@@ -131,7 +131,7 @@ void detector_module(py::module& f) {
 		.def("detectOne", [](
 			const fsdk::IDetectorPtr& det,
 			const fsdk::Image& image,
-			const fsdk::Rect rect,
+			const fsdk::Rect& rect,
 			const fsdk::DetectionType type){
 			
 			fsdk::ResultValue<fsdk::FSDKError, fsdk::Face> err = det->detectOne(image, rect, type);
@@ -170,9 +170,9 @@ void detector_module(py::module& f) {
 		.def("redetectOne", [](
 				const fsdk::IDetectorPtr& det,
 				const fsdk::Image& image,
-				const fsdk::BaseDetection<float>& detection,
+				const fsdk::BaseRect<float>& rect,
 				const fsdk::DetectionType type) {
-					fsdk::ResultValue<fsdk::FSDKError, fsdk::Face> result = det->redetectOne(image, detection, type);
+					fsdk::ResultValue<fsdk::FSDKError, fsdk::Face> result = det->redetectOne(image, rect, type);
 					if (result.isOk()) {
 						return std::make_tuple(FSDKErrorResult(result), result.getValue());
 					}
@@ -185,7 +185,26 @@ void detector_module(py::module& f) {
 			"\t\tparam3 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
-			
+
+		.def("redetectOne", [](
+				const fsdk::IDetectorPtr& det,
+				const fsdk::Image& image,
+				const fsdk::Rect& rect,
+				const fsdk::DetectionType type) {
+					fsdk::ResultValue<fsdk::FSDKError, fsdk::Face> result = det->redetectOne(image, rect, type);
+					if (result.isOk()) {
+						return std::make_tuple(FSDKErrorResult(result), result.getValue());
+					}
+					return std::make_tuple(FSDKErrorResult(result), fsdk::Face());
+				}, py::arg("image"), py::arg("detection"), py::arg("type"),
+			"Redetect face.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (image): input image. Format must be R8G8B8.\n"
+			"\t\tparam2 (Detection): input face detection.\n"
+			"\t\tparam3 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
+
 		.def("redetect", [](
 				const fsdk::IDetectorPtr& det,
 				std::vector<fsdk::Face>& faces,

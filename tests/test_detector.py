@@ -250,7 +250,7 @@ class TestFaceEngineDetector(unittest.TestCase):
             self.assertAlmostEqual(refDetection.rect.y, face_redection1.detection.rect.y, delta=3)
             self.assertAlmostEqual(refDetection.rect.width, face_redection1.detection.rect.width, delta=3)
             self.assertAlmostEqual(refDetection.rect.height, face_redection1.detection.rect.height, delta=3)
-            err_redetect2, face_redection2 = detector.redetectOne(image, face.detection, fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
+            err_redetect2, face_redection2 = detector.redetectOne(image, face.detection.rect, fe.DetectionType(fe.dtBBox|fe.dt5Landmarks))
             self.assertTrue(err_redetect2.isOk)
             self.assertTrue(face_redection2.isValid())
             self.assertAlmostEqual(refDetection.rect.x, face_redection2.detection.rect.x, delta=3)
