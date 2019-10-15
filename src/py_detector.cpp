@@ -181,7 +181,7 @@ void detector_module(py::module& f) {
 			"Redetect face.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (image): input image. Format must be R8G8B8.\n"
-			"\t\tparam2 (Detection): input face detection.\n"
+			"\t\tparam2 (rect): rectangle of interest on image.\n"
 			"\t\tparam3 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
@@ -200,7 +200,7 @@ void detector_module(py::module& f) {
 			"Redetect face.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (image): input image. Format must be R8G8B8.\n"
-			"\t\tparam2 (Detection): input face detection.\n"
+			"\t\tparam2 (rect): rectangle of interest on image.\n"
 			"\t\tparam3 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
