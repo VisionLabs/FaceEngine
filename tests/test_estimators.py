@@ -269,18 +269,22 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
     def test_DepthEstimator(self):
         depthEstimator = self.faceEngine.createDepthEstimator()
-        
-        def runner(path, reference):
-            depthImage = f.Image()
-            depthImage.load(path)
-            err, depth_result = depthEstimator.estimate(depthImage)
-            self.assertTrue(err.isOk)
-            self.assertEqual(depth_result.isReal, reference.isReal)
-            self.assertAlmostEqual(depth_result.score, reference.score, delta=0.001)
 
-        runner("testData/warpeddepth9397.png", f.DepthEstimation(0.9397, True))
-        runner("testData/warpeddepth8186.png", f.DepthEstimation(0, False))
- 
+        reference = f.DepthEstimation(0.9397, True)
+        depthImage = f.Image()
+        depthImage.load("testData/warpeddepth9397.png")
+        err, depth_result = depthEstimator.estimate(depthImage)
+        self.assertTrue(err.isOk)
+        self.assertEqual(depth_result.isReal, reference.isReal)
+        self.assertAlmostEqual(depth_result.score, reference.score, delta=0.001)
+
+        reference = f.DepthEstimation(0.9397, True)
+        depthImage = f.Image()
+        depthImage.load("testData/bad_depth_warp.png")
+        err, depth_result = depthEstimator.estimate(depthImage)
+        self.assertTrue(err.isError)
+        self.assertEqual(err.error, f.FSDKError.InvalidInput)
+
     def test_IREstimator_Universal(self):
         config = f.createSettingsProvider("data/faceengine.conf")
         
@@ -715,6 +719,30 @@ class TestFaceEngineEstimators(unittest.TestCase):
             self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].y, reference.leftEye.eyelid[i].y, delta=acceptableDiff)
             self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
             self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
+
+    def test_SimpleOptionalType(self):
+        value = 5.0
+        x = f.Optionalfloat(value)
+        self.assertTrue(x.isValid())
+        y = f.Optionalfloat()
+        self.assertFalse(y.isValid())
+        y.set(value)
+        self.assertTrue(y.isValid())
+        self.assertEqual(x.value(), value)
+        self.assertEqual(y.value(), value)
+        eth_value = f.EthnicityEstimation()
+        eth_value.africanAmerican = 0.3
+        eth_value.indian = 0.8
+        eth1 = f.OptionalEthnicityEstimation(eth_value)
+        self.assertTrue(eth1.isValid())
+        eth2 = f.OptionalEthnicityEstimation()
+        self.assertFalse(eth2.isValid())
+        eth2.set(eth_value)
+        self.assertTrue(eth2.isValid())
+        self.assertTrue(eth1.value().indian != 0.0)
+        self.assertTrue(eth1.value().africanAmerican != 0.0)
+        self.assertEqual(eth1.value().getPredominantEthnicity(), eth_value.getPredominantEthnicity())
+        self.assertEqual(eth2.value().getPredominantEthnicity(), eth_value.getPredominantEthnicity())
 
 
 if __name__ == '__main__':
