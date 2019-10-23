@@ -46,7 +46,11 @@ else()
 endif()
 
 # What version of TrackEngine SDK to use.
-set(TSDK_LIB_PREFIX ${TSDK_COMPILER_NAME}/${TSDK_TARGET_NAME})
+if(ANDROID)
+	set(TSDK_LIB_PREFIX ${TSDK_COMPILER_NAME}/${ANDROID_ABI})
+else()
+	set(TSDK_LIB_PREFIX ${TSDK_COMPILER_NAME}/${TSDK_TARGET_NAME})
+endif()
 
 # List of all SDK libraries.
 set(TSDK_LIB_NAMES
