@@ -203,8 +203,8 @@ def human_landmarks_detect_example(image1, image2):
                     numOfLandmarks = len(landmarks17)
                     for i in range(numOfLandmarks):
                         print("\tPoint ", i, ":")
-                        score = landmarks17[0].score
-                        point = landmarks17[0].point
+                        score = landmarks17[i].score
+                        point = landmarks17[i].point
                         print("\t\tx:", point.x)
                         print("\t\ty:", point.y)
                         print("\t\tscore:", score)
