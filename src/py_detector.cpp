@@ -223,32 +223,21 @@ void detector_module(py::module& f) {
 			"\t\t\t tuple with FSDKErrorResult and list of tuples from Detection\n")
 					;
 	
-	py::class_<fsdk::Human>(f, "Human", "Human detection\n")
-		.def(py::init<>())
-		.def_readwrite("detection", &fsdk::Human::detection, "Object bounding box")
-		.def_readwrite("img", &fsdk::Human::img, "Image\n")
-		.def("isValid", &fsdk::Human::isValid)
-		.def("__repr__",
-			[](const fsdk::Human& d) {
-				return "Human: rect: x = " + std::to_string(d.detection.rect.x) +
-					", y = " + std::to_string(d.detection.rect.y) +
-					", width = " + std::to_string(d.detection.rect.width) +
-					", height = " + std::to_string(d.detection.rect.height) +
-					"; score = " + std::to_string(d.detection.score) +
-					"; isValid = " + std::to_string(d.detection.isValid());
-			});
-			;
-	
 	py::class_<fsdk::Ref<fsdk::IHumanDetector>>(f, "IHumanDetectorPtr", "Human detector interface.\n")
 		.def("detect", [](
 				const fsdk::Ref<fsdk::IHumanDetector>& det,
 				const std::vector<fsdk::Image>& imagesVec,
 				const std::vector<fsdk::Rect>& rectanglesVec,
-				const uint32_t detectionPerImageNum) {
+				const uint32_t detectionPerImageNum,
+				fsdk::HumanDetectionType type = fsdk::HumanDetectionType::DCT_BOX) {
 					fsdk::Span<const fsdk::Image> images(imagesVec);
 					fsdk::Span<const fsdk::Rect> rectangles(rectanglesVec);
 					fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Human>>> err =
-						det->detect(images, rectangles, detectionPerImageNum);
+						det->detect(
+							images,
+							rectangles,
+							detectionPerImageNum,
+							type);
 					if (err.isOk()) {
 						const size_t sizeBatch = err.getValue()->getSize();
 						py::list outList(sizeBatch);
@@ -272,6 +261,7 @@ void detector_module(py::module& f) {
 				"\t\tparam2 (list of rects): input rectangles of interest list.\n"
 				"\t\t\tSize of list must be the same with images list\n"
 				"\t\tparam3 (int): max number of detections per input image\n"
+				"\t\tparam4 (HumanDetectionType) Human detection type enumeration \n"
 				"\tReturns:\n"
 				"\t\t(tuple): \n"
 				"\t\t\ttuple with FSDKErrorResult code and list of lists of Detections\n")

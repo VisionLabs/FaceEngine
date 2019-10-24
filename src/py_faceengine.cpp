@@ -12,6 +12,7 @@
 #include "SettingsProviderAdapter.hpp"
 #include "helpers.hpp"
 #include <fsdk/Version.h>
+#include <fsdk/Types/HumanLandmarks.h>
 
 namespace py = pybind11;
 
@@ -70,6 +71,7 @@ void set_optional_class(py::module& f)
 	auto optionalLandmarks68 = optional_class<fsdk::Landmarks68>(f, "OptionalLandmarks68");
 	auto optionalfloat = optional_class<float>(f, "Optionalfloat");
 	auto optionalEthnicityEstimation = optional_class<fsdk::EthnicityEstimation>(f, "OptionalEthnicityEstimation");
+	auto optionalLandmarks17 = optional_class<fsdk::HumanLandmarks17>(f, "OptionalLandmarks17");
 }
 
 PYBIND11_MODULE(FaceEngine, f) {
@@ -337,7 +339,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 				if (i >= s.landmarkCount) throw py::index_error();
 				return s.landmarks[i]; },
 			"Called to implement evaluation of self[key]. The accepted keys should be integers.\n "
-			"\tExample: lanmarks[3]")
+			"\tExample: landmarks[3]")
 		
 		.def("__setitem__", [](fsdk::Landmarks5 &s, size_t i, fsdk::Vector2<float> v) {
 				if (i >= s.landmarkCount) throw py::index_error();
@@ -347,7 +349,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			},
 			"Called to implement assignment to self[key]. \n"
 			"\tThe method `__setitem__` is used only for test and research purposes with class Vector2f.\n "
-			"\tExample: lanmarks[i] = FaceEngine.Vector2f(10.0, 20.0)")
+			"\tExample: landmarks[i] = FaceEngine.Vector2f(10.0, 20.0)")
 			; //Landmarks5
 	
 	py::class_<fsdk::Landmarks68>(f, "Landmarks68",
@@ -380,6 +382,60 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\tThe method `__setitem__` is used only for test and research purposes with class Vector2f.\n "
 			"\tExample: lanmarks[i] = FaceEngine.Vector2f(10.0, 20.0)")
 		; //Landmarks68
+
+	py::class_<fsdk::HumanLandmarks17>(f, "HumanLandmarks17",
+		"HumanLandmarks landmarks, length is fixed and equal to 17.\n"
+		"\tHuman detector is capable of face landmarks detection."
+		"\tLandmarks are special classes binded to python. \n"
+		"\tThey are similar on python lists. It is possible to use some standard python "
+		"built-in functions for them: \n"
+		"\t`__len__`, `__getitem__`. The method `__setitem__` is used only for test and "
+		"\tresearch purposes with class Vector2f. \n"
+		"\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n")
+
+		.def(py::init<>())
+
+		.def("__len__", [](const fsdk::HumanLandmarks17 &v) { return v.landmarksCount; },
+			"Called to implement the built-in function len(). Should return the length of the object, an integer >= 0.\n"
+			"\tExample: len(landmarks)")
+
+		.def("__getitem__", [](const fsdk::HumanLandmarks17 &s, size_t i) {
+				if (i >= s.landmarksCount) throw py::index_error();
+				return s.landmarks[i]; },
+			"Called to implement evaluation of self[key]. The accepted keys should be integers.\n "
+			"\tExample: landmarks[3]")
+			
+		.def("__setitem__", [](fsdk::HumanLandmarks17 &s, size_t i, fsdk::HumanLandmark v) {
+			if (i >= s.landmarksCount) throw py::index_error();
+			s.landmarks[i].point = v.point;
+			s.landmarks[i].score = v.score;
+			return s.landmarks[i];
+		}, "Called to implement assignment to self[key]. \n"
+			"\tThe method `__setitem__` is used only for test and research purposes with class Vector2f.\n "
+			"\tExample: landmarks[i] = FaceEngine.Vector2f(10.0, 20.0)")
+		; //HumanLandmarks17
+
+	py::class_<fsdk::Human>(f, "Human", "Human detection\n")
+		.def(py::init<>())
+		.def_readwrite("img", &fsdk::Human::img, "Image\n")
+		.def_readwrite("detection", &fsdk::Human::detection, "Object bounding box")
+		.def_readwrite("landmarks17_opt", &fsdk::Human::landmarks17, "HumanLandmarks17 optional\n")
+		.def("isValid", &fsdk::Human::isValid)
+		.def("__repr__",
+			[](const fsdk::Human& d) {
+				return "Human: rect: x = " + std::to_string(d.detection.rect.x) +
+					", y = " + std::to_string(d.detection.rect.y) +
+					", width = " + std::to_string(d.detection.rect.width) +
+					", height = " + std::to_string(d.detection.rect.height) +
+					"; score = " + std::to_string(d.detection.score) +
+					"; isValid = " + std::to_string(d.detection.isValid());
+			});
+			;
+	py::class_<fsdk::HumanLandmark>(f, "HumanLandmark", "HumanLandmark keypoints\n")
+		.def(py::init<>())
+		.def_readwrite("score", &fsdk::HumanLandmark::score)
+		.def_readwrite("point", &fsdk::HumanLandmark::point)
+		;
 
 // doc Template
 //		"Te.\n"
@@ -614,6 +670,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.export_values();
 			;
 	
+	py::enum_<fsdk::HumanDetectionType>(f, "HumanDetectionType", py::arithmetic(), "Human detection type enumeration.\n")
+		.value("DCT_BOX", fsdk::DCT_BOX, "Get bounding boxes of human bodies\n")
+		.value("DCT_POINTS", fsdk::DCT_POINTS, "Get 17 keypoints of human, with score for each one\n")
+		.value("DCT_ALL", fsdk::DCT_ALL, "Get all supported parameters.\n")
+		.export_values();
+			;
 	
 	py::enum_<fsdk::FSDKError>(f, "FSDKError", "Common SDK error codes.\n")
 		.value("Ok", fsdk::FSDKError::Ok)
@@ -805,6 +867,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IHumanDetectorPtr
 			IHumanDetectorPtr.detect
+
+			Human
+			Human.isValid
 
 			IWarperPtr
 			IWarperPtr.warp
@@ -1052,6 +1117,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Detection.isValid
 			Detection.__repr__
 
+			HumanDetection
+			HumanDetection.isValid
+
 			DetectionFloat
 			DetectionFloat.isValid
 			DetectionFloat.__repr__
@@ -1065,6 +1133,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 			DetectionType.dtBBox
 			DetectionType.dt5Landmarks
 			DetectionType.dt68Landmarks
+
+			HumanDetectionType
+			HumanDetectionType.DCT_BOX
+			HumanDetectionType.DCT_POINTS
+			HumanDetectionType.DCT_ALL
 
 			FSDKError
 			FSDKError.Ok
@@ -1145,6 +1218,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 			ILicensePtr.isActivated
 			ILicensePtr.loadFromFile
 			ILicensePtr.saveToFile
+
+			HumanLandmarks17
+			HumanLandmarks17.__len__
+			HumanLandmarks17.__getitem__
+			HumanLandmarks17.__setitem__
 
     )pbdoc";
 }
