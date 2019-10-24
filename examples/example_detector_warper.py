@@ -165,7 +165,8 @@ def human_detect_example(image1, image2):
     result = detector.detect(
         [image1, image2],
         [image1.getRect(), image2.getRect()],
-        10)
+        10,
+        fe.HumanDetectionType(fe.DCT_BOX))
 
     if not result[0].isOk:
         print("human_detect_example - failed to detect! Reason: {0}".format(result[0].what))
@@ -179,12 +180,47 @@ def human_detect_example(image1, image2):
             for human in human_list:
                 print(human)
 
+def human_landmarks_detect_example(image1, image2):
+    detector = faceEngine.createHumanDetector()
+    result = detector.detect(
+        [image1, image2],
+        [image1.getRect(), image2.getRect()],
+        10,
+        fe.HumanDetectionType(fe.DCT_BOX | fe.DCT_POINTS))
+    if not result[0].isOk:
+        print("human_landmarks_detect_example - failed to detect! Reason: {0}".format(result[0].what))
+        return
+
+    for human_list in result[1]:
+        print("human_landmarks_detect_example - next image results:")
+        if len(human_list) == 0:
+            print("human_landmarks_detect_example - no human on the image!")
+        else:
+            for human in human_list:
+                print(human)
+                if human.landmarks17_opt.isValid() :
+                    landmarks17 = human.landmarks17_opt.value()
+                    numOfLandmarks = len(landmarks17)
+                    for i in range(numOfLandmarks):
+                        print("\tPoint ", i, ":")
+                        score = landmarks17[0].score
+                        point = landmarks17[0].point
+                        print("\t\tx:", point.x)
+                        print("\t\ty:", point.y)
+                        print("\t\tscore:", score)
+                else:
+                    print("human_landmarks_detect_example - landmarks failed!")
+
 
 def human_redetectOne_example(image1, image2):
     detector = faceEngine.createHumanDetector()
 
     # Make detection on the first image
-    result = detector.detect([image1], [image1.getRect()], 1)
+    result = detector.detect(
+        [image1],
+        [image1.getRect()],
+        1,
+        fe.HumanDetectionType(fe.DCT_BOX))
     if not result[0].isOk:
         print("human_redetect_example - failed to detect! Reason: {0}".format(result.what))
         return
@@ -275,3 +311,4 @@ if __name__ == "__main__":
     # print_landmarks(face_one.landmarks68_opt.value(), "landmarks68, detectOne: ")
     human_detect_example(image, image)
     human_redetectOne_example(image, image)
+    human_landmarks_detect_example(image, image)

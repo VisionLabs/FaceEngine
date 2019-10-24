@@ -214,7 +214,11 @@ class TestFaceEngineDetector(unittest.TestCase):
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "0_Parade_marchingband_1_620.ppm"))
         self.assertTrue(err_image.isOk)
-        err_human_detector, list_of_list_of_detections = humanDetector.detect([image], [image.getRect()], 10)
+        err_human_detector, list_of_list_of_detections = humanDetector.detect(
+            [image],
+            [image.getRect()],
+            10,
+            fe.HumanDetectionType(fe.DCT_BOX))
         self.assertTrue(err_human_detector.isOk)
         self.assertEqual(74, list_of_list_of_detections[0][0].detection.rect.x)
         self.assertEqual(235, list_of_list_of_detections[0][0].detection.rect.y)
