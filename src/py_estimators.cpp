@@ -698,12 +698,13 @@ void estimators_module(py::module& f) {
 		"\tSpecifies working range of distances for depth estimator.\n"
 		"\tAverage depth map value should belong to this range.\n"
 		"\tBy default configured for kinect depth sensor.\n")
+	.def(py::init<>())
 	.def_readwrite("min", &fsdk::DepthRange::min)
 	.def_readwrite("max", &fsdk::DepthRange::max)
 	.def("isOk", &fsdk::DepthRange::isOk)
 	.def("__repr__",
 		[](const fsdk::DepthRange &h) {
-			return "<DepthRange: "
+			return "DepthRange: "
 					", min = " + std::to_string(h.min)
 					+ ", max = " + std::to_string(h.max);
 		})
