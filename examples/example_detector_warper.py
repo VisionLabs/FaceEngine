@@ -69,27 +69,26 @@ def simple_redetect_example(image1, image2, _detector_type=fe.FACE_DET_V3):
     if det_result.isError or not face.isValid:
         print("simple_redetect_example - failed to detect! Reason: {0}".format(det_result.what))
         return
+
+    # Redetect by face
+    redetect_result, redetected_face = detector.redetectOne(face, fe.dt5Landmarks)
+    if redetect_result.isError:
+        print("simple_redetect_example - failed to redetect! Reason: {0}".format(redetect_result.what))
+        return
+    if not redetected_face.isValid():
+        print("simple_redetect_example - something goes wrong! Face structure is invalid after redetect!")
+        return
+    print("\nsimple_redetect_example - first result: {0}".format(face.detection))
+
+    # And one more case - redetect based on the image and rect
     redetect_result, redetected_face = detector.redetectOne(image2, face.detection.rect, fe.dt5Landmarks)
-
     if redetect_result.isError:
         print("simple_redetect_example - failed to redetect! Reason: {0}".format(redetect_result.what))
         return
-
     if not redetected_face.isValid():
         print("simple_redetect_example - something goes wrong! Face structure is invalid after redetect!")
         return
-    redetected_detection = face.detection
-    print("\nsimple_redetect_example - result: {0}".format(redetected_detection))
-
-    # And one more case - redetect based on the image rect
-    redetect_result, redetected_face = detector.redetectOne(image2, image2.getRect(), fe.dt5Landmarks)
-    if redetect_result.isError:
-        print("simple_redetect_example - failed to redetect! Reason: {0}".format(redetect_result.what))
-        return
-
-    if not redetected_face.isValid():
-        print("simple_redetect_example - something goes wrong! Face structure is invalid after redetect!")
-        return
+    print("\nsimple_redetect_example - second result: {0}".format(redetected_face.detection))
 
 
 
