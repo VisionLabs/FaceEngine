@@ -191,9 +191,9 @@ class TestFaceEngineRect(unittest.TestCase):
                 _builder.removeDescriptor(index)
                 self.query(_batch, _builder, _faceEngine, IndexTest(188, 1141))
         countOfRemovals = 5
-        indexesToRemove = [459, 245, 651, 832, 634]
+        indicesToRemove = [459, 245, 651, 832, 634]
         indexBuilder = faceEngine.createIndexBuilder()
-        builtIndex = buildAcquiredIndexWithBatchAndDoBeforeBuild(indexBuilder, faceEngine, batch, funcToPass, indexesToRemove)
+        builtIndex = buildAcquiredIndexWithBatchAndDoBeforeBuild(indexBuilder, faceEngine, batch, funcToPass, indicesToRemove)
         resBuilt = builtIndex.search(descriptor, searchResultSize)
 
         self.assertEqual(builtIndex.size(), sizeOfBatch - countOfRemovals)

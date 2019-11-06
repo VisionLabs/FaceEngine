@@ -17,7 +17,7 @@ from example_license import make_activation
 
 if __name__ == "__main__":
     # correct paths or put directory "data" with example_detector_warper.py
-    faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+    faceEngine = fe.createFaceEngine("data")
     if not make_activation(faceEngine):
         print("failed to activate license!")
         exit(-1)

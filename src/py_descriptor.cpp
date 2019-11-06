@@ -199,12 +199,16 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		const fsdk::BaseDetection<float>& detection,
 		const fsdk::Landmarks5& landmarks,
 		const fsdk::IDescriptorPtr& descriptor) {
-			fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extract(
-				image,
-				detection,
-				landmarks,
-				descriptor);
-			return FSDKErrorValueFloat(err); },
+				fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extract(
+					image,
+					detection,
+					landmarks,
+					descriptor);
+				if (err.isOk())
+					return py::make_tuple(FSDKErrorResult(err), err.getValue());
+				else
+					return py::make_tuple(FSDKErrorResult(err), 0.0);
+			},
 		"Extract a face descriptor from an image.\n"
 		"\tThis method accepts arbitrary images that have size at least 250x250 pixels and R8G8B8 pixel format.\n"
 		"\tThe input image is warped internally using an assigned warper (@see IWarper). The descriptor extractor is\n"
@@ -216,27 +220,27 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\tparam3 (Landmarks5): face feature set\n"
 		"\t\tparam4 (IDescriptorPtr) [out]: descriptor to fill with data.\n"
 		"\tReturns:\n"
-		"\t\t(FSDKErrorValueFloat): ResultValue with error code specified by FSDKError and score of descriptor normalized in range [0, 1]\n"
-		"\t\t\t1 - face on the input warp; 0 - garbage on the input detection.\n"
-		"\t\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
-		"\t\tSee FSDKErrorValueFloat.\n")
+		"\t\t(tuple): tuple with FSDKError with error code and score of descriptor normalized in range [0, 1]\n"
+		"\t\t\t1 - face on the input warp; 0 - garbage on the input detection.\n")
 	
 	.def("extractFromWarpedImage",[](
 		const fsdk::IDescriptorExtractorPtr& extractor,
 		const fsdk::Image& image,
 		const fsdk::IDescriptorPtr& descriptor) {
 			fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extractFromWarpedImage(image, descriptor);
-			return FSDKErrorValueFloat(err); },
+			if (err.isOk())
+				return py::make_tuple(FSDKErrorResult(err), err.getValue());
+			else
+				return py::make_tuple(FSDKErrorResult(err), 0.f);
+		},
 		"Extract descriptor from a warped image.\n"
 		"\tThe input image should be warped; see IWarper.\n"
 		"\tArgs:\n"
 		"\t\tparam1 (Image): image source warped image, should be a valid 250x250 image in R8G8B8 format.\n"
 		"\t\tparam2 (IDescriptorPtr) [out]: descriptor to fill with data\n"
 		"\tReturns:\n"
-		"\t\t(FSDKErrorValueFloat): ResultValue with error code specified by FSDKError and score of descriptor normalized in range [0, 1]\n"
-		"\t\t\t1 - face on the input warp; 0 - garbage on the input detection.\n"
-		"\t\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
-		"\t\tSee FSDKErrorValueFloat.\n")
+		"\t\t(tuple): tuple with FSDKError with error code and score of descriptor normalized in range [0, 1]\n"
+		"\t\t\t1 - face on the input warp; 0 - garbage on the input detection.\n")
 	
 	.def("extractFromWarpedImageBatch",[](
 		const fsdk::IDescriptorExtractorPtr& extractor,
@@ -251,10 +255,10 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 				aggregation,
 				garbageScoreBatch.data(),
 				batchSize);
-			if (err.isOk()) {
-				return std::make_tuple(FSDKErrorValueFloat(err), std::move(garbageScoreBatch));
-			} else
-				return std::make_tuple(FSDKErrorValueFloat(err), std::vector<float>());
+			if (err.isOk())
+				return std::make_tuple(FSDKErrorResult(err), err.getValue(), std::move(garbageScoreBatch));
+			else
+				return std::make_tuple(FSDKErrorResult(err), 0.f, std::vector<float>());
 		},
 		"Extract batch of descriptors from a batch of images and perform aggregation.\n"
 		"\tThe input images should be warped; see IWarper.\n"
@@ -265,10 +269,9 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\tparam3 (IDescriptorPtr) [out]: descriptor with aggregation based on descriptor batch.\n"
 		"\t\tparam4 (int): size of the batch.\n"
 		"\tReturns:\n"
-		"\t\t(list): if OK - list of descriptor scores normalized in range [0, 1]\n"
-		"\t\t\t1 - face on the input warp; 0 - garbage on the input warp.\n"
-		"\t\t\tScore is fake if extractor uses mobile net version of extraction model.\n"
-		"\t\t(FSDKErrorResult): else - result with error code specified by FSDKError\n See FSDKErrorResult.\n")
+		"\t\t(tuple): tuple result with error code specified by FSDKError, aggregated garbage score and \n"
+		"\t\t\tthe list of descriptor scores normalized in range [0, 1]\n"
+		"\t\t\t1 - face on the input warp; 0 - garbage on the input warp.\n")
 	
 	.def("extractFromWarpedImageBatch",[](
 		const fsdk::IDescriptorExtractorPtr& extractor,
@@ -293,16 +296,16 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\tparam2 (IDescriptorBatchPtr) [out]: \n"
 		"\t\tparam3 (int): size of the batch\n"
 		"\tReturns:\n"
-		"\t\t(list): if OK - list of descriptor scores normalized in range [0, 1]\n"
-		"\t\t\t1 - face on the input warp; 0 - garbage on the input warp.\n"
-		"\t\t\t Score is fake if extractor uses mobile net version of extraction model.\n"
-		"\t\t(FSDKErrorResult): else - result with error code specified by FSDKError\n See FSDKErrorResult.\n")
-		.def("getModelVersion",[](
-				const fsdk::IDescriptorExtractorPtr& extractorPtr) {
-				return extractorPtr->getModelVersion();
-			},
-			"Get algorithm model version this extractor works with.\n")
-		;
+		"\t\t(tuple): tuple result with error code specified by FSDKError and\n "
+		"\t\t\tthe list of descriptor scores normalized in range [0, 1]\n"
+		"\t\t\t1 - face on the input warp; 0 - garbage on the input warp.\n")
+		
+	.def("getModelVersion",[](
+		const fsdk::IDescriptorExtractorPtr& extractorPtr) {
+			return extractorPtr->getModelVersion();
+		},
+		"Get algorithm model version this extractor works with.\n")
+	;
 	
 	py::class_<fsdk::IDescriptorMatcherPtr>(f, "IDescriptorMatcherPtr",
 		"Descriptor matcher interface.\n"
@@ -311,37 +314,37 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"(or several of them in case of 1:M\n"
 		"\tmatching). The MatchingResult structure contains distance and similarity metrics.\n"
 		"\t\n"
-		"\tDistance is measured in abstract units and tends to 0 for similar descriptors "
-		"and to infinity for different ones.\n"
-		"\tSimilarity is the opposite metric and shows probability of two "
-		"descriptors belonging to the same person; therfore\n"
-		"\tit is normalized to [0..1] range")
+		"\tDistance is measured in abstract units and tends to 0 for similar descriptors\n"
+		"\tand to infinity for different ones.\n"
+		"\tSimilarity is the opposite metric and shows probability of two \n"
+		"\tdescriptors belonging to the same person; therefore\n"
+		"\tit is normalized to [0..1] range\n")
 	
 	.def("match",[](
 		const fsdk::IDescriptorMatcherPtr& matcherPtr,
 		const fsdk::IDescriptorPtr& first,
 		const fsdk::IDescriptorPtr& second) {
-			fsdk::ResultValue<fsdk::FSDKError, fsdk::MatchingResult> err =
-				matcherPtr->match(first, second);
-			return FSDKErrorValueMatching(err); },
+			fsdk::ResultValue<fsdk::FSDKError, fsdk::MatchingResult> err = matcherPtr->match(first, second);
+			if (err.isOk())
+				return py::make_tuple(FSDKErrorResult(err), err.getValue());
+			else
+				return py::make_tuple(FSDKErrorResult(err), fsdk::MatchingResult());
+		},
 		"Match descriptors 1:1.\n"
 		"\tArgs\n"
 		"\t\tparam1 (IDescriptorPtr): first descriptor\n"
 		"\t\tparam2 (IDescriptorPtr): second descriptor\n"
 		"\tReturns:\n"
-		"\t\t(FSDKErrorValueMatching): Value with error code specified by FSDKError and matching result. "
-		"See FSDKErrorValueMatching.\n")
+		"\t\t(tuple): tuple with status error code specified by FSDKError and matching result.\n")
 	
 	.def("match",[](
 		const fsdk::IDescriptorMatcherPtr& matcherPtr,
 		const fsdk::IDescriptorPtr& reference,
 		const fsdk::IDescriptorBatchPtr& candidates) {
 			std::vector<fsdk::MatchingResult> results(candidates->getCount());
-			fsdk::Result<fsdk::FSDKError> err =
-			matcherPtr->match(reference, candidates, results.data());
-			if (err.isOk()) {
+			fsdk::Result<fsdk::FSDKError> err = matcherPtr->match(reference, candidates, results.data());
+			if (err.isOk())
 				return std::make_tuple(FSDKErrorResult(err), std::move(results));
-			}
 			else
 				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>());
 		},
@@ -353,10 +356,10 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
 		"\t\tparam2 (IDescriptorPtr): the candidate descriptor batch to match with the reference\n"
 		"\tReturns:\n"
-		"\t\t(list): if OK - matchig result list.\n"
+		"\t\t(tuple): tuple result with error code specified by FSDKError\n"
+		"\t\t\t and list with matching results\n"
 		"\t\t\tLength of `results` must be at least the same as the length of the candidates batch.\n"
-		"\t\t\tIDescriptorBatchPtr::getMaxCount()\n"
-		"\t\t(FSDKErrorResult wrapped in list): else - result with error specified by FSDKErrorResult.\n")
+		"\t\t\tIDescriptorBatchPtr::getMaxCount()\n")
 		
 	.def("match",[](
 		const fsdk::IDescriptorMatcherPtr& matcherPtr,
@@ -364,7 +367,11 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		const fsdk::IDescriptorBatchPtr& candidates,
 		const uint32_t k) {
 			if(k == 0)
-				return std::make_tuple(FSDKErrorResult(fsdk::Result<fsdk::FSDKError>(fsdk::FSDKError::InvalidInput)), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
+				return
+					std::make_tuple(FSDKErrorResult(fsdk::Result<fsdk::FSDKError>(
+						fsdk::FSDKError::InvalidInput)),
+						std::vector<fsdk::MatchingResult>(),
+						std::vector<uint32_t>());
 		
 			std::vector<fsdk::MatchingResult> results(candidates->getCount());
 			fsdk::Result<fsdk::FSDKError> err = matcherPtr->match(reference, candidates, results.data());
@@ -372,20 +379,20 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
 			
 			if(k > 1) {
-				std::vector<uint32_t> indexes(results.size());
-				std::iota(indexes.begin(), indexes.end(), 1);
+				std::vector<uint32_t> indices(results.size());
+				std::iota(indices.begin(), indices.end(), 1);
 				
-				std::partial_sort(indexes.begin(), indexes.begin() + k, indexes.end(),
-					[&results](decltype(*begin(indexes)) a, decltype(*begin(indexes)) b) {
+				std::partial_sort(indices.begin(), indices.begin() + k, indices.end(),
+					[&results](decltype(*begin(indices)) a, decltype(*begin(indices)) b) {
 						return results[a].distance < results[b].distance;
 					});
-				indexes.resize(k);
+				indices.resize(k);
 				std::vector<fsdk::MatchingResult> resValues;
 				resValues.reserve(k);
-				for(const auto index: indexes)
-					resValues.push_back( results[index] );
+				for(const auto index: indices)
+					resValues.push_back(results[index]);
 				
-				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(indexes));
+				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(indices));
 				
 			} else { // k == 1
 				const auto it = std::min_element(results.begin(), results.end(),
@@ -393,10 +400,10 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 						return a.distance < b.distance;
 					});
 				std::vector<fsdk::MatchingResult> resValues{*it};
-				std::vector<uint32_t> resIndexes(std::distance(results.begin(), it));
-				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(resIndexes));
+				std::vector<uint32_t> resIndex(std::distance(results.begin(), it));
+				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(resIndex));
 			}
-	     },
+		},
 		"Match descriptors 1:M.\n"
 		"\tMatches a reference descriptor to a batch of candidate descriptors and returns one K nearest candidates. "
 		"\tNote: this function allows you to not copy mach data from c++ to python if you need only best candidates.\n"
@@ -405,8 +412,8 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\tparam2 (IDescriptorPtr): the candidate descriptor batch to match with the reference\n"
 		"\t\tparam3 (IDescriptorPtr): K - number of closest descriptor"
 		"\tReturns:\n"
-		"\t\tTwo lists (indexes and matching results of K nearest neighbours): if OK - matchig result list.\n"
-		"\t\t(FSDKErrorResult wrapped in list): else - result with error specified by FSDKErrorResult.\n")
+		"\t\t(tuple): tuple with result with error code specified by FSDKError and\n"
+		"\t\t\ttwo lists (indices and matching results of K nearest neighbours)\n")
 		
 		.def("getModelVersion",[](
 				const fsdk::IDescriptorMatcherPtr& matcherPtr) {

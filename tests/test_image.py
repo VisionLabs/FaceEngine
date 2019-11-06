@@ -24,8 +24,7 @@ sys.path.append(path_to_binding)
 
 import FaceEngine as f
 # correct this!!!
-faceEnginePtr = f.createFaceEngine("data",
-                                        "data/faceengine.conf")
+faceEnginePtr = f.createFaceEngine("data")
 
 image = f.Image()
 load_error = image.load("testData/warp1.ppm")

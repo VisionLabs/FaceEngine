@@ -15,7 +15,7 @@ sys.path.append(sys.argv[1])
 import FaceEngine as fe
 from example_license import make_activation
 # correct paths or put directory "data" with example_detector_warper.py
-faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+faceEngine = fe.createFaceEngine("data")
 if not make_activation(faceEngine):
     print("failed to activate license!")
     exit(-1)
@@ -29,14 +29,10 @@ def detector_batch_example(_image_det, _max_detections, _detector_type=fe.FACE_D
     rect_list = [_image_det.getRect(),
                  _image_det.getRect(),
                  _image_det.getRect()]
-    err, detector_result = detector.detect(image_list,
-                                           rect_list,
-                                           _max_detections,
-                                           fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
-    print(detector_result[0][0].detection)
-    print("Batch Landmarks5 validity ", detector_result[0][0].landmarks5_opt.isValid())
-    print("Batch Landmarks68 validity ", detector_result[0][0].landmarks68_opt.isValid())
-    return err, detector_result
+    return detector.detect(image_list,
+                           rect_list,
+                           _max_detections,
+                           fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
 
 
 def detector_redetect_example(_image_det, _max_detections, _next_image, _detector_type=fe.FACE_DET_V3, _config=None):
@@ -54,7 +50,7 @@ def detector_redetect_example(_image_det, _max_detections, _next_image, _detecto
     return redetect_result
 
 
-def detector_redetect_one_example(_image_det, _next_image, _detector_type=fe.FACE_DET_V3, _config=None):
+def detector_redetect_one_example(_image_det, _next_image, _detector_type=fe.FACE_DET_V3):
     detector = faceEngine.createDetector(_detector_type)
     err, face = detector.detectOne(_image_det, _image_det.getRect(), fe.DetectionType(fe.dt5Landmarks))
     # DetectionType must be the same as in detect
@@ -64,6 +60,36 @@ def detector_redetect_one_example(_image_det, _next_image, _detector_type=fe.FAC
         return redetect_result
     else:
         return None
+
+
+def simple_redetect_example(image1, image2, _detector_type=fe.FACE_DET_V3):
+    detector = faceEngine.createDetector(_detector_type)
+    # Make detection on the first image
+    det_result, face = detector.detectOne(image1, image1.getRect(), fe.DetectionType(fe.dt5Landmarks))
+    if det_result.isError or not face.isValid:
+        print("simple_redetect_example - failed to detect! Reason: {0}".format(det_result.what))
+        return
+
+    # Redetect by face
+    redetect_result, redetected_face = detector.redetectOne(face, fe.dt5Landmarks)
+    if redetect_result.isError:
+        print("simple_redetect_example - failed to redetect! Reason: {0}".format(redetect_result.what))
+        return
+    if not redetected_face.isValid():
+        print("simple_redetect_example - something goes wrong! Face structure is invalid after redetect!")
+        return
+    print("\nsimple_redetect_example - first result: {0}".format(face.detection))
+
+    # And one more case - redetect based on the image and rect
+    redetect_result, redetected_face = detector.redetectOne(image2, face.detection.rect, fe.dt5Landmarks)
+    if redetect_result.isError:
+        print("simple_redetect_example - failed to redetect! Reason: {0}".format(redetect_result.what))
+        return
+    if not redetected_face.isValid():
+        print("simple_redetect_example - something goes wrong! Face structure is invalid after redetect!")
+        return
+    print("\nsimple_redetect_example - second result: {0}".format(redetected_face.detection))
+
 
 
 def detector_one_example(_image_det, _detector_type=fe.FACE_DET_V1):
@@ -132,12 +158,14 @@ def print_landmarks_for_comparing(landmarks1, landmarks2, message=""):
             landmarks1[i].x - landmarks2[i].x,
             landmarks1[i].y - landmarks2[i].y))
 
+
 def human_detect_example(image1, image2):
     detector = faceEngine.createHumanDetector()
     result = detector.detect(
         [image1, image2],
         [image1.getRect(), image2.getRect()],
-        10)
+        10,
+        fe.HumanDetectionType(fe.DCT_BOX))
 
     if not result[0].isOk:
         print("human_detect_example - failed to detect! Reason: {0}".format(result[0].what))
@@ -151,11 +179,47 @@ def human_detect_example(image1, image2):
             for human in human_list:
                 print(human)
 
+def human_landmarks_detect_example(image1, image2):
+    detector = faceEngine.createHumanDetector()
+    result = detector.detect(
+        [image1, image2],
+        [image1.getRect(), image2.getRect()],
+        10,
+        fe.HumanDetectionType(fe.DCT_BOX | fe.DCT_POINTS))
+    if not result[0].isOk:
+        print("human_landmarks_detect_example - failed to detect! Reason: {0}".format(result[0].what))
+        return
+
+    for human_list in result[1]:
+        print("human_landmarks_detect_example - next image results:")
+        if len(human_list) == 0:
+            print("human_landmarks_detect_example - no human on the image!")
+        else:
+            for human in human_list:
+                print(human)
+                if human.landmarks17_opt.isValid() :
+                    landmarks17 = human.landmarks17_opt.value()
+                    numOfLandmarks = len(landmarks17)
+                    for i in range(numOfLandmarks):
+                        print("\tPoint ", i, ":")
+                        score = landmarks17[i].score
+                        point = landmarks17[i].point
+                        print("\t\tx:", point.x)
+                        print("\t\ty:", point.y)
+                        print("\t\tscore:", score)
+                else:
+                    print("human_landmarks_detect_example - landmarks failed!")
+
+
 def human_redetectOne_example(image1, image2):
     detector = faceEngine.createHumanDetector()
 
     # Make detection on the first image
-    result = detector.detect([image1], [image1.getRect()], 1)
+    result = detector.detect(
+        [image1],
+        [image1.getRect()],
+        1,
+        fe.HumanDetectionType(fe.DCT_BOX))
     if not result[0].isOk:
         print("human_redetect_example - failed to detect! Reason: {0}".format(result.what))
         return
@@ -188,7 +252,6 @@ def human_redetectOne_example(image1, image2):
     print("human_redetect_example - redetectOne result:\n{0}".format(human))
 
 
-
 if __name__ == "__main__":
     if not make_activation(faceEngine):
         print("failed to activate license!")
@@ -203,7 +266,7 @@ if __name__ == "__main__":
     print("\nBatch interface example: ")
     n_detections = 3
     err_batch, detect_list_batch = detector_batch_example(image, n_detections, fe.FACE_DET_V3)
-    if err_batch.isError:
+    if err_batch.isError or not detect_list_batch[0]:
         print("detector_batch_example: faces are not found")
         exit(-1)
     # print all detections in list
@@ -230,7 +293,7 @@ if __name__ == "__main__":
     (detection, landmarks5, landmarks68) = face.detection, face.landmarks5_opt.value(), face.landmarks68_opt.value()
     (warp_image, transformed_landmarks5, transformed_landmarks68, transformation) = \
         warper_example(image, detection, landmarks5, landmarks68)
-
+    simple_redetect_example(image, image, fe.FACE_DET_V3)
     print_landmarks(landmarks5, "landmarks5: ")
     print_landmarks(transformed_landmarks5, "transformedLandmarks5: ")
     # print_landmarks_for_comparing(landmarks5, landmarks5_warp, "Comparing landmarks")
@@ -247,3 +310,4 @@ if __name__ == "__main__":
     # print_landmarks(face_one.landmarks68_opt.value(), "landmarks68, detectOne: ")
     human_detect_example(image, image)
     human_redetectOne_example(image, image)
+    human_landmarks_detect_example(image, image)

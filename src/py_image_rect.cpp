@@ -10,7 +10,7 @@
 
 namespace py = pybind11;
 
-template<class T>
+template<class T, class Y>
 py::class_<fsdk::BaseRect<T>> rect_class(py::module& this_module, const char* name)
 {
 	py::class_<fsdk::BaseRect<T>>class_instance(this_module, name);
@@ -18,7 +18,8 @@ py::class_<fsdk::BaseRect<T>> rect_class(py::module& this_module, const char* na
 	class_instance.def(py::init<>());
 	class_instance.def(py::init<T, T, T, T>());
 	class_instance.def(py::init<fsdk::Vector2<T>, fsdk::Vector2<T>>());
-	class_instance.def(py::init<const fsdk::Rect&>());
+	class_instance.def(py::init<fsdk::BaseRect<T>>());
+	class_instance.def(py::init<fsdk::BaseRect<Y>>());
 	class_instance.def(py::self != py::self);
 	class_instance.def(py::self == py::self);
 	class_instance.def(py::self & py::self);
@@ -43,6 +44,10 @@ py::class_<fsdk::BaseRect<T>> rect_class(py::module& this_module, const char* na
 	class_instance.def("getArea", &fsdk::BaseRect<T>::getArea);
 	class_instance.def("inside", &fsdk::BaseRect<T>::inside);
 	class_instance.def("isValid", &fsdk::BaseRect<T>::isValid);
+	class_instance.def("set", [](fsdk::BaseRect<T>& self, const fsdk::BaseRect<Y>& other) {
+		self = other;
+		return self;
+	});
 	
 	class_instance.def("__repr__",
 		[](const fsdk::BaseRect<T> &r) {
@@ -59,8 +64,8 @@ py::class_<fsdk::BaseRect<T>> rect_class(py::module& this_module, const char* na
 
 void set_rect_class(py::module& f)
 {
-	auto rect = rect_class<int>(f, "Rect");
-	auto rectFloat = rect_class<float>(f, "RectFloat");
+	auto rect = rect_class<int, float>(f, "Rect");
+	auto rectFloat = rect_class<float, int>(f, "RectFloat");
 }
 
 void image_rect_module(py::module& f) {

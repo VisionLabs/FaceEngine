@@ -46,7 +46,11 @@ else()
 endif()
 
 # What version of TrackEngine SDK to use.
-set(TSDK_LIB_PREFIX ${TSDK_COMPILER_NAME}/${TSDK_TARGET_NAME})
+if(ANDROID)
+	set(TSDK_LIB_PREFIX ${TSDK_COMPILER_NAME}/${ANDROID_ABI})
+else()
+	set(TSDK_LIB_PREFIX ${TSDK_COMPILER_NAME}/${TSDK_TARGET_NAME})
+endif()
 
 # List of all SDK libraries.
 set(TSDK_LIB_NAMES
@@ -63,7 +67,8 @@ foreach(LIB ${TSDK_LIB_NAMES})
 		HINTS $ENV{TSDKDIR}
 		PATHS ${TSDK_ROOT}
 		PATH_SUFFIXES ${TSDK_LIB_PATH_SUFFIX}
-			${TSDK_BIN_PATH_SUFFIX})
+			${TSDK_BIN_PATH_SUFFIX}
+		NO_DEFAULT_PATH)
 	list(APPEND TSDK_LIB ${LIB_PATH})
 endforeach()
 
@@ -76,7 +81,8 @@ foreach(LIB ${TSDK_LIB_NAMES})
 		HINTS $ENV{TSDKDIR}
 		PATHS ${TSDK_ROOT}
 		PATH_SUFFIXES	${TSDK_LIB_PATH_SUFFIX}
-			${TSDK_BIN_PATH_SUFFIX})
+			${TSDK_BIN_PATH_SUFFIX}
+		NO_DEFAULT_PATH)
 
 	list(APPEND TSDK_LIBD ${LIB_PATH})
 endforeach()
@@ -95,9 +101,7 @@ if(TSDK_FOUND)
 		endforeach()
 		message(STATUS "TSDK [INFO]: Release libraries are available.")
 	elseif(TSDK_LIBD)
-		foreach(LIB ${TSDK_LIBD})
-			list(APPEND TSDK_LIBRARIES optimized ${LIB})
-		endforeach()
+		message(STATUS "TSDK [WARN]: Release libraries are NOT available.")
 	else()
 		message(FATAL_ERROR "TSDK [ERROR]: TrackEngine libraries are NOT available.")
 	endif()
@@ -108,9 +112,6 @@ if(TSDK_FOUND)
 		endforeach()
 		message(STATUS "TSDK [INFO]: Debug libraries are available.")
 	elseif(TSDK_LIB)
-		foreach(LIB ${TSDK_LIB})
-			list(APPEND TSDK_LIBRARIES debug ${LIB})
-		endforeach()
 		message(STATUS "TSDK [WARN]: Debug libraries are NOT available.")
 	else()
 		message(FATAL_ERROR "TSDK [ERROR]: TrackEngine libraries are NOT available.")	

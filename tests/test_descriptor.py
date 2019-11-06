@@ -39,7 +39,7 @@ class TestFaceEngineRect(unittest.TestCase):
 
     @classmethod
     def setUp(cls):
-        cls.faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+        cls.faceEngine = fe.createFaceEngine("data")
         if not make_activation(cls.faceEngine):
             raise ActivationLicenseError("License is not activated!")
 
@@ -48,6 +48,11 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(len(desc1) == len(desc2))
         for i, _ in enumerate(desc1):
             self.assertTrue(desc1[i], desc2[i])
+
+    def set_logging(self, value):
+        config = fe.createSettingsProvider("data/faceengine.conf")
+        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(value))
+        self.faceEngine.setSettingsProvider(config)
 
     def test_Version(self):
         extractor_default = self.faceEngine.createExtractor()
@@ -91,9 +96,9 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertEqual(result.distance, 0.0)
 
         def checkDescriptorsEquality(desc1, desc2):
-            result = matcher_default.match(desc1, desc2)
+            result, value = matcher_default.match(desc1, desc2)
             self.assertTrue(result.isOk)
-            assertMatchingResult(result.value)
+            assertMatchingResult(value)
 
         checkDescriptorsEquality(aggregation_default, descriptor_default)
         checkDescriptorsEquality(aggregation_default, aggregation_default)
@@ -105,30 +110,36 @@ class TestFaceEngineRect(unittest.TestCase):
     def extractor(self, version, refGS, useMobileNet, cpuType, device):
         versionString = str(version) + ("", "_mobilenet")[useMobileNet]
         configPath = os.path.join(self.dataPath, "faceengine.conf")
+        runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
+
         faceEngine = fe.createFaceEngine(self.dataPath)
         self.assertTrue(make_activation(faceEngine))
         config = fe.createSettingsProvider(configPath)
+        runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
+
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
-        config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
-        config.setValue("flower", "verboseLogging", fe.SettingsProviderValue(4))
-        config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpuType))
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
+        runtimeConf.setValue("Runtime", "verboseLogging", fe.SettingsProviderValue(4))
+        runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
 
         faceEngine.setSettingsProvider(config)
+        faceEngine.setRuntimeSettingsProvider(runtimeConf)
+
         warp = fe.Image()
         err = warp.load(os.path.join(self.test_data_path, "warp1.bmp"))
         self.assertTrue(err.isOk)
         warp.save(os.path.join(self.test_data_path, "outbmp.bmp"))
         extractor = faceEngine.createExtractor()
         descriptor = faceEngine.createDescriptor()
-        res = extractor.extractFromWarpedImage(warp, descriptor)
+        res, value = extractor.extractFromWarpedImage(warp, descriptor)
         self.assertTrue(res.isOk)
         data1 = descriptor.getData()
         with open(self.test_data_path + "/descriptor1_" + versionString + "_actual.bin", "wb") as out_file:
             out_file.write(data1)
 
-        self.assertAlmostEqual(refGS, res.value, delta=(0.02, 0.03)[useMobileNet])
+        self.assertAlmostEqual(refGS, value, delta=(0.02, 0.03)[useMobileNet])
         refPath = os.path.join(self.test_data_path, "descriptor1_" + versionString + ".bin")
         with open(refPath, "rb") as file:
             read_data = file.read()
@@ -181,13 +192,22 @@ class TestFaceEngineRect(unittest.TestCase):
 
     def extractor_batch(self, version, useMobileNet, cpuType, device):
         configPath = os.path.join(self.dataPath, "faceengine.conf")
+        runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
+
+        faceEngine = fe.createFaceEngine(self.dataPath)
+        self.assertTrue(make_activation(faceEngine))
         config = fe.createSettingsProvider(configPath)
+        runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
+
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
-        config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
-        config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpuType))
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
-        self.faceEngine.setSettingsProvider(config)
+        runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
+        runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
+
+        faceEngine.setSettingsProvider(config)
+        faceEngine.setRuntimeSettingsProvider(runtimeConf)
+
         warps = [fe.Image(), fe.Image()]
         err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
         self.assertTrue(err1.isOk)
@@ -197,14 +217,14 @@ class TestFaceEngineRect(unittest.TestCase):
         batch = self.faceEngine.createDescriptorBatch(2)
         descriptor = self.faceEngine.createDescriptor()
 
-        res_batch = extractor.extractFromWarpedImageBatch(warps, batch, descriptor, 2)
-        self.assertTrue(res_batch[0].isOk)
+        res_batch, _, garbage_scores = extractor.extractFromWarpedImageBatch(warps, batch, descriptor, 2)
+        self.assertTrue(res_batch.isOk)
         with open(self.test_data_path + "/batch12_" + str(version) + "_actual.bin", "wb") as out_file:
             for i in range(2):
                 descriptor_from_batch = batch.getDescriptorFast(i)
                 out_file.write(descriptor_from_batch.getData())
         for i_desc in range(2):
-            res = extractor.extractFromWarpedImage(warps[i_desc], descriptor)
+            res, value = extractor.extractFromWarpedImage(warps[i_desc], descriptor)
             self.assertTrue(res.isOk)
             self.assertEqual(descriptor.getModelVersion(), batch.getModelVersion())
             dataExpected = descriptor.getData()
@@ -212,23 +232,31 @@ class TestFaceEngineRect(unittest.TestCase):
             descLength = descriptor.getDescriptorLength()
             for j in range(descLength):
                 self.assertEqual(dataExpected[j], dataActual[j])
-            self.assertAlmostEqual(res.value, res_batch[1][i_desc], delta=0.0001)
+            self.assertAlmostEqual(value, garbage_scores[i_desc], delta=0.0001)
 
     def test_extractor_batch(self):
         self.extractor_batch(46, True, "auto", "cpu")
         self.extractor_batch(46, False, "auto", "cpu")
 
     def extractor_aggregation(self, version, useMobileNet, cpuType, device):
+
         configPath = os.path.join(self.dataPath, "faceengine.conf")
+        runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
+
         faceEngine = fe.createFaceEngine(self.dataPath)
         self.assertTrue(make_activation(faceEngine))
         config = fe.createSettingsProvider(configPath)
+        runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
+
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
-        config.setValue("flower", "deviceClass", fe.SettingsProviderValue(device))
-        config.setValue("system", "cpuClass", fe.SettingsProviderValue(cpuType))
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
+        runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
+
         faceEngine.setSettingsProvider(config)
+        faceEngine.setRuntimeSettingsProvider(runtimeConf)
+
         warps = [fe.Image(), fe.Image()]
         err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
         self.assertTrue(err1.isOk)
@@ -240,7 +268,7 @@ class TestFaceEngineRect(unittest.TestCase):
         aggr = faceEngine.createDescriptor()
         res = extractor.extractFromWarpedImageBatch(warps, batch, aggr, 1)
         self.assertFalse(res[0].isError)
-        res = extractor.extractFromWarpedImage(warps[0], descriptor)
+        res, value = extractor.extractFromWarpedImage(warps[0], descriptor)
         self.assertTrue(res.isOk)
         self.assertEqual(descriptor.getModelVersion(), batch.getModelVersion())
         data_expected = descriptor.getData()
@@ -252,6 +280,30 @@ class TestFaceEngineRect(unittest.TestCase):
     def test_extractor_aggregation(self):
         self.extractor_aggregation(46, True, "auto", "cpu")
         self.extractor_aggregation(46, False, "auto", "cpu")
+
+    def test_negative_test_on_invalid_images(self):
+        # disable logging for negative tests
+        self.set_logging(0)
+        empty_image = fe.Image()
+        descriptor = self.faceEngine.createDescriptor()
+        aggregation = self.faceEngine.createDescriptor()
+        extractor = self.faceEngine.createExtractor()
+        res, value = extractor.extractFromWarpedImage(empty_image, descriptor)
+        self.assertTrue(res.isError)
+        self.assertEqual(res.error, fe.FSDKError.InvalidImage)
+
+        descriptor_batch = self.faceEngine.createDescriptorBatch(2)
+        images = [empty_image, empty_image]
+        res_batch, aggr_garbage_score, garbage_scores = extractor.extractFromWarpedImageBatch(images, descriptor_batch, aggregation, 2)
+        self.assertTrue(res_batch.isError)
+        self.assertEqual(res_batch.error, fe.FSDKError.InvalidImage)
+
+        detection = fe.DetectionFloat()
+        landmarks = fe.Landmarks5()
+        extraction_res, value = extractor.extract(empty_image, detection, landmarks, descriptor)
+        self.assertTrue(extraction_res.isError)
+        self.assertEqual(extraction_res.error, fe.FSDKError.InvalidImage)
+
 
 if __name__ == '__main__':
     unittest.main()

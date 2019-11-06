@@ -51,7 +51,7 @@ def draw_bounding_boxes(frame_to_draw, bboxes_to_draw):
 
 if __name__ == "__main__":
     cap = cv2.VideoCapture(int(sys.argv[2]))
-    faceEngine = fe.createFaceEngine("data", "data/faceengine.conf")
+    faceEngine = fe.createFaceEngine("data")
     if not make_activation(faceEngine):
         print("failed to activate license!")
         exit(-1)

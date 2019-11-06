@@ -26,8 +26,7 @@ import FaceEngine as f
 del(sys.argv[1])
 del(sys.argv[1])
 
-faceEnginePtr = f.createFaceEngine("data",
-                                        "data/faceengine.conf")
+faceEnginePtr = f.createFaceEngine("data")
 
 
 class TestFaceEngineRect(unittest.TestCase):
@@ -49,6 +48,14 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertNotEqual(rect2, rect3)
         self.assertTrue(rect0 == rect1)
         self.assertFalse(rect2 == rect3)
+
+    def compare_rects(self, rect1, rect2):
+        self.assertTrue(rect1.isValid())
+        self.assertTrue(rect2.isValid())
+        self.assertEqual(rect1.x, rect2.x)
+        self.assertEqual(rect1.y, rect2.y)
+        self.assertEqual(rect1.width, rect2.width)
+        self.assertEqual(rect1.height, rect2.height)
 
     def test_methods(self):
         rect1 = f.Rect(0, 20, 30, 40)
@@ -78,6 +85,12 @@ class TestFaceEngineRect(unittest.TestCase):
         not_valid_rect2 = f.Rect(0, 10, 30, -40)
         self.assertFalse(not_valid_rect1.isValid())
         self.assertFalse(not_valid_rect2.isValid())
+        rect2 = f.RectFloat(10, 11, 12, 13)
+        rect1 = f.Rect(rect2)
+        self.compare_rects(rect1, rect2)
+        rect1 = f.Rect()
+        rect1.set(rect2)
+        self.compare_rects(rect1, rect2)
 
 
 if __name__ == '__main__':
