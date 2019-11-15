@@ -659,6 +659,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"BestDetection - most centered detection\n")
 		.value("DCT_CENTER_AND_CONFIDANCE", fsdk::DCT_CENTER_AND_CONFIDANCE,
 			"BestDetection - most centered with high score\n")
+		.value("DCT_SIZE", fsdk::DCT_SIZE,
+			"BestDetection - the largest detection\n")
 		.export_values();
 			;
 	
@@ -1128,6 +1130,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			DetectionComparerType.DCT_CONFIDANCE
 			DetectionComparerType.DCT_CENTER
 			DetectionComparerType.DCT_CENTER_AND_CONFIDANCE
+			DetectionComparerType.DCT_SIZE
 
 			DetectionType
 			DetectionType.dtBBox
