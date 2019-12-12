@@ -120,4 +120,24 @@ py::class_<fsdk::Transformation>(f, "Transformation",
 			+ " y = " + std::to_string(t.detectionTopLeft.y);
 	})
 	;
+
+py::class_<fsdk::IHumanWarperPtr>(f, "IHumanWarperPtr",
+	"Human detection area warper interface.\n"
+	"\t Perform cropping and resize of an image to size (192x384) for human descriptor extraction.\n")
+	.def("warp",[](
+			const fsdk::IHumanWarperPtr& warper,
+			const fsdk::Human& human) {
+				fsdk::Image transformedImage;
+				fsdk::Result<fsdk::FSDKError> error = warper->warp(human, transformedImage);
+				if (error.isOk())
+					 return std::make_tuple(FSDKErrorResult(error), transformedImage);
+				 else
+					 return std::make_tuple(FSDKErrorResult(error), fsdk::Image()); },
+			 "Warp image\n"
+			 "\tArgs:\n"
+			 "\t\tparam1 (human): human detection. The format of image inside must be R8G8B8\n"
+			 "\tReturns:\n"
+			 "\t\t(tuple): tuple with FSDKError and output transformed image, size: width = 192, height = 384\n")
+	;
+
 }

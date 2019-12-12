@@ -197,6 +197,9 @@ $ python3 pythonBindings/examples/example_gaze_cv.py pythonBindings/build
 # Index building, only for server platforms, not for Jetson
 $ python3 pythonBindings/examples/example_index.py pythonBindings/build testData/emotions1.ppm testData testData/imageListIndex.txt 0.3
 
+# Human descriptor extracting, only for server platforms, not for Jetson
+$ python3 pythonBindings/examples/example_human_extractor.py pythonBindings/build testData/0_Parade_Parade_0_12.jpg testData/0_Parade_Parade_0_12.jpg
+
 # Depth example.
 $ python3 pythonBindings/examples/example_depth.py --data data --bindPath pythonBindings/build --rsbindPath <absolute_path_to_realsense_python_bindings_libraries>
 ```
@@ -232,7 +235,7 @@ import sys
 sys.path.append(sys.argv[1])
 import FaceEngine as fe
 ```
-### Running tests on Windows
+### Running examples on Windows
 
 Please verify path with built FaceEngine.lib for your version of python. Usual path is `pythonBindings/build/release`.
 
@@ -241,8 +244,9 @@ $ python3 pythonBindings/examples/example_estimators.py pythonBindings/build/rel
 $ python3 pythonBindings/examples/example_detector_warper.py pythonBindings/build/release testData/photo_2017-03-30_14-47-43_p.ppm
 $ python3 pythonBindings/examples/example_extractor_matcher.py pythonBindings/build/release testData/photo_2017-03-30_14-47-43_p.ppm testData/warp1.ppm testData/warp2.ppm
 $ python3 pythonBindings/examples/example_index.py pythonBindings/build/release testData/emotions1.ppm testData testData/imageListIndex.txt 0.3
+$ python3 pythonBindings/examples/example_human_extractor.py pythonBindings/build/release testData/0_Parade_Parade_0_12.jpg testData/0_Parade_Parade_0_12.jpg
 ```
-### Running examples on Windows
+### Running tests on Windows
 Please verify path with built FaceEngine.lib for your version of python. Usual path is `pythonBindings/build/release`.
 
 ```cmd

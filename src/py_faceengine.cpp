@@ -202,15 +202,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"Creates a human detector.\n")
 		
 		.def("createWarper", &PyIFaceEngine::createWarper, "Creates warper\n")
-		.def("createDescriptor", &PyIFaceEngine::createDescriptor, py::arg("version") = 0, "Creates Descriptor\n")
+		.def("createHumanWarper", &PyIFaceEngine::createHumanWarper, "Creates human warper\n")
+		.def("createDescriptor", &PyIFaceEngine::createDescriptor, py::arg("version") = 0, "Creates Descriptor (version >= 101 is human descriptor)\n")
 		.def("createDescriptorBatch", &PyIFaceEngine::createDescriptorBatch, py::arg("size"), py::arg("version") = 0,
 			"Creates Batch of descriptors\n"
 			"\tArgs:\n"
 			"\t\tparam1 (int): amount of descriptors in batch\n"
 			"\t\tparam2 (str): descriptor version in batch. If 0 - use default version from config\n")
 		
-		.def("createExtractor", &PyIFaceEngine::createExtractor, py::arg("version") = 0, "Creates descriptor extractor\n")
-		.def("createMatcher", &PyIFaceEngine::createMatcher, py::arg("version") = 0, "Creates descriptor matcher\n")
+		.def("createExtractor", &PyIFaceEngine::createExtractor, py::arg("version") = 0, "Creates descriptor extractor (version >= DV_MIN_HUMAN_DESCRIPTOR_VERSION is human descriptor)\n")
+		.def("createMatcher", &PyIFaceEngine::createMatcher, py::arg("version") = 0, "Creates descriptor matcher (version >= DV_MIN_HUMAN_DESCRIPTOR_VERSION is human descriptor)\n")
 		
 		// Index
 		.def("createIndexBuilder", &PyIFaceEngine::createIndexBuilder, "Creates index builder.\n")
@@ -319,6 +320,20 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("Internal", fsdk::IDescriptorBatch::Error::Internal)
 		.value("IoError", fsdk::IDescriptorBatch::Error::IoError)
 		.value("OutOfRange", fsdk::IDescriptorBatch::Error::OutOfRange)
+			;
+	
+	py::enum_<fsdk::DesctiptorType>(f, "DesctiptorType", "Determines which type of descriptor to use.\n")
+		.value("DT_FACE", fsdk::DesctiptorType::DT_FACE)
+		.value("DT_HUMAN", fsdk::DesctiptorType::DT_HUMAN)
+		.export_values()
+			;
+	
+	py::enum_<fsdk::DescriptorVersion>(f, "DescriptorVersion", py::arithmetic(),
+			"Minimum descriptor model version.\n"
+			"\tDetermines which minimum version of descriptor to use.\n")
+		.value("DV_MIN_FACE_DESCRIPTOR_VERSION", fsdk::DescriptorVersion::DV_MIN_FACE_DESCRIPTOR_VERSION)
+		.value("DV_MIN_HUMAN_DESCRIPTOR_VERSION", fsdk::DescriptorVersion::DV_MIN_HUMAN_DESCRIPTOR_VERSION)
+		.export_values()
 			;
 	
 	py::class_<fsdk::Landmarks5>(f, "Landmarks5",
@@ -811,6 +826,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 	
 			PyIFaceEngine.createDetector
 			PyIFaceEngine.createWarper
+			PyIFaceEngine.createHumanWarper
 			PyIFaceEngine.createDescriptor
 			PyIFaceEngine.createDescriptorBatch
 			PyIFaceEngine.createExtractor
@@ -877,8 +893,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IWarperPtr.warp
 			IWarperPtr.createTransformation
 
+			IHumanWarperPtr
+			IHumanWarperPtr.warp
+
 			IDescriptorPtr
 			IDescriptorPtr.getModelVersion
+			IDescriptorPtr.getDescriptorType
 			IDescriptorPtr.getDescriptorLength
 			IDescriptorPtr.getDescriptor
 			IDescriptorPtr.getData
@@ -892,6 +912,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IDescriptorBatchPtr.getMaxCount
 			IDescriptorBatchPtr.getCount
 			IDescriptorBatchPtr.getModelVersion
+			IDescriptorBatchPtr.getDescriptorType
 			IDescriptorBatchPtr.getDescriptorSize
 			IDescriptorBatchPtr.getDescriptorSlow
 			IDescriptorBatchPtr.getDescriptorFast
@@ -901,12 +922,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			DescriptorBatchError
 
 			IDescriptorExtractorPtr
+			IDescriptorExtractorPtr.getModelVersion
+			IDescriptorExtractorPtr.getDescriptorType
 			IDescriptorExtractorPtr.extract
 			IDescriptorExtractorPtr.extractFromWarpedImage
 			IDescriptorExtractorPtr.extractFromWarpedImageBatch
 
 
 			IDescriptorMatcherPtr
+			IDescriptorMatcherPtr.getModelVersion
 			IDescriptorMatcherPtr.match
 
 			IHeadPoseEstimatorPtr

@@ -57,6 +57,14 @@ fsdk::IWarperPtr PyIFaceEngine::createWarper() {
 		throw py::cast_error("\nFailed to create warper instance! VERIFY PATH to \"data\" directory!");
 	return warperPtr;
 }
+
+fsdk::IHumanWarperPtr PyIFaceEngine::createHumanWarper() {
+	fsdk::IHumanWarperPtr humanWarperPtr = fsdk::acquire(faceEnginePtr->createHumanWarper());
+	if (!humanWarperPtr)
+		throw py::cast_error("\nFailed to create human warper instance! VERIFY PATH to \"data\" directory!");
+	return humanWarperPtr;
+}
+
 //	descriptor
 fsdk::IDescriptorPtr PyIFaceEngine::createDescriptor(const uint32_t version) {
 	fsdk::IDescriptorPtr descriptorPtr = fsdk::acquire(faceEnginePtr->createDescriptor(version));

@@ -209,7 +209,6 @@ class TestFaceEngineDetector(unittest.TestCase):
             self.compare_faces(faceOne3, detect_list[0][0])
 
     def humanDetectorTest(self):
-        configPath = os.path.join("data", "faceengine.conf")
         humanDetector = self.faceEngine.createHumanDetector()
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "0_Parade_marchingband_1_620.ppm"))
@@ -224,6 +223,21 @@ class TestFaceEngineDetector(unittest.TestCase):
         self.assertEqual(235, list_of_list_of_detections[0][0].detection.rect.y)
         self.assertEqual(153, list_of_list_of_detections[0][0].detection.rect.width)
         self.assertEqual(298, list_of_list_of_detections[0][0].detection.rect.height)
+
+    def test_HumanWarper(self):
+        human_warper = self.faceEngine.createHumanWarper()
+        image = fe.Image()
+        err_image = image.load(os.path.join(testDataPath, "0_Parade_marchingband_1_620.ppm"))
+        self.assertTrue(err_image.isOk)
+        human = fe.Human()
+        human.img = image
+        human.detection = fe.DetectionFloat(fe.Rect(74, 235, 153, 298), 1.0)
+        err, human_warped_image = human_warper.warp(human)
+        self.assertTrue(err.isOk)
+        self.assertTrue(human_warped_image.isValid())
+        # size of warped human image
+        self.assertEqual(human_warped_image.getWidth(), 192)
+        self.assertEqual(human_warped_image.getHeight(), 384)
 
     def test_Detector(self):
         self.detectorTest(fe.FACE_DET_V1, expectedDetectionV1)

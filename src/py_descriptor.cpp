@@ -23,6 +23,12 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 		"Get algorithm model version this descriptor was created with.\n"
 		"\tReturns:\n"
 		"\t\t(int): Version as integral number.\n")
+		
+	.def("getDescriptorType",[]( const fsdk::IDescriptorPtr& desc) {
+			 return desc->getDescriptorType(); },
+		 "Get type of descriptor: face or human.\n"
+		 "\tReturns:\n"
+		 "\t\t(enum): type as DesctiptorType.\n")
 	
 	.def("getDescriptorLength",[]( const fsdk::IDescriptorPtr& desc) {
 			return desc->getDescriptorLength(); },
@@ -137,6 +143,12 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"the batch is empty.\n"
 		"\tReturns:\n"
 		"\t\t(int): Version as integral number.\n")
+	
+	.def("getDescriptorType",[]( const fsdk::IDescriptorBatchPtr& batch) {
+			 return batch->getDescriptorType(); },
+		 "Get type of descriptor: face or human.\n"
+		 "\tReturns:\n"
+		 "\t\t(enum): type as enum.\n")
 	
 	.def("getDescriptorSize",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
 			return descriptorBatchPtr->getDescriptorSize(); },
@@ -305,7 +317,13 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 			return extractorPtr->getModelVersion();
 		},
 		"Get algorithm model version this extractor works with.\n")
-	;
+		
+	.def("getDescriptorType",[]( const fsdk::IDescriptorExtractorPtr& extractorPtr) {
+			 return extractorPtr->getDescriptorType(); },
+		 "Get type of descriptor: face or human.\n"
+		 "\tReturns:\n"
+		 "\t\t(enum): type as enum.\n")
+		;
 	
 	py::class_<fsdk::IDescriptorMatcherPtr>(f, "IDescriptorMatcherPtr",
 		"Descriptor matcher interface.\n"

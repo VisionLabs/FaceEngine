@@ -55,6 +55,8 @@ class TestFaceEngineRect(unittest.TestCase):
         self.faceEngine.setSettingsProvider(config)
 
     def test_Version(self):
+
+        # face descriptor
         extractor_default = self.faceEngine.createExtractor()
         matcher_default = self.faceEngine.createMatcher()
         descriptor_default = self.faceEngine.createDescriptor()
@@ -70,16 +72,22 @@ class TestFaceEngineRect(unittest.TestCase):
         descriptor52 = self.faceEngine.createDescriptor(52)
         aggregation52 = self.faceEngine.createDescriptor(52)
 
+        # face descriptor
         self.assertEqual(46, extractor46.getModelVersion())
         self.assertEqual(46, matcher46.getModelVersion())
         self.assertEqual(46, descriptor46.getModelVersion())
         self.assertEqual(46, aggregation46.getModelVersion())
+        self.assertEqual(fe.DT_FACE, extractor46.getDescriptorType())
+        self.assertEqual(fe.DT_FACE, descriptor46.getDescriptorType())
 
         self.assertEqual(52, extractor52.getModelVersion())
         self.assertEqual(52, matcher52.getModelVersion())
         self.assertEqual(52, descriptor52.getModelVersion())
         self.assertEqual(52, aggregation52.getModelVersion())
+        self.assertEqual(fe.DT_FACE, extractor52.getDescriptorType())
+        self.assertEqual(fe.DT_FACE, descriptor52.getDescriptorType())
 
+        # face descriptor
         batch_size = 2
         descriptorBatch = self.faceEngine.createDescriptorBatch(2)
         images = []
@@ -167,7 +175,6 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertTrue(err.isOk)
             err, full_data_exp_no_signature = descriptorExpected.save(fe.Save.NoSignature)
             self.assertTrue(err.isOk)
-
 
             diff_actual_default1 = len(full_data_actual_default1) - len(dataActual)
             diff_actual_default2 = len(full_data_actual_default2) - len(dataActual)
