@@ -27,6 +27,8 @@ public:
 //	warper
 	fsdk::IWarperPtr createWarper();
 	
+	fsdk::IHumanWarperPtr createHumanWarper();
+	
 //	descriptor
 	fsdk::IDescriptorPtr createDescriptor(const uint32_t version  = 0);
 
