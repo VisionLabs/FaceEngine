@@ -721,6 +721,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("InvalidBufferSize", fsdk::FSDKError::InvalidBufferSize)
 		
 		.value("IncompatibleDescriptors", fsdk::FSDKError::IncompatibleDescriptors)
+		.value("EnableJustInBetaMode", fsdk::FSDKError::EnableJustInBetaMode)
+
+		.value("FiltredAggregationError", fsdk::FSDKError::FiltredAggregationError)
+
+		.value("BatchedInternalError", fsdk::FSDKError::BatchedInternalError)
+		.value("UnsupportedFunctionality", fsdk::FSDKError::UnsupportedFunctionality)
+
+		.value("HighMemoryUsage", fsdk::FSDKError::HighMemoryUsage)
 			;
 
 	py::enum_<fsdk::LicenseFeature>(f, "LicenseFeature", "License features.\n")
