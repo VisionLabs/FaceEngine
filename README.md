@@ -191,6 +191,9 @@ $ python3 pythonBindings/examples/example_estimators.py pythonBindings/build tes
 # Detecting and warping
 $ python3 pythonBindings/examples/example_detector_warper.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm
 
+# Human Detecting 
+$ python3 pythonBindings/examples/example_human_detector.py pythonBindings/build testData/0_Parade_marchingband_1_620.ppm
+
 # Gaze Estimation demo, requires connected video camera
 $ python3 pythonBindings/examples/example_gaze_cv.py pythonBindings/build
 
@@ -242,6 +245,7 @@ Please verify path with built FaceEngine.lib for your version of python. Usual p
 ```cmd
 $ python3 pythonBindings/examples/example_estimators.py pythonBindings/build/release testData/photo_2017-03-30_14-47-43_p.ppm
 $ python3 pythonBindings/examples/example_detector_warper.py pythonBindings/build/release testData/photo_2017-03-30_14-47-43_p.ppm
+$ python3 pythonBindings/examples/example_human_detector.py pythonBindings/build/release testData/0_Parade_marchingband_1_620.ppm
 $ python3 pythonBindings/examples/example_extractor_matcher.py pythonBindings/build/release testData/photo_2017-03-30_14-47-43_p.ppm testData/warp1.ppm testData/warp2.ppm
 $ python3 pythonBindings/examples/example_index.py pythonBindings/build/release testData/emotions1.ppm testData testData/imageListIndex.txt 0.3
 $ python3 pythonBindings/examples/example_human_extractor.py pythonBindings/build/release testData/0_Parade_Parade_0_12.jpg testData/0_Parade_Parade_0_12.jpg
