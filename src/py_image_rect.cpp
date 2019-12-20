@@ -160,9 +160,12 @@ py::class_<fsdk::Image>(f, "Image",
 	
 	.def("setData", [](fsdk::Image& image, py::array npImage, fsdk::Format::Type type) {
 		auto size = npImage.shape();
-		image.set((int)size[1], (int)size[0], fsdk::Format(type), npImage.data());
+		
+		fsdk::Result<fsdk::Image::Error> error = image.set((int)size[1], (int)size[0], fsdk::Format(type), npImage.data());
+		return ImageErrorResult(error);
 	}, "\n\tSet image by numpy array. Please point format. example: \n"
-		"\t\timage.setData(numpy_array, FaceEngine.FormatType.R8G8B8X8)")
+		"\t\timage.setData(numpy_array, FaceEngine.FormatType.R8G8B8X8)\n"
+		"\t\tThis method is unsafe. The responsibility for correct buffer lies on the user.\n")
 	
 	.def("save", [](const fsdk::Image& image, const char* path) {
 		fsdk::Result<fsdk::Image::Error> error = image.save(path);
@@ -198,7 +201,7 @@ py::class_<fsdk::Image>(f, "Image",
 	.def("loadFromMemory", [](fsdk::Image& image, const char* bytes, int sizeInBytes) {
 		fsdk::Result<fsdk::Image::Error> error = image.loadFromMemory(bytes, sizeInBytes);
 		return ImageErrorResult(error);
-	})
+	}, "\tThis method is unsafe. The responsibility for correct buffer lies on the user.\n")
 	
 	.def("loadFromMemory", [](
 		fsdk::Image& image,
@@ -211,7 +214,7 @@ py::class_<fsdk::Image>(f, "Image",
 			sizeInBytes,
 			fsdk::Format(type));
 			return ImageErrorResult(error);
-		})
+		}, "\tThis method is unsafe. The responsibility for correct buffer lies on the user.\n")
 			;
 
 // first of all for test
