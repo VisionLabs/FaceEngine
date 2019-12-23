@@ -1130,6 +1130,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Image.load
 			Image.getRect
 			Image.loadFromMemory
+			Image.convert
 
 			ImageType
 
