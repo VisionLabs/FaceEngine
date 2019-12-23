@@ -224,8 +224,8 @@ py::class_<fsdk::Image>(f, "Image",
 			return std::make_tuple(ImageErrorResult(error), dest);
 		}, "\tConverts image format.\n"
 			"\t\tparam1 (Format): format of destination image\n"
-		   "\tNote: IR_X8X8X8 is special format for infra-red images, it is not recommended to convert ordinary images to this format\n"
-		   "\t\tR16 is special format for depth images, in is not possible to convert ordinary images to this format\n"
+			"\tNote: IR_X8X8X8 is special format for infra-red images, it is not recommended to convert ordinary images to this format\n"
+			"\tR16 is special format for depth images, in is not possible to convert ordinary images to this format\n"
 			"\tReturns:\n"
 			"\t\t(tuple with error code and image): tuple with error code and in success case new converted image\n"
 			"\t\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n")
