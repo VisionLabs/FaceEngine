@@ -227,6 +227,69 @@ class TestFaceEngineImage(unittest.TestCase):
         self.save_image_with_params("testData/test-warp1.jpg")
         # print("deleting of saved {0}".format(new_file_path))
 
+    def compare_image_sizes(self, image1, image2):
+        self.assertTrue(image1.isValid())
+        self.assertTrue(image2.isValid())
+        self.assertTrue(image1.getWidth(), image2.getWidth())
+        self.assertTrue(image1.getHeight(), image2.getHeight())
+
+    def convert_image(self, src_image):
+        err_convert, dest_image = src_image.convert(f.FormatType.B8G8R8X8)
+        self.assertTrue(err_convert.isOk)
+        self.assertEqual(dest_image.getFormat(), f.FormatType.B8G8R8X8)
+        self.compare_image_sizes(src_image, dest_image)
+
+        err_convert, dest_image = src_image.convert(f.FormatType.R8G8B8X8)
+        self.assertTrue(err_convert.isOk)
+        self.assertEqual(dest_image.getFormat(), f.FormatType.R8G8B8X8)
+        self.compare_image_sizes(src_image, dest_image)
+
+        err_convert, dest_image = src_image.convert(f.FormatType.B8G8R8)
+        self.assertTrue(err_convert.isOk)
+        self.assertEqual(dest_image.getFormat(), f.FormatType.B8G8R8)
+        self.compare_image_sizes(src_image, dest_image)
+
+        err_convert, dest_image = src_image.convert(f.FormatType.R8G8B8)
+        self.assertEqual(dest_image.getFormat(), f.FormatType.R8G8B8)
+        self.assertTrue(err_convert.isOk)
+        self.compare_image_sizes(src_image, dest_image)
+
+        err_convert, dest_image = src_image.convert(f.FormatType.R8)
+        self.assertTrue(err_convert.isOk)
+        self.assertEqual(dest_image.getFormat(), f.FormatType.R8)
+        self.compare_image_sizes(src_image, dest_image)
+
+        # IR_X8X8X8 is special IR format, it is not recommended to convert ordinary images to this format
+        err_convert, dest_image = src_image.convert(f.FormatType.IR_X8X8X8)
+        self.assertTrue(err_convert.isOk)
+        self.assertEqual(dest_image.getFormat(), f.FormatType.IR_X8X8X8)
+        self.compare_image_sizes(src_image, dest_image)
+
+        # R16 is special depth map format, it is impossible to convert standard image to R16
+        err_convert, dest_image = src_image.convert(f.FormatType.R16)
+        self.assertTrue(err_convert.isError)
+
+    def test_convert(self):
+        src_image = f.Image()
+        err_load = src_image.load("testData/warp1.ppm")
+        self.assertTrue(err_load.isOk)
+        self.convert_image(src_image)
+        err_load = src_image.load("testData/warp1.ppm", f.FormatType.R8)
+        self.assertTrue(err_load.isOk)
+        self.convert_image(src_image)
+        err_load = src_image.load("testData/warp1.ppm", f.FormatType.R8G8B8X8)
+        self.assertTrue(err_load.isOk)
+        self.convert_image(src_image)
+        err_load = src_image.load("testData/warp1.ppm", f.FormatType.R8G8B8X8)
+        self.assertTrue(err_load.isOk)
+        self.convert_image(src_image)
+        err_load = src_image.load("testData/warp1.ppm", f.FormatType.B8G8R8)
+        self.assertTrue(err_load.isOk)
+        self.convert_image(src_image)
+        err_load = src_image.load("testData/warp1.ppm", f.FormatType.IR_X8X8X8)
+        self.assertTrue(err_load.isOk)
+        self.convert_image(src_image)
+
 
 class ExpectedFailureTestCase(unittest.TestCase):
     @unittest.expectedFailure
