@@ -1,13 +1,19 @@
 import sys
 
-# pass path dir with FaceEngine*.so and add it to system directory
-sys.path.append(sys.argv[1])
-
-import FaceEngine as fe
-
 
 def help():
     print("python example_license.py <path to dir with FaceEngine*.so> <path to the folder with license.conf>")
+    exit(1)
+
+
+try:
+    # pass path dir with FaceEngine*.so and add it to system directory
+    sys.path.append(sys.argv[1])
+except:
+    help()
+
+
+import FaceEngine as fe
 
 
 def get_info():
@@ -58,7 +64,6 @@ if __name__ == "__main__":
 
     if len(sys.argv) != 3:
         help()
-        exit(1)
 
     licenseConfPath = sys.argv[2]
 

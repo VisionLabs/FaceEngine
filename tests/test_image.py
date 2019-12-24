@@ -11,7 +11,13 @@ import cv2
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--bind-path", type=str,
                     help="path to dir with FaceEngine*.so file - binding of luna-sdk")
+
 args = parser.parse_args()
+
+if len(sys.argv) == 1 or not args.bind_path or not os.path.isdir(args.bind_path):
+    parser.print_help(sys.stderr)
+    sys.exit(1)
+
 path_to_binding = args.bind_path
 print("Directory {0} with python bindings of FaceEngine was included".format(path_to_binding))
 print(sys.argv)
