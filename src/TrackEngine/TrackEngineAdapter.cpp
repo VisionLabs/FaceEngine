@@ -14,7 +14,7 @@ PyIStream PyITrackEngine::createStream() {
 }
 
 bool PyIStream::pushFrame(const fsdk::Image &image, int id) {
-	return m_stream->pushFrame(image, id);
+	return m_stream->pushFrame(image, id, nullptr);
 }
 
 std::vector<PyICallback> PyIStream::getCallbacks() {

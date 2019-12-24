@@ -16,7 +16,10 @@ std::vector<PyICallback> Observer::getCallbacks() {
 	return ret;
 }
 
-void Observer::bestShot(const tsdk::DetectionDescr &detection) {
+void Observer::bestShot(
+	const tsdk::DetectionDescr &detection,
+	const tsdk::AdditionalFrameData* data) {
+
 	std::lock_guard<std::mutex> lock{m_mutex};
 	PyICallback c;
 	c.type = PyICallback::ctBestShot;
@@ -30,8 +33,13 @@ void Observer::bestShot(const tsdk::DetectionDescr &detection) {
 	m_callbacks->emplace_back(std::move(c));
 }
 
-void Observer::visual(const tsdk::FrameId &frameId, const fsdk::Image &image, const tsdk::TrackInfo *trackInfo,
-					  const int nTrack) {
+void Observer::visual(
+	const tsdk::FrameId &frameId,
+	const fsdk::Image &image,
+	const tsdk::TrackInfo *trackInfo,
+	const int nTrack,
+	const tsdk::AdditionalFrameData* data) {
+
 	std::lock_guard<std::mutex> lock{m_mutex};
 	for (int i = 0; i < nTrack; i++) {
 		PyICallback c;
@@ -55,6 +63,9 @@ void Observer::trackEnd(const tsdk::TrackId &trackId) {
 	m_callbacks->emplace_back(std::move(c));
 }
 
-bool Observer::checkBestShot(const tsdk::DetectionDescr &descr) {
+bool Observer::checkBestShot(
+	const tsdk::DetectionDescr &descr,
+	const tsdk::AdditionalFrameData* data) {
+
 	return true;
 }
