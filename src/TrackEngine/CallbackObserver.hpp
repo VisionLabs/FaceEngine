@@ -18,16 +18,22 @@ struct Observer :
 		tsdk::IBestShotPredicate {
 	Observer();
 
-	void bestShot(const tsdk::DetectionDescr& detection) override;
+	void bestShot(
+		const tsdk::DetectionDescr& detection,
+		const tsdk::AdditionalFrameData* data) override;
 
-	void visual(const tsdk::FrameId &frameId,
-				const fsdk::Image &image,
-				const tsdk::TrackInfo * trackInfo,
-				const int nTrack) override;
+	void visual(
+		const tsdk::FrameId &frameId,
+		const fsdk::Image &image,
+		const tsdk::TrackInfo * trackInfo,
+		const int nTrack,
+		const tsdk::AdditionalFrameData* data) override;
 
 	void trackEnd(const tsdk::TrackId& trackId) override;
 
-	bool checkBestShot(const tsdk::DetectionDescr& descr) override;
+	bool checkBestShot(
+		const tsdk::DetectionDescr& descr,
+		const tsdk::AdditionalFrameData* data) override;
 	std::vector<PyICallback> getCallbacks();
 private:
 	CallbacksListPtr m_callbacks;
