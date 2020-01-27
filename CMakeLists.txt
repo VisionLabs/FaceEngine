@@ -72,5 +72,14 @@ if(BUILD_TE_BINDINGS)
 			LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT libs)
 endif()
 
+# Parse version info from the git to three integer components
+include(GetGitRevisionDescription)
+include(Version)
+get_and_parse_version(VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_HASH)
+
+message(STATUS "FSDK [DEBUG]: ${VERSION_MAJOR}")
+message(STATUS "FSDK [DEBUG]: ${VERSION_MINOR}")
+message(STATUS "FSDK [DEBUG]: ${VERSION_PATCH}")
+message(STATUS "FSDK [DEBUG]: ${VERSION_HASH}")
 
 
