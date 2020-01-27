@@ -75,11 +75,14 @@ endif()
 # Parse version info from the git to three integer components
 include(GetGitRevisionDescription)
 include(Version)
-get_and_parse_version(VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_HASH)
+get_and_parse_version(VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_BUGFIX VERSION_HASH)
 
-message(STATUS "FSDK [DEBUG]: ${VERSION_MAJOR}")
-message(STATUS "FSDK [DEBUG]: ${VERSION_MINOR}")
-message(STATUS "FSDK [DEBUG]: ${VERSION_PATCH}")
-message(STATUS "FSDK [DEBUG]: ${VERSION_HASH}")
+# message(STATUS "bindings [DEBUG]: ${VERSION_MAJOR}")
+# message(STATUS "bindings [DEBUG]: ${VERSION_MINOR}")
+# message(STATUS "bindings [DEBUG]: ${VERSION_PATCH}")
+# message(STATUS "bindings [DEBUG]: ${VERSION_BUGFIX}")
+# message(STATUS "bindings [DEBUG]: ${VERSION_HASH}")
 
-
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in
+	${CMAKE_CURRENT_SOURCE_DIR}/setup.py)

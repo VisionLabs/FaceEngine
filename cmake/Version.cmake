@@ -29,7 +29,7 @@ endmacro()
 #     PATCH      The variable to store the patch integer component in.
 #     HASH       The sha hash of the current head revision.
 
-function(get_and_parse_version MAJOR MINOR PATCH HASH)
+function(get_and_parse_version MAJOR MINOR PATCH BUGFIX HASH)
 	# Get version info from the git tags
 	include(GetGitRevisionDescription)
 	get_git_head_revision(GIT_REFSPEC GIT_HASH)
@@ -38,9 +38,12 @@ function(get_and_parse_version MAJOR MINOR PATCH HASH)
 	string(REGEX REPLACE "v.([0-9]+)\\..*" "\\1" GIT_MAJOR ${VERSION})
 	string(REGEX REPLACE "v.[0-9]+\\.([0-9]+).*" "\\1" GIT_MINOR ${VERSION})
 	string(REGEX REPLACE "v.[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" GIT_PATCH ${VERSION})
+	string(REGEX REPLACE "v.[0-9]+\\.[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" GIT_BUGFIX ${VERSION})
 
-	set(${MAJOR} "${GIT_MAJOR}" PARENT_SCOPE)
-	set(${MINOR} "${GIT_MINOR}" PARENT_SCOPE)
-	set(${PATCH} "${GIT_PATCH}" PARENT_SCOPE)
-	set(${HASH} "${GIT_HASH}" PARENT_SCOPE)
+	set(${MAJOR}  "${GIT_MAJOR}"  PARENT_SCOPE)
+	set(${MINOR}  "${GIT_MINOR}"  PARENT_SCOPE)
+	set(${PATCH}  "${GIT_PATCH}"  PARENT_SCOPE)
+	set(${BUGFIX} "${GIT_BUGFIX}" PARENT_SCOPE)
+	
+	set(${HASH}  "${GIT_HASH}"  PARENT_SCOPE)
 endfunction()
