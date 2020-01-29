@@ -86,3 +86,10 @@ get_and_parse_version(VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_BUGFIX V
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in
 	${CMAKE_CURRENT_SOURCE_DIR}/setup.py)
+
+add_custom_command(
+		TARGET FaceEngine POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+				${CMAKE_SOURCE_DIR}
+				${CMAKE_INSTALL_PREFIX})
+
