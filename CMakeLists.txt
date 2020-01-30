@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.5)
 project(FaceEnginePythonBinding)
 
 option(CONFIG_INSTALL "Building Track Engine Bindings library" OFF)
