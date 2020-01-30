@@ -24,13 +24,13 @@ if (CONFIG_INSTALL)
 
 	install(DIRECTORY 	${CMAKE_SOURCE_DIR}/ 
 			DESTINATION	${CMAKE_INSTALL_PREFIX}
-			COMPONENT	copy-files
+			COMPONENT	configure_and_copy
 			PATTERN		".git*"   EXCLUDE
 			PATTERN		"*.in"    EXCLUDE
 			PATTERN		"*/build" EXCLUDE )
 
-	add_custom_target(copy-files
-			COMMAND ${CMAKE_COMMAND} -D COMPONENT=copy-files
+	add_custom_target(configure_and_copy
+			COMMAND ${CMAKE_COMMAND} -D COMPONENT=configure_and_copy
 			-P cmake_install.cmake)
 else()
 
