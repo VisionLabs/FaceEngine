@@ -204,23 +204,25 @@ void detector_module(py::module& f) {
 			"\t\tparam3 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
-
+		
 		.def("redetect", [](
 				const fsdk::IDetectorPtr& det,
 				std::vector<fsdk::Face>& faces,
 				const fsdk::DetectionType type) {
 					const fsdk::Span<fsdk::Face> facesSpan(faces.data(), faces.size());
-					fsdk::Result<fsdk::FSDKError> err = det->redetect(facesSpan, type);
+					std::vector<fsdk::Result<fsdk::FSDKError>> outErrors(faces.size());
+					fsdk::Span<fsdk::Result<fsdk::FSDKError>> errorsSpan(outErrors);
+					fsdk::Result<fsdk::FSDKError> err = det->redetect(facesSpan, type, errorsSpan);
 					return std::make_tuple(FSDKErrorResult(err),
-						std::vector<fsdk::Face>(facesSpan.begin(), facesSpan.end()));
-				}, py::arg("faces"), py::arg("type"),
+						std::vector<fsdk::Face>(facesSpan.begin(), facesSpan.end()),
+						std::vector<FSDKErrorResult>(errorsSpan.begin(), errorsSpan.end()));
+			},
 			"Batched redetect faces.\n"
 			"\tArgs:\n"
 			"\t\tparam1 ([Face]): detections list.\n"
 			"\t\tparam2 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
 			"\tReturns:\n"
-			"\t\t(tuple with FSDKErrorResult code and list of Faces): \n"
-			"\t\t\t tuple with FSDKErrorResult and list of tuples from Detection\n")
+			"\t\t(tuple) tuple with FSDKErrorResult, list of tuples from Detection, list of FSDKErrorResult for each face\n")
 					;
 	
 	py::class_<fsdk::Ref<fsdk::IHumanDetector>>(f, "IHumanDetectorPtr", "Human detector interface.\n")

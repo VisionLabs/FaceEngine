@@ -70,6 +70,10 @@ class TestFaceEngineDetector(unittest.TestCase):
         self.assertTrue(face.landmarks5_opt.isValid() == landmarks5Valid)
         self.assertTrue(face.landmarks68_opt.isValid() == landmarks68Valid)
 
+    def assertErrors(self, errorsList, valid):
+        for error in errorsList:
+            self.assertEqual(error.isOk, valid)
+
     def assertFaceLandmarks(self, face1_landmarks, face2_landmarks, delta=0):
         self.assertEqual(len(face1_landmarks.value()), len(face2_landmarks.value()))
         for k in range(len(face2_landmarks.value())):
@@ -234,8 +238,10 @@ class TestFaceEngineDetector(unittest.TestCase):
                     err_red, redection = detector.redetectOne(face, fe.DetectionType(fe.dtAll))
                     self.assertTrue(err_red.isOk)
                     faces_redetect.append(redection)
-                res1, facesList = detector.redetect(faces, fe.DetectionType(fe.dtBBox | fe.dt68Landmarks))
-                self.assertTrue(res1.isOk)
+                res1, facesList, errorList = detector.redetect(faces, fe.DetectionType(fe.dtBBox | fe.dt68Landmarks))
+                self.assertTrue(res.isOk)
+                self.assertErrors(errorList, True)
+
                 for i, face_redetect in enumerate(faces_redetect):
                     self.assertDetections(face_redetect.detection, facesList[i].detection)
                     self.assertFaceLandmarks(face_redetect.landmarks68_opt, facesList[i].landmarks68_opt)
@@ -269,8 +275,10 @@ class TestFaceEngineDetector(unittest.TestCase):
 
                 res_one, refFace = detector.redetectOne(self.face_for_redetect, fe.DetectionType(fe.dtBBox | fe.dt5Landmarks))
                 self.assertTrue(res_one.isOk)
-                res, faces = detector.redetect(self.faces_batch_for_redetect, fe.DetectionType(fe.dtBBox))
+                res, faces, errorList = detector.redetect(self.faces_batch_for_redetect, fe.DetectionType(fe.dtBBox))
                 self.assertTrue(res.isOk)
+                self.assertErrors(errorList, True)
+
                 for face in faces:
                     self.assertFaceValid(face, landmarks5Valid=False, landmarks68Valid=False)
                     self.assertDetections(refFace.detection, face.detection)
@@ -285,9 +293,11 @@ class TestFaceEngineDetector(unittest.TestCase):
 
                 res_one, refFace = detector.redetectOne(self.face_for_redetect, fe.DetectionType(fe.dtBBox | fe.dt5Landmarks))
                 self.assertTrue(res_one.isOk)
-                res, faces = detector.redetect(self.faces_batch_for_redetect,
+                res, faces, errorList = detector.redetect(self.faces_batch_for_redetect,
                                                fe.DetectionType(fe.dtBBox | fe.dt5Landmarks))
                 self.assertTrue(res.isOk)
+                self.assertErrors(errorList, True)
+
                 for face in faces:
                     self.assertFaceValid(face, landmarks5Valid=True, landmarks68Valid=False)
                     self.assertDetections(refFace.detection, face.detection)
@@ -304,9 +314,11 @@ class TestFaceEngineDetector(unittest.TestCase):
                 res_one, refFace = detector.redetectOne(self.face_for_redetect,
                                                         fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
                 self.assertTrue(res_one.isOk)
-                res, faces = detector.redetect(self.faces_batch_for_redetect,
+                res, faces, errorList = detector.redetect(self.faces_batch_for_redetect,
                                                fe.DetectionType(fe.dtBBox | fe.dt68Landmarks))
                 self.assertTrue(res.isOk)
+                self.assertErrors(errorList, True)
+
                 for face in faces:
                     self.assertFaceValid(face, landmarks5Valid=False, landmarks68Valid=True)
                     self.assertDetections(refFace.detection, face.detection)
@@ -322,8 +334,11 @@ class TestFaceEngineDetector(unittest.TestCase):
 
                 res_one, refFace = detector.redetectOne(self.face_for_redetect, fe.DetectionType(fe.dtAll))
                 self.assertTrue(res_one.isOk)
-                res, faces = detector.redetect(self.faces_batch_for_redetect,
+                res, faces, errorList = detector.redetect(self.faces_batch_for_redetect,
                                                fe.DetectionType(fe.dtBBox | fe.dt5Landmarks | fe.dt68Landmarks))
+                self.assertTrue(res.isOk)
+                self.assertErrors(errorList, True)
+
                 for face in faces:
                     self.assertFaceValid(face)
                     self.assertDetections(refFace.detection, face.detection)
