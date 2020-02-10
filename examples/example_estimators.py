@@ -61,11 +61,18 @@ def quality_ethnicity_blackWhite_smile_example(image):
     ethnicityEstimator = faceEngine.createEthnicityEstimator()
     blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
     smileEstimator = faceEngine.createSmileEstimator()
-    err_quality, quality_result = qualityEstimator.estimate(image)
+
+    err_subj_quality, subj_quality_result = qualityEstimator.estimate_subjective_quality(image)
+    err_quality, quality_result = qualityEstimator.estimate_quality(image)
     err_ethnicity, ethnicity_result = ethnicityEstimator.estimate(image)
     err_blackWhite, blackWhite_result = blackWhiteEstimator.estimate(image)
     err_smile, smile_result = smileEstimator.estimate(image)
 
+    if err_subj_quality.isOk:
+        print(subj_quality_result)
+    else:
+        print("Failed subjective quality estimation . Reason: {0}".format(err_subj_quality.what))
+        exit(1)
     if err_quality.isOk:
         print(quality_result)
     else:

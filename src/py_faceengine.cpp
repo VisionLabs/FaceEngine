@@ -858,6 +858,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IQualityEstimatorPtr
 			IQualityEstimatorPtr.estimate
+			IQualityEstimatorPtr.estimate_quality
+			IQualityEstimatorPtr.estimate_subjective_quality
 
 			IAttributeEstimatorPtr
 			IAttributeEstimatorPtr.estimate
@@ -1045,6 +1047,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			AttributeResult
 			AttributeResult.__init__
 			AttributeResult.__repr__
+
+			Quality
+			Quality.__init__
+			Quality.getQuality
 
 			SubjectiveQuality
 			SubjectiveQuality.__init__

@@ -155,9 +155,32 @@ class TestFaceEngineEstimators(unittest.TestCase):
         image = f.Image()
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
         self.assertTrue(image.isValid())
-        err, quality_result = qualityEstimator.estimate(image)
+        err, subj_quality_result = qualityEstimator.estimate(image)
         self.assertTrue(err.isOk)
-        self.assertTrue(quality_result.isGood())
+        self.assertTrue(subj_quality_result.isGood())
+        err1, subj_quality_result1 = qualityEstimator.estimate_subjective_quality(image)
+        self.assertTrue(err1.isOk)
+        self.assertTrue(subj_quality_result1.isGood())
+        #compare estimate_subjective_quality vs estimate 
+        floatprecision = 0.0001
+        self.assertAlmostEqual(subj_quality_result.blur, subj_quality_result1.blur, floatprecision)
+        self.assertAlmostEqual(subj_quality_result.light, subj_quality_result1.light, floatprecision)
+        self.assertAlmostEqual(subj_quality_result.darkness, subj_quality_result1.darkness, floatprecision)
+        self.assertAlmostEqual(subj_quality_result.illumination, subj_quality_result1.illumination, floatprecision)
+        self.assertAlmostEqual(subj_quality_result.specularity, subj_quality_result1.specularity, floatprecision)
+        #test estimate_quality
+        qualityRef = f.Quality()
+        qualityRef.light = 0.96277028322
+        qualityRef.dark  = 0.974349558353
+        qualityRef.gray  = 0.979210078716
+        qualityRef.blur  = 0.961572766304
+        refPrecision = 0.001
+        err, quality = qualityEstimator.estimate_quality(image)
+        self.assertAlmostEqual(quality.light, qualityRef.light, refPrecision)
+        self.assertAlmostEqual(quality.dark, qualityRef.dark, refPrecision)
+        self.assertAlmostEqual(quality.gray, qualityRef.gray, refPrecision)
+        self.assertAlmostEqual(quality.blur, qualityRef.blur, refPrecision)
+
 
     def testEthnicityEstimator(self):
         logging.info("EthnicityEstimator")

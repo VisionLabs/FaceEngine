@@ -211,6 +211,10 @@ print(fe.FSDKErrorValueInt.__doc__)
 print(fe.FSDKErrorValueFloat.__doc__)
 print(fe.FSDKErrorValueMatching.__doc__)
 
+print(fe.Quality.__doc__)
+print(fe.Quality.__init__.__doc__)
+print(fe.Quality.getQuality.__doc__)
+
 print(fe.SubjectiveQuality.__doc__)
 print(fe.SubjectiveQuality.__init__.__doc__)
 print(fe.SubjectiveQuality.isGood.__doc__)
