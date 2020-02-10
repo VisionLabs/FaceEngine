@@ -14,12 +14,37 @@ void estimators_module(py::module& f) {
 	
 	py::class_<fsdk::IQualityEstimatorPtr>(f, "IQualityEstimatorPtr",
 		"Image quality estimator interface.\n"
-		"This estimator is designed to work with a person face image; you should pass a warped face detection image.\n"
-		"Quality estimator detects the same attributes as all the other estimators:\n"
-		"\tover/under exposure;\n"
-		"\tblurriness;\n"
-		"\tnatural/unnatural colors;\n")
-	
+		"There are two versions of quality estimator that one can use. Each version uses its own CNN internally and outputs slightly different scores.\n "
+		"This estimator is designed to work with warped face image.\n")
+
+		.def("estimate_quality",[](
+			const fsdk::IQualityEstimatorPtr& est,
+			const fsdk::Image &warp) {
+				fsdk::Quality out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
+			"Predict quality of an image. Upon success returns fsdk::Quality output structure with quality params and error code "
+			"(see FSDKErrorResult for details). \n"
+			"\tArgs:\n"
+			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with error code FSDKErrorResult and fsdk::Quality output structure\n")
+
+		.def("estimate_subjective_quality",[](
+			const fsdk::IQualityEstimatorPtr& est,
+			const fsdk::Image &warp) {
+				fsdk::SubjectiveQuality out;
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
+			"Predict subjective quality of an image. Upon success returns fsdk::SubjectiveQuality output structure with quality params and error code "
+			"(see FSDKErrorResult for details). \n"
+			"\tArgs:\n"
+			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with error code FSDKErrorResult and fsdk::SubjectiveQuality output structure\n")
+
 		.def("estimate",[](
 			const fsdk::IQualityEstimatorPtr& est,
 			const fsdk::Image &warp) {
@@ -27,12 +52,7 @@ void estimators_module(py::module& f) {
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
 				return std::make_tuple(FSDKErrorResult(err), out);
 			},
-			"Estimate the quality. If success returns quality output structure with quality params, else error code "
-			"(see FSDKErrorResult for details). \n"
-			"\tArgs:\n"
-			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8"
-			"\tReturns:\n"
-			"\t\t(tuple): tuple with error code FSDKErrorResult and output Quality\n")
+			"Alias for estimate_subjective_quality function call. Kept for backward compatibility with older SDK versions\n")
 		;
 	
 	py::class_<fsdk::IAttributeEstimatorPtr>(f, "IAttributeEstimatorPtr",
@@ -600,6 +620,30 @@ void estimators_module(py::module& f) {
 			"\tThe method `__setitem__` is used only for test and research purposes with class Vector2f.\n "
 			"\tExample: lanmarks[i] = FaceEngine.Vector2f(10.0, 20.0)")
 			; //EyelidLandmarks
+
+//	Quality
+	py::class_<fsdk::Quality>(f, "Quality",
+		"Quality estimation structure\n"
+		"\tEach estimation is given in normalized [0, 1] range. Parameter meanings:\n"
+		"\t\t light: image overlighting degree. 1 - ok, 0 - overlighted;\n"
+		"\t\t dark: image darkness degree. 1 - ok, 0 - too dark;\n"
+		"\t\t gray: image grayness degree 1 - ok, 0 - too gray;\n"
+		"\t\t blur: image blur degree. 1 - ok, 0 - too blured.\n")
+		.def(py::init<>())
+		.def_readwrite("light", &fsdk::Quality::light)
+		.def_readwrite("dark", &fsdk::Quality::dark)
+		.def_readwrite("gray", &fsdk::Quality::gray)
+		.def_readwrite("blur", &fsdk::Quality::blur)
+		.def("__repr__",
+			[](const fsdk::Quality &q) {
+				return "Quality: "
+						"light = " + std::to_string(q.light)
+						+ ", dark = " + std::to_string(q.dark)
+						+ ", gray = " + std::to_string(q.gray)
+						+ ", blur = " + std::to_string(q.blur);
+			})
+		.def("getQuality", &fsdk::Quality::getQuality, "\tcomplex estimation of quality (minimin of flor estimations). 0 - low quality, 1 - high quality.\n")
+		;
 
 //	Quality
 	py::class_<fsdk::SubjectiveQuality>(f, "SubjectiveQuality",
