@@ -2,6 +2,38 @@
 cmake_minimum_required(VERSION 3.5)
 project(FaceEnginePythonBinding)
 
+option(CONFIG_INSTALL "Building Track Engine Bindings library" OFF)
+
+if (CONFIG_INSTALL)
+	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+	
+	# Parse version info from the git to three integer components
+	include(GetGitRevisionDescription)
+	include(Version)
+	get_and_parse_version(VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_BUGFIX VERSION_HASH)
+
+	# message(STATUS "bindings [DEBUG]: ${VERSION_MAJOR}")
+	# message(STATUS "bindings [DEBUG]: ${VERSION_MINOR}")
+	# message(STATUS "bindings [DEBUG]: ${VERSION_PATCH}")
+	# message(STATUS "bindings [DEBUG]: ${VERSION_BUGFIX}")
+	# message(STATUS "bindings [DEBUG]: ${VERSION_HASH}")
+
+	configure_file(
+		${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in
+		${CMAKE_CURRENT_SOURCE_DIR}/setup.py)
+
+	install(DIRECTORY 	${CMAKE_SOURCE_DIR}/ 
+			DESTINATION	${CMAKE_INSTALL_PREFIX}
+			COMPONENT	configure_and_copy
+			PATTERN		".git*"   EXCLUDE
+			PATTERN		"*.in"    EXCLUDE
+			PATTERN		"*/build" EXCLUDE )
+
+	add_custom_target(configure_and_copy
+			COMMAND ${CMAKE_COMMAND} -D COMPONENT=configure_and_copy
+			-P cmake_install.cmake)
+else()
+
 option(BUILD_TE_BINDINGS "Building Track Engine Bindings library" ON)
 
 set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/")
@@ -70,6 +102,8 @@ if(BUILD_TE_BINDINGS)
 	
 	install(TARGETS TrackEngine
 			LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT libs)
+endif()
+
 endif()
 
 
