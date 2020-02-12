@@ -172,6 +172,7 @@ From `FSDK_ROOT`:
 $ python3 pythonBindings/tests/test_image.py --bind-path pythonBindings/build
 $ python3 pythonBindings/tests/test_rect.py --bind-path pythonBindings/build
 $ python3 pythonBindings/tests/test_estimators.py --bind-path pythonBindings/build
+$ python3 pythonBindings/tests/test_config.py --bind-path pythonBindings/build
 $ python3 pythonBindings/tests/test_index.py --bind-path pythonBindings/build # only for server platforms, not for Jetson
 $ python3 pythonBindings/tests/test_descriptor.py --bind-path pythonBindings/build
 $ python3 pythonBindings/tests/test_detector.py --bind-path pythonBindings/build
@@ -261,6 +262,7 @@ $ python3 pythonBindings/tests/test_index.py --bind-path pythonBindings/build/re
 $ python3 pythonBindings/tests/test_descriptor.py --bind-path pythonBindings/build/release
 $ python3 pythonBindings/tests/test_detector.py --bind-path pythonBindings/build/release
 $ python3 pythonBindings/tests/test_liveness.py --bind-path pythonBindings/build/release
+$ python3 pythonBindings/tests/test_config.py --bind-path pythonBindings/build/release
 $ python3 pythonBindings/examples/example_depth.py --data ./data --bindPath pythonBindings/build/release --rsbindPath <absolute_path_to_realsense_python_bindings_libraries>
 ```
 
@@ -418,10 +420,10 @@ Usage example you can see in `example_detector_warper.py`
     config = fe.createSettingsProvider("data/faceengine.conf")
     config_path = config.getDefaultPath()
     print("Config settings: DefaultPath {0}".format(config_path))
-    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(value))
+    config.setValue("system", "verboseLogging", value)
     faceEngine.setSettingsProvider(config)
     val = config.getValue("system", "verboseLogging")
-    print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val.asInt()))
+    print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val))
 
 ```
 

@@ -61,7 +61,7 @@ def loadAcquiredFaceEngineWithCnn46():
     if not make_activation(faceEnginePtr):
         raise ActivationLicenseError("License is not activated!")
     config = fe.createSettingsProvider(configPath)
-    config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(46))
+    config.setValue("DescriptorFactory::Settings", "model", 46)
     faceEnginePtr.setSettingsProvider(config)
     return faceEnginePtr
 

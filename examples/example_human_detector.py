@@ -119,7 +119,7 @@ def set_logging(value):
     config = fe.createSettingsProvider("data/faceengine.conf")
     config_path = config.getDefaultPath()
     print("Config settings: DefaultPath {0}".format(config_path))
-    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(value))
+    config.setValue("system", "verboseLogging", value)
     faceEngine.setSettingsProvider(config)
     val = config.getValue("system", "verboseLogging")
     print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val.asInt()))

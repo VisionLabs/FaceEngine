@@ -20,12 +20,5 @@ public:
 	void clear();
 
 	bool isEmpty();
-
-	void setValue(
-			const char* section,
-			const char* parameter,
-			const fsdk::ISettingsProvider::Value& value);
-
-	fsdk::ISettingsProvider::Value getValue(const char* section, const char* parameter);
 };
 

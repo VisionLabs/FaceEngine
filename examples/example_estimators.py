@@ -244,9 +244,9 @@ def ags_example(_faceEngine, _image, _detection):
     config = fe.createSettingsProvider("data/faceengine.conf")
     # to get ags estimation we need to switch on betamode
     # switch on betaMode
-    config.setValue("system", "betaMode", fe.SettingsProviderValue(1))
+    config.setValue("system", "betaMode", 1)
     # switch on logs to see that betamode is enabled
-    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+    config.setValue("system", "verboseLogging", 5)
     _faceEngine.setSettingsProvider(config)
     # create ags estimator only after betamode is enabled
     agsEstimator = faceEngine.createAGSEstimator()
@@ -257,9 +257,9 @@ def ags_example(_faceEngine, _image, _detection):
         print("Failed AGS estimation. Reason: {0}".format(err.what))
         exit(1)
     # switch off betaMode if we do not need it yet
-    config.setValue("system", "betaMode", fe.SettingsProviderValue(0))
+    config.setValue("system", "betaMode", 0)
     # switch off logs
-    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(0))
+    config.setValue("system", "verboseLogging", 0)
     _faceEngine.setSettingsProvider(config)
 
 

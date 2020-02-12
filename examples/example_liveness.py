@@ -35,7 +35,7 @@ if __name__ == "__main__":
     # example of config creating
     config_fe = fe.createSettingsProvider("data/faceengine.conf")
     config_le = fe.createSettingsProvider("data/livenessengine.conf")
-    aggr = config_le.getValue("Liveness::Infrared", "aggregationThreshold").asFloat()
+    aggr = config_le.getValue("Liveness::Infrared", "aggregationThreshold")
 
     vidcap = cv2.VideoCapture(video_path)
     success = False

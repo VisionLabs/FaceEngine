@@ -50,7 +50,7 @@ class TestFaceEngineRect(unittest.TestCase):
 
     def set_logging(self, value):
         config = fe.createSettingsProvider("data/faceengine.conf")
-        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(value))
+        config.setValue("system", "verboseLogging", value)
         self.faceEngine.setSettingsProvider(config)
 
     def test_Version(self):
@@ -124,12 +124,12 @@ class TestFaceEngineRect(unittest.TestCase):
         config = fe.createSettingsProvider(configPath)
         runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
 
-        config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
-        config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
-        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
-        runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
-        runtimeConf.setValue("Runtime", "verboseLogging", fe.SettingsProviderValue(4))
-        runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
+        config.setValue("DescriptorFactory::Settings", "model", version)
+        config.setValue("DescriptorFactory::Settings", "useMobileNet", useMobileNet)
+        config.setValue("system", "verboseLogging", 5)
+        runtimeConf.setValue("Runtime", "deviceClass", device)
+        runtimeConf.setValue("Runtime", "verboseLogging", 4)
+        runtimeConf.setValue("Runtime", "cpuClass", cpuType)
 
         faceEngine.setSettingsProvider(config)
         faceEngine.setRuntimeSettingsProvider(runtimeConf)
@@ -205,11 +205,11 @@ class TestFaceEngineRect(unittest.TestCase):
         config = fe.createSettingsProvider(configPath)
         runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
 
-        config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
-        config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
-        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
-        runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
-        runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
+        config.setValue("DescriptorFactory::Settings", "model", version)
+        config.setValue("DescriptorFactory::Settings", "useMobileNet", useMobileNet)
+        config.setValue("system", "verboseLogging", 5)
+        runtimeConf.setValue("Runtime", "deviceClass", device)
+        runtimeConf.setValue("Runtime", "cpuClass", cpuType)
 
         faceEngine.setSettingsProvider(config)
         faceEngine.setRuntimeSettingsProvider(runtimeConf)
@@ -254,11 +254,11 @@ class TestFaceEngineRect(unittest.TestCase):
         config = fe.createSettingsProvider(configPath)
         runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
 
-        config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
-        config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
-        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
-        runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
-        runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
+        config.setValue("DescriptorFactory::Settings", "model", version)
+        config.setValue("DescriptorFactory::Settings", "useMobileNet", useMobileNet)
+        config.setValue("system", "verboseLogging", 5)
+        runtimeConf.setValue("Runtime", "deviceClass", device)
+        runtimeConf.setValue("Runtime", "cpuClass", cpuType)
 
         faceEngine.setSettingsProvider(config)
         faceEngine.setRuntimeSettingsProvider(runtimeConf)
