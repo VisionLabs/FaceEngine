@@ -94,10 +94,10 @@ def set_logging(value):
     config = fe.createSettingsProvider("data/faceengine.conf")
     config_path = config.getDefaultPath()
     print("Config settings: DefaultPath {0}".format(config_path))
-    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(value))
+    config.setValue("system", "verboseLogging", value)
     face_engine.setSettingsProvider(config)
     val = config.getValue("system", "verboseLogging")
-    print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val.asInt()))
+    print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val))
 
 
 def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
@@ -106,11 +106,11 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     runtime_config = fe.createSettingsProvider("data/runtime.conf")
     config_path = config.getDefaultPath()
     print("Default path = ", config_path)
-    config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
-    config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(use_mobile_net))
-    config.setValue("system", "verboseLogging", fe.SettingsProviderValue(1))
-    runtime_config.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
-    runtime_config.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpu_type))
+    config.setValue("DescriptorFactory::Settings", "model", version)
+    config.setValue("DescriptorFactory::Settings", "useMobileNet", use_mobile_net)
+    config.setValue("system", "verboseLogging", 1)
+    runtime_config.setValue("Runtime", "deviceClass", device)
+    runtime_config.setValue("Runtime", "cpuClass", cpu_type)
     face_engine.setSettingsProvider(config)
     face_engine.setRuntimeSettingsProvider(runtime_config)
     warps = [fe.Image(), fe.Image()]

@@ -240,9 +240,9 @@ class TestFaceEngineEstimators(unittest.TestCase):
     def headPose(self, check):
         config = f.createSettingsProvider("data/faceengine.conf")
         if check == 'landmarks':
-            config.setValue("HeadPoseEstimator::Settings", "useEstimationByLandmarks", f.SettingsProviderValue(1))
+            config.setValue("HeadPoseEstimator::Settings", "useEstimationByLandmarks", 1)
         else:
-            config.setValue("HeadPoseEstimator::Settings", "useEstimationByImage", f.SettingsProviderValue(1))
+            config.setValue("HeadPoseEstimator::Settings", "useEstimationByImage", 1)
         self.faceEngine.setSettingsProvider(config)
         image = f.Image()
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
@@ -295,7 +295,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
     def testIREstimatorUniversal(self):
         config = f.createSettingsProvider("data/faceengine.conf")
-        config.setValue("LivenessIREstimator::Settings", "name", f.SettingsProviderValue("universal"))
+        config.setValue("LivenessIREstimator::Settings", "name", "universal")
         self.faceEngine.setSettingsProvider(config)
         iREstimator = self.faceEngine.createIREstimator()
 
@@ -319,7 +319,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
     def testIREstimatorAmbarella(self):
         config = f.createSettingsProvider("data/faceengine.conf")
 
-        config.setValue("LivenessIREstimator::Settings", "name", f.SettingsProviderValue("ambarella"))
+        config.setValue("LivenessIREstimator::Settings", "name", "ambarella")
         self.faceEngine.setSettingsProvider(config)
         iREstimator = self.faceEngine.createIREstimator()
 
@@ -596,8 +596,8 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
     def testAGSEstimator(self):
         config = f.createSettingsProvider("data/faceengine.conf")
-        config.setValue("system", "betaMode", f.SettingsProviderValue(1))
-        config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
+        config.setValue("system", "betaMode", 1)
+        config.setValue("system", "verboseLogging", 5)
         self.faceEngine.setSettingsProvider(config)
         estimator = self.faceEngine.createAGSEstimator()
         image = f.Image()
@@ -613,7 +613,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
         r = estimator.estimate(image, reference);
         self.assertFalse(r[0].isError)
         self.assertAlmostEqual(refAGS, r[1], delta=0.01)
-        config.setValue("system", "verboseLogging", f.SettingsProviderValue(0))
+        config.setValue("system", "verboseLogging", 0)
         self.faceEngine.setSettingsProvider(config)
 
     def testMouthEstimator(self):

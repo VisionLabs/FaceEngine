@@ -3,7 +3,6 @@
 //
 #include "SettingsProviderAdapter.hpp"
 
-
 PyISettingsProvider::PyISettingsProvider(const char* path = nullptr) {
 	settingsProviderPtr = fsdk::acquire(fsdk::createSettingsProvider(path));
 }
@@ -27,17 +26,3 @@ void PyISettingsProvider::clear() {
 bool PyISettingsProvider::isEmpty() {
 	return settingsProviderPtr->isEmpty();
 }
-
-void PyISettingsProvider::setValue(
-		const char* section,
-		const char* parameter,
-		const fsdk::ISettingsProvider::Value& value) {
-	settingsProviderPtr->setValue(section, parameter, value);
-}
-
-fsdk::ISettingsProvider::Value PyISettingsProvider::getValue(
-		const char* section,
-		const char* parameter) {
-	return settingsProviderPtr->getValue(section, parameter);
-}
-
