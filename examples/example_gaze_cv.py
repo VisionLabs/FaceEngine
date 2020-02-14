@@ -5,7 +5,7 @@ import math
 
 
 def help():
-    print("python example.py <path to dir with FaceEngine*.so>")
+    print("python example_gaze_cv.py <path to dir with FaceEngine*.so>")
 
 print(len(sys.argv))
 if len(sys.argv) != 2:
@@ -13,9 +13,15 @@ if len(sys.argv) != 2:
     exit(1)
 
 sys.path.append(sys.argv[1])
-import FaceEngine as fe
 
+import FaceEngine as fe
+from example_license import make_activation
+
+# correct paths or put directory "data" with example_gaze_cv.py
 faceEngine = fe.createFaceEngine("data")
+if not make_activation(faceEngine):
+    print("failed to activate license!")
+    exit(-1)
 
 
 def detect(detector, image_det):
