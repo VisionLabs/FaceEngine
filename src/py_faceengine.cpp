@@ -298,14 +298,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"\tAn enum should specify a result code.\n")
 		.def_readonly("isOk", &SerializeErrorResult::isOk)
 		.def_readonly("isError", &SerializeErrorResult::isError)
-		.def_readonly("serializeError", &SerializeErrorResult::error)
+		.def_readonly("error", &SerializeErrorResult::error)
 		.def_readonly("what", &SerializeErrorResult::what)
 		.def("__repr__",
 			[](const SerializeErrorResult &err) {
 				return "SerializeErrorResult: "
 						"isOk = " + std::to_string(err.isOk)
 						+ ", isError = " + std::to_string(err.isError)
-						+ ", serializeError = " +
+						+ ", error = " +
 						fsdk::ErrorTraits<fsdk::ISerializableObject::Error>::toString(err.error)
 						+ ", what = " + err.what; })
 			;

@@ -240,6 +240,42 @@ class TestFaceEngineRect(unittest.TestCase):
                 self.assertEqual(dataExpected[j], dataActual[j])
             self.assertAlmostEqual(value, garbage_scores[i_desc], delta=0.0001)
 
+        # test of saving and loading from archive
+        batch_loaded = self.faceEngine.createDescriptorBatch(2)
+
+        err, full_data_default1 = batch.save()
+        self.assertTrue(err.isOk)
+        err_load = batch_loaded.load(full_data_default1, len(full_data_default1))
+        self.assertTrue(err_load.isOk)
+        self.assertBatchDescriptorsEquality(batch, batch_loaded)
+
+        err, full_data_default2 = batch.save(fe.Save.Default)
+        self.assertTrue(err.isOk)
+        err_load = batch_loaded.load(full_data_default2, len(full_data_default2))
+        self.assertTrue(err_load.isOk)
+        self.assertBatchDescriptorsEquality(batch, batch_loaded)
+
+        err, full_data_no_signature = batch.save(fe.Save.NoSignature)
+        self.assertTrue(err.isOk)
+        err_load = batch_loaded.load(full_data_no_signature, len(full_data_no_signature))
+        # we cannot load batch from archive without signature
+        self.assertTrue(err_load.isError)
+        self.assertTrue(err_load.error, fe.SerializeError.Signature)
+
+    def assertBatchDescriptorsEquality(self, batch1, batch2):
+        self.assertEqual(batch1.getCount(), batch2.getCount())
+        batch_size = batch1.getCount()
+        self.assertTrue(batch_size != 0)
+        for i_desc in range(batch_size):
+            descriptor = batch1.getDescriptorFast(i_desc)
+            descriptor_loaded = batch2.getDescriptorFast(i_desc)
+            data = descriptor.getData()
+            data_loaded = descriptor_loaded.getData()
+            self.assertEqual(len(data), len(data_loaded))
+            self.assertEqual(len(data_loaded), descriptor.getDescriptorLength())
+            for j in range(len(data)):
+                self.assertEqual(data[j], data_loaded[j])
+
     def test_extractor_batch(self):
         self.extractor_batch(46, True, "auto", "cpu")
         self.extractor_batch(46, False, "auto", "cpu")

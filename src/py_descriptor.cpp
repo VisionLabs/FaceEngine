@@ -181,7 +181,6 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 			fsdk::Result<fsdk::ISerializableObject::Error> err =
 				descriptorBatchPtr->load(&archiveDescriptor, flag);
 			return SerializeErrorResult(err);
-			
 		},
 		py::arg("buffer"),
 		py::arg("bufferSize"),
@@ -189,11 +188,11 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"Load descriptor batch from buffer")
 		
 	.def("save",[](
-		const fsdk::IDescriptorPtr& descriptorBatchPtr,
+		const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
 		fsdk::ISerializableObject::Flags flag = fsdk::ISerializableObject::Default) {
 			std::vector<uint8_t> buffer;
 			VectorArchive archiveDescriptor(buffer);
-			fsdk::Result<fsdk::ISerializableObject::Error> err = descriptorBatchPtr->load(&archiveDescriptor, flag);
+			fsdk::Result<fsdk::ISerializableObject::Error> err = descriptorBatchPtr->save(&archiveDescriptor, flag);
 			return std::make_tuple(SerializeErrorResult(err), py::bytes((const char*)buffer.data(), buffer.size()));
 			},
 		py::arg("flag") = fsdk::ISerializableObject::Default
