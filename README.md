@@ -427,4 +427,42 @@ Usage example you can see in `example_detector_warper.py`
 
 ```
 
+# Troubleshooting and diagnostics
+
+## Diagnostics
+
+The PythonBindings module for VisionLabs LUNA SDK is just a Python wrapper for C++ LUNA SDK library. The main functionality is implemented in the C++ LUNA SDK library - not in the PythonBindings.
+
+In case of wrong behaviour of the some code with using the PythongBindings or in case of wrong results we recomend to diagnostic the problem with SDK library tools, but not with PythonBindings.
+
+The next ways to make a diagnostics with the LUNA SDK tools are recomended:
+
+1. Try to run unit-tests from the LUNA SDK package (see the QuickStartGuide.pdf from the LUNA SDK package for details).
+
+2. Try to enable verbose logging for the LUNA SDK and run the code again. See the logs for detailed information about execution (see the ConfigurationGuide.pdf from the LUNA SDK package for details).
+
+
+This PythonBindings module also contains some tools for diagnostics:
+
+1. Try to run PythonBindings unit-tests (see the "test" folder in the PyhthonBindings package).
+
+2. Try to read examples for correct usage of the functionallity (see the "examples" folder in the PythonBindings package).
+
+
+## Troubleshooting
+
+Several known issues and way to fix them are presented here:
+
+1. FaceEngine.createXXXX (for example, FaceEngine.createDetector) raises an exception.
+
+Possible reasons:
+- Wrong path to the "data" folder.
+Please, check path to the "data" folder of the LUNA SDK. See the QuickStartGuide.pdf from the LUNA SDK package for details.
+
+- Licensing issue - license is not activated or the License Management server if not responding.
+The PythonBingins package does not require any license for now. So, all licensing issues are related to the LUNA SDK licensing only.
+Please, check the license for the LUNA SDK (see the FaceEngine_Handbook.pdf from the LUNA SDK package for details).
+
+- Wrong configuration file.
+The LUNA SDK modules use the LUNA SDK configuration file during initialization. If this file is corrupted or contains invalid parameters, LUNA SDK modules could not be initialized correctly (See the ConfigurationGuide.pdf from the LUNA SDK package for details).
 
