@@ -181,19 +181,23 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertAlmostEqual(quality.gray, qualityRef.gray, refPrecision)
         self.assertAlmostEqual(quality.blur, qualityRef.blur, refPrecision)
 
-
     def testEthnicityEstimator(self):
         logging.info("EthnicityEstimator")
-        ethnicityEstimator = self.faceEngine.createEthnicityEstimator()
-        image = f.Image()
-        image.load("testData/warp1.ppm")
-        self.assertTrue(image.isValid())
-        err, ethnicity_result = ethnicityEstimator.estimate(image)
-        self.assertTrue(err.isOk)
-        self.assertAlmostEqual(ethnicity_result.africanAmerican, 0.0, delta=0.1)
-        self.assertAlmostEqual(ethnicity_result.indian, 0.0, delta=0.1)
-        self.assertAlmostEqual(ethnicity_result.asian, 0.0, delta=0.1)
-        self.assertAlmostEqual(ethnicity_result.caucasian, 1.0, delta=0.1)
+        ethnicity = {"caucasian": ["testData/warp1.ppm", 0.0, 0.0, 0.0, 1.0], "asian": ["testData/ethnicity2_asian.jpg", 0.0, 0.0, 1.0, 0.0],
+                     "indian": ["testData/ethnicity3_indian.png", 0.0, 1.0, 0.0, 0.0], "africanAmerican": ["testData/ethnicity4_black.png", 1.0, 0.0, 0.0, 0.0]}
+        for etnos, value in ethnicity.items():
+            path_to_img, african, indian, asian, caucasian = value
+            with self.subTest(type=etnos):
+                ethnicityEstimator = self.faceEngine.createEthnicityEstimator()
+                image = f.Image()
+                image.load(path_to_img)
+                self.assertTrue(image.isValid())
+                err, ethnicity_result = ethnicityEstimator.estimate(image)
+                self.assertTrue(err.isOk)
+                self.assertAlmostEqual(ethnicity_result.africanAmerican, african, delta=0.1)
+                self.assertAlmostEqual(ethnicity_result.indian, indian, delta=0.1)
+                self.assertAlmostEqual(ethnicity_result.asian, asian, delta=0.1)
+                self.assertAlmostEqual(ethnicity_result.caucasian, caucasian, delta=0.1)
 
     def testOverlapEstimator(self):
         image = f.Image()
@@ -209,76 +213,67 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertTrue(overlap_estimation.overlapped)
 
     def testGlassesEstimator(self):
-        warp0 = f.Image()
-        warp1 = f.Image()
-        warp2 = f.Image()
-        err = warp0.load("testData/warp_noglasses.jpg")
-        self.assertTrue(err.isOk)
-        err = warp1.load("testData/warp_eyeglasses.jpg")
-        self.assertTrue(err.isOk)
-        err = warp2.load("testData/warp_sunglasses.jpg")
-        self.assertTrue(err.isOk)
-        glassesEstimator = self.faceEngine.createGlassesEstimator()
-
-        err, glasses_estimation = glassesEstimator.estimate(warp0)
-        self.assertTrue(err.isOk)
-        self.assertEqual(glasses_estimation, f.GlassesEstimation.NoGlasses)
-
-        err, glasses_estimation = glassesEstimator.estimate(warp1)
-        self.assertTrue(err.isOk)
-        self.assertEqual(glasses_estimation, f.GlassesEstimation.EyeGlasses)
-
-        err, glasses_estimation = glassesEstimator.estimate(warp2)
-        self.assertTrue(err.isOk)
-        self.assertEqual(glasses_estimation, f.GlassesEstimation.SunGlasses)
+        params = {f.GlassesEstimation.NoGlasses: "testData/warp_noglasses.jpg", f.GlassesEstimation.EyeGlasses: "testData/warp_eyeglasses.jpg", f.GlassesEstimation.SunGlasses: "testData/warp_sunglasses.jpg"}
+        for glasses_state, image_path in params.items():
+            with self.subTest(type=glasses_state):
+                warp = f.Image()
+                err = warp.load(image_path)
+                self.assertTrue(err.isOk)
+                glassesEstimator = self.faceEngine.createGlassesEstimator()
+                err, glasses_estimation = glassesEstimator.estimate(warp)
+                self.assertTrue(err.isOk)
+                self.assertEqual(glasses_estimation, glasses_state)
 
     def testHeadPoseEstimator(self):
         for i in ('landmarks', 'image'):
             with self.subTest(i=i):
-                self.headPose(i)
-
-    def headPose(self, check):
-        config = f.createSettingsProvider("data/faceengine.conf")
-        if check == 'landmarks':
-            config.setValue("HeadPoseEstimator::Settings", "useEstimationByLandmarks", 1)
-        else:
-            config.setValue("HeadPoseEstimator::Settings", "useEstimationByImage", 1)
-        self.faceEngine.setSettingsProvider(config)
-        image = f.Image()
-        image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
-        _, face = detect(image, self.faceEngine)
-        (detection, landmarks5, landmarks68) = face.detection, \
-                                               face.landmarks5_opt.value(), \
-                                               face.landmarks68_opt.value()
-        headPoseEstimator = self.faceEngine.createHeadPoseEstimator()
-        if check == 'landmarks':
-            err, headPoseEstimation = headPoseEstimator.estimate(landmarks68)
-        else:
-            err, headPoseEstimation = headPoseEstimator.estimate(image, detection)
-        self.assertTrue(err.isOk)
-        expected = f.HeadPoseEstimation()
-        expected.roll = 0.3891
-        expected.yaw = -2.3956
-        expected.pitch = 10.5922
-        self.assertAlmostEqual(headPoseEstimation.roll, expected.roll, delta=3.0)
-        self.assertAlmostEqual(headPoseEstimation.yaw, expected.yaw, delta=3.0)
-        self.assertAlmostEqual(headPoseEstimation.pitch, expected.pitch, delta=3.0)
-        # print("Actual values headPoseEstimation by image: {0}".format(headPoseEstimation))
-        self.assertEqual(f.FrontalFaceType.FrontalFace1, expected.getFrontalFaceType())
+                config = f.createSettingsProvider("data/faceengine.conf")
+                if i == 'landmarks':
+                    config.setValue("HeadPoseEstimator::Settings", "useEstimationByLandmarks", f.SettingsProviderValue(1))
+                else:
+                    config.setValue("HeadPoseEstimator::Settings", "useEstimationByImage", f.SettingsProviderValue(1))
+                self.faceEngine.setSettingsProvider(config)
+                image = f.Image()
+                image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
+                face_err, face = detect(image, self.faceEngine)
+                self.assertTrue(face_err.isOk)
+                (detection, landmarks5, landmarks68) = face.detection, \
+                                                       face.landmarks5_opt.value(), \
+                                                       face.landmarks68_opt.value()
+                headPoseEstimator = self.faceEngine.createHeadPoseEstimator()
+                if i == 'landmarks':
+                    err, headPoseEstimation = headPoseEstimator.estimate(landmarks68)
+                else:
+                    err, headPoseEstimation = headPoseEstimator.estimate(image, detection)
+                self.assertTrue(err.isOk)
+                expected = f.HeadPoseEstimation()
+                expected.roll = 0.3891
+                expected.yaw = -2.3956
+                expected.pitch = 10.5922
+                self.assertAlmostEqual(headPoseEstimation.roll, expected.roll, delta=3.0)
+                self.assertAlmostEqual(headPoseEstimation.yaw, expected.yaw, delta=3.0)
+                self.assertAlmostEqual(headPoseEstimation.pitch, expected.pitch, delta=3.0)
+                # print("Actual values headPoseEstimation by image: {0}".format(headPoseEstimation))
+                self.assertEqual(f.FrontalFaceType.FrontalFace1, expected.getFrontalFaceType())
 
     def testBlackWhiteEstimator(self):
         blackWhiteEstimator = self.faceEngine.createBlackWhiteEstimator()
-        image = f.Image()
-        image.load("testData/warp1.ppm")
-        self.assertTrue(image.isValid())
-        err, isBlack = blackWhiteEstimator.estimate(image)
-        self.assertTrue(err.isOk)
-        self.assertFalse(isBlack)
+        params = {"white": ["testData/warp1.ppm", False],
+                  "black": ["testData/2702096048_1.jpg", True]}
+        for color, value in params.items():
+            path_to_img, result = value
+            with self.subTest(type=color):
+                image = f.Image()
+                image.load(path_to_img)
+                self.assertTrue(image.isValid())
+                err, isBlack = blackWhiteEstimator.estimate(image)
+                self.assertTrue(err.isOk)
+                self.assertEqual(isBlack, result)
 
     def testDepthEstimator(self):
         depthEstimator = self.faceEngine.createDepthEstimator()
-
         reference = f.DepthEstimation(0.9397, True)
+
         depthImage = f.Image()
         depthImage.load("testData/warpeddepth9397.png")
         err, depth_result = depthEstimator.estimate(depthImage)
@@ -286,7 +281,6 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertEqual(depth_result.isReal, reference.isReal)
         self.assertAlmostEqual(depth_result.score, reference.score, delta=0.001)
 
-        reference = f.DepthEstimation(0.9397, True)
         depthImage = f.Image()
         depthImage.load("testData/bad_depth_warp.png")
         err, depth_result = depthEstimator.estimate(depthImage)
@@ -295,7 +289,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
     def testIREstimatorUniversal(self):
         config = f.createSettingsProvider("data/faceengine.conf")
-        config.setValue("LivenessIREstimator::Settings", "name", "universal")
+        config.setValue("LivenessIREstimator::Settings", "name", f.SettingsProviderValue("universal"))
         self.faceEngine.setSettingsProvider(config)
         iREstimator = self.faceEngine.createIREstimator()
 
@@ -319,7 +313,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
     def testIREstimatorAmbarella(self):
         config = f.createSettingsProvider("data/faceengine.conf")
 
-        config.setValue("LivenessIREstimator::Settings", "name", "ambarella")
+        config.setValue("LivenessIREstimator::Settings", "name", f.SettingsProviderValue("ambarella"))
         self.faceEngine.setSettingsProvider(config)
         iREstimator = self.faceEngine.createIREstimator()
 
@@ -340,53 +334,26 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
     def testSmileEstimator(self):
         smileEstimator = self.faceEngine.createSmileEstimator()
-        smileImage = f.Image()
-        overlapImage = f.Image()
-        mouthImage = f.Image()
-        overlapImage.load("testData/overlap.ppm")
-        self.assertTrue(overlapImage.isValid())
-        smileImage.load("testData/smile.ppm")
-        self.assertTrue(smileImage.isValid())
-        mouthImage.load("testData/mouth.ppm")
-        self.assertTrue(mouthImage.isValid())
-        err_temp, face = detect(overlapImage, self.faceEngine)
-        (detection_overlap, landmarks5_overlap, landmarks68_overlap) = face.detection, \
-                                                                       face.landmarks5_opt.value(), \
-                                                                       face.landmarks68_opt.value()
-        transformation_overlap = self.warper.createTransformation(detection_overlap, landmarks5_overlap)
-        err1, warped_overlap_image = self.warper.warp(overlapImage, transformation_overlap)
-        self.assertTrue(err1.isOk)
-        self.assertTrue(warped_overlap_image.isValid())
-        err_smile1, smile_result = smileEstimator.estimate(warped_overlap_image)
-        self.assertSmile(err_smile1, smile_result, 0.0, 0.0, 1.0)
-        err2, face = detect(smileImage, self.faceEngine)
-        self.assertTrue(err2.isOk)
-        # self.assertTrue(len(det_list) > 0)
-        (detection_smile, landmarks5_smile, landmarks68_smile) = face.detection, \
-                                                                 face.landmarks5_opt.value(), \
-                                                                 face.landmarks68_opt.value()
-        transformation_smile = self.warper.createTransformation(detection_smile, landmarks5_smile)
-        err2, warped_overlap_image = self.warper.warp(smileImage, transformation_smile)
-        self.assertTrue(err2.isOk)
-        self.assertTrue(warped_overlap_image.isValid())
-        err_smile2, smile_result = smileEstimator.estimate(warped_overlap_image)
-        self.assertSmile(err_smile2, smile_result, 0.0, 1.0, 0.0)
-        _, face = detect(mouthImage, self.faceEngine)
-        (detection_mouth, landmarks5_mouth, landmarks68_mouth) = face.detection, \
-                                                                 face.landmarks5_opt.value(), \
-                                                                 face.landmarks68_opt.value()
-        transformation_mouth = self.warper.createTransformation(detection_mouth, landmarks5_mouth)
-        err3, warped_mouth_image = self.warper.warp(mouthImage, transformation_mouth)
-        self.assertTrue(err3.isOk)
-        self.assertTrue(warped_mouth_image.isValid())
-        err, mouth_result = smileEstimator.estimate(warped_mouth_image)
-        self.assertSmile(err, mouth_result, 1.0, 0.0, 0.0)
+        mouth_params = {"testData/overlap.ppm": [0.0, 0.0, 1.0], "testData/smile.ppm": [0.0, 1.0, 0.0], "testData/mouth.ppm": [1.0, 0.0, 0.0]}
+        for image_path, score in mouth_params.items():
+            mouth, smile, occlusion = score
+            with self.subTest(image=image_path):
+                image = f.Image()
+                image.load(image_path)
+                self.assertTrue(image.isValid())
 
-    def assertSmile(self, err, result, mouth, smile, occlusion):
-        self.assertTrue(err.isOk)
-        self.assertAlmostEqual(result.mouth, mouth, delta=0.01)
-        self.assertAlmostEqual(result.smile, smile, delta=0.01)
-        self.assertAlmostEqual(result.occlusion, occlusion, delta=0.01)
+                err_temp, face = detect(image, self.faceEngine)
+                self.assertTrue(err_temp.isOk)
+                (detection, landmarks5, landmarks68) = face.detection, face.landmarks5_opt.value(), face.landmarks68_opt.value()
+                transformation = self.warper.createTransformation(detection, landmarks5)
+                err1, warped_image = self.warper.warp(image, transformation)
+                self.assertTrue(err1.isOk)
+                self.assertTrue(warped_image.isValid())
+                err_result, smile_result = smileEstimator.estimate(warped_image)
+                self.assertTrue(err_result.isOk)
+                self.assertAlmostEqual(smile_result.mouth, mouth, delta=0.01)
+                self.assertAlmostEqual(smile_result.smile, smile, delta=0.01)
+                self.assertAlmostEqual(smile_result.occlusion, occlusion, delta=0.01)
 
     def testFaceFlowEstimator(self):
         faceFlowEstimator = self.faceEngine.createFaceFlowEstimator()
@@ -436,118 +403,129 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertAlmostEqual(estimation.score, 0.8281, delta=0.001)
 
     def testEyeEstimator(self):
+
+        landmarks = (5, 68)
+        for landmarksCount in landmarks:
+            with self.subTest(landmarks=landmarks):
+                self.eyesTest(landmarksCount, f.State.Open, f.State.Open)
+
+    def eyesTest(self, landmarksCount, refLeftState, refRightState):
         eyeEstimator = self.faceEngine.createEyeEstimator()
+        reference = f.EyesEstimation()
+        landmarksCountStr = str(landmarksCount)
+        lmPath = "testData/eyes/image_" + landmarksCountStr + "_wlm.txt"
+        imagePath = "testData/eyes/image_WARP.png"
+        irisLeft = "testData/eyes/image_" + landmarksCountStr + "_0_iris.pts"
+        irisRight = "testData/eyes/image_" + landmarksCountStr + "_1_iris.pts"
+        eyelidLeft = "testData/eyes/image_" + landmarksCountStr + "_0_eyelid.pts"
+        eyelidRight = "testData/eyes/image_" + landmarksCountStr + "_1_eyelid.pts"
 
-        def testImage(landmarksCount, refLeftState, refRightState):
+        if landmarksCount == 68:
+            landmarks_eyes = f.Landmarks68()
+        else:
+            landmarks_eyes = f.Landmarks5()
+        warp = f.Image()
+        warp.load(imagePath)
 
-            reference = f.EyesEstimation()
-            landmarksCountStr = str(landmarksCount)
-            lm68Path = "testData/eyes/image_" + landmarksCountStr + "_wlm.txt"
-            imagePath = "testData/eyes/image_WARP.png"
-            irisLeft = "testData/eyes/image_" + landmarksCountStr + "_0_iris.pts"
-            irisRight = "testData/eyes/image_" + landmarksCountStr + "_1_iris.pts"
-            eyelidLeft = "testData/eyes/image_" + landmarksCountStr + "_0_eyelid.pts"
-            eyelidRight = "testData/eyes/image_" + landmarksCountStr + "_1_eyelid.pts"
+        with open(lmPath) as lmfile:
+            for i, line in enumerate(lmfile):
+                landmarks_eyes[i] = invokeFileLineToVector2f(line)
+        cropper = f.EyeCropper()
+        if landmarksCount == 68:
+            eyeRectsByLandmarks = cropper.cropByLandmarks68(warp, landmarks_eyes)
+        else:
+            eyeRectsByLandmarks = cropper.cropByLandmarks5(warp, landmarks_eyes)
+        err_eyes, eyesEstimation = eyeEstimator.estimate(warp, eyeRectsByLandmarks)
+        self.assertTrue(err_eyes.isOk)
+        with open(irisLeft, 'r') as irisLeftFile, open(irisRight, 'r') as irisRightFile, \
+                open(eyelidLeft, 'r') as eyelidLeftFile, open(eyelidRight, 'r') as eyelidRightFile:
+            # read iris
+            for i, line in enumerate(irisLeftFile):
+                reference.leftEye.iris[i] = invokeFileLineToVector2f(line)
+                # print("irisLeftEye", reference.leftEye.iris[i], eyesEstimation.leftEye.iris[i])
 
-            landmarks68_eyes = f.Landmarks68()
-            warp = f.Image()
-            warp.load(imagePath)
+            for i, line in enumerate(irisRightFile):
+                reference.rightEye.iris[i] = invokeFileLineToVector2f(line)
+                # print("irisRightEye", reference.rightEye.iris[i], eyesEstimation.rightEye.iris[i])
 
-            with open(lm68Path) as lm68file:
-                for i, line in enumerate(lm68file):
-                    landmarks68_eyes[i] = invokeFileLineToVector2f(line)
-            cropper = f.EyeCropper()
-            eyeRectsByLandmarks68 = cropper.cropByLandmarks68(warp, landmarks68_eyes)
-            err_eyes, eyesEstimation = eyeEstimator.estimate(warp, eyeRectsByLandmarks68)
-            self.assertTrue(err_eyes.isOk)
-            with open(irisLeft, 'r') as irisLeftFile, open(irisRight, 'r') as irisRightFile, \
-                    open(eyelidLeft, 'r') as eyelidLeftFile, open(eyelidRight, 'r') as eyelidRightFile:
-                pass
+            # read eyelid
+            for i, line in enumerate(eyelidLeftFile):
+                reference.leftEye.eyelid[i] = invokeFileLineToVector2f(line)
+                # print("eyelidLeftEye", reference.leftEye.eyelid[i], eyesEstimation.leftEye.eyelid[i])
 
-                # read iris
-                for i, line in enumerate(irisLeftFile):
-                    reference.leftEye.iris[i] = invokeFileLineToVector2f(line)
-                    # print("irisLeftEye", reference.leftEye.iris[i], eyesEstimation.leftEye.iris[i])
+            for i, line in enumerate(eyelidRightFile):
+                reference.rightEye.eyelid[i] = invokeFileLineToVector2f(line)
+                # print("eyelidRightEye", reference.rightEye.eyelid[i], eyesEstimation.rightEye.eyelid[i])
 
-                for i, line in enumerate(irisRightFile):
-                    reference.rightEye.iris[i] = invokeFileLineToVector2f(line)
-                    # print("irisRightEye", reference.rightEye.iris[i], eyesEstimation.rightEye.iris[i])
+        reference.leftEye.state = refLeftState
+        reference.rightEye.state = refRightState
 
-                # read eyelid
-                for i, line in enumerate(eyelidLeftFile):
-                    reference.leftEye.eyelid[i] = invokeFileLineToVector2f(line)
-                    # print("eyelidLeftEye", reference.leftEye.eyelid[i], eyesEstimation.leftEye.eyelid[i])
+        acceptableDiff = 1.0
 
-                for i, line in enumerate(eyelidRightFile):
-                    reference.rightEye.eyelid[i] = invokeFileLineToVector2f(line)
-                    # print("eyelidRightEye", reference.rightEye.eyelid[i], eyesEstimation.rightEye.eyelid[i])
+        # compare with reference
+        self.assertEqual(eyesEstimation.leftEye.state, reference.leftEye.state)
+        self.assertEqual(eyesEstimation.rightEye.state, reference.rightEye.state)
 
-            reference.leftEye.state = refLeftState
-            reference.rightEye.state = refRightState
+        # iris
+        for i in range(len(f.IrisLandmarks())):
+            self.assertAlmostEqual(eyesEstimation.leftEye.iris[i].x, reference.leftEye.iris[i].x, delta=acceptableDiff)
+            self.assertAlmostEqual(eyesEstimation.leftEye.iris[i].y, reference.leftEye.iris[i].y, delta=acceptableDiff)
+            self.assertAlmostEqual(eyesEstimation.rightEye.iris[i].x, reference.rightEye.iris[i].x, delta=acceptableDiff)
+            self.assertAlmostEqual(eyesEstimation.rightEye.iris[i].y, reference.rightEye.iris[i].y, delta=acceptableDiff)
 
-            acceptableDiff = 1.0
-
-            # compare with reference
-            self.assertEqual(eyesEstimation.leftEye.state, reference.leftEye.state)
-            self.assertEqual(eyesEstimation.rightEye.state, reference.rightEye.state)
-
-            # iris
-            for i in range(len(f.IrisLandmarks())):
-                self.assertAlmostEqual(eyesEstimation.leftEye.iris[i].x, reference.leftEye.iris[i].x, delta=acceptableDiff)
-                self.assertAlmostEqual(eyesEstimation.leftEye.iris[i].y, reference.leftEye.iris[i].y, delta=acceptableDiff)
-                self.assertAlmostEqual(eyesEstimation.rightEye.iris[i].x, reference.rightEye.iris[i].x, delta=acceptableDiff)
-                self.assertAlmostEqual(eyesEstimation.rightEye.iris[i].y, reference.rightEye.iris[i].y, delta=acceptableDiff)
-
-            # eyelid
-            for i in range(len(f.EyelidLandmarks())):
-                self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].x, reference.leftEye.eyelid[i].x, delta=acceptableDiff)
-                self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].y, reference.leftEye.eyelid[i].y, delta=acceptableDiff)
-                self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
-                self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
-
-        testImage(68, f.State.Open, f.State.Open)
+        # eyelid
+        for i in range(len(f.EyelidLandmarks())):
+            self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].x, reference.leftEye.eyelid[i].x, delta=acceptableDiff)
+            self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].y, reference.leftEye.eyelid[i].y, delta=acceptableDiff)
+            self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
+            self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
 
     def testEmotionsEstimator(self):
-        def emotions_test(path_to_warp_image, reference, predominant):
-            acceptable_diff = 0.1
-            image = f.Image()
-            image.load(path_to_warp_image)
-            self.assertTrue(image.isValid())
-            emotionsEstimator = self.faceEngine.createEmotionsEstimator()
-            err_emotions, emotionsEstimation = emotionsEstimator.estimate(image)
-            self.assertTrue(err_emotions.isOk)
-            self.assertAlmostEqual(emotionsEstimation.anger, reference.anger, delta=acceptable_diff)
-            self.assertAlmostEqual(emotionsEstimation.disgust, reference.disgust, delta=acceptable_diff)
-            self.assertAlmostEqual(emotionsEstimation.fear, reference.fear, delta=acceptable_diff)
-            self.assertAlmostEqual(emotionsEstimation.happiness, reference.happiness, delta=acceptable_diff)
-            self.assertAlmostEqual(emotionsEstimation.sadness, reference.sadness, delta=acceptable_diff)
-            self.assertAlmostEqual(emotionsEstimation.surprise, reference.surprise, delta=acceptable_diff)
-            self.assertAlmostEqual(emotionsEstimation.sadness, reference.sadness, delta=acceptable_diff)
-            self.assertAlmostEqual(emotionsEstimation.neutral, reference.neutral, delta=acceptable_diff)
-            # print("Emotions {0}".format(emotionsEstimation))
-            # print("Best: {0}".format(emotionsEstimation.getPredominantEmotion()))
-            self.assertEqual(emotionsEstimation.getPredominantEmotion(), predominant)
-
         reference1 = f.EmotionsEstimation()
         reference2 = f.EmotionsEstimation()
-        reference1.anger = 0.001
-        reference1.disgust = 0.001
-        reference1.fear = 0.001
-        reference1.happiness = 0.999
-        reference1.sadness = 0.001
-        reference1.surprise = 0.001
-        reference1.neutral = 0.001
+        reference3 = f.EmotionsEstimation()
+        reference4 = f.EmotionsEstimation()
+        reference5 = f.EmotionsEstimation()
+        reference6 = f.EmotionsEstimation()
+        reference7 = f.EmotionsEstimation()
 
-        reference2.anger = 0.999
-        reference2.disgust = 0.001
-        reference2.fear = 0.001
-        reference2.happiness = 0.001
-        reference2.sadness = 0.001
-        reference2.surprise = 0.001
-        reference2.neutral = 0.001
+        reference1.anger = 0.999
+        reference2.disgust = 0.999
+        reference3.fear = 0.884
+        reference3.surprise = 0.115
+        reference4.happiness = 0.999
+        reference5.sadness = 0.999
+        reference6.surprise = 0.999
+        reference7.neutral = 0.999
 
-        emotions_test("testData/emotions1.ppm", reference1, f.Emotions.Happiness)
-        emotions_test("testData/emotions2.ppm", reference2, f.Emotions.Anger)
+        emotions = {f.Emotions.Anger: ["testData/emotions2.ppm", reference1],
+                    f.Emotions.Disgust: ["testData/00205_9501_p.ppm", reference2],
+                    f.Emotions.Fear: ["testData/strah.jpg", reference3],
+                    f.Emotions.Happiness: ["testData/emotions1.ppm", reference4],
+                    f.Emotions.Sadness: ["testData/ethnicity1_white.jpg", reference5],
+                    f.Emotions.Surprise: ["testData/udivlenie.jpg", reference6],
+                    f.Emotions.Neutral: ["testData/attrib1.jpg", reference7]}
+
+        for predominant, value in emotions.items():
+            path_to_img, reference = value
+            with self.subTest(type=predominant):
+                acceptable_diff = 0.1
+                image = f.Image()
+                image.load(path_to_img)
+                self.assertTrue(image.isValid())
+                emotionsEstimator = self.faceEngine.createEmotionsEstimator()
+                err_emotions, emotionsEstimation = emotionsEstimator.estimate(image)
+                self.assertTrue(err_emotions.isOk)
+                self.assertAlmostEqual(emotionsEstimation.anger, reference.anger, delta=acceptable_diff)
+                self.assertAlmostEqual(emotionsEstimation.disgust, reference.disgust, delta=acceptable_diff)
+                self.assertAlmostEqual(emotionsEstimation.fear, reference.fear, delta=acceptable_diff)
+                self.assertAlmostEqual(emotionsEstimation.happiness, reference.happiness, delta=acceptable_diff)
+                self.assertAlmostEqual(emotionsEstimation.sadness, reference.sadness, delta=acceptable_diff)
+                self.assertAlmostEqual(emotionsEstimation.surprise, reference.surprise, delta=acceptable_diff)
+                self.assertAlmostEqual(emotionsEstimation.neutral, reference.neutral, delta=acceptable_diff)
+                # print("Emotions {0}".format(emotionsEstimation))
+                # print("Best: {0}".format(emotionsEstimation.getPredominantEmotion()))
+                self.assertEqual(emotionsEstimation.getPredominantEmotion(), predominant)
 
     def testGazeEstimatorRMIRGB(self):
         gaze_estimator_rgb = self.faceEngine.createGazeEstimator()
@@ -557,7 +535,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
         err_load = warp.load("testData/" + image_path)
         self.assertTrue(err_load.isOk)
         lm5_path = "testData/gaze/" + image_name + "_landmarks5.pts"
-        lm5_roteted_path = "testData/gaze/" + image_name + "_rotatedlandmarks5.pts"
+        lm5_rotated_path = "testData/gaze/" + image_name + "_rotatedlandmarks5.pts"
         actual_path = "testData/gaze/" + image_name + "_actual.txt"
         actual_path_unwarped = "testData/gaze/" + image_name + "_actual_unwarped.txt"
         landmarks5 = f.Landmarks5()
@@ -567,18 +545,18 @@ class TestFaceEngineEstimators(unittest.TestCase):
             for i, line in enumerate(lm5file):
                 landmarks5[i] = invokeFileLineToVector2f(line)
 
-        with open(lm5_roteted_path) as lm_rotated5_file:
+        with open(lm5_rotated_path) as lm_rotated5_file:
             for i, line in enumerate(lm_rotated5_file):
                 rotated_landmarks5[i] = invokeFileLineToVector2f(line)
 
         actual = []
         with open(actual_path) as actual_file:
-            for _, line in enumerate(actual_file):
+            for line in actual_file:
                 actual = invokeFileLineToList(line)
 
         actual_unwarped = []
         with open(actual_path_unwarped) as actual_file_unwarped:
-            for _, line in enumerate(actual_file_unwarped):
+            for line in actual_file_unwarped:
                 actual_unwarped = invokeFileLineToList(line)
 
         err, eye_angles = gaze_estimator_rgb.estimate(warp, rotated_landmarks5)
@@ -596,8 +574,8 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
     def testAGSEstimator(self):
         config = f.createSettingsProvider("data/faceengine.conf")
-        config.setValue("system", "betaMode", 1)
-        config.setValue("system", "verboseLogging", 5)
+        config.setValue("system", "betaMode", f.SettingsProviderValue(1))
+        config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
         self.faceEngine.setSettingsProvider(config)
         estimator = self.faceEngine.createAGSEstimator()
         image = f.Image()
@@ -610,53 +588,44 @@ class TestFaceEngineEstimators(unittest.TestCase):
         reference.rect.width = 135.0
         reference.rect.height = 178.0
         reference.score = 0.999916
-        r = estimator.estimate(image, reference);
+        r = estimator.estimate(image, reference)
         self.assertFalse(r[0].isError)
         self.assertAlmostEqual(refAGS, r[1], delta=0.01)
-        config.setValue("system", "verboseLogging", 0)
+        config.setValue("system", "verboseLogging", f.SettingsProviderValue(0))
         self.faceEngine.setSettingsProvider(config)
 
     def testMouthEstimator(self):
         estimator = self.faceEngine.createMouthEstimator()
         warper = self.faceEngine.createWarper()
         image = f.Image()
+        params = {"testData/overlap.ppm": [False, False, True], "testData/mouth.ppm": [False, False, False],
+                  "testData/emotions1.ppm": [False, True, False],
+                  "testData/child_image1.jpg": [True, False, False], "testData/warp_obama.jpg": [True, True, False]}
+        for path_to_img, value in params.items():
+            isOpened, isSmiling, isOccluded = value
+            with self.subTest(image=path_to_img):
+                err = image.load(path_to_img)
+                self.assertTrue(err.isOk)
+                detStatus, face = detect(image, self.faceEngine)
+                self.assertTrue(detStatus.isOk)
+                (detection, landmarks5, landmarks68) = face.detection, \
+                                                       face.landmarks5_opt.value(), \
+                                                       face.landmarks68_opt.value()
 
-        def mouthRunner(imageName, isOpened, isSmiling, isOccluded):
-            err = image.load(imageName)
-            self.assertTrue(err.isOk)
-            detStatus, face = detect(image, self.faceEngine)
-            self.assertTrue(detStatus.isOk)
-            (detection, landmarks5, landmarks68) = face.detection, \
-                                                   face.landmarks5_opt.value(), \
-                                                   face.landmarks68_opt.value()
+                transformation = warper.createTransformation(detection, landmarks5)
+                warpStatus, warpedImage = warper.warp(image, transformation)
+                self.assertTrue(detStatus.isOk)
 
-            transformation = warper.createTransformation(detection, landmarks5)
-            warpStatus, warpedImage = warper.warp(image, transformation)
-            self.assertTrue(detStatus.isOk)
-
-            status, output = estimator.estimate(warpedImage)
-            self.assertTrue(status.isOk)
-            self.assertEqual(isOpened, output.isOpened)
-            self.assertEqual(isSmiling, output.isSmiling)
-            self.assertEqual(isOccluded, output.isOccluded)
-
-        mouthRunner("testData/overlap.ppm", False, False, True)
-        mouthRunner("testData/mouth.ppm", False, False, False)
-        mouthRunner("testData/emotions1.ppm", False, True, False)
-        mouthRunner("testData/child_image1.jpg", True, False, False)
-        mouthRunner("testData/warp_obama.jpg", True, True, False)
+                status, output = estimator.estimate(warpedImage)
+                self.assertTrue(status.isOk)
+                self.assertEqual(isOpened, output.isOpened)
+                self.assertEqual(isSmiling, output.isSmiling)
+                self.assertEqual(isOccluded, output.isOccluded)
 
     def testIrEyeEstimator(self):
         imagePath = "testData/eyes/IrWarp.png"
-        refPath = "testData/eyes/IrEyeRef.txt"
-
         warp = f.Image()
         warp.load(imagePath, f.FormatType.IR_X8X8X8)
-
-        landmarks68 = f.Landmarks68()
-        landmarks5 = f.Landmarks5()
-
-        reference = f.EyesEstimation()
 
         def read_vector_coords(line):
             tokens = line.strip().split()
@@ -667,57 +636,68 @@ class TestFaceEngineEstimators(unittest.TestCase):
             tokens = line.strip().split()
             return f.State(int(tokens[0])), f.State(int(tokens[1]))
 
-        with open(refPath) as refFile:
-            # read landmarks68
-            for i in range(len(landmarks68)):
-                landmarks68[i] = read_vector_coords(refFile.readline())
-            # read landmarks5
-            for i in range(len(landmarks5)):
-                landmarks5[i] = read_vector_coords(refFile.readline())
-            # read eyes state
-            states = read_states(refFile.readline())
-            reference.leftEye.state = states[0]
-            reference.rightEye.state = states[1]
-            # read left iris landmarks
-            for i in range(len(reference.leftEye.iris)):
-                reference.leftEye.iris[i] = read_vector_coords(refFile.readline())
-            # read right iris landmarks
-            for i in range(len(reference.rightEye.iris)):
-                reference.rightEye.iris[i] = read_vector_coords(refFile.readline())
-            # read left eyelid landmarks
-            for i in range(len(reference.leftEye.eyelid)):
-                reference.leftEye.eyelid[i] = read_vector_coords(refFile.readline())
-            # read right eyelid landmarks
-            for i in range(len(reference.rightEye.eyelid)):
-                reference.rightEye.eyelid[i] = read_vector_coords(refFile.readline())
+        params = {5: "testData/eyes/IrEyeRef_5.txt", 68: "testData/eyes/IrEyeRef_68.txt"}
 
-        # crop
-        cropper = f.EyeCropper()
-        eyeRectsByLandmarks68 = cropper.cropByLandmarks68(warp, landmarks68)
+        for lm, refPath in params.items():
+            with self.subTest(landmarks=lm):
+                if lm == 68:
+                    landmarks = f.Landmarks68()
+                else:
+                    landmarks = f.Landmarks5()
 
-        # create estimator
-        eyeEstimator = self.faceEngine.createEyeEstimator(f.RecognitionMode.RM_INFRA_RED)
+                reference = f.EyesEstimation()
 
-        # estimation
-        errEyes, eyesEstimation = eyeEstimator.estimate(warp, eyeRectsByLandmarks68)
-        self.assertTrue(errEyes.isOk)
+                with open(refPath) as refFile:
+                    # read landmarks68 or landmarks5
+                    for i in range(len(landmarks)):
+                        landmarks[i] = read_vector_coords(refFile.readline())
+                    # read eyes state
+                    states = read_states(refFile.readline())
+                    reference.leftEye.state = states[0]
+                    reference.rightEye.state = states[1]
+                    # read left iris landmarks
+                    for i in range(len(reference.leftEye.iris)):
+                        reference.leftEye.iris[i] = read_vector_coords(refFile.readline())
+                    # read right iris landmarks
+                    for i in range(len(reference.rightEye.iris)):
+                        reference.rightEye.iris[i] = read_vector_coords(refFile.readline())
+                    # read left eyelid landmarks
+                    for i in range(len(reference.leftEye.eyelid)):
+                        reference.leftEye.eyelid[i] = read_vector_coords(refFile.readline())
+                    # read right eyelid landmarks
+                    for i in range(len(reference.rightEye.eyelid)):
+                        reference.rightEye.eyelid[i] = read_vector_coords(refFile.readline())
 
-        # validation
-        acceptableDiff = 1.0
-        self.assertEqual(eyesEstimation.leftEye.state, reference.leftEye.state)
-        self.assertEqual(eyesEstimation.rightEye.state, reference.rightEye.state)
-        # iris
-        for i in range(len(f.IrisLandmarks())):
-            self.assertAlmostEqual(eyesEstimation.leftEye.iris[i].x, reference.leftEye.iris[i].x, delta=acceptableDiff)
-            self.assertAlmostEqual(eyesEstimation.leftEye.iris[i].y, reference.leftEye.iris[i].y, delta=acceptableDiff)
-            self.assertAlmostEqual(eyesEstimation.rightEye.iris[i].x, reference.rightEye.iris[i].x, delta=acceptableDiff)
-            self.assertAlmostEqual(eyesEstimation.rightEye.iris[i].y, reference.rightEye.iris[i].y, delta=acceptableDiff)
-        # eyelid
-        for i in range(len(f.EyelidLandmarks())):
-            self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].x, reference.leftEye.eyelid[i].x, delta=acceptableDiff)
-            self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].y, reference.leftEye.eyelid[i].y, delta=acceptableDiff)
-            self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
-            self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
+                    # crop
+                    cropper = f.EyeCropper()
+                    if lm == 68:
+                        eyeRectsByLandmarks = cropper.cropByLandmarks68(warp, landmarks)
+                    else:
+                        eyeRectsByLandmarks = cropper.cropByLandmarks5(warp, landmarks)
+
+                    # create estimator
+                    eyeEstimator = self.faceEngine.createEyeEstimator(f.RecognitionMode.RM_INFRA_RED)
+
+                    # estimation
+                    errEyes, eyesEstimation = eyeEstimator.estimate(warp, eyeRectsByLandmarks)
+                    self.assertTrue(errEyes.isOk)
+
+                # validation
+                acceptableDiff = 1.0
+                self.assertEqual(eyesEstimation.leftEye.state, reference.leftEye.state)
+                self.assertEqual(eyesEstimation.rightEye.state, reference.rightEye.state)
+                # iris
+                for i in range(len(f.IrisLandmarks())):
+                    self.assertAlmostEqual(eyesEstimation.leftEye.iris[i].x, reference.leftEye.iris[i].x, delta=acceptableDiff)
+                    self.assertAlmostEqual(eyesEstimation.leftEye.iris[i].y, reference.leftEye.iris[i].y, delta=acceptableDiff)
+                    self.assertAlmostEqual(eyesEstimation.rightEye.iris[i].x, reference.rightEye.iris[i].x, delta=acceptableDiff)
+                    self.assertAlmostEqual(eyesEstimation.rightEye.iris[i].y, reference.rightEye.iris[i].y, delta=acceptableDiff)
+                # eyelid
+                for i in range(len(f.EyelidLandmarks())):
+                    self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].x, reference.leftEye.eyelid[i].x, delta=acceptableDiff)
+                    self.assertAlmostEqual(eyesEstimation.leftEye.eyelid[i].y, reference.leftEye.eyelid[i].y, delta=acceptableDiff)
+                    self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
+                    self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
 
     def testSimpleOptionalType(self):
         value = 5.0
@@ -742,6 +722,60 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertTrue(eth1.value().africanAmerican != 0.0)
         self.assertEqual(eth1.value().getPredominantEthnicity(), eth_value.getPredominantEthnicity())
         self.assertEqual(eth2.value().getPredominantEthnicity(), eth_value.getPredominantEthnicity())
+
+    def testInvalidDetectionAreas(self):
+        image = f.Image()
+        err = image.load("testData/overlap_image1.jpg")
+        self.assertTrue(err.isOk)
+        areas = {"big_area": f.DetectionFloat(f.RectFloat(0, 0, 10 ** 9, 10 ** 9), 0.999916),
+                 "bad_area": f.DetectionFloat(f.RectFloat(120, 599, 15, 10), 0.999916)}
+        estimator_types = ('RGBM', 'AGS', 'HeadPose', 'Overlap')
+        for type in estimator_types:
+            for area, detection in areas.items():
+                with self.subTest(type=area):
+                    if type == 'RGBM':
+                        self.RGBMEstimateBadArea(detection, area)
+                    elif type == 'AGS':
+                        self.AGSEstimatorBadArea(image, detection, area)
+                    elif type == 'HeadPose':
+                        self.headPoseBadArea(image, detection, area)
+                    elif type == 'Overlap':
+                        self.OverlapEstimatorBadArea(image, detection, area)
+
+    def RGBMEstimateBadArea(self, detection, area):
+        estimator = self.faceEngine.createLivenessRGBMEstimator()
+        background = f.Image()
+        load_err = background.load("testData/rgbm_liveness_background_real.png")
+        self.assertTrue(load_err.isOk)
+        frame = f.Image()
+        load_err = frame.load("testData/rgbm_liveness_frame_real.png")
+        self.assertTrue(load_err.isOk)
+        self.estimateResult(estimator, frame, detection, area, background)
+
+    def AGSEstimatorBadArea(self, image, detection, area):
+        config = f.createSettingsProvider("data/faceengine.conf")
+        config.setValue("system", "betaMode", f.SettingsProviderValue(1))
+        config.setValue("system", "verboseLogging", f.SettingsProviderValue(5))
+        self.faceEngine.setSettingsProvider(config)
+        estimator = self.faceEngine.createAGSEstimator()
+        self.estimateResult(estimator, image, detection, area)
+        config.setValue("system", "verboseLogging", f.SettingsProviderValue(0))
+        self.faceEngine.setSettingsProvider(config)
+
+    def OverlapEstimatorBadArea(self, image, detection, area):
+        estimator = self.faceEngine.createOverlapEstimator()
+        self.estimateResult(estimator, image, detection, area)
+
+    def headPoseBadArea(self, image, detection, area):
+        config = f.createSettingsProvider("data/faceengine.conf")
+        config.setValue("HeadPoseEstimator::Settings", "useEstimationByImage", f.SettingsProviderValue(1))
+        self.faceEngine.setSettingsProvider(config)
+        estimator = self.faceEngine.createHeadPoseEstimator()
+        self.estimateResult(estimator, image, detection, area)
+
+    def estimateResult(self, estimator, image, detection, area, *background):
+        err, estimation = estimator.estimate(image, detection, *background)
+        self.assertEqual(err.error, f.FSDKError.InvalidRect) if area == "bad_area" else self.assertTrue(err.isOk)
 
 
 if __name__ == '__main__':
