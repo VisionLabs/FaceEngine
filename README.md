@@ -460,9 +460,17 @@ Possible reasons:
 Please, check path to the "data" folder of the LUNA SDK. See the QuickStartGuide.pdf from the LUNA SDK package for details.
 
 - Licensing issue - license is not activated or the License Management server if not responding.
-The PythonBingins package does not require any license for now. So, all licensing issues are related to the LUNA SDK licensing only.
+The PythonBindins package does not require any license for now. So, all licensing issues are related to the LUNA SDK licensing only.
 Please, check the license for the LUNA SDK (see the FaceEngine_Handbook.pdf from the LUNA SDK package for details).
 
 - Wrong configuration file.
 The LUNA SDK modules use the LUNA SDK configuration file during initialization. If this file is corrupted or contains invalid parameters, LUNA SDK modules could not be initialized correctly (See the ConfigurationGuide.pdf from the LUNA SDK package for details).
+
+
+2. FaceEngine.createDescriptor or FaceEngine.createDescriptorBatch raises an exception.
+
+Possible reasons:
+- The same as 1.
+
+- Current LUNA SDK package is a Frontend Edition which does not support the extraction and matching.
 
