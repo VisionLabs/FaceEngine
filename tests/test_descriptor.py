@@ -4,6 +4,8 @@ import sys
 import os
 import logging
 import struct
+from collections import OrderedDict
+
 from license_helper import make_activation, ActivationLicenseError
 
 # if FaceEngine is not installed within the system, add the directory with FaceEngine*.so to system paths
@@ -387,7 +389,6 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(extraction_res.isError)
         self.assertEqual(extraction_res.error, fe.FSDKError.InvalidImage)
 
-    @unittest.skip("FSDK-2120")
     def testCompareMatchingResult(self):
         image_list = [fe.Image(), fe.Image()]
         err = image_list[0].load(os.path.join(self.test_data_path, "3_Riot_Riot_3_413_small.jpg"))
@@ -404,7 +405,7 @@ class TestFaceEngineRect(unittest.TestCase):
         err, face_list = detector.detect(image_list, rect_list, 10, fe.DetectionType(fe.dtBBox | fe.dt5Landmarks))
         self.assertTrue(err.isOk)
 
-        i_image =0
+        i_image = 0
         for list in face_list:
             for face in list:
                 (detection, landmarks5) = face.detection, face.landmarks5_opt.value()
@@ -414,35 +415,40 @@ class TestFaceEngineRect(unittest.TestCase):
                 warps.append(warp_result)
             i_image += 1
 
-        extractor.extractFromWarpedImageBatch(warps, batch, 7)
+        err_batch_extraction, _ = extractor.extractFromWarpedImageBatch(warps, batch, 7)
+        self.assertTrue(err_batch_extraction.isOk)
         descriptor = batch.getDescriptorSlow(0)
 
-        params = {"1_best_clone_descriptor": [1, True], "N_best_clone_descriptor": [4, True],
-                  "1_best_remove_clone": [1, False], "N_best_remove_clone": [4, False]}
+        params = OrderedDict()
+        params["1_in_top_best_descriptor_is_first"] = [1, False, [0]]
+        params["N_in_top_best_descriptor_is_first"] = [4, False, [0, 5, 2, 3]]
+        params["1_in_top_remove_first_descriptor_from_batch"] = [1, True, [4]]
+        params["N_in_top_remove_first_descriptor_from_batch"] = [4, True, [3, 0, 1, 2]]
 
         for key, value in params.items():
-            i, clone = value
+            i, remove, expected_indices = value
             with self.subTest(key=key):
-                if not clone:
+                if remove:
                     batch.removeSlow(0)
-                self.match(descriptor, batch, i)
+                self.match(descriptor, batch, i, expected_indices)
 
-    def match(self, descriptor, batch, n):
+    def match(self, descriptor, batch, n_top, expected_indices):
         matcher = self.faceEngine.createMatcher()
-        err, result_closest, index = matcher.match(descriptor, batch, n)
-        err1, result_all = matcher.match(descriptor, batch)
-        sim = []
-        dist = []
-        for i in result_all:
-            sim.append(i.similarity)
-            dist.append(i.distance)
-
-        self.assertEqual(max(sim), result_closest[0].similarity)
-        self.assertEqual(min(dist), result_closest[0].distance)
-        self.assertTrue(bool(index))
-        self.assertEqual(len(index), n)
-        for i in index:
-            self.assertNotEqual(i, 0)
+        err, result_closest, indices = matcher.match(descriptor, batch, n_top)
+        self.assertTrue(err.isOk)
+        err1, matching_list = matcher.match(descriptor, batch)
+        self.assertTrue(err1.isOk)
+        similarities = []
+        distances = []
+        for matching in matching_list:
+            similarities.append(matching.similarity)
+            distances.append(matching.distance)
+        self.assertEqual(max(similarities), result_closest[0].similarity)
+        self.assertEqual(min(distances), result_closest[0].distance)
+        self.assertEqual(len(indices), n_top)
+        self.assertEqual(len(indices), len(expected_indices))
+        for i, _ in enumerate(indices):
+            self.assertEqual(indices[i], expected_indices[i])
 
 
 if __name__ == '__main__':
