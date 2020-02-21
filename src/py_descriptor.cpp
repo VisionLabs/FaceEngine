@@ -160,7 +160,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 			return fsdk::acquire(descriptorBatchPtr->getDescriptorSlow(index)); },
 		"Create descriptor from batch by index with copying\n"
 		"\tArgs:\n"
-		"\t\tparam1 (int):  index required descriptor in batch\n"
+		"\t\tparam1 (int): index required descriptor in batch\n"
 		"\tReturns:\n"
 		"\t\t(IDescriptorPtr): valid object if succeeded.\n")
 	
@@ -395,9 +395,9 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 			if(err.isError())
 				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
 			
-			if(k > 1) {
+			if(k > 1 && k <= results.size()) {
 				std::vector<uint32_t> indices(results.size());
-				std::iota(indices.begin(), indices.end(), 1);
+				std::iota(indices.begin(), indices.end(), 0);
 				
 				std::partial_sort(indices.begin(), indices.begin() + k, indices.end(),
 					[&results](decltype(*begin(indices)) a, decltype(*begin(indices)) b) {
@@ -411,19 +411,21 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 				
 				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(indices));
 				
-			} else { // k == 1
+			} else if (k == 1) { // k == 1
 				const auto it = std::min_element(results.begin(), results.end(),
 					[](decltype(*begin(results)) a, decltype(*begin(results)) b) {
 						return a.distance < b.distance;
 					});
 				std::vector<fsdk::MatchingResult> resValues{*it};
-				std::vector<uint32_t> resIndex(std::distance(results.begin(), it));
+				std::vector<uint32_t> resIndex(1, std::distance(results.begin(), it));
 				return std::make_tuple(FSDKErrorResult(err), std::move(resValues), std::move(resIndex));
+			} else {
+				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
 			}
 		},
 		"Match descriptors 1:M.\n"
 		"\tMatches a reference descriptor to a batch of candidate descriptors and returns one K nearest candidates. "
-		"\tNote: this function allows you to not copy mach data from c++ to python if you need only best candidates.\n"
+		"\tNote: this function allows you to not copy match data from c++ to python if you need only best candidates.\n"
 		"\tArgs\n"
 		"\t\tparam1 (IDescriptorPtr): the reference descriptor\n"
 		"\t\tparam2 (IDescriptorPtr): the candidate descriptor batch to match with the reference\n"

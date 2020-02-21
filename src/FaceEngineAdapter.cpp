@@ -69,14 +69,14 @@ fsdk::IHumanWarperPtr PyIFaceEngine::createHumanWarper() {
 fsdk::IDescriptorPtr PyIFaceEngine::createDescriptor(const uint32_t version) {
 	fsdk::IDescriptorPtr descriptorPtr = fsdk::acquire(faceEnginePtr->createDescriptor(version));
 	if (!descriptorPtr)
-		throw py::cast_error("\nFailed to create descriptor instance, possible you use front-edition version!");
+		throw py::cast_error("\nFailed to create descriptor instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
 	return descriptorPtr;
 }
 
 fsdk::IDescriptorBatchPtr PyIFaceEngine::createDescriptorBatch(int32_t size, int32_t version) {
 	fsdk::IDescriptorBatchPtr descriptorBatchPtr = fsdk::acquire(faceEnginePtr->createDescriptorBatch(size, version));
 	if (!descriptorBatchPtr)
-		throw py::cast_error("\nFailed to create descriptor batch instance, possible you use front-edition version!");
+		throw py::cast_error("\nFailed to create descriptor batch instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
 	return descriptorBatchPtr;
 }
 

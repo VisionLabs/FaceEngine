@@ -4,6 +4,8 @@ import sys
 import os
 import logging
 import struct
+from collections import OrderedDict
+
 from license_helper import make_activation, ActivationLicenseError
 
 # if FaceEngine is not installed within the system, add the directory with FaceEngine*.so to system paths
@@ -43,17 +45,17 @@ class TestFaceEngineRect(unittest.TestCase):
             raise ActivationLicenseError("License is not activated!")
 
     # helpers
-    def are_equal(self, desc1, desc2):
+    def areEqual(self, desc1, desc2):
         self.assertTrue(len(desc1) == len(desc2))
         for i, _ in enumerate(desc1):
             self.assertTrue(desc1[i], desc2[i])
 
-    def set_logging(self, value):
+    def setLogging(self, value):
         config = fe.createSettingsProvider("data/faceengine.conf")
-        config.setValue("system", "verboseLogging", value)
+        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(value))
         self.faceEngine.setSettingsProvider(config)
 
-    def test_Version(self):
+    def testVersion(self):
 
         # face descriptor
         extractor_default = self.faceEngine.createExtractor()
@@ -71,6 +73,16 @@ class TestFaceEngineRect(unittest.TestCase):
         descriptor52 = self.faceEngine.createDescriptor(52)
         aggregation52 = self.faceEngine.createDescriptor(52)
 
+        extractor54 = self.faceEngine.createExtractor(54)
+        matcher54 = self.faceEngine.createMatcher(54)
+        descriptor54 = self.faceEngine.createDescriptor(54)
+        aggregation54 = self.faceEngine.createDescriptor(54)
+
+        extractor56 = self.faceEngine.createExtractor(56)
+        matcher56 = self.faceEngine.createMatcher(56)
+        descriptor56 = self.faceEngine.createDescriptor(56)
+        aggregation56 = self.faceEngine.createDescriptor(56)
+
         # face descriptor
         self.assertEqual(46, extractor46.getModelVersion())
         self.assertEqual(46, matcher46.getModelVersion())
@@ -85,6 +97,20 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertEqual(52, aggregation52.getModelVersion())
         self.assertEqual(fe.DT_FACE, extractor52.getDescriptorType())
         self.assertEqual(fe.DT_FACE, descriptor52.getDescriptorType())
+
+        self.assertEqual(54, extractor54.getModelVersion())
+        self.assertEqual(54, matcher54.getModelVersion())
+        self.assertEqual(54, descriptor54.getModelVersion())
+        self.assertEqual(54, aggregation54.getModelVersion())
+        self.assertEqual(fe.DT_FACE, extractor54.getDescriptorType())
+        self.assertEqual(fe.DT_FACE, descriptor54.getDescriptorType())
+
+        self.assertEqual(56, extractor56.getModelVersion())
+        self.assertEqual(56, matcher56.getModelVersion())
+        self.assertEqual(56, descriptor56.getModelVersion())
+        self.assertEqual(56, aggregation56.getModelVersion())
+        self.assertEqual(fe.DT_FACE, extractor56.getDescriptorType())
+        self.assertEqual(fe.DT_FACE, descriptor56.getDescriptorType())
 
         # face descriptor
         batch_size = 2
@@ -124,12 +150,12 @@ class TestFaceEngineRect(unittest.TestCase):
         config = fe.createSettingsProvider(configPath)
         runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
 
-        config.setValue("DescriptorFactory::Settings", "model", version)
-        config.setValue("DescriptorFactory::Settings", "useMobileNet", useMobileNet)
-        config.setValue("system", "verboseLogging", 5)
-        runtimeConf.setValue("Runtime", "deviceClass", device)
-        runtimeConf.setValue("Runtime", "verboseLogging", 4)
-        runtimeConf.setValue("Runtime", "cpuClass", cpuType)
+        config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
+        config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
+        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
+        runtimeConf.setValue("Runtime", "verboseLogging", fe.SettingsProviderValue(4))
+        runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
 
         faceEngine.setSettingsProvider(config)
         faceEngine.setRuntimeSettingsProvider(runtimeConf)
@@ -191,12 +217,17 @@ class TestFaceEngineRect(unittest.TestCase):
                 self.assertEqual(dataExpected[i], full_data_exp_default2[i + diff_exp_default2])
                 self.assertEqual(dataExpected[i], full_data_exp_no_signature[i + diff_exp_no_signature])
 
-    def test_extractor(self):
-        self.extractor(46, 0.9718, True, "auto", "cpu")
-        self.extractor(52, 1.0, True, "auto", "cpu")
-        self.extractor(46, 0.9718, False, "auto", "cpu")
+    def testExtractor(self):
+        params = {"46_mobilenet": [46, 0.9718, True, "auto", "cpu"], "46_no_mobilnet": [46, 0.9718, False, "auto", "cpu"],
+                  "52_mobilnet": [52, 1.0, True, "auto", "cpu"], "52_no_mobilnet": [52, 0.8926, False, "auto", "cpu"],
+                  "54_mobilnet": [54, 0.9094, True, "auto", "cpu"], "54_no_mobilnet": [54, 0.9411, False, "auto", "cpu"],
+                  "56_no_mobilnet": [56, 0.7673, False, "auto", "cpu"]}
+        for key, value in params.items():
+            version, refGS, useMobileNet, cpuType, device = value
+            with self.subTest(key=key):
+                self.extractor(version, refGS, useMobileNet, cpuType, device)
 
-    def extractor_batch(self, version, useMobileNet, cpuType, device):
+    def extractorBatch(self, version, useMobileNet, cpuType, device):
         configPath = os.path.join(self.dataPath, "faceengine.conf")
         runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
 
@@ -205,11 +236,11 @@ class TestFaceEngineRect(unittest.TestCase):
         config = fe.createSettingsProvider(configPath)
         runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
 
-        config.setValue("DescriptorFactory::Settings", "model", version)
-        config.setValue("DescriptorFactory::Settings", "useMobileNet", useMobileNet)
-        config.setValue("system", "verboseLogging", 5)
-        runtimeConf.setValue("Runtime", "deviceClass", device)
-        runtimeConf.setValue("Runtime", "cpuClass", cpuType)
+        config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
+        config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
+        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
+        runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
 
         faceEngine.setSettingsProvider(config)
         faceEngine.setRuntimeSettingsProvider(runtimeConf)
@@ -276,11 +307,17 @@ class TestFaceEngineRect(unittest.TestCase):
             for j in range(len(data)):
                 self.assertEqual(data[j], data_loaded[j])
 
-    def test_extractor_batch(self):
-        self.extractor_batch(46, True, "auto", "cpu")
-        self.extractor_batch(46, False, "auto", "cpu")
+    def testExtractorBatch(self):
+        params = {"46_mobilenet": [46, True, "auto", "cpu"], "46_no_mobilenet": [46, False, "auto", "cpu"],
+                  "52_mobilnet": [52, True, "auto", "cpu"], "52_no_mobilnet": [52, False, "auto", "cpu"],
+                  "54_mobilnet": [54, True, "auto", "cpu"], "54_no_mobilnet": [54, False, "auto", "cpu"],
+                  "56_no_mobilnet": [56, False, "auto", "cpu"]}
+        for key, value in params.items():
+            version, useMobileNet, cpuType, device = value
+            with self.subTest(key=key):
+                self.extractorBatch(version, useMobileNet, cpuType, device)
 
-    def extractor_aggregation(self, version, useMobileNet, cpuType, device):
+    def extractorAggregation(self, version, useMobileNet, cpuType, device):
 
         configPath = os.path.join(self.dataPath, "faceengine.conf")
         runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
@@ -290,11 +327,11 @@ class TestFaceEngineRect(unittest.TestCase):
         config = fe.createSettingsProvider(configPath)
         runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
 
-        config.setValue("DescriptorFactory::Settings", "model", version)
-        config.setValue("DescriptorFactory::Settings", "useMobileNet", useMobileNet)
-        config.setValue("system", "verboseLogging", 5)
-        runtimeConf.setValue("Runtime", "deviceClass", device)
-        runtimeConf.setValue("Runtime", "cpuClass", cpuType)
+        config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
+        config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
+        config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
+        runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
 
         faceEngine.setSettingsProvider(config)
         faceEngine.setRuntimeSettingsProvider(runtimeConf)
@@ -319,13 +356,19 @@ class TestFaceEngineRect(unittest.TestCase):
         for j in range(descLength):
             self.assertEqual(data_expected[j], data_actual[j])
 
-    def test_extractor_aggregation(self):
-        self.extractor_aggregation(46, True, "auto", "cpu")
-        self.extractor_aggregation(46, False, "auto", "cpu")
+    def testExtractorAggregation(self):
+        params = {"46_mobilenet": [46, True, "auto", "cpu"], "46_no_mobilenet": [46, False, "auto", "cpu"],
+                  "52_mobilnet": [52, True, "auto", "cpu"], "52_no_mobilnet": [52, False, "auto", "cpu"],
+                  "54_mobilnet": [54, True, "auto", "cpu"], "54_no_mobilnet": [54, False, "auto", "cpu"],
+                  "56_no_mobilnet": [56, False, "auto", "cpu"]}
+        for key, value in params.items():
+            version, useMobileNet, cpuType, device = value
+            with self.subTest(key=key):
+                self.extractorAggregation(version, useMobileNet, cpuType, device)
 
-    def test_negative_test_on_invalid_images(self):
+    def testNegativeTestOnInvalidImages(self):
         # disable logging for negative tests
-        self.set_logging(0)
+        self.setLogging(0)
         empty_image = fe.Image()
         descriptor = self.faceEngine.createDescriptor()
         aggregation = self.faceEngine.createDescriptor()
@@ -345,6 +388,67 @@ class TestFaceEngineRect(unittest.TestCase):
         extraction_res, value = extractor.extract(empty_image, detection, landmarks, descriptor)
         self.assertTrue(extraction_res.isError)
         self.assertEqual(extraction_res.error, fe.FSDKError.InvalidImage)
+
+    def testCompareMatchingResult(self):
+        image_list = [fe.Image(), fe.Image()]
+        err = image_list[0].load(os.path.join(self.test_data_path, "3_Riot_Riot_3_413_small.jpg"))
+        self.assertTrue(err.isOk)
+        err = image_list[1].load(os.path.join(self.test_data_path, "image_480.jpg"))
+        self.assertTrue(err.isOk)
+        extractor = self.faceEngine.createExtractor()
+        batch = self.faceEngine.createDescriptorBatch(7)
+        detector = self.faceEngine.createDetector(fe.FACE_DET_V3)
+        warper = self.faceEngine.createWarper()
+
+        warps = []
+        rect_list = [image.getRect() for image in image_list]
+        err, face_list = detector.detect(image_list, rect_list, 10, fe.DetectionType(fe.dtBBox | fe.dt5Landmarks))
+        self.assertTrue(err.isOk)
+
+        i_image = 0
+        for list in face_list:
+            for face in list:
+                (detection, landmarks5) = face.detection, face.landmarks5_opt.value()
+                transformation = warper.createTransformation(detection, landmarks5)
+                err, warp_result = warper.warp(image_list[i_image], transformation)
+                self.assertTrue(err.isOk)
+                warps.append(warp_result)
+            i_image += 1
+
+        err_batch_extraction, _ = extractor.extractFromWarpedImageBatch(warps, batch, 7)
+        self.assertTrue(err_batch_extraction.isOk)
+        descriptor = batch.getDescriptorSlow(0)
+
+        params = OrderedDict()
+        params["1_in_top_best_descriptor_is_first"] = [1, False, [0]]
+        params["N_in_top_best_descriptor_is_first"] = [4, False, [0, 5, 2, 3]]
+        params["1_in_top_remove_first_descriptor_from_batch"] = [1, True, [4]]
+        params["N_in_top_remove_first_descriptor_from_batch"] = [4, True, [3, 0, 1, 2]]
+
+        for key, value in params.items():
+            i, remove, expected_indices = value
+            with self.subTest(key=key):
+                if remove:
+                    batch.removeSlow(0)
+                self.match(descriptor, batch, i, expected_indices)
+
+    def match(self, descriptor, batch, n_top, expected_indices):
+        matcher = self.faceEngine.createMatcher()
+        err, result_closest, indices = matcher.match(descriptor, batch, n_top)
+        self.assertTrue(err.isOk)
+        err1, matching_list = matcher.match(descriptor, batch)
+        self.assertTrue(err1.isOk)
+        similarities = []
+        distances = []
+        for matching in matching_list:
+            similarities.append(matching.similarity)
+            distances.append(matching.distance)
+        self.assertEqual(max(similarities), result_closest[0].similarity)
+        self.assertEqual(min(distances), result_closest[0].distance)
+        self.assertEqual(len(indices), n_top)
+        self.assertEqual(len(indices), len(expected_indices))
+        for i, _ in enumerate(indices):
+            self.assertEqual(indices[i], expected_indices[i])
 
 
 if __name__ == '__main__':
