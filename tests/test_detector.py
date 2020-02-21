@@ -58,6 +58,7 @@ class TestFaceEngineDetector(unittest.TestCase):
     def setUp(self):
         self.configPath = os.path.join("data", "faceengine.conf")
         self.config = fe.createSettingsProvider(self.configPath)
+        self.config.setValue("FaceDetV3::Settings", "minFaceSize", 20)
 
     def assertFacesWithEtalons(self, face_expected, face):
         self.assertDetections(face_expected.detection, face.detection, delta=3, scoreDelta=0.001)
