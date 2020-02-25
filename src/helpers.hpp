@@ -15,7 +15,8 @@ struct Archive: fsdk::IArchive
 	}
 	
 	bool read(void* data, size_t size) noexcept override {
-		assert(size <= m_size - index);
+		if (size > m_size - index)
+			return false;
 		memcpy(data, (void*)&dataOut[index], size);
 		index += size;
 		return true;
@@ -38,7 +39,8 @@ struct VectorArchive: fsdk::IArchive
 	}
 	
 	bool read(void* data, size_t size) noexcept override {
-		assert(size <= dataOut.size()-index);
+		if (size > dataOut.size()-index)
+			return false;
 		memcpy(data, (void*)&dataOut[0+index], size);
 		index += size;
 		return true;
