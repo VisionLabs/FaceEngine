@@ -450,6 +450,28 @@ class TestFaceEngineRect(unittest.TestCase):
         for i, _ in enumerate(indices):
             self.assertEqual(indices[i], expected_indices[i])
 
+    def testDifferentBatchVersion(self):
+        warps = [fe.Image(), fe.Image()]
+        err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
+        self.assertTrue(err1.isOk and warps[0].isValid())
+        err2 = warps[1].load(os.path.join(self.test_data_path, "warp2.ppm"))
+        self.assertTrue(err2.isOk and warps[1].isValid())
+
+        version = 46
+        extractor = self.faceEngine.createExtractor(version)
+        batch = self.faceEngine.createDescriptorBatch(2, version)
+        descriptor = self.faceEngine.createDescriptor(version)
+
+        res_batch, _, garbage_scores = extractor.extractFromWarpedImageBatch(warps, batch, descriptor, 2)
+        batch_version = 54
+        batch_loaded = self.faceEngine.createDescriptorBatch(2, batch_version)
+
+        err, full_data_default1 = batch.save()
+        self.assertTrue(err.isOk)
+        err_load = batch_loaded.load(full_data_default1, len(full_data_default1))
+        # it is failed only for descriptors with different length
+        self.assertTrue(err_load.isError)
+        self.assertTrue(err_load.error, fe.SerializeError.ArchiveRead)
 
 if __name__ == '__main__':
     unittest.main()
