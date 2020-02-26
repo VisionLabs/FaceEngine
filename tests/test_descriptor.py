@@ -2,10 +2,7 @@ import unittest
 import argparse
 import sys
 import os
-import logging
-import struct
 from collections import OrderedDict
-
 from license_helper import make_activation, ActivationLicenseError
 
 # if FaceEngine is not installed within the system, add the directory with FaceEngine*.so to system paths
@@ -55,64 +52,49 @@ class TestFaceEngineRect(unittest.TestCase):
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(value))
         self.faceEngine.setSettingsProvider(config)
 
+    def testDifferentBatchVersion(self):
+        warps = [fe.Image(), fe.Image()]
+        err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
+        self.assertTrue(err1.isOk)
+        err2 = warps[1].load(os.path.join(self.test_data_path, "warp2.ppm"))
+        self.assertTrue(err2.isOk)
+
+        extractor = self.faceEngine.createExtractor(46)
+        batch = self.faceEngine.createDescriptorBatch(2, 46)
+
+        extractor.extractFromWarpedImageBatch(warps, batch, 2)
+
+        batch_loaded = self.faceEngine.createDescriptorBatch(2, 54)
+
+        err, full_data_default1 = batch.save()
+        self.assertTrue(err.isOk)
+        err_load = batch_loaded.load(full_data_default1, len(full_data_default1))
+        self.assertEqual(err_load.error, fe.SerializeError.ArchiveRead)
+
     def testVersion(self):
+        extractor = self.faceEngine.createExtractor()
+        matcher = self.faceEngine.createMatcher()
+        descriptor = self.faceEngine.createDescriptor()
+        aggregation = self.faceEngine.createDescriptor()
+        self.matchDescriptor(extractor, descriptor, aggregation, matcher)
 
-        # face descriptor
-        extractor_default = self.faceEngine.createExtractor()
-        matcher_default = self.faceEngine.createMatcher()
-        descriptor_default = self.faceEngine.createDescriptor()
-        aggregation_default = self.faceEngine.createDescriptor()
+        test_cases = (46, 52, 54, 56)
+        for model in test_cases:
+            with self.subTest(model=model):
+                extractor = self.faceEngine.createExtractor(model)
+                matcher = self.faceEngine.createMatcher(model)
+                descriptor = self.faceEngine.createDescriptor(model)
+                aggregation = self.faceEngine.createDescriptor(model)
 
-        extractor46 = self.faceEngine.createExtractor(46)
-        matcher46 = self.faceEngine.createMatcher(46)
-        descriptor46 = self.faceEngine.createDescriptor(46)
-        aggregation46 = self.faceEngine.createDescriptor(46)
+                self.assertEqual(model, extractor.getModelVersion())
+                self.assertEqual(model, matcher.getModelVersion())
+                self.assertEqual(model, descriptor.getModelVersion())
+                self.assertEqual(model, aggregation.getModelVersion())
+                self.assertEqual(fe.DT_FACE, extractor.getDescriptorType())
+                self.assertEqual(fe.DT_FACE, descriptor.getDescriptorType())
+                self.matchDescriptor(extractor, descriptor, aggregation, matcher)
 
-        extractor52 = self.faceEngine.createExtractor(52)
-        matcher52 = self.faceEngine.createMatcher(52)
-        descriptor52 = self.faceEngine.createDescriptor(52)
-        aggregation52 = self.faceEngine.createDescriptor(52)
-
-        extractor54 = self.faceEngine.createExtractor(54)
-        matcher54 = self.faceEngine.createMatcher(54)
-        descriptor54 = self.faceEngine.createDescriptor(54)
-        aggregation54 = self.faceEngine.createDescriptor(54)
-
-        extractor56 = self.faceEngine.createExtractor(56)
-        matcher56 = self.faceEngine.createMatcher(56)
-        descriptor56 = self.faceEngine.createDescriptor(56)
-        aggregation56 = self.faceEngine.createDescriptor(56)
-
-        # face descriptor
-        self.assertEqual(46, extractor46.getModelVersion())
-        self.assertEqual(46, matcher46.getModelVersion())
-        self.assertEqual(46, descriptor46.getModelVersion())
-        self.assertEqual(46, aggregation46.getModelVersion())
-        self.assertEqual(fe.DT_FACE, extractor46.getDescriptorType())
-        self.assertEqual(fe.DT_FACE, descriptor46.getDescriptorType())
-
-        self.assertEqual(52, extractor52.getModelVersion())
-        self.assertEqual(52, matcher52.getModelVersion())
-        self.assertEqual(52, descriptor52.getModelVersion())
-        self.assertEqual(52, aggregation52.getModelVersion())
-        self.assertEqual(fe.DT_FACE, extractor52.getDescriptorType())
-        self.assertEqual(fe.DT_FACE, descriptor52.getDescriptorType())
-
-        self.assertEqual(54, extractor54.getModelVersion())
-        self.assertEqual(54, matcher54.getModelVersion())
-        self.assertEqual(54, descriptor54.getModelVersion())
-        self.assertEqual(54, aggregation54.getModelVersion())
-        self.assertEqual(fe.DT_FACE, extractor54.getDescriptorType())
-        self.assertEqual(fe.DT_FACE, descriptor54.getDescriptorType())
-
-        self.assertEqual(56, extractor56.getModelVersion())
-        self.assertEqual(56, matcher56.getModelVersion())
-        self.assertEqual(56, descriptor56.getModelVersion())
-        self.assertEqual(56, aggregation56.getModelVersion())
-        self.assertEqual(fe.DT_FACE, extractor56.getDescriptorType())
-        self.assertEqual(fe.DT_FACE, descriptor56.getDescriptorType())
-
-        # face descriptor
+    def matchDescriptor(self, extractor, descriptor, aggregation, matcher):
         batch_size = 2
         descriptorBatch = self.faceEngine.createDescriptorBatch(2)
         images = []
@@ -121,24 +103,43 @@ class TestFaceEngineRect(unittest.TestCase):
             err = image.load(os.path.join(self.test_data_path, "warp1.ppm"))
             self.assertTrue(err.isOk)
             images.append(image)
-        self.assertTrue(extractor_default.extractFromWarpedImage(images[0], descriptor_default))
-        self.assertTrue(extractor_default.extractFromWarpedImageBatch(images, descriptorBatch, aggregation_default, batch_size))
+        self.assertTrue(extractor.extractFromWarpedImage(images[0], descriptor))
+        self.assertTrue(extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation, batch_size))
 
         def assertMatchingResult(result):
             self.assertEqual(result.similarity, 1.0)
             self.assertEqual(result.distance, 0.0)
 
         def checkDescriptorsEquality(desc1, desc2):
-            result, value = matcher_default.match(desc1, desc2)
+            result, value = matcher.match(desc1, desc2)
             self.assertTrue(result.isOk)
             assertMatchingResult(value)
 
-        checkDescriptorsEquality(aggregation_default, descriptor_default)
-        checkDescriptorsEquality(aggregation_default, aggregation_default)
-        result = matcher_default.match(aggregation_default, descriptorBatch)
+        checkDescriptorsEquality(aggregation, descriptor)
+        checkDescriptorsEquality(aggregation, aggregation)
+        result = matcher.match(aggregation, descriptorBatch)
         self.assertTrue(result[0].isOk)
         assertMatchingResult(result[1][0])
         assertMatchingResult(result[1][1])
+
+    def testMatchDifferentVersion(self):
+        test_cases = {52: 46, 54: 46, 56: 46}
+        for desc1, desc2 in test_cases.items():
+            with self.subTest(match_with=desc1):
+                matcher = self.faceEngine.createMatcher(desc1)
+                descriptor1 = self.faceEngine.createDescriptor(desc1)
+                descriptor2 = self.faceEngine.createDescriptor(desc2)
+                err_descriptor, value = matcher.match(descriptor1, descriptor2)
+                self.assertEqual(err_descriptor.error, fe.FSDKError.IncompatibleDescriptors)
+
+    def testMatchDifferentVersionBatch(self):
+        test_cases = (52, 56)
+        batch = self.faceEngine.createDescriptorBatch(2, 46)
+        for model in test_cases:
+            with self.subTest(match_with=model):
+                descriptor = self.faceEngine.createDescriptor(model)
+                err_batch = batch.add(descriptor)
+                self.assertEqual(err_batch.error, fe.DescriptorBatchError.Incompatible)
 
     def extractor(self, version, refGS, useMobileNet, cpuType, device):
         versionString = str(version) + ("", "_mobilenet")[useMobileNet]
@@ -186,43 +187,37 @@ class TestFaceEngineRect(unittest.TestCase):
             for i in range(descriptor.getDescriptorLength()):
                 self.assertEqual(dataActual[i], dataExpected[i])
 
-            # by Default full version with headears, NoSignature - write only version
-            err, full_data_actual_default1 = descriptor.save()
-            self.assertTrue(err.isOk)
-            err, full_data_actual_default2 = descriptor.save(fe.Save.Default)
-            self.assertTrue(err.isOk)
-            err, full_data_actual_no_signature = descriptor.save(fe.Save.NoSignature)
-            self.assertTrue(err.isOk)
+            descriptor_cases = {descriptor: dataActual, descriptorExpected: dataExpected}
+            for i, data in descriptor_cases.items():
+                with self.subTest(descriptor=i):
+                    self.assertDescriptors(i, data)
 
-            err, full_data_exp_default1 = descriptorExpected.save()
-            self.assertTrue(err.isOk)
-            err, full_data_exp_default2 = descriptorExpected.save(fe.Save.Default)
-            self.assertTrue(err.isOk)
-            err, full_data_exp_no_signature = descriptorExpected.save(fe.Save.NoSignature)
-            self.assertTrue(err.isOk)
+    def assertDescriptors(self, descriptor, data):
+        err, full_data_default1 = descriptor.save()
+        self.assertTrue(err.isOk)
+        err, full_data_default2 = descriptor.save(fe.Save.Default)
+        self.assertTrue(err.isOk)
+        err, full_data_no_signature = descriptor.save(fe.Save.NoSignature)
+        self.assertTrue(err.isOk)
 
-            diff_actual_default1 = len(full_data_actual_default1) - len(dataActual)
-            diff_actual_default2 = len(full_data_actual_default2) - len(dataActual)
-            diff_actual_no_signature = len(full_data_actual_no_signature) - len(dataActual)
-            diff_exp_default1 = len(full_data_exp_default1) - len(dataActual)
-            diff_exp_default2 = len(full_data_exp_default2) - len(dataActual)
-            diff_exp_no_signature = len(full_data_exp_no_signature) - len(dataActual)
+        diff_actual_default1 = len(full_data_default1) - len(data)
+        diff_actual_default2 = len(full_data_default2) - len(data)
+        diff_actual_no_signature = len(full_data_no_signature) - len(data)
 
-            for i in range(descriptor.getDescriptorLength()):
-                self.assertEqual(dataActual[i], full_data_actual_default1[i + diff_actual_default1])
-                self.assertEqual(dataActual[i], full_data_actual_default2[i + diff_actual_default2])
-                self.assertEqual(dataActual[i], full_data_exp_no_signature[i + diff_actual_no_signature])
-
-                self.assertEqual(dataExpected[i], full_data_exp_default1[i + diff_exp_default1])
-                self.assertEqual(dataExpected[i], full_data_exp_default2[i + diff_exp_default2])
-                self.assertEqual(dataExpected[i], full_data_exp_no_signature[i + diff_exp_no_signature])
+        for i in range(descriptor.getDescriptorLength()):
+            self.assertEqual(data[i], full_data_default1[i + diff_actual_default1])
+            self.assertEqual(data[i], full_data_default2[i + diff_actual_default2])
+            self.assertEqual(data[i], full_data_no_signature[i + diff_actual_no_signature])
 
     def testExtractor(self):
-        params = {"46_mobilenet": [46, 0.9718, True, "auto", "cpu"], "46_no_mobilnet": [46, 0.9718, False, "auto", "cpu"],
-                  "52_mobilnet": [52, 1.0, True, "auto", "cpu"], "52_no_mobilnet": [52, 0.8926, False, "auto", "cpu"],
-                  "54_mobilnet": [54, 0.9094, True, "auto", "cpu"], "54_no_mobilnet": [54, 0.9411, False, "auto", "cpu"],
-                  "56_no_mobilnet": [56, 0.7673, False, "auto", "cpu"]}
-        for key, value in params.items():
+        test_cases = {"46_mobilenet": [46, 0.9718, True, "auto", "cpu"],
+                      "46_no_mobilnet": [46, 0.9718, False, "auto", "cpu"],
+                      "52_mobilnet": [52, 1.0, True, "auto", "cpu"],
+                      "52_no_mobilnet": [52, 0.8926, False, "auto", "cpu"],
+                      "54_mobilnet": [54, 0.9094, True, "auto", "cpu"],
+                      "54_no_mobilnet": [54, 0.9411, False, "auto", "cpu"],
+                      "56_no_mobilnet": [56, 0.7673, False, "auto", "cpu"]}
+        for key, value in test_cases.items():
             version, refGS, useMobileNet, cpuType, device = value
             with self.subTest(key=key):
                 self.extractor(version, refGS, useMobileNet, cpuType, device)
@@ -308,11 +303,14 @@ class TestFaceEngineRect(unittest.TestCase):
                 self.assertEqual(data[j], data_loaded[j])
 
     def testExtractorBatch(self):
-        params = {"46_mobilenet": [46, True, "auto", "cpu"], "46_no_mobilenet": [46, False, "auto", "cpu"],
-                  "52_mobilnet": [52, True, "auto", "cpu"], "52_no_mobilnet": [52, False, "auto", "cpu"],
-                  "54_mobilnet": [54, True, "auto", "cpu"], "54_no_mobilnet": [54, False, "auto", "cpu"],
-                  "56_no_mobilnet": [56, False, "auto", "cpu"]}
-        for key, value in params.items():
+        test_cases = {"46_mobilenet": [46, True, "auto", "cpu"],
+                      "46_no_mobilenet": [46, False, "auto", "cpu"],
+                      "52_mobilnet": [52, True, "auto", "cpu"],
+                      "52_no_mobilnet": [52, False, "auto", "cpu"],
+                      "54_mobilnet": [54, True, "auto", "cpu"],
+                      "54_no_mobilnet": [54, False, "auto", "cpu"],
+                      "56_no_mobilnet": [56, False, "auto", "cpu"]}
+        for key, value in test_cases.items():
             version, useMobileNet, cpuType, device = value
             with self.subTest(key=key):
                 self.extractorBatch(version, useMobileNet, cpuType, device)
@@ -357,11 +355,14 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertEqual(data_expected[j], data_actual[j])
 
     def testExtractorAggregation(self):
-        params = {"46_mobilenet": [46, True, "auto", "cpu"], "46_no_mobilenet": [46, False, "auto", "cpu"],
-                  "52_mobilnet": [52, True, "auto", "cpu"], "52_no_mobilnet": [52, False, "auto", "cpu"],
-                  "54_mobilnet": [54, True, "auto", "cpu"], "54_no_mobilnet": [54, False, "auto", "cpu"],
-                  "56_no_mobilnet": [56, False, "auto", "cpu"]}
-        for key, value in params.items():
+        test_cases = {"46_mobilenet": [46, True, "auto", "cpu"],
+                      "46_no_mobilenet": [46, False, "auto", "cpu"],
+                      "52_mobilnet": [52, True, "auto", "cpu"],
+                      "52_no_mobilnet": [52, False, "auto", "cpu"],
+                      "54_mobilnet": [54, True, "auto", "cpu"],
+                      "54_no_mobilnet": [54, False, "auto", "cpu"],
+                      "56_no_mobilnet": [56, False, "auto", "cpu"]}
+        for key, value in test_cases.items():
             version, useMobileNet, cpuType, device = value
             with self.subTest(key=key):
                 self.extractorAggregation(version, useMobileNet, cpuType, device)
