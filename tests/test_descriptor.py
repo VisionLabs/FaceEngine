@@ -400,6 +400,11 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(err.isOk)
         err = image_list[1].load(os.path.join(self.test_data_path, "image_480.jpg"))
         self.assertTrue(err.isOk)
+
+        config = fe.createSettingsProvider("data/faceengine.conf")
+        config.setValue("FaceDetV3::Settings", "minFaceSize", 20)
+        self.faceEngine.setSettingsProvider(config)
+
         extractor = self.faceEngine.createExtractor()
         batch = self.faceEngine.createDescriptorBatch(7)
         detector = self.faceEngine.createDetector(fe.FACE_DET_V3)
