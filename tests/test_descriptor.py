@@ -53,6 +53,7 @@ class TestFaceEngineRect(unittest.TestCase):
     def setLogging(self, value):
         config = fe.createSettingsProvider("data/faceengine.conf")
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(value))
+        config.setValue("FaceDetV3::Settings", "minFaceSize", 20)
         self.faceEngine.setSettingsProvider(config)
 
     def testVersion(self):
@@ -152,6 +153,7 @@ class TestFaceEngineRect(unittest.TestCase):
 
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
+        config.setValue("FaceDetV3::Settings", "minFaceSize", 20)
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
         runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
         runtimeConf.setValue("Runtime", "verboseLogging", fe.SettingsProviderValue(4))
@@ -239,6 +241,7 @@ class TestFaceEngineRect(unittest.TestCase):
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        config.setValue("FaceDetV3::Settings", "minFaceSize", 20)
         runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
         runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
 
@@ -330,6 +333,7 @@ class TestFaceEngineRect(unittest.TestCase):
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        config.setValue("FaceDetV3::Settings", "minFaceSize", 20)
         runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
         runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
 
