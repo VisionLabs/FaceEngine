@@ -376,7 +376,6 @@ class TestFaceEngineDetector(unittest.TestCase):
         err, redet = detector.redetectOne(image, box, fe.DetectionType(fe.dtBBox))
         self.assertFaceValid(redet, landmarks68Valid=False, landmarks5Valid=False)
 
-    @unittest.skip("wait fix FSDK-1954")
     def testDetectByBigArea(self, _detectorType=fe.FACE_DET_V3):
         detector = self.faceEngine.createDetector(_detectorType)
         image = fe.Image()
@@ -386,7 +385,6 @@ class TestFaceEngineDetector(unittest.TestCase):
         err, face = detector.detectOne(image, area, fe.DetectionType(fe.dtBBox | fe.dt5Landmarks))
         self.assertEqual(err.error, fe.FSDKError.InvalidRect)
 
-    @unittest.skip("wait fix FSDK-2028")
     def testRedetectResetLandmarks(self):
         self.faceEngine.setSettingsProvider(self.config)
         detector = self.faceEngine.createDetector()
