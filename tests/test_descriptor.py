@@ -50,6 +50,7 @@ class TestFaceEngineRect(unittest.TestCase):
     def setLogging(self, value):
         config = fe.createSettingsProvider("data/faceengine.conf")
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(value))
+        config.setValue("FaceDetV3::Settings", "minFaceSize", 20)
         self.faceEngine.setSettingsProvider(config)
 
     def testDifferentBatchVersion(self):
@@ -153,6 +154,7 @@ class TestFaceEngineRect(unittest.TestCase):
 
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
+        config.setValue("FaceDetV3::Settings", "minFaceSize", 20)
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
         runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
         runtimeConf.setValue("Runtime", "verboseLogging", fe.SettingsProviderValue(4))
@@ -234,6 +236,7 @@ class TestFaceEngineRect(unittest.TestCase):
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        config.setValue("FaceDetV3::Settings", "minFaceSize", 20)
         runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
         runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
 
@@ -328,6 +331,7 @@ class TestFaceEngineRect(unittest.TestCase):
         config.setValue("DescriptorFactory::Settings", "model", fe.SettingsProviderValue(version))
         config.setValue("DescriptorFactory::Settings", "useMobileNet", fe.SettingsProviderValue(useMobileNet))
         config.setValue("system", "verboseLogging", fe.SettingsProviderValue(5))
+        config.setValue("FaceDetV3::Settings", "minFaceSize", 20)
         runtimeConf.setValue("Runtime", "deviceClass", fe.SettingsProviderValue(device))
         runtimeConf.setValue("Runtime", "cpuClass", fe.SettingsProviderValue(cpuType))
 
@@ -396,6 +400,11 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(err.isOk)
         err = image_list[1].load(os.path.join(self.test_data_path, "image_480.jpg"))
         self.assertTrue(err.isOk)
+
+        config = fe.createSettingsProvider("data/faceengine.conf")
+        config.setValue("FaceDetV3::Settings", "minFaceSize", 20)
+        self.faceEngine.setSettingsProvider(config)
+
         extractor = self.faceEngine.createExtractor()
         batch = self.faceEngine.createDescriptorBatch(7)
         detector = self.faceEngine.createDetector(fe.FACE_DET_V3)
