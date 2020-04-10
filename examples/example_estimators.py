@@ -128,11 +128,19 @@ def attribute_batch_example(_warps):
         exit(1)
 
 
-def headPose_example(_landmarks68):
+def headPose_example_by_image_and_detection(_warp, _detection):
+    headPoseEstimator = faceEngine.createHeadPoseEstimator()
+    err, headPoseEstimation = headPoseEstimator.estimate(_warp, _detection)
+    if err.isOk:
+        print("Head pose estimation by image and detection:", headPoseEstimation)
+    return err, headPoseEstimation
+
+
+def headPose_example_by_landmarks68(_landmarks68):
     headPoseEstimator = faceEngine.createHeadPoseEstimator()
     err, headPoseEstimation = headPoseEstimator.estimate(_landmarks68)
     if err.isOk:
-        print(headPoseEstimation)
+        print("Head pose estimation by landmarks68:", headPoseEstimation)
     return err, headPoseEstimation
 
 
@@ -331,7 +339,8 @@ if __name__ == "__main__":
         faceFlow_example()
         emotions_example(warp_image)
         mouth_example(warp_image)
-        err_headPose, headPoseEstimation = headPose_example(landmarks68)
+        err_headPose, headPoseEstimation = headPose_example_by_landmarks68(landmarks68)
+        err_headPose, headPoseEstimation = headPose_example_by_image_and_detection(warp_image, detection)
         err_eyes, eyesEstimation = eye_example(warp_image, transformed_landmarks5)
         err_gaze, gaze_result = gaze_example_rgb(warp_image, transformed_landmarks5)
         if err_gaze.isOk:
