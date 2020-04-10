@@ -7,7 +7,7 @@ import math
 def help():
     print("python example_gaze_cv.py <path to dir with FaceEngine*.so>")
 
-print(len(sys.argv))
+
 if len(sys.argv) != 2:
     help()
     exit(1)
