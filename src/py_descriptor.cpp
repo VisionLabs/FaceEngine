@@ -172,6 +172,12 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\tReturns:\n"
 		"\t\t(IDescriptorPtr): valid object if succeeded.\n")
 	
+	.def("clear",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
+			return descriptorBatchPtr->clear(); },
+		"Clear object data.\n"
+		"\tThis does not necessarily mean deallocation; it is defined by implementation how to manage \n"
+		"\tdata memory on C++ side.\n")
+	
 	.def("load",[](
 		const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
 		const char* buffer,
