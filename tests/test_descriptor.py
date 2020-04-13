@@ -485,6 +485,26 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(err_load.isError)
         self.assertTrue(err_load.error, fe.SerializeError.ArchiveRead)
 
+    def testClearBatch(self):
+        warps = [fe.Image(), fe.Image()]
+        err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
+        self.assertTrue(err1.isOk and warps[0].isValid())
+        err2 = warps[1].load(os.path.join(self.test_data_path, "warp1.ppm"))
+        self.assertTrue(err2.isOk and warps[1].isValid())
+
+        version = 52
+        extractor = self.faceEngine.createExtractor(version)
+        batchCount = 2
+        batch = self.faceEngine.createDescriptorBatch(batchCount, version)
+        # batch size is 2, batch is empty
+        self.assertEqual(batch.getCount(), 0)
+        # batch is filled, batch count is 2
+        res_batch, _ = extractor.extractFromWarpedImageBatch(warps, batch, batchCount)
+        self.assertEqual(batch.getCount(), batchCount)
+        # batch is cleared, batch count must be 0
+        batch.clear()
+        self.assertEqual(batch.getCount(), 0)
+
 if __name__ == '__main__':
     unittest.main()
 

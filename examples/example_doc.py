@@ -122,6 +122,7 @@ print(fe.IDescriptorBatchPtr.getDescriptorType.__doc__)
 print(fe.IDescriptorBatchPtr.getDescriptorSize.__doc__)
 print(fe.IDescriptorBatchPtr.getDescriptorSlow.__doc__)
 print(fe.IDescriptorBatchPtr.getDescriptorFast.__doc__)
+print(fe.IDescriptorBatchPtr.clear.__doc__)
 print(fe.IDescriptorBatchPtr.load.__doc__)
 print(fe.IDescriptorBatchPtr.save.__doc__)
 
