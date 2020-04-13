@@ -97,7 +97,9 @@ class TestFaceEngineRect(unittest.TestCase):
 
     def matchDescriptor(self, extractor, descriptor, aggregation, matcher):
         batch_size = 2
-        descriptorBatch = self.faceEngine.createDescriptorBatch(2)
+        # the version of descriptorBatch should be the same as extractor version
+        descriptorBatch = self.faceEngine.createDescriptorBatch(2, extractor.getModelVersion())
+
         images = []
         for i in range(batch_size):
             image = fe.Image()

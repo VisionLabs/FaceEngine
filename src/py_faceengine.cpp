@@ -729,6 +729,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("UnsupportedFunctionality", fsdk::FSDKError::UnsupportedFunctionality)
 
 		.value("HighMemoryUsage", fsdk::FSDKError::HighMemoryUsage)
+		.value("IncompatibleModelVersions", fsdk::FSDKError::IncompatibleModelVersions)
 			;
 
 	py::enum_<fsdk::LicenseFeature>(f, "LicenseFeature", "License features.\n")
