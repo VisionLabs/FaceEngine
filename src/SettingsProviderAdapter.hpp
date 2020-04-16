@@ -10,6 +10,8 @@ public:
 	fsdk::ISettingsProviderPtr settingsProviderPtr;
 
 	PyISettingsProvider(const char* path);
+	
+	PyISettingsProvider(const fsdk::ISettingsProviderPtr& config);
 
 	const char* getDefaultPath();
 

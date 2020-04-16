@@ -122,6 +122,29 @@ class TestFaceEngineEstimators(unittest.TestCase):
         value = self.config.getValue("system", "verboseLogging")
         self.assertEqual(value[0], 2)
 
+    def testGetSettingProvider(self):
+        config1 = self.faceEngine.getSettingsProvider()
+        ref_value_i = 4
+
+        config1.setValue("system", "verboseLogging", ref_value_i)
+        value1 = config1.getValue("system", "verboseLogging")
+        self.assertEqual(value1[0], ref_value_i)
+
+        # you must not change this setting, it is only for research purposes
+        ref_value_f = 0.1
+        config1.setValue("FaceDetV1::Settings", "paddings", [ref_value_f, ref_value_f, ref_value_f, ref_value_f])
+
+        self.faceEngine.setSettingsProvider(config1)
+        config2 = self.faceEngine.getSettingsProvider()
+        value2 = config2.getValue("system", "verboseLogging")
+        self.assertEqual(value2[0], ref_value_i)
+
+        value_4f = config2.getValue("FaceDetV1::Settings", "paddings")
+        self.assertAlmostEqual(value_4f[0], ref_value_f, delta=0.000001)
+        self.assertAlmostEqual(value_4f[1], ref_value_f, delta=0.000001)
+        self.assertAlmostEqual(value_4f[2], ref_value_f, delta=0.000001)
+        self.assertAlmostEqual(value_4f[3], ref_value_f, delta=0.000001)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -252,6 +252,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"Sets settings provider\n"
 			"\tArgs:\n"
 			"\t\tparam1 (PyISettingsProvider): setting provider\n")
+		
+		.def("getSettingsProvider", &PyIFaceEngine::getSettingsProvider,
+			"Returns settings provider\n"
+			"\tReturns:\n"
+			"\t\t(SettingsProvider): settings provider.")
 
 		.def("setRuntimeSettingsProvider", &PyIFaceEngine::setRuntimeSettingsProvider,
 			"Sets settings provider\n"
