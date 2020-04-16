@@ -235,6 +235,14 @@ void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }
 
+PyISettingsProvider PyIFaceEngine::getSettingsProvider() {
+	fsdk::ISettingsProviderPtr config{ faceEnginePtr->getSettingsProvider() };
+	if (!config)
+		throw py::cast_error("\nFailed to create settings provider instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
+	
+	return PyISettingsProvider(config);
+}
+
 void PyIFaceEngine::setRuntimeSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setRuntimeSettingsProvider(provider.settingsProviderPtr);
 }

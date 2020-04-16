@@ -3,9 +3,11 @@
 //
 #include "SettingsProviderAdapter.hpp"
 
-PyISettingsProvider::PyISettingsProvider(const char* path = nullptr) {
-	settingsProviderPtr = fsdk::acquire(fsdk::createSettingsProvider(path));
-}
+PyISettingsProvider::PyISettingsProvider(const char* path = nullptr) :
+	settingsProviderPtr(fsdk::acquire(fsdk::createSettingsProvider(path))) {}
+
+PyISettingsProvider::PyISettingsProvider(const fsdk::ISettingsProviderPtr& config) :
+	settingsProviderPtr(config) {}
 
 const char* PyISettingsProvider::getDefaultPath() {
 	return settingsProviderPtr->getDefaultPath();
