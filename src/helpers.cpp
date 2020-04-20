@@ -85,3 +85,29 @@ bool saveFrameSequence(const std::vector<fsdk::Image>& sequence, std::string pat
 	}
 	return true;
 }
+
+std::tuple<DescriptorBatchResult, fsdk::IDescriptorPtr> getDescriptorFromBatch(
+	const fsdk::IDescriptorBatchPtr &descriptorBatchPtr,
+	int index,
+	std::function<fsdk::IDescriptor*(fsdk::IDescriptorBatchPtr, uint32_t)> func) {
+	
+		if (!descriptorBatchPtr) {
+			return std::make_tuple(DescriptorBatchResult(
+				fsdk::makeResult(fsdk::IDescriptorBatch::Error::InvalidInput)), fsdk::IDescriptorPtr());
+		}
+		
+		if (index < 0 || index >= descriptorBatchPtr->getCount()) {
+			return std::make_tuple(DescriptorBatchResult(
+				fsdk::makeResult(fsdk::IDescriptorBatch::Error::OutOfRange)), fsdk::IDescriptorPtr());
+		}
+		
+		auto descriptor = fsdk::acquire(func(descriptorBatchPtr, index));
+		
+		if (descriptor) {
+			return std::make_tuple(DescriptorBatchResult(
+				fsdk::makeResult(fsdk::IDescriptorBatch::Error::Ok)), descriptor);
+		} else {
+			return std::make_tuple(DescriptorBatchResult(
+				fsdk::makeResult(fsdk::IDescriptorBatch::Error::Internal)), fsdk::IDescriptorPtr());
+		}
+}

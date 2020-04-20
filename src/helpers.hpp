@@ -1,7 +1,11 @@
 #pragma once
 
 #include <fsdk/FaceEngine.h>
+#include "ErrorsAdapter.hpp"
+
 #include <vector>
+#include <tuple>
+#include <functional>
 
 struct Archive: fsdk::IArchive
 {
@@ -57,3 +61,8 @@ struct VectorArchive: fsdk::IArchive
 fsdk::Image loadImage(const char* name);
 
 std::vector<fsdk::Image> loadFrameSequence(const char*);
+
+std::tuple<DescriptorBatchResult, fsdk::IDescriptorPtr> getDescriptorFromBatch(
+	const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
+	int index,
+	std::function<fsdk::IDescriptor*(fsdk::IDescriptorBatchPtr, uint32_t)> func);
