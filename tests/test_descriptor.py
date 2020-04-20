@@ -258,14 +258,17 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(res_batch.isOk)
         with open(self.test_data_path + "/batch12_" + str(version) + "_actual.bin", "wb") as out_file:
             for i in range(2):
-                descriptor_from_batch = batch.getDescriptorFast(i)
+                getErr, descriptor_from_batch = batch.getDescriptorFast(i)
+                self.assertTrue(getErr.isOk)
                 out_file.write(descriptor_from_batch.getData())
         for i_desc in range(2):
             res, value = extractor.extractFromWarpedImage(warps[i_desc], descriptor)
             self.assertTrue(res.isOk)
             self.assertEqual(descriptor.getModelVersion(), batch.getModelVersion())
             dataExpected = descriptor.getData()
-            dataActual = batch.getDescriptorFast(i_desc).getData()
+            getErr, tmpDescriptor = batch.getDescriptorFast(i_desc)
+            self.assertTrue(getErr.isOk)
+            dataActual = tmpDescriptor.getData()
             descLength = descriptor.getDescriptorLength()
             for j in range(descLength):
                 self.assertEqual(dataExpected[j], dataActual[j])
@@ -298,8 +301,10 @@ class TestFaceEngineRect(unittest.TestCase):
         batch_size = batch1.getCount()
         self.assertTrue(batch_size != 0)
         for i_desc in range(batch_size):
-            descriptor = batch1.getDescriptorFast(i_desc)
-            descriptor_loaded = batch2.getDescriptorFast(i_desc)
+            getErr1, descriptor = batch1.getDescriptorFast(i_desc)
+            self.assertTrue(getErr1.isOk)
+            getErr2, descriptor_loaded = batch2.getDescriptorFast(i_desc)
+            self.assertTrue(getErr2.isOk)
             data = descriptor.getData()
             data_loaded = descriptor_loaded.getData()
             self.assertEqual(len(data), len(data_loaded))
@@ -355,7 +360,9 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(res.isOk)
         self.assertEqual(descriptor.getModelVersion(), batch.getModelVersion())
         data_expected = descriptor.getData()
-        data_actual = batch.getDescriptorFast(0).getData()
+        getErr, tmpDescriptorActual = batch.getDescriptorFast(0)
+        self.assertTrue(getErr.isOk)
+        data_actual = tmpDescriptorActual.getData()
         descLength = descriptor.getDescriptorLength()
         for j in range(descLength):
             self.assertEqual(data_expected[j], data_actual[j])
@@ -429,8 +436,8 @@ class TestFaceEngineRect(unittest.TestCase):
 
         err_batch_extraction, _ = extractor.extractFromWarpedImageBatch(warps, batch, 7)
         self.assertTrue(err_batch_extraction.isOk)
-        descriptor = batch.getDescriptorSlow(0)
-
+        getErr, descriptor = batch.getDescriptorSlow(0)
+        self.assertTrue(getErr.isOk)
         params = OrderedDict()
         params["1_in_top_best_descriptor_is_first"] = [1, False, [0]]
         params["N_in_top_best_descriptor_is_first"] = [4, False, [0, 5, 2, 3]]
@@ -485,6 +492,42 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(err_load.isError)
         self.assertTrue(err_load.error, fe.SerializeError.ArchiveRead)
 
+    def testOutOfRangeIndexForDescriptorFromBatch(self):
+        warps = [fe.Image(), fe.Image()]
+        err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
+        self.assertTrue(err1.isOk and warps[0].isValid())
+        err2 = warps[1].load(os.path.join(self.test_data_path, "warp2.ppm"))
+        self.assertTrue(err2.isOk and warps[1].isValid())
+
+        version = 46
+        extractor = self.faceEngine.createExtractor(version)
+        batchSize = 5
+        empty_batch = self.faceEngine.createDescriptorBatch(batchSize, version)
+
+        partly_filled_batch = self.faceEngine.createDescriptorBatch(batchSize, version)
+        res_batch, _ = extractor.extractFromWarpedImageBatch(warps, partly_filled_batch, 2)
+        self.assertTrue(res_batch.isOk)
+
+        def check(batch, index, isOk, referenceError):
+            get_fast_err, _ = batch.getDescriptorFast(index)
+            self.assertEqual(get_fast_err.isOk, isOk)
+            self.assertEqual(get_fast_err.error, referenceError)
+
+            get_slow_err, _ = batch.getDescriptorSlow(index)
+            self.assertEqual(get_fast_err.isOk, isOk)
+            self.assertEqual(get_slow_err.error, referenceError)
+
+        params = OrderedDict()
+        params["out_of_range_befor_initialization"] = [empty_batch, 0, False, fe.DescriptorBatchError.OutOfRange]
+        params["succeed_descriptor_case"] = [partly_filled_batch, 0, True, fe.DescriptorBatchError.Ok]
+        params["out_of_range_index_is_greater_than_count"] = [partly_filled_batch, 3, False, fe.DescriptorBatchError.OutOfRange]
+        params["out_of_range_index_is_greater_than_max_size"] = [partly_filled_batch, 6, False, fe.DescriptorBatchError.OutOfRange]
+
+        for key, value in params.items():
+            batch, index, isOk, typeOfError = value
+            with self.subTest(key=key):
+                check(batch, index, isOk, typeOfError)
+
     def testClearBatch(self):
         warps = [fe.Image(), fe.Image()]
         err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
@@ -504,6 +547,7 @@ class TestFaceEngineRect(unittest.TestCase):
         # batch is cleared, batch count must be 0
         batch.clear()
         self.assertEqual(batch.getCount(), 0)
+
 
 if __name__ == '__main__':
     unittest.main()

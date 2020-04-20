@@ -164,7 +164,8 @@ class TestFaceEngineRect(unittest.TestCase):
 
     def query(self, _batch, _storage, _faceEngine, index):
         # test good
-        batchDescr = _batch.getDescriptorSlow(index.good)
+        err, batchDescr = _batch.getDescriptorSlow(index.good)
+        self.assertTrue(err.isOk)
         emptyDescr = _faceEngine.createDescriptor()
         newDescr = _storage.descriptorByIndex(index.good, emptyDescr)[1]
         self.assertTrue(_storage.descriptorByIndex(index.good, emptyDescr))

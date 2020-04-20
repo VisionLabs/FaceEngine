@@ -157,20 +157,30 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\t(int): Length of one descriptor in batch.\n")
 	
 	.def("getDescriptorSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
-			return fsdk::acquire(descriptorBatchPtr->getDescriptorSlow(index)); },
+			
+			return getDescriptorFromBatch(
+				descriptorBatchPtr,
+				index,
+				&fsdk::IDescriptorBatch::getDescriptorSlow);
+		},
 		"Create descriptor from batch by index with copying\n"
 		"\tArgs:\n"
 		"\t\tparam1 (int): index required descriptor in batch\n"
 		"\tReturns:\n"
-		"\t\t(IDescriptorPtr): valid object if succeeded.\n")
+		"\t\t(tuple): One of the error codes specified by DescriptorBatchError and valid descriptor object if succeeded.\n")
 	
 	.def("getDescriptorFast",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
-			return fsdk::acquire(descriptorBatchPtr->getDescriptorFast(index)); },
+			
+			return getDescriptorFromBatch(
+				descriptorBatchPtr,
+				index,
+				&fsdk::IDescriptorBatch::getDescriptorFast);
+		},
 		"Create descriptor from batch by index without copying\n"
 		"\tArgs:\n"
 		"\t\tparam1 (int): index required descriptor in batch\n"
 		"\tReturns:\n"
-		"\t\t(IDescriptorPtr): valid object if succeeded.\n")
+		"\t\t(tuple): One of the error codes specified by DescriptorBatchError and valid descriptor object if succeeded.\n")
 	
 	.def("clear",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
 			return descriptorBatchPtr->clear(); },
