@@ -59,7 +59,7 @@ $ pip uninstall FaceEngine
 ```
 Possible you'll need **sudo rights** or use python3 and pip3.
 
-3. **For library building without installing**:
+4. **For library building without installing**:
 
 If you want to **build from source files by CMake without installing**:
 
@@ -108,6 +108,8 @@ $ cmake -G "Visual Studio 14 2015 Win64" ../ -DFSDK_ROOT=../../ -DCMAKE_BUILD_TY
 $ cmake --build . --config Release
 $ copy ..\..\bin\vs2015\x64\*.dll release
 ```
+Note: 
+In a case of python3.8 and Windows10 was detected the problem with relative paths. Please pass absolute path to directory with dll, for example `-DFSDK_ROOT=<absolute_path>`.
 
 If you want to point version of python or custom path to LUNA SDK you can write
 
@@ -121,12 +123,48 @@ $ copy ..\..\bin\vs2015\x64\*.dll release
 
 **Some advises for windows:**
 * We support only Windows x64.
+* In a case of python3.8 and Windows10 was detected the problem with relative paths. Please pass absolute path to directory with dll, for example `-DFSDK_ROOT=<absolute_path>`.
 * Install Visual Studio with tools for C++ building
 * You can use developer terminal built-in in Visual Studio.
 * Please use `python x64`
 * Please do not forget to copy all `*.dll` from `luna_sdk_path\bin` to `pythonBindings\build\release` or set your own enviroment paths.
 * Usual path for built FaceEngine.lib is `pythonBindings\build\release`, but it can be different, please verify your VisualStudio settings.
 * Please verify slash `/` or backslash `\` is supported in your windows terminal.
+
+
+## Problem with shared libraries search. 
+
+```Windows cmd
+Import error: DLL load failed while importing FaceEngine
+```
+or 
+
+```Linux bash
+ImportError: libFaceEngineSDK.so.3: cannot open shared object file: No such file or directory
+```
+
+In directory `luna-sdk_*` you can find shared libraries 
+- for `linux` the path is `luna-sdk_*/lib/gcc4/x64/`
+- for `windows` they are placed in `luna-sdk_*/bin/vs2015/x64`.
+
+If you built FaceEngine bindings please do not move this directories or you can try to do such steps:
+1. Set system varible `FSDK_ROOT` in your system. 
+- In a case of linux it should be the absolute path to `luna-sdk_linux*`
+- In a case of windows < 10 and python < 3.8.0 it should be the absolute path to `luna-sdk_windows*`
+- In a case of windows 10 and python >= 3.8.0 it should be the absolute path to `luna-sdk_windows*\bin\vs2015\x64\`
+2. Before importing of FaceEngine to your sript please import `set_shared_lib_dir` from `luna-sdk_*/pythonBindings/examples/fsdk_utils.py`. 
+Example:
+
+```python
+from fsdk_utils import set_shared_lib_dir
+
+# call set_shared_lib_dir before FaceEngine importing, system variable FSDK_ROOT should be set
+set_shared_lib_dir()
+
+import FaceEngine as fe
+``` 
+3. If such steps do not help please set next system variables by hands
+for windows - `PATH`, for linux - `LD_LIBRARY_PATH`.
 
 ## Usage on Linux
  
@@ -227,10 +265,12 @@ faceEnginePtr = fe.createFaceEngine("data")
 
 Pass the path to directory with FaceEngine.lib and add it to system paths.
 
+Note: In a case of python3.8 and Windows10 was detected the problem with relative paths. Please pass absolute paths, for example `<absolute path to directory with FaceEngine*.lib>`.
+
 **run a script**:
 
 ```cmd
-$ python3 your_script.py <path to FaceEngine*.lib>
+$ python3 your_script.py <path to directory with FaceEngine*.lib>
 ```
 **usage example**
 
@@ -251,8 +291,10 @@ $ python3 pythonBindings/examples/example_extractor_matcher.py pythonBindings/bu
 $ python3 pythonBindings/examples/example_index.py pythonBindings/build/release testData/emotions1.ppm testData testData/imageListIndex.txt 0.3
 $ python3 pythonBindings/examples/example_human_extractor.py pythonBindings/build/release testData/0_Parade_Parade_0_12.jpg testData/0_Parade_Parade_0_12.jpg
 ```
+Note: In a case of python3.8 and Windows10 was detected the problem with relative paths. Please pass absolute path to directory with dll, for example `python3 pythonBindings/examples/example_estimators.py C:/Users/user/luna_sdk_*/pythonBindings/build/Release testData/photo_2017-03-30_14-47-43_p.ppm`.
+
 ### Running tests on Windows
-Please verify path with built FaceEngine.lib for your version of python. Usual path is `pythonBindings/build/release`.
+Please verify path with built FaceEngine.lib for your version of python. Usual path is `pythonBindings/build/release`. 
 
 ```cmd
 $ python3 pythonBindings/tests/test_image.py --bind-path pythonBindings/build/release
@@ -266,6 +308,8 @@ $ python3 pythonBindings/tests/test_config.py --bind-path pythonBindings/build/r
 $ python3 pythonBindings/examples/example_depth.py --data ./data --bindPath pythonBindings/build/release --rsbindPath <absolute_path_to_realsense_python_bindings_libraries>
 ```
 
+Note: In a case of python3.8 and Windows10 was detected the problem with relative paths. Please pass absolute path to directory with dll, for example `python3 pythonBindings/tests/test_image.py --bind-path C:/Users/user/luna_sdk_*/pythonBindings/build/Release`.
+
 ## About pybind11
 PythonBindings use pybind11. pybind11 is a lightweight header-only library that exposes C++ types in Python and vice versa, mainly to create Python bindings of existing C++ code. Its goals and syntax are similar to the excellent Boost.Python library by David Abrahams: to minimize boilerplate code in traditional extension modules by inferring type information using compile-time introspection. Think of this library as a tiny self-contained version of Boost.Python with everything stripped away that isn't relevant for binding generation. Without comments, the core header files only require ~4K lines of code and depend on Python (2.7 or 3.x) and the C++ standard library. This compact implementation was possible thanks to some of the new C++11 language features (specifically: tuples, lambda functions and variadic templates). Since its creation, this library has grown beyond Boost.Python in many ways, leading to dramatically simpler binding code in many common situations.
 
@@ -278,7 +322,7 @@ file. By using, distributing, or contributing to this project, you agree to the
 terms and conditions of this license.
 
 ## Examples of code
-As described befor first you need to create main object of FaceEngine:
+As described before first you need to create main object of FaceEngine:
 
 ```python
 # if FaceEngine was not installed pass path to directory with FaceEngine*.so and add it to system paths
@@ -474,3 +518,25 @@ Possible reasons:
 
 - Current LUNA SDK package is a Frontend Edition which does not support the extraction and matching.
 
+3. Problem during configuring and generating by CMake with relative pass. 
+
+```
+CMake Error: The following variables are used in this project, but they are set to NOTFOUND.
+Please set them or make sure they are set and tested correctly in the CMake files:
+FSDK_INCLUDE_DIRS (ADVANCED)
+...
+LSDK_INCLUDE_DIRS (ADVANCED)
+...
+TSDK_INCLUDE_DIRS (ADVANCED)
+...
+```
+Please pass absolute path to directory LUNA SDK root, for example `-DFSDK_ROOT=<absolute_path>`.
+
+4. Problem during importing module of FaceEngine. 
+```
+ModuleNotFoundError: No module named 'FaceEngine'
+```
+Please pass absolute path to directory with FaceEngine*.so and add it to 'sys.path'.
+```bash
+$ python3 your_script.py <absolute path to dir with built FaceEngine*.so>
+```

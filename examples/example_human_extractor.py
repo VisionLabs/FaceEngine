@@ -4,7 +4,6 @@ import sys
 def help():
     print("example_human_extractor.py <path to dir with FaceEngine*.so> <path to image> <path to image> ...")
 
-
 if len(sys.argv) <= 3:
     help()
     exit(1)
