@@ -1,4 +1,3 @@
-import sys
 import unittest
 import argparse
 import sys
