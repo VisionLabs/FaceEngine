@@ -72,6 +72,10 @@ class TestFaceEngineRect(unittest.TestCase):
         err_load = batch_loaded.load(full_data_default1, len(full_data_default1))
         self.assertEqual(err_load.error, fe.SerializeError.ArchiveRead)
 
+        del extractor
+        del batch
+        del batch_loaded
+
     def testVersion(self):
         extractor = self.faceEngine.createExtractor()
         matcher = self.faceEngine.createMatcher()
@@ -94,6 +98,11 @@ class TestFaceEngineRect(unittest.TestCase):
                 self.assertEqual(fe.DT_FACE, extractor.getDescriptorType())
                 self.assertEqual(fe.DT_FACE, descriptor.getDescriptorType())
                 self.matchDescriptor(extractor, descriptor, aggregation, matcher)
+
+        del extractor
+        del matcher
+        del descriptor
+        del aggregation
 
     def matchDescriptor(self, extractor, descriptor, aggregation, matcher):
         batch_size = 2
@@ -125,6 +134,8 @@ class TestFaceEngineRect(unittest.TestCase):
         assertMatchingResult(result[1][0])
         assertMatchingResult(result[1][1])
 
+        del descriptorBatch
+
     def testMatchDifferentVersion(self):
         test_cases = {52: 46, 54: 46, 56: 46}
         for desc1, desc2 in test_cases.items():
@@ -143,6 +154,9 @@ class TestFaceEngineRect(unittest.TestCase):
                 descriptor = self.faceEngine.createDescriptor(model)
                 err_batch = batch.add(descriptor)
                 self.assertEqual(err_batch.error, fe.DescriptorBatchError.Incompatible)
+
+        del batch
+        del descriptor
 
     def extractor(self, version, refGS, useMobileNet, cpuType, device):
         versionString = str(version) + ("", "_mobilenet")[useMobileNet]
@@ -195,6 +209,9 @@ class TestFaceEngineRect(unittest.TestCase):
             for i, data in descriptor_cases.items():
                 with self.subTest(descriptor=i):
                     self.assertDescriptors(i, data)
+
+        del extractor
+        del descriptor
 
     def assertDescriptors(self, descriptor, data):
         err, full_data_default1 = descriptor.save()
@@ -296,6 +313,11 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(err_load.isError)
         self.assertTrue(err_load.error, fe.SerializeError.Signature)
 
+        del extractor
+        del batch
+        del descriptor
+        del batch_loaded
+
     def assertBatchDescriptorsEquality(self, batch1, batch2):
         self.assertEqual(batch1.getCount(), batch2.getCount())
         batch_size = batch1.getCount()
@@ -367,6 +389,11 @@ class TestFaceEngineRect(unittest.TestCase):
         for j in range(descLength):
             self.assertEqual(data_expected[j], data_actual[j])
 
+        del extractor
+        del batch
+        del descriptor
+        del aggr
+
     def testExtractorAggregation(self):
         test_cases = {"46_mobilenet": [46, True, "auto", "cpu"],
                       "46_no_mobilenet": [46, False, "auto", "cpu"],
@@ -402,6 +429,11 @@ class TestFaceEngineRect(unittest.TestCase):
         extraction_res, value = extractor.extract(empty_image, detection, landmarks, descriptor)
         self.assertTrue(extraction_res.isError)
         self.assertEqual(extraction_res.error, fe.FSDKError.InvalidImage)
+
+        del descriptor
+        del descriptor_batch
+        del aggregation
+        del extractor
 
     def testCompareMatchingResult(self):
         image_list = [fe.Image(), fe.Image()]
@@ -451,6 +483,9 @@ class TestFaceEngineRect(unittest.TestCase):
                     batch.removeSlow(0)
                 self.match(descriptor, batch, i, expected_indices)
 
+        del extractor
+        del batch
+
     def match(self, descriptor, batch, n_top, expected_indices):
         matcher = self.faceEngine.createMatcher()
         err, result_closest, indices = matcher.match(descriptor, batch, n_top)
@@ -492,6 +527,10 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(err_load.isError)
         self.assertTrue(err_load.error, fe.SerializeError.ArchiveRead)
 
+        del extractor
+        del batch_loaded
+        del batch
+
     def testOutOfRangeIndexForDescriptorFromBatch(self):
         warps = [fe.Image(), fe.Image()]
         err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
@@ -528,6 +567,9 @@ class TestFaceEngineRect(unittest.TestCase):
             with self.subTest(key=key):
                 check(batch, index, isOk, typeOfError)
 
+        del extractor
+        del empty_batch
+
     def testClearBatch(self):
         warps = [fe.Image(), fe.Image()]
         err1 = warps[0].load(os.path.join(self.test_data_path, "warp1.ppm"))
@@ -547,6 +589,9 @@ class TestFaceEngineRect(unittest.TestCase):
         # batch is cleared, batch count must be 0
         batch.clear()
         self.assertEqual(batch.getCount(), 0)
+
+        del extractor
+        del batch
 
 
 if __name__ == '__main__':
