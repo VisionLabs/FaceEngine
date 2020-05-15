@@ -1,3 +1,0 @@
-[submodule "pybind11"]
-	path = pybind11
-	url = git@git.visionlabs.ru:common/pybind11.git
