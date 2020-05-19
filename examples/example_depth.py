@@ -3,9 +3,6 @@ import argparse
 import cv2
 import numpy as np
 
-#This is a test change
-print("This is a test change")
-
 #Parse arguments and load additional modules
 parser = argparse.ArgumentParser(description = 'Luna SDK realsense depth demo')
 group = parser.add_argument_group('Required arguments')

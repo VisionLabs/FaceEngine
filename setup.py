@@ -69,7 +69,7 @@ setup(
     version='3.10.0.0',
     author='VisionLabs',
     author_email='info@visionlabs.ru',
-    description='Python bindings of FaceEngine using pybind11 and CMake with some test changes',
+    description='Python bindings of FaceEngine using pybind11 and CMake',
     long_description='',
     ext_modules=[CMakeExtension('FaceEngine')],
     cmdclass=dict(build_ext=CMakeBuild),
