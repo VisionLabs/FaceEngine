@@ -304,6 +304,7 @@ print(fe.ImageType.__doc__)
 
 print(fe.ImageError.__doc__)
 print(fe.ImageCompression.__doc__)
+print(fe.TargetDevice.__doc__)
 
 print(fe.SettingsProviderError.__doc__)
 
