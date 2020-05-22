@@ -1146,8 +1146,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 			Image.convert
 
 			ImageType
-
+			
 			ImageError
+			TargetDevice
 			ImageCompression
 
 			SettingsProviderError

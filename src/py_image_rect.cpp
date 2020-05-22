@@ -71,7 +71,15 @@ void set_rect_class(py::module& f)
 void image_rect_module(py::module& f) {
 	
 	set_rect_class(f);
-	
+
+py::enum_<fsdk::Image::TargetDevice>(f, "TargetDevice",
+	"Target device that fsdk::Image algorithms will be running on.\n")
+	.value("CPU", fsdk::Image::TargetDevice::CPU,
+		"run fsdk::Image algorithms on CPU\n")
+	.value("GPU", fsdk::Image::TargetDevice::GPU,
+		"run fsdk::Image algorithms on GPU\n")
+		;
+
 // Image type and format
 py::enum_<fsdk::Format::Type>(f, "FormatType", "Format type enumeration.\n")
 	.value("Unknown", fsdk::Format::Unknown)
@@ -218,12 +226,15 @@ py::class_<fsdk::Image>(f, "Image",
 	
 	.def("convert", [](
 		const fsdk::Image& srcImage,
-		const fsdk::Format::Type type) {
+		const fsdk::Format::Type type,
+		const fsdk::Image::TargetDevice device) {
 			fsdk::Image dest;
-			fsdk::Result<fsdk::Image::Error> error = srcImage.convert(dest, fsdk::Format(type));
+			fsdk::Result<fsdk::Image::Error> error = srcImage.convert(dest, fsdk::Format(type), device);
 			return std::make_tuple(ImageErrorResult(error), dest);
-		}, "\tConverts image format.\n"
+		}, py::arg("type"), py::arg("device") = fsdk::TargetDevice(fsdk::TargetDevice::CPU),
+			"\tConverts image format.\n"
 			"\t\tparam1 (Format): format of destination image\n"
+			"\t\tparam2 (TargetDevice): target device to run convert on\n"
 			"\tNote: IR_X8X8X8 is special format for infra-red images, it is not recommended to convert ordinary images to this format\n"
 			"\tR16 is special format for depth images, in is not possible to convert ordinary images to this format\n"
 			"\tReturns:\n"
@@ -259,6 +270,7 @@ py::enum_<fsdk::Image::Error>(f, "ImageError", "Image error codes.\n")
 	.value("InvalidBitmap", fsdk::Image::Error::InvalidBitmap)
 	.value("InvalidMemory", fsdk::Image::Error::InvalidMemory)
 	.value("InvalidConversion", fsdk::Image::Error::InvalidConversion)
+	.value("InvalidDevice", fsdk::Image::Error::InvalidDevice)
 	.value("FailedToSave", fsdk::Image::Error::FailedToSave)
 	.value("FailedToLoad", fsdk::Image::Error::FailedToLoad)
 	.value("FailedToInitialize", fsdk::Image::Error::FailedToInitialize)
@@ -279,4 +291,6 @@ py::enum_<fsdk::Image::ImageCompression>(f, "ImageCompression",
 	.value("IC_BEST_COMPRESSION", fsdk::Image::ImageCompression::IC_BEST_COMPRESSION,
 		"more than medium compression (only for png or jpg)")
 		;
+
+
 }
