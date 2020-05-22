@@ -94,7 +94,10 @@ py::enum_<fsdk::Format::Type>(f, "FormatType", "Format type enumeration.\n")
 		"cannot be saved or downloaded")
 	.value("IR_X8X8X8", fsdk::Format::IR_X8X8X8,
 		"\t3 channel, 8 bit per channel format with InfraRed semantics")
+	.value("YUV_NV21", fsdk::Format::YUV_NV21,
+		"\t 4:2:0 format with a plane of 8-bit Y samples followed by interleaved 2x2 subsampled V/U 8-bit chroma samples;")
 	;
+
 py::class_<fsdk::Image>(f, "Image",
 	"Image objects\n"
 	"More detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n")
@@ -175,11 +178,16 @@ py::class_<fsdk::Image>(f, "Image",
 		"\t\timage.setData(numpy_array, FaceEngine.FormatType.R8G8B8X8)\n"
 		"\t\tThis method is unsafe. The responsibility for correct buffer lies on the user.\n")
 	
+	.def("setYUVData", [](fsdk::Image& image, int width, int height, py::array yuvBlob, fsdk::Format::Type type) {
+		fsdk::Result<fsdk::Image::Error> error = image.set((int)width, (int)height, fsdk::Format(type), yuvBlob.data());
+		return ImageErrorResult(error);
+	})
+
 	.def("save", [](const fsdk::Image& image, const char* path) {
 		fsdk::Result<fsdk::Image::Error> error = image.save(path);
 		return ImageErrorResult(error);
 	})
-	
+
 	.def("save", [](const fsdk::Image& image,
 					const char* path,
 					const fsdk::Format::Type type) {
