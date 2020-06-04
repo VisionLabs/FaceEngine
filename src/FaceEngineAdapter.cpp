@@ -10,6 +10,8 @@ namespace py = pybind11;
 
 PyIFaceEngine::PyIFaceEngine(const char* dataPath = nullptr, const char* configPath = nullptr, const char* runtimeConfigPath = nullptr) {
 	faceEnginePtr = fsdk::acquire(fsdk::createFaceEngine(dataPath, configPath, runtimeConfigPath));
+	if (!faceEnginePtr)
+		throw py::cast_error("\nFailed to create FaceEngine instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
 }
 
 fsdk::FaceEngineEdition PyIFaceEngine::getFaceEngineEdition() {

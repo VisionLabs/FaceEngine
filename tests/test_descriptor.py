@@ -593,6 +593,13 @@ class TestFaceEngineRect(unittest.TestCase):
         del extractor
         del batch
 
+    @unittest.expectedFailure
+    def testDescriptorWithoutConfig(self):
+        emptyFaceEngine = fe.createFaceEngine("")
+        descriptor = emptyFaceEngine.createDescriptor()
+
+        del emptyFaceEngine
+        del descriptor
 
 if __name__ == '__main__':
     unittest.main()
