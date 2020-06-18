@@ -56,15 +56,13 @@ def liveness_flying_faces_batch_example(_faces):
         exit(1)
 
 
-def quality_ethnicity_blackWhite_smile_example(image):
+def quality_blackWhite_smile_example(image):
     qualityEstimator = faceEngine.createQualityEstimator()
-    ethnicityEstimator = faceEngine.createEthnicityEstimator()
     blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
     smileEstimator = faceEngine.createSmileEstimator()
 
     err_subj_quality, subj_quality_result = qualityEstimator.estimate_subjective_quality(image)
     err_quality, quality_result = qualityEstimator.estimate_quality(image)
-    err_ethnicity, ethnicity_result = ethnicityEstimator.estimate(image)
     err_blackWhite, blackWhite_result = blackWhiteEstimator.estimate(image)
     err_smile, smile_result = smileEstimator.estimate(image)
 
@@ -77,13 +75,6 @@ def quality_ethnicity_blackWhite_smile_example(image):
         print(quality_result)
     else:
         print("Failed quality estimation. Reason: {0}".format(err_quality.what))
-        exit(1)
-    if err_ethnicity.isOk:
-        print(ethnicity_result)
-        print("Ethnicity score: {0}".format(ethnicity_result.getEthnicityScore(fe.Ethnicity.Caucasian)))
-        print("Predominant: {0}".format(ethnicity_result.getPredominantEthnicity()))
-    else:
-        print("Failed ethnicity estimation. Reason: {0}".format(err_ethnicity.what))
         exit(1)
     if err_blackWhite.isOk:
         print("BlackWhiteEstimation: ", blackWhite_result)
@@ -325,7 +316,7 @@ if __name__ == "__main__":
         # print_landmarks(landmarks5, "landmarks5: ")
         (warp_image, transformed_landmarks5, transformed_landmarks68, transformation) = \
             warper_example(image, detection, landmarks5, landmarks68)
-        quality_ethnicity_blackWhite_smile_example(warp_image)
+        quality_blackWhite_smile_example(warp_image)
         glasses_example(faceEngine, warp_image)
         overlap_example(faceEngine, image, detection)
         err, attribute_result = attribute_example(warp_image)

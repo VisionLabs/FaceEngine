@@ -45,13 +45,6 @@ fsdk::IQualityEstimatorPtr PyIFaceEngine::createQualityEstimator() {
 	return qualityEstimatorPtr;
 }
 
-fsdk::IEthnicityEstimatorPtr PyIFaceEngine::createEthnicityEstimator() {
-	fsdk::IEthnicityEstimatorPtr ethnicityEstimatorPtr = fsdk::acquire(faceEnginePtr->createEthnicityEstimator());
-	if (!ethnicityEstimatorPtr)
-		throw py::cast_error("\nFailed to create ethnicity estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return ethnicityEstimatorPtr;
-}
-
 //	warper
 fsdk::IWarperPtr PyIFaceEngine::createWarper() {
 	fsdk::IWarperPtr warperPtr = fsdk::acquire(faceEnginePtr->createWarper());
