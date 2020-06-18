@@ -19,7 +19,6 @@ print(fe.PyIFaceEngine.__doc__)
 print(fe.PyIFaceEngine.getFaceEngineEdition.__doc__)
 print(fe.PyIFaceEngine.createAttributeEstimator.__doc__)
 print(fe.PyIFaceEngine.createQualityEstimator.__doc__)
-print(fe.PyIFaceEngine.createEthnicityEstimator.__doc__)
 print(fe.PyIFaceEngine.createLivenessFlyingFacesEstimator.__doc__)
 
 print(fe.PyIFaceEngine.createHeadPoseEstimator.__doc__)
@@ -62,9 +61,6 @@ print(fe.PyISettingsProvider.getValue.__doc__)
 
 print(fe.IQualityEstimatorPtr.__doc__)
 print(fe.IQualityEstimatorPtr.estimate.__doc__)
-
-print(fe.IEthnicityEstimatorPtr.__doc__)
-print(fe.IEthnicityEstimatorPtr.estimate.__doc__)
 
 print(fe.ILivenessFlyingFacesEstimatorPtr.__doc__)
 print(fe.ILivenessFlyingFacesEstimatorPtr.estimate.__doc__)

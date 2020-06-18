@@ -181,24 +181,6 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertAlmostEqual(quality.gray, qualityRef.gray, refPrecision)
         self.assertAlmostEqual(quality.blur, qualityRef.blur, refPrecision)
 
-    def testEthnicityEstimator(self):
-        logging.info("EthnicityEstimator")
-        ethnicity = {"caucasian": ["testData/warp1.ppm", 0.0, 0.0, 0.0, 1.0], "asian": ["testData/ethnicity2_asian.jpg", 0.0, 0.0, 1.0, 0.0],
-                     "indian": ["testData/ethnicity3_indian.png", 0.0, 1.0, 0.0, 0.0], "africanAmerican": ["testData/ethnicity4_black.png", 1.0, 0.0, 0.0, 0.0]}
-        for etnos, value in ethnicity.items():
-            path_to_img, african, indian, asian, caucasian = value
-            with self.subTest(type=etnos):
-                ethnicityEstimator = self.faceEngine.createEthnicityEstimator()
-                image = f.Image()
-                image.load(path_to_img)
-                self.assertTrue(image.isValid())
-                err, ethnicity_result = ethnicityEstimator.estimate(image)
-                self.assertTrue(err.isOk)
-                self.assertAlmostEqual(ethnicity_result.africanAmerican, african, delta=0.1)
-                self.assertAlmostEqual(ethnicity_result.indian, indian, delta=0.1)
-                self.assertAlmostEqual(ethnicity_result.asian, asian, delta=0.1)
-                self.assertAlmostEqual(ethnicity_result.caucasian, caucasian, delta=0.1)
-
     def testOverlapEstimator(self):
         image = f.Image()
         err = image.load("testData/overlap_image1.jpg")
