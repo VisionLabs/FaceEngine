@@ -332,40 +332,12 @@ import FaceEngine as fe
 ```
 Using of basic methods you can see in examples or tests. More detailed information about methods and classes you can see in `src/FaceEngine.cpp`.
 
-```
-py::class_<fsdk::IEthnicityEstimatorPtr>(f, "IEthnicityEstimatorPtr")
-.def("estimate",[](
-	const fsdk::IEthnicityEstimatorPtr& est,
-	const fsdk::Image &warp) {
-		fsdk::EthnicityEstimation out;
-		fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
-		if (err.isOk())
-			return py::cast(out);
-		else
-			return py::cast(FSDKErrorResult(err)); })
-		;
-```
-
-Here you can see class `fsdk::IEthnicityEstimatorPtr`, method `estimate`, its specification. You should pass image warp, the result will be `ethnicityEstimation` struct or error. 
-How to use this from python, see `example.py`:
-
-```python
-import FaceEngine as fe
-faceEngine = fe.createFaceEngine("data")
-image = fe.Image()
-image.load("testData/Warp1.ppm")
-ethnicityEstimator = faceEngine.createEthnicityEstimator()
-ethnicity_result = ethnicityEstimator.estimate(image)
-print("Ethnicity estimation result {0}".format(ethnicity_result))
-```
-
 ### Creating of basic objects
 
 ```python
 config = fe.createSettingsProvider("data/faceengine.conf")
 attributeEstimator = faceEngine.createAttributeEstimator()
 qualityEstimator = faceEngine.createQualityEstimator()
-ethnicityEstimator = faceEngine.createEthnicityEstimator()
 blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
 smileEstimator = faceEngine.createSmileEstimator()
 detector = faceEngine.createDetector(fe.FACE_DET_V1)

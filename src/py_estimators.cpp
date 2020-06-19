@@ -130,26 +130,6 @@ void estimators_module(py::module& f) {
 						; })
 		;
 	
-	py::class_<fsdk::IEthnicityEstimatorPtr>(f, "IEthnicityEstimatorPtr",
-			"Ethnicity estimator interface. This estimator is designed to work with a person face image; \n"
-			"you should pass a warped face detection image obtained from IWarper. \n"
-			"See EthnicityEstimation for output details")
-	
-		.def("estimate",[](
-			const fsdk::IEthnicityEstimatorPtr& est,
-			const fsdk::Image &warp) {
-				fsdk::EthnicityEstimation out;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
-				return std::make_tuple(FSDKErrorResult(err), out);
-			 },
-			"Ethnicity estimator interface. If success returns EthnicityEstimation structure with params, else error code. \n"
-			"See FSDKErrorResult for details. This estimator is designed to work with a person face image; \n"
-			"you should pass a warped face detection image obtained from IWarper\n"
-			"\tArgs:\n"
-			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8"
-			"\tReturns:\n"
-			"\t\t(tuple): tuple with error code FSDKErrorResult and output EthnicityEstimation\n")
-	;
 	//	second part of estimators
 	py::class_<fsdk::IHeadPoseEstimatorPtr>(f, "IHeadPoseEstimatorPtr",
 		"Head pose angles estimator interface.\n"

@@ -162,7 +162,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\t\tExtractor, matcher, descriptor, batch and index cannot be created.")
 		.def("createAttributeEstimator", &PyIFaceEngine::createAttributeEstimator, "Creates Attribute estimator\n")
 		.def("createQualityEstimator", &PyIFaceEngine::createQualityEstimator, "Creates Quality estimator\n")
-		.def("createEthnicityEstimator", &PyIFaceEngine::createEthnicityEstimator, "Creates Ethnicity estimator\n")
 		
 		.def("createHeadPoseEstimator", &PyIFaceEngine::createHeadPoseEstimator, "Creates Head pose estimator\n")
 		.def("createBlackWhiteEstimator", &PyIFaceEngine::createBlackWhiteEstimator, "Creates Black/White estimator\n")
@@ -821,7 +820,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.getFaceEngineEdition
 			PyIFaceEngine.createAttributeEstimator
 			PyIFaceEngine.createQualityEstimator
-			PyIFaceEngine.createEthnicityEstimator
 			PyIFaceEngine.createLivenessFlyingFacesEstimator
 			PyIFaceEngine.createLivenessRGBMEstimator
 
@@ -878,9 +876,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IOverlapEstimatorPtr
 			IOverlapEstimatorPtr.estimate
-
-			IEthnicityEstimator
-			IEthnicityEstimator.estimate
 
 			ILivenessFlyingFacesEstimatorPtr
 			ILivenessFlyingFacesEstimatorPtr.estimate

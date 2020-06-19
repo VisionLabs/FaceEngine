@@ -21,9 +21,7 @@ public:
 	fsdk::IAttributeEstimatorPtr createAttributeEstimator();
 
 	fsdk::IQualityEstimatorPtr createQualityEstimator();
-
-	fsdk::IEthnicityEstimatorPtr createEthnicityEstimator();
-
+	
 //	warper
 	fsdk::IWarperPtr createWarper();
 	
