@@ -75,13 +75,13 @@ class TestFaceEngineDetector(unittest.TestCase):
         for error in errorsList:
             self.assertEqual(error.isOk, valid)
 
-    def assertFaceLandmarks(self, face1_landmarks, face2_landmarks, delta=0):
+    def assertFaceLandmarks(self, face1_landmarks, face2_landmarks, delta=0.01):
         self.assertEqual(len(face1_landmarks.value()), len(face2_landmarks.value()))
         for k in range(len(face2_landmarks.value())):
             self.assertAlmostEqual(face1_landmarks.value()[k].x, face2_landmarks.value()[k].x, delta=delta)
             self.assertAlmostEqual(face1_landmarks.value()[k].y, face2_landmarks.value()[k].y, delta=delta)
 
-    def assertDetections(self, detection1, detection2, delta=0.0, scoreDelta=0.0):
+    def assertDetections(self, detection1, detection2, delta=0.01, scoreDelta=0.01):
         self.assertAlmostEqual(detection1.rect.x, detection2.rect.x, delta=delta)
         self.assertAlmostEqual(detection1.rect.y, detection2.rect.y, delta=delta)
         self.assertAlmostEqual(detection1.rect.width, detection2.rect.width, delta=delta)
