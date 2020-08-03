@@ -81,6 +81,8 @@ public:
 	
 	PyISettingsProvider getSettingsProvider();
 	
+	PyISettingsProvider getRuntimeSettingsProvider();
+	
 	void setRuntimeSettingsProvider(PyISettingsProvider& provider);
 
 	fsdk::ILicensePtr getLicense();

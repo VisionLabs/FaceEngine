@@ -47,6 +47,9 @@ print(fe.PyIFaceEngine.loadDenseIndex.__doc__)
 print(fe.PyIFaceEngine.loadDynamicIndex.__doc__)
 
 print(fe.PyIFaceEngine.setSettingsProvider.__doc__)
+print(fe.PyIFaceEngine.setRuntimeSettingsProvider.__doc__)
+print(fe.PyIFaceEngine.getSettingsProvider.__doc__)
+print(fe.PyIFaceEngine.getRuntimeSettingsProvider.__doc__)
 
 print(fe.SettingsProviderValue.__doc__)
 print(fe.SettingsProviderValue.__init__.__doc__)
