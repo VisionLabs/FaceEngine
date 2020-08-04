@@ -144,6 +144,21 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertAlmostEqual(value_4f[2], ref_value_f, delta=0.000001)
         self.assertAlmostEqual(value_4f[3], ref_value_f, delta=0.000001)
 
+    def testGetRuntimeSettingProvider(self):
+        config1 = self.faceEngine.getRuntimeSettingsProvider()
+        ref_value_i = 4
+
+        config1.setValue("Runtime", "numThreads", ref_value_i)
+        value1 = config1.getValue("Runtime", "numThreads")
+        self.assertEqual(value1[0], ref_value_i)
+
+        ref_value_logging = 1
+        config1.setValue("Runtime", "verboseLogging", [ref_value_logging])
+
+        config2 = self.faceEngine.getRuntimeSettingsProvider()
+        value2 = config2.getValue("Runtime", "verboseLogging")
+        self.assertEqual(value2[0], ref_value_logging)
+
 
 if __name__ == '__main__':
     unittest.main()
