@@ -119,6 +119,51 @@ def attribute_batch_example(_warps):
         exit(1)
 
 
+def medical_mask_warped_example(_warp):
+    estimator = faceEngine.createMedicalMaskEstimator()
+    err, estimation = estimator.estimate(_warp)
+    if err.isOk:
+        print("\nmedical_mask_warped_example:\n", estimation)
+    else:
+        print("Failed medical mask estimation. Reason: {0}".format(err.what))
+        exit(1)
+
+
+def medical_mask_cropped_example(_image, _detection):
+    estimator = faceEngine.createMedicalMaskEstimator()
+    err, estimation = estimator.estimate(_image, _detection)
+    if err.isOk:
+        print("\nmedical_mask_cropped_example:\n", estimation)
+    else:
+        print("Failed medical mask estimation. Reason: {0}".format(err.what))
+        exit(1)
+
+
+def medical_mask_warped_batch_example(_warps):
+    estimator = faceEngine.createMedicalMaskEstimator()
+
+    err, estimations = estimator.estimate(_warps)
+    print("\nmedical_mask_warped_batch_example: ")
+    if err.isOk:
+        for i, est in enumerate(estimations):
+            print("number: ", i, "\n", est)
+    else:
+        print("Failed medical mask estimation. Reason: {0}".format(err.what))
+        exit(1)
+
+
+def medical_mask_cropped_batch_example(_images, _detections):
+    estimator = faceEngine.createMedicalMaskEstimator()
+    print("\nmedical_mask_cropped_batch_example: ")
+    err, estimations = estimator.estimate(_images, _detections)
+    if err.isOk:
+        for i, est in enumerate(estimations):
+            print("number: ", i, "\n", est)
+    else:
+        print("Failed medical mask estimation. Reason: {0}".format(err.what))
+        exit(1)
+
+
 def headPose_example_by_image_and_detection(_warp, _detection):
     headPoseEstimator = faceEngine.createHeadPoseEstimator()
     err, headPoseEstimation = headPoseEstimator.estimate(_warp, _detection)
@@ -346,6 +391,11 @@ if __name__ == "__main__":
         ags_example(faceEngine, image, detection)
         liveness_flying_faces_example(face)
         liveness_flying_faces_batch_example([face, face])
+        medical_mask_warped_example(warp_image)
+        medical_mask_cropped_example(image, detection)
+        medical_mask_warped_batch_example([warp_image, warp_image])
+        medical_mask_cropped_batch_example([image, image], [detection, detection])
+
     except Exception as ex:
         print(type(ex).__name__, ex)
         exit(-1)

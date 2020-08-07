@@ -219,6 +219,13 @@ fsdk::IMouthEstimatorPtr PyIFaceEngine::createMouthEstimator() {
 	return mouthEstimator;
 }
 
+fsdk::IMedicalMaskEstimatorPtr PyIFaceEngine::createMedicalMaskEstimator() {
+	fsdk::IMedicalMaskEstimatorPtr estimator = fsdk::acquire(faceEnginePtr->createMedicalMaskEstimator());
+	if (!estimator)
+		throw py::cast_error("\nFailed to create medical mask estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
+	return estimator;
+}
+
 fsdk::IOverlapEstimatorPtr PyIFaceEngine::createOverlapEstimator() {
 	fsdk::IOverlapEstimatorPtr estimator = fsdk::acquire(faceEnginePtr->createOverlapEstimator());
 	if (!estimator)

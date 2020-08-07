@@ -32,6 +32,7 @@ print(fe.PyIFaceEngine.createEmotionsEstimator.__doc__)
 print(fe.PyIFaceEngine.createGazeEstimator.__doc__)
 print(fe.PyIFaceEngine.createGlassesEstimator.__doc__)
 print(fe.PyIFaceEngine.createMouthEstimator.__doc__)
+print(fe.PyIFaceEngine.createMedicalMaskEstimator.__doc__)
 print(fe.PyIFaceEngine.createOverlapEstimator.__doc__)
 
 print(fe.PyIFaceEngine.createDetector.__doc__)
@@ -79,6 +80,9 @@ print(fe.IGlassesEstimatorPtr.estimate.__doc__)
 
 print(fe.IMouthEstimatorPtr.__doc__)
 print(fe.IMouthEstimatorPtr.estimate.__doc__)
+
+print(fe.IMedicalMaskEstimatorPtr.__doc__)
+print(fe.IMedicalMaskEstimatorPtr.estimate.__doc__)
 
 print(fe.IDetectorPtr.__doc__)
 print(fe.IDetectorPtr.detect.__doc__)
@@ -260,6 +264,7 @@ print(fe.Ethnicity.__doc__)
 print(fe.GlassesEstimation.__doc__)
 print(fe.OverlapEstimation.__doc__)
 print(fe.MouthEstimation.__doc__)
+print(fe.MedicalMaskEstimation.__doc__)
 
 print(fe.Transformation.__doc__)
 

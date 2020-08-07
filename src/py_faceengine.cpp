@@ -186,6 +186,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createGlassesEstimator", &PyIFaceEngine::createGlassesEstimator, "Creates Glasses estimator\n")
 		.def("createAGSEstimator", &PyIFaceEngine::createAGSEstimator, "Creates AGS estimator\n")
 		.def("createMouthEstimator", &PyIFaceEngine::createMouthEstimator, "Creates Mouth estimator\n")
+		.def("createMedicalMaskEstimator", &PyIFaceEngine::createMedicalMaskEstimator, "Creates Medical Mask estimator\n")
 		.def("createOverlapEstimator", &PyIFaceEngine::createOverlapEstimator, "Creates Overlap estimator\n")
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			"Creates a detector of given type.\n", 
@@ -839,6 +840,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createGazeEstimator
 			PyIFaceEngine.createGlassesEstimator
 			PyIFaceEngine.createMouthEstimator
+			PyIFaceEngine.createMaskMedicalEstimator
 			PyIFaceEngine.createOverlapEstimator
 	
 			PyIFaceEngine.createDetector
@@ -880,6 +882,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IMouthEstimatorPtr
 			IMouthEstimatorPtr.estimate
+
+			IMedicalMaskEstimatorPtr
+			IMedicalMaskEstimatorPtr.estimate
 
 			IOverlapEstimatorPtr
 			IOverlapEstimatorPtr.estimate
@@ -1117,6 +1122,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			OverlapEstimation
 
 			MouthEstimation
+
+			MedicalMaskEstimation
 
 			Transformation
 
