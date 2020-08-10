@@ -613,20 +613,11 @@ class TestFaceEngineEstimators(unittest.TestCase):
             with self.subTest(image=path_to_img):
                 err = image.load(path_to_img)
                 self.assertTrue(err.isOk)
-                detStatus, face = detect(image, self.faceEngine)
-                self.assertTrue(detStatus.isOk)
-                (detection, landmarks5, landmarks68) = face.detection, \
-                                                       face.landmarks5_opt.value(), \
-                                                       face.landmarks68_opt.value()
-
-                transformation = warper.createTransformation(detection, landmarks5)
-                warpStatus, warpedImage = warper.warp(image, transformation)
-                self.assertTrue(detStatus.isOk)
-
-                status1, output1 = estimator.estimate(warpedImage)
+                detection = f.DetectionFloat(image.getRect(), 1.0)
+                status1, output1 = estimator.estimate(image)
                 status2, output2 = estimator.estimate(image, detection)
                 status3, output3 = estimator.estimate([image, image], [detection, detection])
-                status4, output4 = estimator.estimate([warpedImage, warpedImage])
+                status4, output4 = estimator.estimate([image, image])
 
                 def assertMedicalMask(status, output, value):
                     self.assertTrue(status.isOk)
