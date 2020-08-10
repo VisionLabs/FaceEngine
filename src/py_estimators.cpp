@@ -1023,20 +1023,20 @@ void estimators_module(py::module& f) {
 		.def_readwrite("maskNotInPlace", &fsdk::MedicalMaskEstimation::maskNotInPlace, "Mask is not on the right place\n")
 		.def_readwrite("noMask", &fsdk::MedicalMaskEstimation::noMask, "No mask on the face\n")
 		.def_readwrite("occludedFace", &fsdk::MedicalMaskEstimation::occludedFace, "Face is occluded by other object\n")
-		.def_readwrite("maskInPlaceFlag", &fsdk::MedicalMaskEstimation::maskInPlaceFlag, "Mask is on the face, boolean flag\n")
-		.def_readwrite("maskNotInPlaceFlag", &fsdk::MedicalMaskEstimation::maskNotInPlaceFlag, "Mask is not on the right place, boolean flag\n")
-		.def_readwrite("noMaskFlag", &fsdk::MedicalMaskEstimation::noMaskFlag, "No mask on the face, boolean flag\n")
-		.def_readwrite("occludedFaceFlag", &fsdk::MedicalMaskEstimation::occludedFaceFlag, "Face is occluded by other object, boolean flag\n")
+		.def_readwrite("isMaskInPlace", &fsdk::MedicalMaskEstimation::isMaskInPlace, "Mask is on the face, boolean flag\n")
+		.def_readwrite("isMaskNotInPlace", &fsdk::MedicalMaskEstimation::isMaskNotInPlace, "Mask is not on the right place, boolean flag\n")
+		.def_readwrite("isNoMask", &fsdk::MedicalMaskEstimation::isNoMask, "No mask on the face, boolean flag\n")
+		.def_readwrite("isOccludedFace", &fsdk::MedicalMaskEstimation::isOccludedFace, "Face is occluded by other object, boolean flag\n")
 		.def("__repr__", [](const fsdk::MedicalMaskEstimation& e) {
 			return "MedicalMask Estimation: \n"
 				"maskInPlace = " + std::to_string(e.maskInPlace) + "\n" +
 				"maskNotInPlace = " + std::to_string(e.maskNotInPlace) + "\n" +
 				"noMask = " + std::to_string(e.noMask) + "\n" +
 				"occludedFace = " + std::to_string(e.occludedFace) + "\n" +
-				"maskInPlaceFlag = " + std::string(e.maskInPlaceFlag ? "True\n" : "False\n") +
-				"maskNotInPlaceFlag = " + std::string(e.maskNotInPlaceFlag ? "True\n" : "False\n") +
-				"noMaskFlag = " + std::string(e.noMaskFlag ? "True\n" : "False\n") +
-				"occludedFaceFlag = " + std::string(e.occludedFaceFlag ? "True\n" : "False\n");
+				"isMaskInPlace = " + std::string(e.isMaskInPlace ? "True\n" : "False\n") +
+				"isMaskNotInPlace = " + std::string(e.isMaskNotInPlace ? "True\n" : "False\n") +
+				"isNoMask = " + std::string(e.isNoMask ? "True\n" : "False\n") +
+				"isOccludedFace = " + std::string(e.isOccludedFace ? "True\n" : "False\n");
 		})
 		;
 	
