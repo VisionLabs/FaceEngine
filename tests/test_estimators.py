@@ -630,10 +630,10 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
                 def assertMedicalMask(status, output, value):
                     self.assertTrue(status.isOk)
-                    self.assertEqual(value[0], output.maskInPlaceFlag)
-                    self.assertEqual(value[1], output.maskNotInPlaceFlag)
-                    self.assertEqual(value[2], output.noMaskFlag)
-                    self.assertEqual(value[3], output.occludedFaceFlag)
+                    self.assertEqual(value[0], output.isMaskInPlace)
+                    self.assertEqual(value[1], output.isMaskNotInPlace)
+                    self.assertEqual(value[2], output.isNoMask)
+                    self.assertEqual(value[3], output.isOccludedFace)
                     
                 assertMedicalMask(status1, output1, valueList)
                 assertMedicalMask(status2, output2, valueList)
