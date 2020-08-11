@@ -130,6 +130,85 @@ void estimators_module(py::module& f) {
 						; })
 		;
 	
+	py::class_<fsdk::IMedicalMaskEstimatorPtr>(f, "IMedicalMaskEstimatorPtr",
+		"Medical mask estimator interface.\n"
+		"\tStores flags that indicates which medical mask feature is present; \n"
+		"\tProbability scores are defined in [0,1] range.\n")
+		
+		.def("estimate", [](
+				const fsdk::IMedicalMaskEstimatorPtr& est,
+				const fsdk::Image& warp) {
+				fsdk::MedicalMaskEstimation estimation{};
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, estimation);
+				return std::make_tuple(FSDKErrorResult(err), estimation); },
+			"Estimate Medical Mask probabilities..\n"
+			"\t\t(see FSDKErrorResult for details)\n"
+			"\tArgs:\n"
+			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code and MedicalMaskEstimation\n")
+			
+		.def("estimate", [](
+				const fsdk::IMedicalMaskEstimatorPtr& est,
+				const fsdk::Image &image,
+				const fsdk::BaseDetection<float>& detection) {
+				fsdk::MedicalMaskEstimation estimation{};
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, estimation);
+				return std::make_tuple(FSDKErrorResult(err), estimation); },
+			"Estimate Medical Mask probabilities..\n"
+			"\t\t(see FSDKErrorResult for details)\n"
+			"\tArgs:\n"
+			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8\n"
+			"\t\tparam2 (Detection): detection coords in image space;\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code and MedicalMaskEstimation\n")
+			
+		.def("estimate", [](
+				const fsdk::IMedicalMaskEstimatorPtr& est,
+				const std::vector<fsdk::Image>& warps) {
+				std::vector<fsdk::MedicalMaskEstimation> estimations(warps.size());
+				fsdk::Result<fsdk::FSDKError>  err = est->estimate(warps, estimations);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), estimations);
+				else
+					return std::make_tuple(FSDKErrorResult(err),
+						std::vector<fsdk::MedicalMaskEstimation>()); },
+			"Estimate Medical Mask probabilities.\n"
+			"\t\t(see FSDKErrorResult for details)\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of warped images, format of images must be R8G8B8. Must be warped!\n"
+			"\t\tparam2 (estimations): request with flags to check parameters to estimate\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code and list of MedicalMaskEstimation estimations\n")
+			
+		.def("estimate", [](
+				const fsdk::IMedicalMaskEstimatorPtr& est,
+				const std::vector<fsdk::Image>& images,
+				const std::vector<fsdk::BaseDetection<float>> detections) {
+				std::vector<fsdk::BaseDetection<int>> detectionsInt(detections.size());
+				for (uint32_t i = 0; i < detections.size(); ++i) {
+					detectionsInt[i] = fsdk::Detection(detections[i]);
+				}
+				std::vector<fsdk::MedicalMaskEstimation> estimations(images.size());
+				fsdk::Result<fsdk::FSDKError>  err = est->estimate(images, detectionsInt, estimations);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), estimations);
+				else
+					return std::make_tuple(FSDKErrorResult(err),
+						std::vector<fsdk::MedicalMaskEstimation>()); },
+			"Estimate Medical Mask probabilities.\n"
+			"\t\t(see FSDKErrorResult for details)\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of Images. Format must be R8G8B8\n"
+			"\t\tparam1 (list of Detections): list of face detections.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code and list of MedicalMaskEstimation estimations\n")
+		;
+	
 	//	second part of estimators
 	py::class_<fsdk::IHeadPoseEstimatorPtr>(f, "IHeadPoseEstimatorPtr",
 		"Head pose angles estimator interface.\n"
@@ -916,7 +995,7 @@ void estimators_module(py::module& f) {
 	//	Mouth
 	py::class_<fsdk::MouthEstimation>(f, "MouthEstimation",
 		"MouthEstimatorPtr output structure\n"
-		"\tStores flags that indicates wich mouth feature is present.\n"
+		"\tStores flags that indicates which mouth feature is present.\n"
 		"\tProbability scores are defined in [0,1] range.\n")
 		.def_readwrite("opened", &fsdk::MouthEstimation::opened, "Mouth opened score\n")
 		.def_readwrite("smile", &fsdk::MouthEstimation::smile, "Person is smiling score\n")
@@ -933,6 +1012,32 @@ void estimators_module(py::module& f) {
 					"isSmiling = " + std::string(e.isSmiling ? "True\n" : "False\n") +
 					"isOccluded = " + std::string(e.isOccluded ? "True\n" : "False\n");
 			})
+		;
+	
+	//	MedicalMask
+	py::class_<fsdk::MedicalMaskEstimation>(f, "MedicalMaskEstimation",
+		"MedicalMaskEstimator output structure\n"
+		"\tStores flags that indicates which mask feature is present.\n"
+		"\tProbability scores are defined in [0,1] range.\n")
+		.def_readwrite("maskInPlace", &fsdk::MedicalMaskEstimation::maskInPlace, "Мask is on the face\n")
+		.def_readwrite("maskNotInPlace", &fsdk::MedicalMaskEstimation::maskNotInPlace, "Mask is not on the right place\n")
+		.def_readwrite("noMask", &fsdk::MedicalMaskEstimation::noMask, "No mask on the face\n")
+		.def_readwrite("occludedFace", &fsdk::MedicalMaskEstimation::occludedFace, "Face is occluded by other object\n")
+		.def_readwrite("isMaskInPlace", &fsdk::MedicalMaskEstimation::isMaskInPlace, "Mask is on the face, boolean flag\n")
+		.def_readwrite("isMaskNotInPlace", &fsdk::MedicalMaskEstimation::isMaskNotInPlace, "Mask is not on the right place, boolean flag\n")
+		.def_readwrite("isNoMask", &fsdk::MedicalMaskEstimation::isNoMask, "No mask on the face, boolean flag\n")
+		.def_readwrite("isOccludedFace", &fsdk::MedicalMaskEstimation::isOccludedFace, "Face is occluded by other object, boolean flag\n")
+		.def("__repr__", [](const fsdk::MedicalMaskEstimation& e) {
+			return "MedicalMask Estimation: \n"
+				"maskInPlace = " + std::to_string(e.maskInPlace) + "\n" +
+				"maskNotInPlace = " + std::to_string(e.maskNotInPlace) + "\n" +
+				"noMask = " + std::to_string(e.noMask) + "\n" +
+				"occludedFace = " + std::to_string(e.occludedFace) + "\n" +
+				"isMaskInPlace = " + std::string(e.isMaskInPlace ? "True\n" : "False\n") +
+				"isMaskNotInPlace = " + std::string(e.isMaskNotInPlace ? "True\n" : "False\n") +
+				"isNoMask = " + std::string(e.isNoMask ? "True\n" : "False\n") +
+				"isOccludedFace = " + std::string(e.isOccludedFace ? "True\n" : "False\n");
+		})
 		;
 	
 	py::class_<fsdk::OverlapEstimation>(f, "OverlapEstimation", "Face overlap estimation output.\n")
