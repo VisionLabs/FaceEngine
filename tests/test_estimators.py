@@ -608,7 +608,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
         estimator = self.faceEngine.createMedicalMaskEstimator()
         warper = self.faceEngine.createWarper()
         image = f.Image()
-        params = {"testData/mask.png": [True, False, False, False], "testData/nomask.png": [False, False, False, True]}
+        params = {"testData/mask.png": [True, False, False, False], "testData/nomask.png": [False, False, True, False]}
         for path_to_img, valueList in params.items():
             with self.subTest(image=path_to_img):
                 err = image.load(path_to_img)
