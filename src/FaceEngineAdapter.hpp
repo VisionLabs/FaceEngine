@@ -63,6 +63,8 @@ public:
 	
 	fsdk::IMouthEstimatorPtr createMouthEstimator();
 	
+	fsdk::IMedicalMaskEstimatorPtr createMedicalMaskEstimator();
+	
 	fsdk::IOverlapEstimatorPtr createOverlapEstimator();
 	
 	fsdk::IIndexBuilderPtr createIndexBuilder();

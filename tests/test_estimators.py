@@ -604,6 +604,35 @@ class TestFaceEngineEstimators(unittest.TestCase):
                 self.assertEqual(isSmiling, output.isSmiling)
                 self.assertEqual(isOccluded, output.isOccluded)
 
+    def testMedicalMaskEstimator(self):
+        estimator = self.faceEngine.createMedicalMaskEstimator()
+        warper = self.faceEngine.createWarper()
+        image = f.Image()
+        params = {"testData/mask.png": [True, False, False, False], "testData/nomask.png": [False, False, False, True]}
+        for path_to_img, valueList in params.items():
+            with self.subTest(image=path_to_img):
+                err = image.load(path_to_img)
+                self.assertTrue(err.isOk)
+                detection = f.DetectionFloat(image.getRect(), 1.0)
+                status1, output1 = estimator.estimate(image)
+                status2, output2 = estimator.estimate(image, detection)
+                status3, output3 = estimator.estimate([image, image], [detection, detection])
+                status4, output4 = estimator.estimate([image, image])
+
+                def assertMedicalMask(status, output, value):
+                    self.assertTrue(status.isOk)
+                    self.assertEqual(value[0], output.isMaskInPlace)
+                    self.assertEqual(value[1], output.isMaskNotInPlace)
+                    self.assertEqual(value[2], output.isNoMask)
+                    self.assertEqual(value[3], output.isOccludedFace)
+                    
+                assertMedicalMask(status1, output1, valueList)
+                assertMedicalMask(status2, output2, valueList)
+                assertMedicalMask(status3, output3[0], valueList)
+                assertMedicalMask(status4, output4[0], valueList)
+                assertMedicalMask(status3, output3[1], valueList)
+                assertMedicalMask(status4, output4[1], valueList)
+
     def testIrEyeEstimator(self):
         imagePath = "testData/eyes/IrWarp.png"
         warp = f.Image()
