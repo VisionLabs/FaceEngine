@@ -689,11 +689,19 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.export_values();
 			;
 	
-	py::enum_<fsdk::DetectionType>(f, "DetectionType", py::arithmetic(), "Detection type type enumeration.\n")
+	py::enum_<fsdk::DetectionType>(f, "DetectionType", py::arithmetic(), "Detection type enumeration.\n")
 		.value("dtBBox", fsdk::dtBBox, "Get bounding boxes of faces\n")
 		.value("dt5Landmarks", fsdk::dt5Landmarks, "Get 5 facial landmarks\n")
 		.value("dt68Landmarks", fsdk::dt68Landmarks, "Get 68 facial landmarks\n")
 		.value("dtAll", fsdk::dtAll, "Get all supported parameters.\n")
+		.export_values();
+			;
+	
+	py::enum_<fsdk::OrientationType>(f, "OrientationType", py::arithmetic(), "Orientation type enumeration.\n")
+		.value("Normal", fsdk::OT_NORMAL, "Normal orientaiton of image\n")
+		.value("Left", fsdk::OT_LEFT, "Image is rotated 90 degrees to the left.\n")
+		.value("Right", fsdk::OT_RIGHT, "Image is rotated 90 degrees to the right.\n")
+		.value("UpsideDown", fsdk::OT_UPSIDE_DOWN, "Image is flipped upside down.\n")
 		.export_values();
 			;
 	
@@ -903,6 +911,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IDetectorPtr.redetectOne
 			IDetectorPtr.redetect
+
+			IDetectorPtr.estimateOrientation
+
 			Face
 			Face.isValid
 
@@ -1192,6 +1203,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 			DetectionType.dtBBox
 			DetectionType.dt5Landmarks
 			DetectionType.dt68Landmarks
+
+			OrientationType
+			OrientationType.Normal
+			OrientationType.Left
+			OrientationType.Right
+			OrientationType.UpsideDown
 
 			HumanDetectionType
 			HumanDetectionType.DCT_BOX

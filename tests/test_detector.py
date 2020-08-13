@@ -59,6 +59,9 @@ class TestFaceEngineDetector(unittest.TestCase):
         self.configPath = os.path.join("data", "faceengine.conf")
         self.config = fe.createSettingsProvider(self.configPath)
         self.config.setValue("FaceDetV3::Settings", "minFaceSize", 20)
+        self.configV3 = fe.createSettingsProvider(self.configPath)
+        self.configV3.setValue("system", "defaultDetectorType", "FaceDetV3")
+        self.configV3.setValue("FaceDetV3::Settings", "useOrientationMode", 1)
 
     def assertFacesWithEtalons(self, face_expected, face):
         self.assertDetections(face_expected.detection, face.detection, delta=3, scoreDelta=0.001)
@@ -394,6 +397,15 @@ class TestFaceEngineDetector(unittest.TestCase):
         res_one, face2 = detector.redetectOne(face, fe.DetectionType(fe.dtBBox))
         self.assertFaceValid(face2, landmarks68Valid=False, landmarks5Valid=False)
 
+    def testOrientation(self):
+        image = fe.Image()
+        err_image = image.load(os.path.join(testDataPath, "image1_90.ppm"))
+        self.assertTrue(err_image.isOk)
+        self.faceEngine.setSettingsProvider(self.configV3)
+        detector = self.faceEngine.createDetector()
+        res, orientation = detector.estimateOrientation(image)
+        self.assertTrue( res.isOk )
+        self.assertTrue( orientation == fe.OrientationType.Right )
 
 if __name__ == '__main__':
     unittest.main()
