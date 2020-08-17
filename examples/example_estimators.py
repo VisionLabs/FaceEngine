@@ -379,21 +379,21 @@ if __name__ == "__main__":
         emotions_example(warp_image)
         mouth_example(warp_image)
         err_headPose, headPoseEstimation = headPose_example_by_landmarks68(landmarks68)
+        if err_headPose.isError:
+            print("Failed head pose estimation in headPose_example_by_landmarks68. Reason: {0}".format(err_headPose.what))
         err_headPose, headPoseEstimation = headPose_example_by_image_and_detection(warp_image, detection)
+        if err_headPose.isError:
+            print("Failed head pose estimation in headPose_example_by_image_and_detection. Reason: {0}".format(err_headPose.what))
         err_eyes, eyesEstimation = eye_example(warp_image, transformed_landmarks5)
         err_gaze, gaze_result = gaze_example_rgb(warp_image, transformed_landmarks5)
         if err_gaze.isOk:
             gaze = unwarp_gaze(gaze_result, transformation)
             print(gaze)
-        if err_headPose.isError:
-            print("Failed head pose estimation. Reason: {0}".format(err_headPose.what))
-            exit(1)
         elif err_eyes.isError:
             print("Failed eyes estimation. Reason: {0}".format(err_eyes.what))
-            exit(1)
-        ags_example(faceEngine, image, detection)
         liveness_flying_faces_example(face)
         liveness_flying_faces_batch_example([face, face])
+        ags_example(faceEngine, image, detection)
         medical_mask_warped_example(warp_image)
         medical_mask_cropped_example(image, detection)
         medical_mask_warped_batch_example([warp_image, warp_image])
