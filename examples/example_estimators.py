@@ -351,8 +351,11 @@ if __name__ == "__main__":
     try:
         # take the simplest example and first detection, see example_detector_warper.py
         err, face = detector_one_example(image)
-        if err.isError:
-            print("Detector: faces not found.")
+        if err.isError or not face.isValid():
+            print("Detector: faces are not found.")
+            exit(-1)
+        if not face.landmarks5_opt.isValid() or not face.landmarks68_opt.isValid():
+            print("Detector: landmarks are not valid.")
             exit(-1)
         (detection, landmarks5, landmarks68) = \
             face.detection, \
