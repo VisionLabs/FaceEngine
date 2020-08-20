@@ -220,14 +220,14 @@ def ir_example(ir_image_path):
 def faceFlow_example():
     faceFlowEstimator = faceEngine.createFaceFlowEstimator()
     face_flow_image = fe.Image()
-    err = face_flow_image.load("testData/small.ppm")
+    err = face_flow_image.load("images/small.ppm")
     if not face_flow_image.isValid():
         print("image was not found {0}".format(err.what))
         exit(1)
     sequence = []
     for i in range(10):
         temp_image = fe.Image()
-        temp_image.load("testData/" + str(i) + "big.ppm")
+        temp_image.load("images/" + str(i) + "big.ppm")
         sequence.append(temp_image)
     err, faceFlowResult = faceFlowEstimator.estimate(face_flow_image, sequence)
     if err.isOk:
@@ -372,10 +372,6 @@ if __name__ == "__main__":
         # for example list consists two the same images
         err_attribute_batch, attribute_list_result, aggregate_result = attribute_batch_example([warp_image, warp_image])
         print("aggregate attribute result: ", aggregate_result)
-        # examples with hardcoded paths to images
-        depth_example("testData/warp.depth")
-        ir_example("testData/irWarp.ppm")
-        faceFlow_example()
         emotions_example(warp_image)
         mouth_example(warp_image)
         err_headPose, headPoseEstimation = headPose_example_by_landmarks68(landmarks68)
@@ -398,7 +394,10 @@ if __name__ == "__main__":
         medical_mask_cropped_example(image, detection)
         medical_mask_warped_batch_example([warp_image, warp_image])
         medical_mask_cropped_batch_example([image, image], [detection, detection])
-
+        # examples with hardcoded paths to images, special needs
+        # depth_example("images/warp.depth")
+        # ir_example("images/irWarp.ppm")
+        # faceFlow_example()
     except Exception as ex:
         print(type(ex).__name__, ex)
         exit(-1)
