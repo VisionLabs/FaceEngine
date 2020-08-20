@@ -1070,7 +1070,7 @@ void estimators_module(py::module& f) {
 	py::class_<fsdk::IOverlapEstimatorPtr>(f, "IOverlapEstimatorPtr",
 		"Overlap estimator interface.\n"
 		"\tEstimates the face overlap.\n")
-		.def("estimate", [](
+		.def("estimate", [] (
 			const fsdk::IOverlapEstimatorPtr& estimator,
 			const fsdk::Image& image,
 			const fsdk::BaseDetection<float>& detection) {
