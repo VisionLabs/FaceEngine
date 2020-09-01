@@ -79,11 +79,13 @@ set(LSDK_LIB)
 foreach(LIB ${LSDK_LIB_NAMES})
 	set(LIB_PATH ${LIB}-NOTFOUND)
 	find_library(LIB_PATH
-				 NAMES ${LIB}
-				 HINTS $ENV{LSDKDIR}
-				 PATHS ${LSDK_ROOT}
-				 PATH_SUFFIXES	${LSDK_LIB_PATH_SUFFIX}
-								${LSDK_BIN_PATH_SUFFIX})
+		NAMES ${LIB}
+		HINTS $ENV{LSDKDIR}
+		PATHS ${LSDK_ROOT}
+		PATH_SUFFIXES
+		${LSDK_LIB_PATH_SUFFIX}
+		NO_DEFAULT_PATH
+	)
 
 	list(APPEND LSDK_LIB ${LIB_PATH})
 endforeach()
@@ -93,47 +95,32 @@ set(LSDK_LIBD)
 foreach(LIB ${LSDK_LIB_NAMES})
 	set(LIB_PATH ${LIB}-NOTFOUND)
 	find_library(LIB_PATH
-				 NAMES ${LIB}d
-				 HINTS $ENV{LSDKDIR}
-				 PATHS ${LSDK_ROOT}
-				 PATH_SUFFIXES	${LSDK_LIB_PATH_SUFFIX}
-								${LSDK_BIN_PATH_SUFFIX})
+		NAMES ${LIB}d
+		HINTS $ENV{LSDKDIR}
+		PATHS ${LSDK_ROOT}
+		PATH_SUFFIXES
+		${LSDK_LIB_PATH_SUFFIX}
+		NO_DEFAULT_PATH
+	)
 
 	list(APPEND LSDK_LIBD ${LIB_PATH})
 endforeach()
+#link components
+if(LSDK_LIB  AND LSDK_LIBD)
+    set(LSDK_LIBRARIES optimized ${LSDK_LIB} debug ${LSDK_LIBD})
+elseif(LSDK_LIBD)
+	set(LSDK_LIBRARIES ${LSDK_LIBD})
+	message(STATUS "LSDK [WARN]: Release libraries were not found")
+elseif(LSDK_LIB)
+	set(LSDK_LIBRARIES ${LSDK_LIB})
+	message(STATUS "LSDK [WARN]: Debug libraries were not found")
+endif()
 
 # Support the REQUIRED and QUIET arguments, and set LSDK_FOUND if found.
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(LSDK DEFAULT_MSG 
-                                  LSDK_LIB
+                                  LSDK_LIBRARIES
                                   LSDK_INCLUDE_DIRS)
-
-set(LSDK_LIBRARIES)
-
-if(LSDK_FOUND)
-	if(LSDK_LIB)
-		foreach(LIB ${LSDK_LIB})
-			list(APPEND LSDK_LIBRARIES optimized ${LIB})
-		endforeach()
-	endif()
-	if(LSDK_LIBD)
-		foreach(LIB ${LSDK_LIBD})
-			list(APPEND LSDK_LIBRARIES debug ${LIB})
-		endforeach()
-		message(STATUS "LSDK [INFO]: Debug libraries are available.")
-	elseif(LSDK_LIB)
-		foreach(LIB ${LSDK_LIB})
-			list(APPEND LSDK_LIBRARIES debug ${LIB})
-		endforeach()
-		message(STATUS "LSDK [WARN]: Debug libraries are NOT available.")
-	endif()
-
-	message(STATUS "LSDK [INFO]: Found SDK in ${LSDK_ROOT}.")
-else()
-	message(STATUS "LSDK [WARN]: SDK was NOT found.")
-endif(LSDK_FOUND)
-
-#message(STATUS "LSDK [DEBUG]: LSDK_LIBRARIES = ${LSDK_LIBRARIES}.")
 
 # Don't show in GUI
 mark_as_advanced(
