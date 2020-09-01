@@ -9,12 +9,6 @@
 # By default FSDKDIR environment variable value is taken.
 set(FSDK_ROOT "$ENV{FSDKDIR}" CACHE PATH "Vision Labs Face SDK root directory.")
 
-if(ANDROID)
-	set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
-	set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
-	set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
-endif()
-
 # Look for headers.
 find_path(FSDK_INCLUDE_DIRS
           NAMES fsdk/FaceEngine.h fsdk/Types.h fsdk/Def.h
@@ -27,6 +21,8 @@ find_path(FSDK_INCLUDE_DIRS
 if(IOS OR ANDROID)
     set(FSDK_INCLUDE_DIRS ${FSDK_ROOT}/include)
 endif()
+
+#message(STATUS "FSDK: FSDK_INCLUDE_DIRS = ${FSDK_INCLUDE_DIRS}.")
 
 if(WIN32)
     SET(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".dll")
@@ -70,6 +66,13 @@ if(NOT IOS)
 	set(FSDK_LIB_PREFIX ${FSDK_COMPILER_NAME}/${FSDK_TARGET_NAME})
 endif()
 
+if(IOS)
+	# List of all SDK libraries.
+	set(FSDK_LIB_NAMES fsdk)
+else()
+	# List of all SDK libraries.
+	set(FSDK_LIB_NAMES FaceEngineSDK)
+endif()
 
 if(IOS)
     set(FSDK_LIB_PATH_SUFFIX Frameworks)
@@ -80,18 +83,16 @@ else()
 endif()
 
 
-macro(find_fsdk_library OUTPUT_LIST)
-	foreach(LIBRARY_NAME ${ARGN})
-		set(CURRENT_LIB LIBRARY_VAR-NOTFOUND)
-		find_library(CURRENT_LIB
-			NAMES ${LIBRARY_NAME}
-			HINTS $ENV{FSDKDIR}
-			PATHS ${FSDK_ROOT}
-			PATH_SUFFIXES ${FSDK_LIB_PATH_SUFFIX}
-			NO_DEFAULT_PATH
-		)
-		list(APPEND ${OUTPUT_LIST} ${CURRENT_LIB})
-	endforeach()
+macro(find_fsdk_library LIBRARY_VAR LIBRARY_NAME)
+	
+	find_library(${LIBRARY_VAR}
+		NAMES ${LIBRARY_NAME}
+		HINTS $ENV{FSDKDIR}
+		PATHS ${FSDK_ROOT}
+		PATH_SUFFIXES ${FSDK_LIB_PATH_SUFFIX}
+		NO_DEFAULT_PATH
+	)
+
 endmacro()
 
 if(IOS)
@@ -121,10 +122,25 @@ elseif(EMSCRIPTEN)
 		message(ERROR "[FindFSDK]: ${FSDK_ROOT}/lib/clang/x86/libFaceEngineSDK.bc not found...")
 	endif()
 else()
-	find_fsdk_library(FSDK_LIBRARY_RELEASE FaceEngineSDK SdkCore)
-	find_fsdk_library(FSDK_LIBRARY_DEBUG FaceEngineSDKd SdkCored)
+	find_fsdk_library(FSDK_LIBRARY_RELEASE FaceEngineSDK)
+	find_fsdk_library(FSDK_LIBRARY_DEBUG FaceEngineSDKd)
 endif()
 
+if(WIN32)
+
+	macro(find_fsdk_runtime_library LIBRARY_VAR LIBRARY_NAME)
+		find_library(${LIBRARY_VAR}
+			NAMES ${LIBRARY_NAME}
+			HINTS $ENV{FSDKDIR}
+			PATHS ${FSDK_ROOT}
+			PATH_SUFFIXES ${FSDK_BIN_PATH_SUFFIX}
+			NO_DEFAULT_PATH
+		)
+	endmacro()
+
+	find_fsdk_runtime_library(FSDK_RUNTIME_LIBRARY_RELEASE FaceEngineSDK)
+	find_fsdk_runtime_library(FSDK_RUNTIME_LIBRARY_DEBUG FaceEngineSDKd)
+endif()
 
 #link components
 if(FSDK_LIBRARY_RELEASE  AND FSDK_LIBRARY_DEBUG)
@@ -135,19 +151,16 @@ elseif(FSDK_LIBRARY_DEBUG)
 elseif(FSDK_LIBRARY_RELEASE)
 	set(FSDK_LIBRARIES ${FSDK_LIBRARY_RELEASE})
 	message(STATUS "[FindFSDK]: Debug libraries were not found")
-else()
-	message(FATAL_ERROR "[FindFSDK]: Face Engine link libraries were not found")
 endif()
 
 #runtime components
 if(WIN32)
-	#grab all runtime dependencies for windows build
-	file(GLOB FSDK_RUNTIME_LIBRARIES
-		LIST_DIRECTORIES FALSE
-		${FSDK_ROOT}/${FSDK_BIN_PATH_SUFFIX}/*.dll
-	)
-	if(NOT FSDK_RUNTIME_LIBRARIES)
-		message(FATAL_ERROR "[FindFSDK]: Face Engine runtime libraries were not found")
+	if(FSDK_RUNTIME_LIBRARY_RELEASE)
+		list(APPEND FSDK_RUNTIME_LIBRARIES ${FSDK_RUNTIME_LIBRARY_RELEASE})
+	endif()
+
+	if(FSDK_RUNTIME_LIBRARY_DEBUG)
+		list(APPEND FSDK_RUNTIME_LIBRARIES ${FSDK_RUNTIME_LIBRARY_DEBUG})
 	endif()
 else()
 	list(APPEND FSDK_RUNTIME_LIBRARIES ${FSDK_LIBRARIES})
@@ -172,4 +185,5 @@ mark_as_advanced(
 	FSDK_COMPILER_NAME
 	FSDK_TARGET_NAME
 	FSDK_LIB_PREFIX
+	FSDK_LIB_NAMES
 )
