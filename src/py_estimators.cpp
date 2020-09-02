@@ -1015,29 +1015,22 @@ void estimators_module(py::module& f) {
 		;
 	
 	//	MedicalMask
+	py::enum_<fsdk::MedicalMask>(f, "MedicalMask", py::arithmetic(),
+		"MedicalMask estimator output enumeration.\n")
+		.value("Mask", fsdk::MedicalMask::Mask, "Medical mask is on the face\n")
+		.value("NoMask", fsdk::MedicalMask::NoMask, "No medical mask on the face\n")
+		.value("OccludedFace", fsdk::MedicalMask::OccludedFace, "Face is occluded by something\n")
+		.export_values();
+		;
+
 	py::class_<fsdk::MedicalMaskEstimation>(f, "MedicalMaskEstimation",
 		"MedicalMaskEstimator output structure\n"
-		"\tStores flags that indicates which mask feature is present.\n"
+		"\tResult enumeration with the medical status.\n"
 		"\tProbability scores are defined in [0,1] range.\n")
-		.def_readwrite("maskInPlace", &fsdk::MedicalMaskEstimation::maskInPlace, "Мask is on the face\n")
-		.def_readwrite("maskNotInPlace", &fsdk::MedicalMaskEstimation::maskNotInPlace, "Mask is not on the right place\n")
-		.def_readwrite("noMask", &fsdk::MedicalMaskEstimation::noMask, "No mask on the face\n")
-		.def_readwrite("occludedFace", &fsdk::MedicalMaskEstimation::occludedFace, "Face is occluded by other object\n")
-		.def_readwrite("isMaskInPlace", &fsdk::MedicalMaskEstimation::isMaskInPlace, "Mask is on the face, boolean flag\n")
-		.def_readwrite("isMaskNotInPlace", &fsdk::MedicalMaskEstimation::isMaskNotInPlace, "Mask is not on the right place, boolean flag\n")
-		.def_readwrite("isNoMask", &fsdk::MedicalMaskEstimation::isNoMask, "No mask on the face, boolean flag\n")
-		.def_readwrite("isOccludedFace", &fsdk::MedicalMaskEstimation::isOccludedFace, "Face is occluded by other object, boolean flag\n")
-		.def("__repr__", [](const fsdk::MedicalMaskEstimation& e) {
-			return "MedicalMask Estimation: \n"
-				"maskInPlace = " + std::to_string(e.maskInPlace) + "\n" +
-				"maskNotInPlace = " + std::to_string(e.maskNotInPlace) + "\n" +
-				"noMask = " + std::to_string(e.noMask) + "\n" +
-				"occludedFace = " + std::to_string(e.occludedFace) + "\n" +
-				"isMaskInPlace = " + std::string(e.isMaskInPlace ? "True\n" : "False\n") +
-				"isMaskNotInPlace = " + std::string(e.isMaskNotInPlace ? "True\n" : "False\n") +
-				"isNoMask = " + std::string(e.isNoMask ? "True\n" : "False\n") +
-				"isOccludedFace = " + std::string(e.isOccludedFace ? "True\n" : "False\n");
-		})
+		.def_readwrite("result", &fsdk::MedicalMaskEstimation::result, "Estimation result\n")
+		.def_readwrite("maskScore", &fsdk::MedicalMaskEstimation::maskScore, "Medical mask is on the face score\n")
+		.def_readwrite("noMaskScore", &fsdk::MedicalMaskEstimation::noMaskScore, "No medical mask on the face score\n")
+		.def_readwrite("occludedFaceScore", &fsdk::MedicalMaskEstimation::occludedFaceScore, "Face is occluded by something score\n")
 		;
 	
 	py::class_<fsdk::OverlapEstimation>(f, "OverlapEstimation", "Face overlap estimation output.\n")

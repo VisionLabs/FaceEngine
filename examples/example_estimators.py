@@ -123,7 +123,13 @@ def medical_mask_warped_example(_warp):
     estimator = faceEngine.createMedicalMaskEstimator()
     err, estimation = estimator.estimate(_warp)
     if err.isOk:
-        print("\nmedical_mask_warped_example:\n", estimation)
+        print("\nmedical_mask_warped_example:\n")
+        print("Result: {}".format(estimation.result))
+        print("Scores: \n\tmask: {}\n\tnoMask: {}\n\toccludedFace: {}\n".format(
+            estimation.maskScore,
+            estimation.noMaskScore,
+            estimation.occludedFaceScore
+        ))
     else:
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
@@ -133,7 +139,13 @@ def medical_mask_cropped_example(_image, _detection):
     estimator = faceEngine.createMedicalMaskEstimator()
     err, estimation = estimator.estimate(_image, _detection)
     if err.isOk:
-        print("\nmedical_mask_cropped_example:\n", estimation)
+        print("\nmedical_mask_cropped_example:\n")
+        print("Result: {}".format(estimation.result))
+        print("Scores: \n\tmask: {}\n\tnoMask: {}\n\toccludedFace: {}\n".format(
+            estimation.maskScore,
+            estimation.noMaskScore,
+            estimation.occludedFaceScore
+        ))
     else:
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
@@ -146,7 +158,13 @@ def medical_mask_warped_batch_example(_warps):
     print("\nmedical_mask_warped_batch_example: ")
     if err.isOk:
         for i, est in enumerate(estimations):
-            print("number: ", i, "\n", est)
+            print("number: ", i)
+            print("Result: {}".format(est.result))
+            print("Scores: \n\tmask: {}\n\tnoMask: {}\n\toccludedFace: {}\n".format(
+                est.maskScore,
+                est.noMaskScore,
+                est.occludedFaceScore
+            ))
     else:
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
@@ -158,7 +176,13 @@ def medical_mask_cropped_batch_example(_images, _detections):
     err, estimations = estimator.estimate(_images, _detections)
     if err.isOk:
         for i, est in enumerate(estimations):
-            print("number: ", i, "\n", est)
+            print("number: ", i)
+            print("Result: {}".format(est.result))
+            print("Scores: \n\tmask: {}\n\tnoMask: {}\n\toccludedFace: {}\n".format(
+                est.maskScore,
+                est.noMaskScore,
+                est.occludedFaceScore
+            ))
     else:
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
