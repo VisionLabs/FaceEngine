@@ -608,8 +608,8 @@ class TestFaceEngineEstimators(unittest.TestCase):
         estimator = self.faceEngine.createMedicalMaskEstimator()
         warper = self.faceEngine.createWarper()
         image = f.Image()
-        params = {"testData/mask.png": [True, False, False, False], "testData/nomask.png": [False, False, True, False]}
-        for path_to_img, valueList in params.items():
+        params = {"testData/mask.png": f.MedicalMask.Mask, "testData/nomask.png": f.MedicalMask.NoMask }
+        for path_to_img, result in params.items():
             with self.subTest(image=path_to_img):
                 err = image.load(path_to_img)
                 self.assertTrue(err.isOk)
@@ -621,17 +621,14 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
                 def assertMedicalMask(status, output, value):
                     self.assertTrue(status.isOk)
-                    self.assertEqual(value[0], output.isMaskInPlace)
-                    self.assertEqual(value[1], output.isMaskNotInPlace)
-                    self.assertEqual(value[2], output.isNoMask)
-                    self.assertEqual(value[3], output.isOccludedFace)
+                    self.assertEqual(result, output.result)
                     
-                assertMedicalMask(status1, output1, valueList)
-                assertMedicalMask(status2, output2, valueList)
-                assertMedicalMask(status3, output3[0], valueList)
-                assertMedicalMask(status4, output4[0], valueList)
-                assertMedicalMask(status3, output3[1], valueList)
-                assertMedicalMask(status4, output4[1], valueList)
+                assertMedicalMask(status1, output1, result)
+                assertMedicalMask(status2, output2, result)
+                assertMedicalMask(status3, output3[0], result)
+                assertMedicalMask(status4, output4[0], result)
+                assertMedicalMask(status3, output3[1], result)
+                assertMedicalMask(status4, output4[1], result)
 
     def testIrEyeEstimator(self):
         imagePath = "testData/eyes/IrWarp.png"
