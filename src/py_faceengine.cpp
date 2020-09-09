@@ -1134,6 +1134,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			MouthEstimation
 
+			MedicalMask
 			MedicalMaskEstimation
 
 			Transformation

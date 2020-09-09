@@ -2,9 +2,9 @@ import sys
 
 
 def help():
-    print("example_extractor_matcher.py <path to dir with FaceEngine*.so> <path to image> <path to image> ...")
-    print("example of using: python3 example_extractor_matcher.py build images/warp1.ppm images/warp2.ppm "
-          "images/photo_2017-03-30_14-47-43_p.ppm")
+    print("example_extractor_matcher.py <path to dir with FaceEngine*.so> <path to warped image> <path to warped image> ...")
+    print("example of using: python3 example_extractor_matcher.py build images/photo_2017-03-30_14-47-43_p.ppm images/photo_2017-03-30_14-47-43_p.ppm"
+          "images/overlap.ppm")
 
 if len(sys.argv) <= 3:
     help()
@@ -100,7 +100,7 @@ def set_logging(value):
     print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val))
 
 
-def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
+def extractor_test_aggregation(version, use_mobile_net, cpu_type, device, warps):
     print("Extractor_test_aggregation")
     config = fe.createSettingsProvider("data/faceengine.conf")
     runtime_config = fe.createSettingsProvider("data/runtime.conf")
@@ -113,15 +113,6 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device):
     runtime_config.setValue("Runtime", "cpuClass", cpu_type)
     face_engine.setSettingsProvider(config)
     face_engine.setRuntimeSettingsProvider(runtime_config)
-    warps = [fe.Image(), fe.Image()]
-    err_load_warp1 = warps[0].load("testData/warp1.ppm")
-    err_load_warp2 = warps[1].load("testData/warp2.ppm")
-    if err_load_warp1.isError or not warps[0].isValid():
-        print("invalid warp image1: ", err_load_warp1.what)
-        exit(-1)
-    if err_load_warp2.isError or not warps[1].isValid():
-        print("invalid warp image2:", err_load_warp2.what)
-        exit(-1)
     batch_size = len(warps)
     descriptor_extractor = face_engine.createExtractor()
     batch = face_engine.createDescriptorBatch(batch_size)
@@ -165,7 +156,8 @@ if __name__ == "__main__":
         # print_descriptor(descriptor1)
         # print_descriptor(descriptor2)
         # as test
-        extractor_test_aggregation(46, True, "auto", "cpu")
+        warps = [image_list[0], image_list[1]]
+        extractor_test_aggregation(46, True, "auto", "cpu", warps)
     except RuntimeError as ex:
         print(ex)
         exit(1)

@@ -123,7 +123,13 @@ def medical_mask_warped_example(_warp):
     estimator = faceEngine.createMedicalMaskEstimator()
     err, estimation = estimator.estimate(_warp)
     if err.isOk:
-        print("\nmedical_mask_warped_example:\n", estimation)
+        print("\nmedical_mask_warped_example:\n")
+        print("Result: {}".format(estimation.result))
+        print("Scores: \n\tmask: {}\n\tnoMask: {}\n\toccludedFace: {}\n".format(
+            estimation.maskScore,
+            estimation.noMaskScore,
+            estimation.occludedFaceScore
+        ))
     else:
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
@@ -133,7 +139,13 @@ def medical_mask_cropped_example(_image, _detection):
     estimator = faceEngine.createMedicalMaskEstimator()
     err, estimation = estimator.estimate(_image, _detection)
     if err.isOk:
-        print("\nmedical_mask_cropped_example:\n", estimation)
+        print("\nmedical_mask_cropped_example:\n")
+        print("Result: {}".format(estimation.result))
+        print("Scores: \n\tmask: {}\n\tnoMask: {}\n\toccludedFace: {}\n".format(
+            estimation.maskScore,
+            estimation.noMaskScore,
+            estimation.occludedFaceScore
+        ))
     else:
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
@@ -146,7 +158,13 @@ def medical_mask_warped_batch_example(_warps):
     print("\nmedical_mask_warped_batch_example: ")
     if err.isOk:
         for i, est in enumerate(estimations):
-            print("number: ", i, "\n", est)
+            print("number: ", i)
+            print("Result: {}".format(est.result))
+            print("Scores: \n\tmask: {}\n\tnoMask: {}\n\toccludedFace: {}\n".format(
+                est.maskScore,
+                est.noMaskScore,
+                est.occludedFaceScore
+            ))
     else:
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
@@ -158,7 +176,13 @@ def medical_mask_cropped_batch_example(_images, _detections):
     err, estimations = estimator.estimate(_images, _detections)
     if err.isOk:
         for i, est in enumerate(estimations):
-            print("number: ", i, "\n", est)
+            print("number: ", i)
+            print("Result: {}".format(est.result))
+            print("Scores: \n\tmask: {}\n\tnoMask: {}\n\toccludedFace: {}\n".format(
+                est.maskScore,
+                est.noMaskScore,
+                est.occludedFaceScore
+            ))
     else:
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
@@ -220,14 +244,14 @@ def ir_example(ir_image_path):
 def faceFlow_example():
     faceFlowEstimator = faceEngine.createFaceFlowEstimator()
     face_flow_image = fe.Image()
-    err = face_flow_image.load("testData/small.ppm")
+    err = face_flow_image.load("images/small.ppm")
     if not face_flow_image.isValid():
         print("image was not found {0}".format(err.what))
         exit(1)
     sequence = []
     for i in range(10):
         temp_image = fe.Image()
-        temp_image.load("testData/" + str(i) + "big.ppm")
+        temp_image.load("images/" + str(i) + "big.ppm")
         sequence.append(temp_image)
     err, faceFlowResult = faceFlowEstimator.estimate(face_flow_image, sequence)
     if err.isOk:
@@ -351,8 +375,11 @@ if __name__ == "__main__":
     try:
         # take the simplest example and first detection, see example_detector_warper.py
         err, face = detector_one_example(image)
-        if err.isError:
-            print("Detector: faces not found.")
+        if err.isError or not face.isValid():
+            print("Detector: faces are not found.")
+            exit(-1)
+        if not face.landmarks5_opt.isValid() or not face.landmarks68_opt.isValid():
+            print("Detector: landmarks are not valid.")
             exit(-1)
         (detection, landmarks5, landmarks68) = \
             face.detection, \
@@ -369,33 +396,32 @@ if __name__ == "__main__":
         # for example list consists two the same images
         err_attribute_batch, attribute_list_result, aggregate_result = attribute_batch_example([warp_image, warp_image])
         print("aggregate attribute result: ", aggregate_result)
-        # examples with hardcoded paths to images
-        depth_example("testData/warp.depth")
-        ir_example("testData/irWarp.ppm")
-        faceFlow_example()
         emotions_example(warp_image)
         mouth_example(warp_image)
         err_headPose, headPoseEstimation = headPose_example_by_landmarks68(landmarks68)
+        if err_headPose.isError:
+            print("Failed head pose estimation in headPose_example_by_landmarks68. Reason: {0}".format(err_headPose.what))
         err_headPose, headPoseEstimation = headPose_example_by_image_and_detection(warp_image, detection)
+        if err_headPose.isError:
+            print("Failed head pose estimation in headPose_example_by_image_and_detection. Reason: {0}".format(err_headPose.what))
         err_eyes, eyesEstimation = eye_example(warp_image, transformed_landmarks5)
         err_gaze, gaze_result = gaze_example_rgb(warp_image, transformed_landmarks5)
         if err_gaze.isOk:
             gaze = unwarp_gaze(gaze_result, transformation)
             print(gaze)
-        if err_headPose.isError:
-            print("Failed head pose estimation. Reason: {0}".format(err_headPose.what))
-            exit(1)
         elif err_eyes.isError:
             print("Failed eyes estimation. Reason: {0}".format(err_eyes.what))
-            exit(1)
-        ags_example(faceEngine, image, detection)
         liveness_flying_faces_example(face)
         liveness_flying_faces_batch_example([face, face])
+        ags_example(faceEngine, image, detection)
         medical_mask_warped_example(warp_image)
         medical_mask_cropped_example(image, detection)
         medical_mask_warped_batch_example([warp_image, warp_image])
         medical_mask_cropped_batch_example([image, image], [detection, detection])
-
+        # examples with hardcoded paths to images, special needs
+        # depth_example("images/warp.depth")
+        # ir_example("images/irWarp.ppm")
+        # faceFlow_example()
     except Exception as ex:
         print(type(ex).__name__, ex)
         exit(-1)

@@ -24,6 +24,7 @@ Only basic methods and classes of LUNA SDK were binded.
 * A compiler with C++11 support
 * CMake >= 3.6
 * numpy for python
+* associated python3.x-dev package.
 
 **On Windows**
 * We support only windows x64
@@ -200,47 +201,30 @@ sys.path.append(sys.argv[1])
 import FaceEngine as fe
 ```
 
-Other usage examples could be found in `pythonBindings/tests` and `pythonBindings/examples`.
+Other usage examples could be found in `pythonBindings/examples`.
 
-### Running tests on Linux
-
-From `FSDK_ROOT`:
-
-```bash
-$ python3 pythonBindings/tests/test_image.py --bind-path pythonBindings/build
-$ python3 pythonBindings/tests/test_rect.py --bind-path pythonBindings/build
-$ python3 pythonBindings/tests/test_estimators.py --bind-path pythonBindings/build
-$ python3 pythonBindings/tests/test_config.py --bind-path pythonBindings/build
-$ python3 pythonBindings/tests/test_index.py --bind-path pythonBindings/build # only for server platforms, not for Jetson
-$ python3 pythonBindings/tests/test_descriptor.py --bind-path pythonBindings/build
-$ python3 pythonBindings/tests/test_detector.py --bind-path pythonBindings/build
-$ python3 pythonBindings/tests/test_liveness.py --bind-path pythonBindings/build
-```
 ### Running examples on Linux
 Note: data folder must be at \<LUNA_SDK_root\>/data on Linux.
 From `FSDK_ROOT`:
 
 ```
 # Extracting, Matching, this example only for full version (not for front-edition) of LUNS SDK
-$ python3 pythonBindings/examples/example_extractor_matcher.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm testData/warp1.ppm testData/warp2.ppm
+$ python3 pythonBindings/examples/example_extractor_matcher.py pythonBindings/build <some warped image1> <some warped image2> <some warped image3>
 
 # Detecting, Landmarks, Estimating (Attributes, Quality, Eyes, Head pose and so on)
-$ python3 pythonBindings/examples/example_estimators.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm
+$ python3 pythonBindings/examples/example_estimators.py pythonBindings/build <some image>
  
 # Detecting and warping
-$ python3 pythonBindings/examples/example_detector_warper.py pythonBindings/build testData/photo_2017-03-30_14-47-43_p.ppm
+$ python3 pythonBindings/examples/example_detector_warper.py pythonBindings/build <some image>
 
 # Human Detecting 
-$ python3 pythonBindings/examples/example_human_detector.py pythonBindings/build testData/0_Parade_marchingband_1_620.ppm
+$ python3 pythonBindings/examples/example_human_detector.py pythonBindings/build <some image with human bodies>
 
 # Gaze Estimation demo, requires connected video camera
 $ python3 pythonBindings/examples/example_gaze_cv.py pythonBindings/build
 
-# Index building, only for server platforms, not for Jetson
-$ python3 pythonBindings/examples/example_index.py pythonBindings/build testData/emotions1.ppm testData testData/imageListIndex.txt 0.3
-
 # Human descriptor extracting, only for server platforms, not for Jetson
-$ python3 pythonBindings/examples/example_human_extractor.py pythonBindings/build testData/0_Parade_Parade_0_12.jpg testData/0_Parade_Parade_0_12.jpg
+$ python3 pythonBindings/examples/example_human_extractor.py pythonBindings/build <some image with human bodies 1> <some image with human bodies 2>
 
 # Depth example.
 $ python3 pythonBindings/examples/example_depth.py --data data --bindPath pythonBindings/build --rsbindPath <absolute_path_to_realsense_python_bindings_libraries>
@@ -284,31 +268,13 @@ import FaceEngine as fe
 Please verify path with built FaceEngine.lib for your version of python. Usual path is `pythonBindings/build/release`.
 
 ```cmd
-$ python3 pythonBindings/examples/example_estimators.py pythonBindings/build/release testData/photo_2017-03-30_14-47-43_p.ppm
-$ python3 pythonBindings/examples/example_detector_warper.py pythonBindings/build/release testData/photo_2017-03-30_14-47-43_p.ppm
-$ python3 pythonBindings/examples/example_human_detector.py pythonBindings/build/release testData/0_Parade_marchingband_1_620.ppm
-$ python3 pythonBindings/examples/example_extractor_matcher.py pythonBindings/build/release testData/photo_2017-03-30_14-47-43_p.ppm testData/warp1.ppm testData/warp2.ppm
-$ python3 pythonBindings/examples/example_index.py pythonBindings/build/release testData/emotions1.ppm testData testData/imageListIndex.txt 0.3
-$ python3 pythonBindings/examples/example_human_extractor.py pythonBindings/build/release testData/0_Parade_Parade_0_12.jpg testData/0_Parade_Parade_0_12.jpg
+$ python3 pythonBindings/examples/example_estimators.py pythonBindings/build/release <some image>
+$ python3 pythonBindings/examples/example_detector_warper.py pythonBindings/build/release <some image>
+$ python3 pythonBindings/examples/example_human_detector.py pythonBindings/build/release <some image with human bodies>
+$ python3 pythonBindings/examples/example_extractor_matcher.py pythonBindings/build/release <some warped image1> <some warped image2> <some warped image3>
+$ python3 pythonBindings/examples/example_human_extractor.py pythonBindings/build/release <some image with human bodies 1> <some image with human bodies 2>
 ```
-Note: In a case of python3.8 and Windows10 was detected the problem with relative paths. Please pass absolute path to directory with dll, for example `python3 pythonBindings/examples/example_estimators.py C:/Users/user/luna_sdk_*/pythonBindings/build/Release testData/photo_2017-03-30_14-47-43_p.ppm`.
-
-### Running tests on Windows
-Please verify path with built FaceEngine.lib for your version of python. Usual path is `pythonBindings/build/release`. 
-
-```cmd
-$ python3 pythonBindings/tests/test_image.py --bind-path pythonBindings/build/release
-$ python3 pythonBindings/tests/test_rect.py --bind-path pythonBindings/build/release
-$ python3 pythonBindings/tests/test_estimators.py --bind-path pythonBindings/build/release
-$ python3 pythonBindings/tests/test_index.py --bind-path pythonBindings/build/release
-$ python3 pythonBindings/tests/test_descriptor.py --bind-path pythonBindings/build/release
-$ python3 pythonBindings/tests/test_detector.py --bind-path pythonBindings/build/release
-$ python3 pythonBindings/tests/test_liveness.py --bind-path pythonBindings/build/release
-$ python3 pythonBindings/tests/test_config.py --bind-path pythonBindings/build/release
-$ python3 pythonBindings/examples/example_depth.py --data ./data --bindPath pythonBindings/build/release --rsbindPath <absolute_path_to_realsense_python_bindings_libraries>
-```
-
-Note: In a case of python3.8 and Windows10 was detected the problem with relative paths. Please pass absolute path to directory with dll, for example `python3 pythonBindings/tests/test_image.py --bind-path C:/Users/user/luna_sdk_*/pythonBindings/build/Release`.
+Note: In a case of python3.8 and Windows10 was detected the problem with relative paths. Please pass absolute path to directory with dll, for example `python3 pythonBindings/examples/example_estimators.py C:/Users/user/luna_sdk_*/pythonBindings/build/Release <some image>`.
 
 ## About pybind11
 PythonBindings use pybind11. pybind11 is a lightweight header-only library that exposes C++ types in Python and vice versa, mainly to create Python bindings of existing C++ code. Its goals and syntax are similar to the excellent Boost.Python library by David Abrahams: to minimize boilerplate code in traditional extension modules by inferring type information using compile-time introspection. Think of this library as a tiny self-contained version of Boost.Python with everything stripped away that isn't relevant for binding generation. Without comments, the core header files only require ~4K lines of code and depend on Python (2.7 or 3.x) and the C++ standard library. This compact implementation was possible thanks to some of the new C++11 language features (specifically: tuples, lambda functions and variadic templates). Since its creation, this library has grown beyond Boost.Python in many ways, leading to dramatically simpler binding code in many common situations.
@@ -330,7 +296,7 @@ sys.path.append(sys.argv[1])
 import FaceEngine as fe
 
 ```
-Using of basic methods you can see in examples or tests. More detailed information about methods and classes you can see in `src/FaceEngine.cpp`.
+Using of basic methods you can see in examples. More detailed information about methods and classes you can see in `src/FaceEngine.cpp`.
 
 ### Creating of basic objects
 
@@ -453,16 +419,14 @@ In case of wrong behaviour of the some code with using the PythongBindings or in
 
 The next ways to make a diagnostics with the LUNA SDK tools are recomended:
 
-1. Try to run unit-tests from the LUNA SDK package (see the QuickStartGuide.pdf from the LUNA SDK package for details).
+1. Try to run examples from the LUNA SDK package (see the ExamplesGuide.pdf from the LUNA SDK package for details).
 
 2. Try to enable verbose logging for the LUNA SDK and run the code again. See the logs for detailed information about execution (see the ConfigurationGuide.pdf from the LUNA SDK package for details).
 
 
 This PythonBindings module also contains some tools for diagnostics:
 
-1. Try to run PythonBindings unit-tests (see the "test" folder in the PyhthonBindings package).
-
-2. Try to read examples for correct usage of the functionallity (see the "examples" folder in the PythonBindings package).
+1. Try to read examples for correct usage of the functionallity (see the "examples" folder in the PythonBindings package).
 
 
 ## Troubleshooting
@@ -514,3 +478,13 @@ Please pass absolute path to directory with FaceEngine*.so and add it to 'sys.pa
 ```bash
 $ python3 your_script.py <absolute path to dir with built FaceEngine*.so>
 ```
+
+5. Problem with system python libraries and headers on Linux-based systems:
+
+```
+fatal error: Python.h: No such file or directory
+ #include <Python.h>
+```
+Try to install associated pythonx.x-dev package.
+Try to use next advises:
+[problems](https://stackoverflow.com/questions/21530577/fatal-error-python-h-no-such-file-or-directory)

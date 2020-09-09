@@ -19,8 +19,6 @@ sys.path.append(sys.argv[1])
 import FaceEngine as fe
 
 configPath = "data" + "/faceengine.conf"
-testDataPath = "testData"
-
 
 def load_images(images_dir_path, list_path):
     images_names_list = []
