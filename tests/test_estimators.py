@@ -736,8 +736,9 @@ class TestFaceEngineEstimators(unittest.TestCase):
         err = image.load("testData/overlap_image1.jpg")
         self.assertTrue(err.isOk)
         areas = {"big_area": f.DetectionFloat(f.RectFloat(0, 0, 10 ** 9, 10 ** 9), 0.999916),
-                 "bad_area": f.DetectionFloat(f.RectFloat(120, 599, 15, 10), 0.999916)}
-        estimator_types = ('RGBM', 'AGS', 'HeadPose', 'Overlap')
+                 "bad_area": f.DetectionFloat(f.RectFloat(120, 599, 15, 10), 0.999916),
+                 "negative_area": f.DetectionFloat(f.RectFloat(-15, -30, 155, 190), 0.999916)}
+        estimator_types = ('RGBM', 'AGS', 'HeadPose', 'Overlap', 'MedicalMask')
         for type in estimator_types:
             for area, detection in areas.items():
                 with self.subTest(type=area):
@@ -749,6 +750,8 @@ class TestFaceEngineEstimators(unittest.TestCase):
                         self.headPoseBadArea(image, detection, area)
                     elif type == 'Overlap':
                         self.OverlapEstimatorBadArea(image, detection, area)
+                    elif type == 'MedicalMask':
+                        self.MedicalMaskBadArea(image, detection, area)
 
     def RGBMEstimateBadArea(self, detection, area):
         estimator = self.faceEngine.createLivenessRGBMEstimator()
@@ -779,6 +782,10 @@ class TestFaceEngineEstimators(unittest.TestCase):
         config.setValue("HeadPoseEstimator::Settings", "useEstimationByImage", f.SettingsProviderValue(1))
         self.faceEngine.setSettingsProvider(config)
         estimator = self.faceEngine.createHeadPoseEstimator()
+        self.estimateResult(estimator, image, detection, area)
+
+    def MedicalMaskBadArea(self, image, detection, area):
+        estimator = self.faceEngine.createMedicalMaskEstimator()
         self.estimateResult(estimator, image, detection, area)
 
     def estimateResult(self, estimator, image, detection, area, *background):
