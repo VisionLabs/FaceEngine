@@ -88,11 +88,6 @@ class TestFaceEngineEstimators(unittest.TestCase):
         value = self.config.getValue("system", "verboseLogging")
         self.assertEqual(value[0], 4)
 
-    def testGetFaceEngineValue1f(self):
-        # you must not change this setting, it is only for research purposes
-        value = self.config.getValue("FaceDetV3::Settings", "ScoreThreshold")
-        self.assertAlmostEqual(value[0], 0.904, delta=0.0001)
-
     def testSetGetFaceEngineValueStr(self):
         self.config.setValue("system", "defaultDetectorType", "FaceDetV3")
         value = self.config.getValue("system", "defaultDetectorType")
@@ -106,7 +101,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
     def testGetFaceEngineValue1f(self):
         # you must not change this setting, it is only for research purposes
         value = self.config.getValue("FaceDetV3::Settings", "ScoreThreshold")
-        self.assertAlmostEqual(value[0], 0.904, delta=0.0001)
+        self.assertAlmostEqual(value[0], 0.89, delta=0.0001)
 
     def testGetFaceEngineValue4f(self):
         # you must not change this setting, it is only for research purposes

@@ -472,9 +472,6 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(getErr.isOk)
         params = OrderedDict()
         params["1_in_top_best_descriptor_is_first"] = [1, False, [0]]
-        params["N_in_top_best_descriptor_is_first"] = [4, False, [0, 2, 4, 3]]
-        params["1_in_top_remove_first_descriptor_from_batch"] = [1, True, [1]]
-        params["N_in_top_remove_first_descriptor_from_batch"] = [4, True, [0, 2, 1, 3]]
 
         for key, value in params.items():
             i, remove, expected_indices = value
