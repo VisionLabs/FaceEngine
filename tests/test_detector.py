@@ -130,9 +130,9 @@ class TestFaceEngineDetector(unittest.TestCase):
                     self.assertFaceLandmarks(refFaces[i].landmarks68_opt, faces[0].landmarks68_opt)
 
     def testDetectorBBoxLandmarks68(self):
-        ref_values = {fe.FACE_DET_V1: fe.DetectionFloat(fe.RectFloat(288.0, 93.0, 148.0, 184.0), 0.99999),
-                      fe.FACE_DET_V2: fe.DetectionFloat(fe.RectFloat(297.0, 97.0, 152.0, 184.0), 0.999986),
-                      fe.FACE_DET_V3: fe.DetectionFloat(fe.RectFloat(296.0, 73.0, 145.0, 211.0), 0.999936)}
+        ref_values = {fe.FACE_DET_V1: fe.DetectionFloat(fe.RectFloat(288.0, 93.0, 148.0, 184.0), 0.9999),
+                      fe.FACE_DET_V2: fe.DetectionFloat(fe.RectFloat(297.0, 97.0, 152.0, 184.0), 0.9999),
+                      fe.FACE_DET_V3: fe.DetectionFloat(fe.RectFloat(297.0, 90.0, 144.0, 193.0), 0.9999)}
         lnetExpected = fe.Landmarks68()
 
         for detectorType, detection in ref_values.items():
