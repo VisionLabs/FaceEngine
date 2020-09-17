@@ -56,7 +56,20 @@ py::class_<PyISettingsProvider>(f, "PyISettingsProvider")
 		const char* section,
 		const char* parameter,
 		const fsdk::ISettingsProvider::Value& value) {
-			provider.settingsProviderPtr->setValue(section, parameter, value);
+			using cfg = fsdk::ISettingsProvider::Value::Type;
+			switch(value.m_type)
+			{
+				case cfg::Int1 :   provider.settingsProviderPtr->setValue(section, parameter, value.m_data.m_int1.m_value); break;
+				case cfg::Int2 :   provider.settingsProviderPtr->setValue(section, parameter, value.m_data.m_int2.m_value); break;
+				case cfg::Int3 :   provider.settingsProviderPtr->setValue(section, parameter, value.m_data.m_int3.m_value); break;
+				case cfg::Int4 :   provider.settingsProviderPtr->setValue(section, parameter, value.m_data.m_int4.m_value); break;
+				case cfg::Float1 : provider.settingsProviderPtr->setValue(section, parameter, value.m_data.m_float1.m_value); break;
+				case cfg::Float2 : provider.settingsProviderPtr->setValue(section, parameter, value.m_data.m_float2.m_value); break;
+				case cfg::Float3 : provider.settingsProviderPtr->setValue(section, parameter, value.m_data.m_float3.m_value); break;
+				case cfg::Float4 : provider.settingsProviderPtr->setValue(section, parameter, value.m_data.m_float4.m_value); break;
+				case cfg::String : provider.settingsProviderPtr->setValue(section, parameter, value.m_data.m_string.m_value); break;
+				default:break;
+			}
 	}, "Set parameter value.\n"
 		"Lookup parameter by key. Creates a parameter if it does not already exist.\n"
 		"Sets settings provider\n"
@@ -183,7 +196,7 @@ void setValue(PyISettingsProvider& provider,
 	const char* parameter,
 	const T param) {
 		fsdk::ISettingsProvider::Value value(param);
-		provider.settingsProviderPtr->setValue(section, parameter, value);
+		provider.settingsProviderPtr->setValue(section, parameter, std::move(value));
 }
 
 template<class T>
@@ -202,13 +215,13 @@ void setValue(PyISettingsProvider& provider,
 			value = fsdk::ISettingsProvider::Value(values[0], values[1], values[2], values[3]);
 		}
 		
-		provider.settingsProviderPtr->setValue(section, parameter, value);
+		provider.settingsProviderPtr->setValue(section, parameter, std::move(value));
 }
 
 py::list getValue(PyISettingsProvider& provider,
 	const char* section,
 	const char* parameter) {
-		auto value = provider.settingsProviderPtr->getValue(section, parameter);
+		auto& value = provider.settingsProviderPtr->getValue(section, parameter);
 		using valueType = fsdk::ISettingsProvider::Value::Type;
 		py::list pyValueList;
 		
