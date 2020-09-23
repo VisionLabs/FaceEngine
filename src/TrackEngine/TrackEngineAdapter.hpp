@@ -4,7 +4,7 @@
 
 #include "../FaceEngineAdapter.hpp"
 
-#include "trackEngine/ITrackEngine.h"
+#include "tsdk/ITrackEngine.h"
 
 #include <pybind11/stl.h>
 
