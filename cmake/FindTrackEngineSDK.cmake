@@ -11,7 +11,7 @@ set(TSDK_ROOT "$ENV{TSDKDIR}" CACHE PATH "Vision Labs TrackEngine SDK root direc
 
 # Look for headers.
 find_path(TSDK_INCLUDE_DIRS
-          NAMES trackEngine/ITrackEngine.h trackEngine/ITrackCallbacks trackEngine/IStream.h trackEngine/TrackEngineDefs.h trackEngine/TrackEngineTypes.h
+          NAMES tsdk/ITrackEngine.h tsdk/ITrackCallbacks tsdk/IStream.h tsdk/TrackEngineDefs.h tsdk/TrackEngineTypes.h
           HINTS $ENV{TSDKDIR}
           PATHS ${TSDK_ROOT}
           PATH_SUFFIXES include)
