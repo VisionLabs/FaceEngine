@@ -117,7 +117,7 @@ void detector_module(py::module& f) {
 			"\t\tparam2 (list of rects): input rectangles of interest list.\n"
 			"\t\t\tSize of list must be the same with images list\n"
 			"\t\tparam3 (int): max number of detections per input image\n"
-			"\t\tparam4 (DetectionType): type of detection: dtBBox, dt5landmarks or dt68landmarks\n"
+			"\t\tparam4 (DetectionType): type of detection: DT_BBOX, DT_LANDMARKS5 or DT_LANDMARKS68\n"
 			"\tReturns:\n"
 			"\t\t(tuple): \n"
 			"\t\t\ttuple with FSDKErrorResult code and list of lists of Faces\n")
@@ -144,7 +144,7 @@ void detector_module(py::module& f) {
 				 "\tArgs:\n"
 				 "\t\tparam1 (Image): input image\n"
 				 "\t\tparam2 (Rect): rectangle of interest on image\n"
-				 "\t\tparam3 (DetectionType): type of detection: dtBBox, dtlandmarks or dt68landmarks\n"
+				 "\t\tparam3 (DetectionType): type of detection: DT_BBOX, DT_LANDMARKS5 or DT_LANDMARKS68\n"
 				 "\tReturns:\n"
 				 "\t\t(tuple): \n"
 				 "\t\t\twith error code and Face object (detection bbox, landmarks, etc)\n")

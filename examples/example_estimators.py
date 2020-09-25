@@ -287,7 +287,7 @@ def emotions_example(warp_image):
 
 
 def gaze_example_infrared(_warp_image, _transformed_landmarks5):
-    gaze_estimator = faceEngine.createGazeEstimator(fe.RecognitionMode.RM_INFRA_RED)
+    gaze_estimator = faceEngine.createGazeEstimator(fe.SensorType.NIR)
     err, gaze_result = gaze_estimator.estimate(_warp_image, transformed_landmarks5)
     if err.isOk:
         err, gaze_result

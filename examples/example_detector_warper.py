@@ -32,7 +32,7 @@ def detector_batch_example(_image_det, _max_detections, _detector_type=fe.FACE_D
     return detector.detect(image_list,
                            rect_list,
                            _max_detections,
-                           fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+                           fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
 
 
 def detector_redetect_example(_image_det, _max_detections, _next_image, _detector_type=fe.FACE_DET_V3, _config=None):
@@ -41,22 +41,22 @@ def detector_redetect_example(_image_det, _max_detections, _next_image, _detecto
         [_image_det, _image_det],
         [_image_det.getRect(), _image_det.getRect()],
         _max_detections,
-        fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+        fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
     # take first image and all its faces, rewrite img
     for face in face_list[0]:
         face.img = _next_image
     # DetectionType must be the same as in detect. Take only first type
-    redetect_result = detector.redetect(face_list[0], fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+    redetect_result = detector.redetect(face_list[0], fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
     return redetect_result
 
 
 def detector_redetect_one_example(_image_det, _next_image, _detector_type=fe.FACE_DET_V3):
     detector = faceEngine.createDetector(_detector_type)
-    err, face = detector.detectOne(_image_det, _image_det.getRect(), fe.DetectionType(fe.dt5Landmarks))
+    err, face = detector.detectOne(_image_det, _image_det.getRect(), fe.DetectionType(fe.DT_LANDMARKS5))
     # DetectionType must be the same as in detect
     if face.isValid():
         face.img = _next_image
-        redetect_result = detector.redetectOne(face, fe.dt5Landmarks)
+        redetect_result = detector.redetectOne(face, fe.DT_LANDMARKS5)
         return redetect_result
     else:
         return None
@@ -65,13 +65,13 @@ def detector_redetect_one_example(_image_det, _next_image, _detector_type=fe.FAC
 def simple_redetect_example(image1, image2, _detector_type=fe.FACE_DET_V3):
     detector = faceEngine.createDetector(_detector_type)
     # Make detection on the first image
-    det_result, face = detector.detectOne(image1, image1.getRect(), fe.DetectionType(fe.dt5Landmarks))
+    det_result, face = detector.detectOne(image1, image1.getRect(), fe.DetectionType(fe.DT_LANDMARKS5))
     if det_result.isError or not face.isValid:
         print("simple_redetect_example - failed to detect! Reason: {0}".format(det_result.what))
         return
 
     # Redetect by face
-    redetect_result, redetected_face = detector.redetectOne(face, fe.dt5Landmarks)
+    redetect_result, redetected_face = detector.redetectOne(face, fe.DT_LANDMARKS5)
     if redetect_result.isError:
         print("simple_redetect_example - failed to redetect! Reason: {0}".format(redetect_result.what))
         return
@@ -81,7 +81,7 @@ def simple_redetect_example(image1, image2, _detector_type=fe.FACE_DET_V3):
     print("\nsimple_redetect_example - first result: {0}".format(face.detection))
 
     # And one more case - redetect based on the image and rect
-    redetect_result, redetected_face = detector.redetectOne(image2, face.detection.rect, fe.dt5Landmarks)
+    redetect_result, redetected_face = detector.redetectOne(image2, face.detection.rect, fe.DT_LANDMARKS5)
     if redetect_result.isError:
         print("simple_redetect_example - failed to redetect! Reason: {0}".format(redetect_result.what))
         return
@@ -96,7 +96,7 @@ def detector_one_example(_image_det, _detector_type=fe.FACE_DET_V1):
     detector = faceEngine.createDetector(_detector_type)
     err, detector_result = detector.detectOne(_image_det,
                                            _image_det.getRect(),
-                                           fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+                                           fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
     print(detector_result.detection)
     return err, detector_result
 
@@ -195,7 +195,7 @@ if __name__ == "__main__":
     face = detect_list_batch[0][0]
     if not face.landmarks5_opt.isValid() or not face.landmarks68_opt.isValid():
         print("landmarks are not valid, please verify and pass"
-              " fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks) if need")
+              " fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68) if need")
         exit(-1)
     (detection, landmarks5, landmarks68) = face.detection, face.landmarks5_opt.value(), face.landmarks68_opt.value()
     (warp_image, transformed_landmarks5, transformed_landmarks68, transformation) = \

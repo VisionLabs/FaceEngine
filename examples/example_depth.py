@@ -80,7 +80,7 @@ if __name__ == "__main__":
 			rgbImage.setData(rgbFrame, fe.FormatType.R8G8B8)
 
 			#perform detection
-			err, face = detector.detectOne(rgbImage, rgbImage.getRect(), fe.DetectionType(fe.dt5Landmarks))
+			err, face = detector.detectOne(rgbImage, rgbImage.getRect(), fe.DetectionType(fe.DT_LANDMARKS5))
 
 			#prepare cv image for visualisation
 			cvRGBImage = cv2.cvtColor(rgbFrame, cv2.COLOR_BGR2RGB)

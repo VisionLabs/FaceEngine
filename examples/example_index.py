@@ -61,7 +61,7 @@ def extract_descriptor(face_engine, detector, descriptor_extractor, image, image
         [image_bgr],
         [image_bgr.getRect()],
         detection_count,
-        fe.DetectionType(fe.dt5Landmarks))
+        fe.DetectionType(fe.DT_LANDMARKS5))
     detections = []
     landmarks5l = []
 

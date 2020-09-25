@@ -20,7 +20,7 @@ fsdk::FaceEngineEdition PyIFaceEngine::getFaceEngineEdition() {
 
 fsdk::IDetectorPtr PyIFaceEngine::createDetector(
 	fsdk::ObjectDetectorClassType type/* = fsdk::FACE_DET_DEFAULT*/, 
-		fsdk::RecognitionMode mode/* = RecognitionMode::RM_RGB*/) {
+		fsdk::SensorType mode/* = SensorType::Visible*/) {
 	fsdk::IDetectorPtr detectorPtr = fsdk::acquire(faceEnginePtr->createDetector(type, mode));
 	if (!detectorPtr)
 		throw py::cast_error("\nFailed to create detector instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
@@ -150,7 +150,7 @@ fsdk::ILivenessFlowEstimatorPtr PyIFaceEngine::createFaceFlowEstimator() {
 	return livenessFlowEstimatorPtr;
 }
 
-fsdk::IEyeEstimatorPtr PyIFaceEngine::createEyeEstimator(fsdk::RecognitionMode mode/* = fsdk::RecognitionMode::RM_RGB*/) {
+fsdk::IEyeEstimatorPtr PyIFaceEngine::createEyeEstimator(fsdk::SensorType mode/* = fsdk::SensorType::Visible*/) {
 	fsdk::IEyeEstimatorPtr eyeEstimatorPtr = fsdk::acquire(faceEnginePtr->createEyeEstimator(mode));
 	if (!eyeEstimatorPtr)
 		throw py::cast_error("\nFailed to create eyes estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
@@ -164,7 +164,7 @@ fsdk::IEmotionsEstimatorPtr PyIFaceEngine::createEmotionsEstimator() {
 	return emotionsEstimatorPtr;
 }
 
-fsdk::IGazeEstimatorPtr PyIFaceEngine::createGazeEstimator(fsdk::RecognitionMode mode /* = fsdk::RecognitionMode::RM_RGB*/) {
+fsdk::IGazeEstimatorPtr PyIFaceEngine::createGazeEstimator(fsdk::SensorType mode /* = fsdk::SensorType::Visible*/) {
 	fsdk::IGazeEstimatorPtr gazeEstimatorPtr = fsdk::acquire(faceEnginePtr->createGazeEstimator(mode));
 	if (!gazeEstimatorPtr)
 		throw py::cast_error("\nFailed to create gaze estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
