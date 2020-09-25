@@ -16,7 +16,7 @@ public:
 
 	fsdk::IDetectorPtr createDetector(
 		fsdk::ObjectDetectorClassType type = fsdk::FACE_DET_DEFAULT, 
-		fsdk::RecognitionMode mode = fsdk::RecognitionMode::RM_RGB);
+		fsdk::SensorType mode = fsdk::SensorType::Visible);
 
 	fsdk::IAttributeEstimatorPtr createAttributeEstimator();
 
@@ -53,11 +53,11 @@ public:
 
 	fsdk::ILivenessFlowEstimatorPtr createFaceFlowEstimator();
 
-	fsdk::IEyeEstimatorPtr createEyeEstimator(fsdk::RecognitionMode mode = fsdk::RecognitionMode::RM_RGB);
+	fsdk::IEyeEstimatorPtr createEyeEstimator(fsdk::SensorType mode = fsdk::SensorType::Visible);
 
 	fsdk::IEmotionsEstimatorPtr createEmotionsEstimator();
 
-	fsdk::IGazeEstimatorPtr createGazeEstimator(fsdk::RecognitionMode mode = fsdk::RecognitionMode::RM_RGB);
+	fsdk::IGazeEstimatorPtr createGazeEstimator(fsdk::SensorType mode = fsdk::SensorType::Visible);
 	
 	fsdk::IGlassesEstimatorPtr createGlassesEstimator();
 	

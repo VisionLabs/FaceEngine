@@ -91,9 +91,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		CompleteEdition
 	};
 
-	py::enum_<fsdk::RecognitionMode>(f, "RecognitionMode", py::arithmetic(), "Recognition mode type.\n")
-		.value("RM_RGB", fsdk::RM_RGB, "RGB image processing mode (default mode)")
-		.value("RM_INFRA_RED", fsdk::RM_INFRA_RED, "IR image processing mode")
+	py::enum_<fsdk::SensorType>(f, "SensorType", py::arithmetic(), "Camera sensor type.\n")
+		.value("Visible", fsdk::SensorType::Visible, "Visible sensor type (default mode)")
+		.value("NIR", fsdk::SensorType::NIR, "NIR sensor type")
 		.export_values();
 			;
 
@@ -175,14 +175,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator, 
 			"Creates Eye estimator of given recognition mode\n",
-			py::arg("mode") = fsdk::RecognitionMode::RM_RGB,
+			py::arg("mode") = fsdk::SensorType::Visible,
 			"\tArgs:\n"
-			"\t\tparam2 (enum RecognitionMode): Recognition mode type enumeration.\n"
+			"\t\tparam2 (enum SensorType): Recognition mode type enumeration.\n"
 			"\tReturns:\n"
 			"\t\tEye estimator instance.")
 
 		.def("createEmotionsEstimator", &PyIFaceEngine::createEmotionsEstimator, "Creates Emotions estimator\n")
-		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n", py::arg("mode") = fsdk::RecognitionMode::RM_RGB)
+		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n", py::arg("mode") = fsdk::SensorType::Visible)
 		.def("createGlassesEstimator", &PyIFaceEngine::createGlassesEstimator, "Creates Glasses estimator\n")
 		.def("createAGSEstimator", &PyIFaceEngine::createAGSEstimator, "Creates AGS estimator\n")
 		.def("createMouthEstimator", &PyIFaceEngine::createMouthEstimator, "Creates Mouth estimator\n")
@@ -191,10 +191,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			"Creates a detector of given type.\n", 
 			py::arg("type") = fsdk::ObjectDetectorClassType::FACE_DET_DEFAULT,
-			py::arg("mode") = fsdk::RecognitionMode::RM_RGB,
+			py::arg("mode") = fsdk::SensorType::Visible,
 			"\tArgs:\n"
 			"\t\tparam1 (enum ObjectDetectorClassType): Object detector type enumeration.\n"
-			"\t\tparam2 (enum RecognitionMode): Recognition mode type enumeration.\n"
+			"\t\tparam2 (enum SensorType): Recognition mode type enumeration.\n"
 			"\tReturns:\n"
 			"\t\tDetector instance.")
 		
@@ -678,11 +678,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 	py::enum_<fsdk::DetectionComparerType>(f, "DetectionComparerType", py::arithmetic(),
 			"Strategy of BestDetections comparer\n")
-		.value("DCT_CONFIDANCE", fsdk::DCT_CONFIDANCE,
+		.value("DCT_CONFIDENCE", fsdk::DCT_CONFIDENCE,
 			"BestDetection - detections with highest score\n")
 		.value("DCT_CENTER", fsdk::DCT_CENTER,
 			"BestDetection - most centered detection\n")
-		.value("DCT_CENTER_AND_CONFIDANCE", fsdk::DCT_CENTER_AND_CONFIDANCE,
+		.value("DCT_CENTER_AND_CONFIDENCE", fsdk::DCT_CENTER_AND_CONFIDENCE,
 			"BestDetection - most centered with high score\n")
 		.value("DCT_SIZE", fsdk::DCT_SIZE,
 			"BestDetection - the largest detection\n")
@@ -690,10 +690,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			;
 	
 	py::enum_<fsdk::DetectionType>(f, "DetectionType", py::arithmetic(), "Detection type enumeration.\n")
-		.value("dtBBox", fsdk::dtBBox, "Get bounding boxes of faces\n")
-		.value("dt5Landmarks", fsdk::dt5Landmarks, "Get 5 facial landmarks\n")
-		.value("dt68Landmarks", fsdk::dt68Landmarks, "Get 68 facial landmarks\n")
-		.value("dtAll", fsdk::dtAll, "Get all supported parameters.\n")
+		.value("DT_BBOX", fsdk::DT_BBOX, "Get bounding boxes of faces\n")
+		.value("DT_LANDMARKS5", fsdk::DT_LANDMARKS5, "Get 5 facial landmarks\n")
+		.value("DT_LANDMAKRS68", fsdk::DT_LANDMAKRS68, "Get 68 facial landmarks\n")
+		.value("DT_ALL", fsdk::DT_ALL, "Get all supported parameters.\n")
 		.export_values();
 			;
 	
@@ -1195,15 +1195,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			DetectionFloat.__repr__
 			
 			DetectionComparerType
-			DetectionComparerType.DCT_CONFIDANCE
+			DetectionComparerType.DCT_CONFIDENCE
 			DetectionComparerType.DCT_CENTER
-			DetectionComparerType.DCT_CENTER_AND_CONFIDANCE
+			DetectionComparerType.DCT_CENTER_AND_CONFIDENCE
 			DetectionComparerType.DCT_SIZE
 
 			DetectionType
-			DetectionType.dtBBox
-			DetectionType.dt5Landmarks
-			DetectionType.dt68Landmarks
+			DetectionType.DT_BBOX
+			DetectionType.DT_LANDMARKS5
+			DetectionType.DT_LANDMAKRS68
 
 			OrientationType
 			OrientationType.Normal

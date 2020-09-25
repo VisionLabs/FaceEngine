@@ -27,7 +27,7 @@ if not make_activation(faceEngine):
 def detect(detector, image_det):
     detector_result = detector.detectOne(image_det,
                                          image_det.getRect(),
-                                         fe.DetectionType(fe.dtAll))
+                                         fe.DetectionType(fe.DT_ALL))
     return detector_result
 
 
@@ -51,7 +51,7 @@ def rotate_point_3d(point, pitch, yaw, roll):
 if __name__ == "__main__":
     detector = faceEngine.createDetector(fe.FACE_DET_V3)
     warper = faceEngine.createWarper()
-    gaze_estimator_rgb = faceEngine.createGazeEstimator(fe.RecognitionMode.RM_RGB)
+    gaze_estimator_rgb = faceEngine.createGazeEstimator(fe.SensorType.Visible)
     segment = 100
     gaze = [(0, 0, 0), (0, 0, segment)]
 

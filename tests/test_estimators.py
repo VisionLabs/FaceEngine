@@ -49,7 +49,7 @@ def detect(_image_det, _faceEngine):
     detector = _faceEngine.createDetector(f.FACE_DET_V1)
     detector_result = detector.detectOne(_image_det,
                                          _image_det.getRect(),
-                                         f.DetectionType(f.dtAll))
+                                         f.DetectionType(f.DT_ALL))
     # for i, item in enumerate(detector_result, 1):
     # print(i, item)
     return detector_result
@@ -684,7 +684,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
                         eyeRectsByLandmarks = cropper.cropByLandmarks5(warp, landmarks)
 
                     # create estimator
-                    eyeEstimator = self.faceEngine.createEyeEstimator(f.RecognitionMode.RM_INFRA_RED)
+                    eyeEstimator = self.faceEngine.createEyeEstimator(f.SensorType.NIR)
 
                     # estimation
                     errEyes, eyesEstimation = eyeEstimator.estimate(warp, eyeRectsByLandmarks)

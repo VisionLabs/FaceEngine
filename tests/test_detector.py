@@ -117,12 +117,12 @@ class TestFaceEngineDetector(unittest.TestCase):
                 refFaces = []
                 for img in images:
                     res, face = detector.detectOne(img, img.getRect(),
-                                                   fe.DetectionType(fe.dtBBox | fe.dt5Landmarks | fe.dt68Landmarks))
+                                                   fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
                     self.assertTrue(res.isOk)
                     self.assertFaceValid(face)
                     refFaces.append(face)
                 res3, facesList = detector.detect(images, rectangles, 3,
-                                                  fe.DetectionType(fe.dtBBox | fe.dt68Landmarks))
+                                                  fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMAKRS68))
                 self.assertTrue(res3.isOk)
                 for i, faces in enumerate(facesList):
                     self.assertFaceValid(faces[0], landmarks5Valid=False)
@@ -140,7 +140,7 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.faceEngine.setSettingsProvider(self.config)
                 detector = self.faceEngine.createDetector(detectorType)
                 res_one, face = detector.detectOne(self.image, self.image.getRect(),
-                                                   fe.DetectionType(fe.dtBBox | fe.dt5Landmarks | fe.dt68Landmarks))
+                                                   fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
                 self.assertTrue(res_one.isOk)
                 self.assertFaceValid(face)
 
@@ -170,20 +170,20 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.faceEngine.setSettingsProvider(self.config)
                 detector = self.faceEngine.createDetector(detectorType)
                 cases = [
-                    {"refDetectionType": fe.DetectionType(fe.dtBBox | fe.dt5Landmarks),
-                     "compareDetectionType": fe.dtBBox,
+                    {"refDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5),
+                     "compareDetectionType": fe.DT_BBOX,
                      "landmarks5Valid": False, "landmarks68Valid": False
                      },
-                    {"refDetectionType": fe.DetectionType(fe.dtBBox | fe.dt5Landmarks),
-                     "compareDetectionType": fe.DetectionType(fe.dtBBox | fe.dt5Landmarks),
+                    {"refDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5),
+                     "compareDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5),
                      "landmarks5Valid": True, "landmarks68Valid": False
                      },
-                    {"refDetectionType": fe.DetectionType(fe.dtBBox | fe.dt5Landmarks | fe.dt68Landmarks),
-                     "compareDetectionType": fe.DetectionType(fe.dtBBox | fe.dt68Landmarks),
+                    {"refDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68),
+                     "compareDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMAKRS68),
                      "landmarks5Valid": False, "landmarks68Valid": True
                      },
-                    {"refDetectionType": fe.DetectionType(fe.dtAll),
-                     "compareDetectionType": fe.DetectionType(fe.dtBBox | fe.dt68Landmarks),
+                    {"refDetectionType": fe.DetectionType(fe.DT_ALL),
+                     "compareDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMAKRS68),
                      "landmarks5Valid": False, "landmarks68Valid": True
                      },
                 ]
@@ -234,15 +234,15 @@ class TestFaceEngineDetector(unittest.TestCase):
                 faces_redetect = []
                 for img in images:
                     res, face = detector.detectOne(img, img.getRect(),
-                                                   fe.DetectionType(fe.dtBBox | fe.dt5Landmarks | fe.dt68Landmarks))
+                                                   fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
                     self.assertTrue(res.isOk)
                     self.assertFaceValid(face)
                     faces.append(face)
                 for face in faces:
-                    err_red, redection = detector.redetectOne(face, fe.DetectionType(fe.dtAll))
+                    err_red, redection = detector.redetectOne(face, fe.DetectionType(fe.DT_ALL))
                     self.assertTrue(err_red.isOk)
                     faces_redetect.append(redection)
-                res1, facesList, errorList = detector.redetect(faces, fe.DetectionType(fe.dtBBox | fe.dt68Landmarks))
+                res1, facesList, errorList = detector.redetect(faces, fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMAKRS68))
                 self.assertTrue(res.isOk)
                 self.assertErrors(errorList, True)
 
@@ -257,16 +257,16 @@ class TestFaceEngineDetector(unittest.TestCase):
             with self.subTest(detectorType=detectorType):
                 self.faceEngine.setSettingsProvider(self.config)
                 detector = self.faceEngine.createDetector(detectorType)
-                err, face = detector.detectOne(self.image, self.image.getRect(), fe.DetectionType(fe.dtAll))
+                err, face = detector.detectOne(self.image, self.image.getRect(), fe.DetectionType(fe.DT_ALL))
                 self.assertTrue(err.isOk)
                 self.assertFaceValid(face)
                 # redetection
-                err_redetect1, face_redection1 = detector.redetectOne(face, fe.DetectionType(fe.dtAll))
+                err_redetect1, face_redection1 = detector.redetectOne(face, fe.DetectionType(fe.DT_ALL))
                 self.assertFaceValid(face_redection1)
                 self.assertDetections(face_redection1.detection, detection, delta=3, scoreDelta=0.001)
 
                 err_redetect2, face_redection2 = detector.redetectOne(face.img, face.detection.rect,
-                                                                      fe.DetectionType(fe.dtAll))
+                                                                      fe.DetectionType(fe.DT_ALL))
                 self.assertFaceValid(face_redection2)
                 self.assertDetections(face_redection2.detection, detection, delta=3, scoreDelta=0.001)
 
@@ -277,9 +277,9 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.faceEngine.setSettingsProvider(self.config)
                 detector = self.faceEngine.createDetector(detectorType)
 
-                res_one, refFace = detector.redetectOne(self.face_for_redetect, fe.DetectionType(fe.dtBBox | fe.dt5Landmarks))
+                res_one, refFace = detector.redetectOne(self.face_for_redetect, fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
                 self.assertTrue(res_one.isOk)
-                res, faces, errorList = detector.redetect(self.faces_batch_for_redetect, fe.DetectionType(fe.dtBBox))
+                res, faces, errorList = detector.redetect(self.faces_batch_for_redetect, fe.DetectionType(fe.DT_BBOX))
                 self.assertTrue(res.isOk)
                 self.assertErrors(errorList, True)
 
@@ -295,10 +295,10 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.faceEngine.setSettingsProvider(self.config)
                 detector = self.faceEngine.createDetector(detectorType)
 
-                res_one, refFace = detector.redetectOne(self.face_for_redetect, fe.DetectionType(fe.dtBBox | fe.dt5Landmarks))
+                res_one, refFace = detector.redetectOne(self.face_for_redetect, fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
                 self.assertTrue(res_one.isOk)
                 res, faces, errorList = detector.redetect(self.faces_batch_for_redetect,
-                                               fe.DetectionType(fe.dtBBox | fe.dt5Landmarks))
+                                               fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
                 self.assertTrue(res.isOk)
                 self.assertErrors(errorList, True)
 
@@ -316,10 +316,10 @@ class TestFaceEngineDetector(unittest.TestCase):
                 detector = self.faceEngine.createDetector(detectorType)
 
                 res_one, refFace = detector.redetectOne(self.face_for_redetect,
-                                                        fe.DetectionType(fe.dt5Landmarks | fe.dt68Landmarks))
+                                                        fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
                 self.assertTrue(res_one.isOk)
                 res, faces, errorList = detector.redetect(self.faces_batch_for_redetect,
-                                               fe.DetectionType(fe.dtBBox | fe.dt68Landmarks))
+                                               fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMAKRS68))
                 self.assertTrue(res.isOk)
                 self.assertErrors(errorList, True)
 
@@ -336,10 +336,10 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.faceEngine.setSettingsProvider(self.config)
                 detector = self.faceEngine.createDetector(detectorType)
 
-                res_one, refFace = detector.redetectOne(self.face_for_redetect, fe.DetectionType(fe.dtAll))
+                res_one, refFace = detector.redetectOne(self.face_for_redetect, fe.DetectionType(fe.DT_ALL))
                 self.assertTrue(res_one.isOk)
                 res, faces, errorList = detector.redetect(self.faces_batch_for_redetect,
-                                               fe.DetectionType(fe.dtBBox | fe.dt5Landmarks | fe.dt68Landmarks))
+                                               fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
                 self.assertTrue(res.isOk)
                 self.assertErrors(errorList, True)
 
@@ -367,7 +367,7 @@ class TestFaceEngineDetector(unittest.TestCase):
         err_image = image.load(os.path.join(testDataPath, "detect_1.jpeg"))
         self.assertTrue(err_image.isOk)
         box = fe.RectFloat(120, 599, 15, 10)
-        err, redet = detector.redetectOne(image, box, fe.DetectionType(fe.dtBBox))
+        err, redet = detector.redetectOne(image, box, fe.DetectionType(fe.DT_BBOX))
         self.assertEqual(err.error, fe.FSDKError.InvalidRect)
 
     def testRedetectByBigBbox(self, _detectorType=fe.FACE_DET_V3):
@@ -376,7 +376,7 @@ class TestFaceEngineDetector(unittest.TestCase):
         err_image = image.load(os.path.join(testDataPath, "image_720.jpg"))
         self.assertTrue(err_image.isOk)
         box = fe.RectFloat(0, 0, 10 ** 9, 10 ** 9)
-        err, redet = detector.redetectOne(image, box, fe.DetectionType(fe.dtBBox))
+        err, redet = detector.redetectOne(image, box, fe.DetectionType(fe.DT_BBOX))
         self.assertFaceValid(redet, landmarks68Valid=False, landmarks5Valid=False)
 
     def testDetectByBigArea(self, _detectorType=fe.FACE_DET_V3):
@@ -385,16 +385,16 @@ class TestFaceEngineDetector(unittest.TestCase):
         err_image = image.load(os.path.join(testDataPath, "attrib1.jpg"))
         self.assertTrue(err_image.isOk)
         area = fe.Rect(100, 100, image.getWidth(), image.getHeight())
-        err, face = detector.detectOne(image, area, fe.DetectionType(fe.dtBBox | fe.dt5Landmarks))
+        err, face = detector.detectOne(image, area, fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
         self.assertEqual(err.error, fe.FSDKError.InvalidRect)
 
     def testRedetectResetLandmarks(self):
         self.faceEngine.setSettingsProvider(self.config)
         detector = self.faceEngine.createDetector()
-        err, face = detector.detectOne(self.image, self.image.getRect(), fe.DetectionType(fe.dtAll))
+        err, face = detector.detectOne(self.image, self.image.getRect(), fe.DetectionType(fe.DT_ALL))
         self.assertTrue(err.isOk)
         self.assertFaceValid(face, landmarks68Valid=True, landmarks5Valid=True)
-        res_one, face2 = detector.redetectOne(face, fe.DetectionType(fe.dtBBox))
+        res_one, face2 = detector.redetectOne(face, fe.DetectionType(fe.DT_BBOX))
         self.assertFaceValid(face2, landmarks68Valid=False, landmarks5Valid=False)
 
     def testOrientation(self):

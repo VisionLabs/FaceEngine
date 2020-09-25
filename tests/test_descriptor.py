@@ -453,7 +453,7 @@ class TestFaceEngineRect(unittest.TestCase):
 
         warps = []
         rect_list = [image.getRect() for image in image_list]
-        err, face_list = detector.detect(image_list, rect_list, 10, fe.DetectionType(fe.dtBBox | fe.dt5Landmarks))
+        err, face_list = detector.detect(image_list, rect_list, 10, fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
         self.assertTrue(err.isOk)
 
         i_image = 0
