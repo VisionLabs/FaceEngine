@@ -49,8 +49,6 @@ public:
 
 	fsdk::ILivenessRGBMEstimatorPtr createLivenessRGBMEstimator();
 
-	fsdk::ISmileEstimatorPtr createSmileEstimator();
-
 	fsdk::ILivenessFlowEstimatorPtr createFaceFlowEstimator();
 
 	fsdk::IEyeEstimatorPtr createEyeEstimator(fsdk::SensorType mode = fsdk::SensorType::Visible);

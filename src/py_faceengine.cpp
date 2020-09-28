@@ -168,7 +168,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createDepthEstimator", &PyIFaceEngine::createDepthEstimator, "Creates Liveness Depth estimator\n")
 		.def("createIREstimator", &PyIFaceEngine::createIREstimator, "Creates Liveness Infrared estimator\n")
 		.def("createLivenessFlyingFacesEstimator", &PyIFaceEngine::createLivenessFlyingFacesEstimator, "Creates Liveness Flying Faces estimator\n")
-		.def("createSmileEstimator", &PyIFaceEngine::createSmileEstimator, "Creates Smile estimator\n")
 		.def("createFaceFlowEstimator", &PyIFaceEngine::createFaceFlowEstimator, "Creates Liveness flow estimator. \n"
 			"Note: this estimator is required only for liveness detection purposes.\n")
 		.def("createLivenessRGBMEstimator", &PyIFaceEngine::createLivenessRGBMEstimator, "Creates Liveness RGBM estimator. \n")
@@ -841,7 +840,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createBlackWhiteEstimator
 			PyIFaceEngine.createDepthEstimator
 			PyIFaceEngine.createIREstimator
-			PyIFaceEngine.createSmileEstimator
 			PyIFaceEngine.createFaceFlowEstimator
 			PyIFaceEngine.createEyeEstimator
 			PyIFaceEngine.createEmotionsEstimator
@@ -959,7 +957,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IDescriptorExtractorPtr
 			IDescriptorExtractorPtr.getModelVersion
 			IDescriptorExtractorPtr.getDescriptorType
-			IDescriptorExtractorPtr.extract
 			IDescriptorExtractorPtr.extractFromWarpedImage
 			IDescriptorExtractorPtr.extractFromWarpedImageBatch
 
@@ -980,9 +977,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			ILivenessIREstimatorPtr
 			ILivenessIREstimatorPtr.estimate
-
-			ISmileEstimatorPtr
-			ISmileEstimatorPtr.estimate
 
 			ILivenessFlowEstimatorPtr
 			ILivenessFlowEstimatorPtr.estimate
@@ -1091,10 +1085,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 			HeadPoseEstimation.__init__
 			HeadPoseEstimation.__repr__
 			HeadPoseEstimation.getFrontalFaceType
-
-			SmileEstimation
-			SmileEstimation.__init__
-			SmileEstimation.__repr__
 
 			EyesEstimation
 			EyesEstimation.__init__

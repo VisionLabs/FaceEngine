@@ -314,29 +314,6 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertFalse(irRestult.isReal)
         self.assertAlmostEqual(irRestult.score, 0.6871, delta=0.01)
 
-    def testSmileEstimator(self):
-        smileEstimator = self.faceEngine.createSmileEstimator()
-        mouth_params = {"testData/overlap.ppm": [0.0, 0.0, 1.0], "testData/smile.ppm": [0.0, 1.0, 0.0], "testData/mouth.ppm": [1.0, 0.0, 0.0]}
-        for image_path, score in mouth_params.items():
-            mouth, smile, occlusion = score
-            with self.subTest(image=image_path):
-                image = f.Image()
-                image.load(image_path)
-                self.assertTrue(image.isValid())
-
-                err_temp, face = detect(image, self.faceEngine)
-                self.assertTrue(err_temp.isOk)
-                (detection, landmarks5, landmarks68) = face.detection, face.landmarks5_opt.value(), face.landmarks68_opt.value()
-                transformation = self.warper.createTransformation(detection, landmarks5)
-                err1, warped_image = self.warper.warp(image, transformation)
-                self.assertTrue(err1.isOk)
-                self.assertTrue(warped_image.isValid())
-                err_result, smile_result = smileEstimator.estimate(warped_image)
-                self.assertTrue(err_result.isOk)
-                self.assertAlmostEqual(smile_result.mouth, mouth, delta=0.01)
-                self.assertAlmostEqual(smile_result.smile, smile, delta=0.01)
-                self.assertAlmostEqual(smile_result.occlusion, occlusion, delta=0.01)
-
     def testFaceFlowEstimator(self):
         faceFlowEstimator = self.faceEngine.createFaceFlowEstimator()
         faceFlowImage = f.Image()

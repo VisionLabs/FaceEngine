@@ -40,7 +40,7 @@ def load_images(images_dir_path, list_path):
     return images_names_list, images_list
 
 
-def extract_descriptor(face_engine, detector, descriptor_extractor, image, image_name):
+def extract_descriptor(face_engine, warper, detector, descriptor_extractor, image, image_name):
     confidence_threshold = 0.25
     if not image.isValid():
         print("Request image is invalid.")
@@ -95,13 +95,14 @@ def extract_descriptor(face_engine, detector, descriptor_extractor, image, image
     except:
         print("Failed to create face descrtiptor instance.")
         return None
-    # Extract face descriptor.
-    # This is typically the most time-consuming task.
-    extractor_result, _ = descriptor_extractor.extract(
-        image,
-        detections[best_detection_index],
-        landmarks5l[best_detection_index],
-        descriptor)
+
+    transformation = warper.createTransformation(detections[best_detection_index], landmarks5l[best_detection_index])
+    warpResult, warpImage = warper.warp(image, transformation)
+    if warpResult.isError:
+        print("Failed to warp image!")
+
+    extractor_result, _ = descriptor_extractor.extractFromWarpedImage(warpImage, descriptor)
+
     if extractor_result.isError:
         print("Failed to extract face descriptor. Reason: {0}".format(extractor_result.what()))
 
@@ -172,7 +173,9 @@ if __name__ == "__main__":
     if face_engine.getFaceEngineEdition() != fe.CompleteEdition:
         print("FaceEngine SDK Frontend edition doesn't support face descriptors. Use FaceEngine SDK Complete edition")
         exit(-1)
-
+    
+    warper = face_engine.createWarper()
+    
     def searcher(_index):
         max_res_count = 20
         err, search_list = _index.search(descriptor, max_res_count)
@@ -205,7 +208,7 @@ if __name__ == "__main__":
 
     added_images = []
     for i, image in enumerate(images_list):
-        descriptor = extract_descriptor(face_engine, detector, descriptor_extractor, image, images_names_list[i])
+        descriptor = extract_descriptor(face_engine, warper, detector, descriptor_extractor, image, images_names_list[i])
         if descriptor is None:
             continue
         descriptorBatchAddResult = descriptor_batch.add(descriptor)
@@ -224,7 +227,7 @@ if __name__ == "__main__":
         print("Failed to load image:{0}".format())
 
     # Extract face descriptor of ref image.
-    descriptor = extract_descriptor(face_engine, detector, descriptor_extractor, image, image_path)
+    descriptor = extract_descriptor(face_engine, warper, detector, descriptor_extractor, image, image_path)
     if descriptor is None:
         print("Failed to extract descriptor, from {0}".format(image_path))
         exit(1)

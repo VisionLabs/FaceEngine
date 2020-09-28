@@ -59,12 +59,10 @@ def liveness_flying_faces_batch_example(_faces):
 def quality_blackWhite_smile_example(image):
     qualityEstimator = faceEngine.createQualityEstimator()
     blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
-    smileEstimator = faceEngine.createSmileEstimator()
 
     err_subj_quality, subj_quality_result = qualityEstimator.estimate_subjective_quality(image)
     err_quality, quality_result = qualityEstimator.estimate_quality(image)
     err_blackWhite, blackWhite_result = blackWhiteEstimator.estimate(image)
-    err_smile, smile_result = smileEstimator.estimate(image)
 
     if err_subj_quality.isOk:
         print(subj_quality_result)
@@ -81,11 +79,7 @@ def quality_blackWhite_smile_example(image):
     else:
         print("Failed BlackWhiteEstimation estimation. Reason: {0}".format(err_blackWhite.what))
         exit(1)
-    if err_smile.isOk:
-        print(smile_result)
-    else:
-        print("Failed smile estimation. Reason: {0}".format(err_smile.what))
-        exit(1)
+
 
 
 def attribute_example(_warp):
