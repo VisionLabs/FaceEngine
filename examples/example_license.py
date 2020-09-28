@@ -1,5 +1,5 @@
 import sys
-
+import time
 
 def help():
     print("python example_license.py <path to dir with FaceEngine*.so> <path to the folder with license.conf>")
@@ -46,6 +46,8 @@ def check_license(license):
     for feature in freatures:
         if license.checkFeatureId(feature):
             print("{0} is available".format(feature))
+            timestamp = license.getExpirationDate(feature)
+            print("{0} expiration date: {1}".format(feature, time.gmtime(timestamp)))
         else:
             print("{0} is NOT available".format(feature))
 
