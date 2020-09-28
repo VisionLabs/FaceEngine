@@ -218,38 +218,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 	py::class_<fsdk::IDescriptorExtractorPtr>(f, "IDescriptorExtractorPtr",
 		"Descriptor extractor interface.\n"
 		"\tExtracts face descriptors from images. The descriptors can be later used for face matching.\n")
-	
-	.def("extract",[](
-		const fsdk::IDescriptorExtractorPtr& extractor,
-		fsdk::Image& image,
-		// cast to detection<int> inside c++ interface
-		const fsdk::BaseDetection<float>& detection,
-		const fsdk::Landmarks5& landmarks,
-		const fsdk::IDescriptorPtr& descriptor) {
-				fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extract(
-					image,
-					detection,
-					landmarks,
-					descriptor);
-				if (err.isOk())
-					return py::make_tuple(FSDKErrorResult(err), err.getValue());
-				else
-					return py::make_tuple(FSDKErrorResult(err), 0.0);
-			},
-		"Extract a face descriptor from an image.\n"
-		"\tThis method accepts arbitrary images that have size at least 250x250 pixels and R8G8B8 pixel format.\n"
-		"\tThe input image is warped internally using an assigned warper (@see IWarper). The descriptor extractor is\n"
-		"\tcreated with a proper warped assigned by default so no additional setup is required, unless this behaviour\n"
-		"\tis overriden with `defaultWarper` flag upon extractor creation.\n"
-		"\tArgs:\n"
-		"\t\tparam1 (Image):  source image. Format must be R8G8B8\n"
-		"\t\tparam2 (Detection): face detection\n"
-		"\t\tparam3 (Landmarks5): face feature set\n"
-		"\t\tparam4 (IDescriptorPtr) [out]: descriptor to fill with data.\n"
-		"\tReturns:\n"
-		"\t\t(tuple): tuple with FSDKError with error code and score of descriptor normalized in range [0, 1]\n"
-		"\t\t\t1 - face on the input warp; 0 - garbage on the input detection.\n")
-	
+		
 	.def("extractFromWarpedImage",[](
 		const fsdk::IDescriptorExtractorPtr& extractor,
 		const fsdk::Image& image,

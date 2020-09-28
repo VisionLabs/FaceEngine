@@ -136,13 +136,6 @@ fsdk::ILivenessRGBMEstimatorPtr PyIFaceEngine::createLivenessRGBMEstimator() {
 	return estimatorPtr;
 }
 
-fsdk::ISmileEstimatorPtr PyIFaceEngine::createSmileEstimator() {
-	fsdk::ISmileEstimatorPtr smileEstimatorPtr = fsdk::acquire(faceEnginePtr->createSmileEstimator());
-	if (!smileEstimatorPtr)
-		throw py::cast_error("\nFailed to create smile estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return smileEstimatorPtr;
-}
-
 fsdk::ILivenessFlowEstimatorPtr PyIFaceEngine::createFaceFlowEstimator() {
 	fsdk::ILivenessFlowEstimatorPtr livenessFlowEstimatorPtr = fsdk::acquire(faceEnginePtr->createFaceFlowEstimator());
 	if (!livenessFlowEstimatorPtr)

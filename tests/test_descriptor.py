@@ -424,12 +424,6 @@ class TestFaceEngineRect(unittest.TestCase):
         self.assertTrue(res_batch.isError)
         self.assertEqual(res_batch.error, fe.FSDKError.InvalidImage)
 
-        detection = fe.DetectionFloat()
-        landmarks = fe.Landmarks5()
-        extraction_res, value = extractor.extract(empty_image, detection, landmarks, descriptor)
-        self.assertTrue(extraction_res.isError)
-        self.assertEqual(extraction_res.error, fe.FSDKError.InvalidImage)
-
         del descriptor
         del descriptor_batch
         del aggregation

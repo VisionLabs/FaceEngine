@@ -283,18 +283,8 @@ void estimators_module(py::module& f) {
 			"\t\t(tuple): tuple with error code and fsdk::DepthEstimation output structure.\n"
 			"\t\t\tEstimation score normalized between 0.0 and 1.0,\n"
 			"\t\t\twhere 1.0 equals to 100% confidence that person on image is alive, and 0.0 equals to 0%.\n")
-		.def("setRange",[](
-			const fsdk::ILivenessDepthEstimatorPtr& est,
-			const fsdk::DepthRange& range) {
-				return est->setRange(range); },
-			"Set depth range for estimator.\n"
-			"\tArgs\n"
-			"\t\tparam1 (DepthRange): range see DepthRange.\n"
-			"\tReturns:\n"
-			"\t\t(bool): True - if range was set, otherwise - False.\n"
-			"\t\t\tif !range.isOk() range is not set.\n")
-			;
-
+		;
+		
 // IREstimation
 	py::class_<fsdk::IREstimation>(f, "IREstimation",
 		"IR estimation output.\n"
@@ -412,26 +402,6 @@ void estimators_module(py::module& f) {
 			"\t\t(tuple): tuple with Error code and LivenessRGBMEstimation structure\n")
 		;
 
-
-	py::class_<fsdk::ISmileEstimatorPtr>(f, "ISmileEstimatorPtr",
-		"Smile estimator interface.\n"
-		"\tThis estimator is designed for smile/mouth/mouth overlap detection.\n"
-		"\tIt works with warped image see IWarper for details.\n")
-	
-		.def("estimate",[](
-			const fsdk::ISmileEstimatorPtr& est,
-			const fsdk::Image& image) {
-				fsdk::SmileEstimation out;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, out);
-				return std::make_tuple(FSDKErrorResult(err), out);
-			},
-			"Estimate SmileEstimation probabilities.\n"
-			"\tArgs\n"
-			"\t\tparam1 (Image): face warped image.\n"
-			"\tReturns:\n"
-			"\t\t(tuple): - tuple with error code FSDKErrorResult and SmileEstimation\n")
-			;
-	
 	py::class_<fsdk::ILivenessFlowEstimatorPtr>(f, "ILivenessFlowEstimatorPtr",
 		"\tLiveness flow estimator interface.\n"
 		"\tThis estimator is designed for liveness detection. It works with 1 close-range face crop\n"
@@ -825,26 +795,6 @@ void estimators_module(py::module& f) {
 					", isReal = " + std::to_string(d.isReal);
 		});
 	
-	py::class_<fsdk::SmileEstimation>(f, "SmileEstimation")
-		.def(py::init<>())
-		.def_readwrite("mouth", &fsdk::SmileEstimation::mouth)
-		.def_readwrite("smile", &fsdk::SmileEstimation::smile)
-		.def_readwrite("occlusion", &fsdk::SmileEstimation::occlusion)
-		.def("__repr__",
-			[](const fsdk::SmileEstimation &s) {
-				std::ostringstream mouth;
-				std::ostringstream smile;
-				std::ostringstream occlusion;
-				mouth << s.mouth;
-				smile << s.smile;
-				occlusion << s.occlusion;
-				return "SmileEstimation: "
-						"mouth = " + mouth.str()
-						+ ", smile = " + smile.str()
-						+ ", occlusion = " + occlusion.str();
-			})
-		;
-
 	// EyesEstimation
 	py::class_<fsdk::EyesEstimation>(f, "EyesEstimation",
 		"Eyes estimation output.\n"
