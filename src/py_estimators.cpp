@@ -495,7 +495,6 @@ void estimators_module(py::module& f) {
 		.def("getFaceCenter",[](
 				const fsdk::IGazeEstimatorPtr& est,
 				const fsdk::Landmarks5& landmarks5) {
-				fsdk::GazeEstimation outEyeAngles;
 				return est->getFaceCenter(landmarks5);
 			},
 			"Estimate the point for calculating of gaze projection.\n"

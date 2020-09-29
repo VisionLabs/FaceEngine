@@ -157,7 +157,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\t(int): Length of one descriptor in batch.\n")
 	
 	.def("getDescriptorSlow",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, int index) {
-			
+		
 			return getDescriptorFromBatch(
 				descriptorBatchPtr,
 				index,

@@ -218,9 +218,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("loadDenseIndex", [](
 			PyIFaceEngine& faceEngine,
 			const char* indexPath) {
-				fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndex*> res = faceEngine.loadDenseIndex(indexPath);
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndexPtr> res = faceEngine.loadDenseIndex(indexPath);
 				if (res.isOk())
-					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::acquire(res.getValue()));
+					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), res.getValue());
 				else
 					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::IDenseIndexPtr());
 			},
@@ -234,9 +234,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("loadDynamicIndex", [](
 			PyIFaceEngine& faceEngine,
 			const char* indexPath) {
-				fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndex*> res = faceEngine.loadDynamicIndex(indexPath);
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndexPtr> res = faceEngine.loadDynamicIndex(indexPath);
 				if (res.isOk())
-					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::acquire(res.getValue()));
+					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), res.getValue());
 				else
 					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::IDynamicIndexPtr());
 			},
@@ -747,6 +747,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 		.value("HighMemoryUsage", fsdk::FSDKError::HighMemoryUsage)
 		.value("IncompatibleModelVersions", fsdk::FSDKError::IncompatibleModelVersions)
+		.value("ModelNotLoaded", fsdk::FSDKError::ModelNotLoaded)
+		.value("InvalidConfig", fsdk::FSDKError::InvalidConfig)
 			;
 
 	py::enum_<fsdk::LicenseFeature>(f, "LicenseFeature", "License features.\n")

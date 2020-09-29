@@ -6,7 +6,7 @@
 
 namespace py = pybind11;
 
-PyISettingsProvider::PyISettingsProvider(const char* path = nullptr) : settingsProviderPtr(fsdk::acquire(fsdk::createSettingsProvider(path))) {
+PyISettingsProvider::PyISettingsProvider(const char* path = nullptr) : settingsProviderPtr(fsdk::createSettingsProvider(path).getValue()) {
 	if (!settingsProviderPtr)
 		throw py::cast_error("\nFailed to Setting Provider instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
 }

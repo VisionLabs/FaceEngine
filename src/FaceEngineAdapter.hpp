@@ -69,10 +69,10 @@ public:
 	
 	fsdk::Ref<fsdk::IHumanDetector> createHumanDetector();
 	
-	fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndex*> loadDenseIndex(
+	fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndexPtr> loadDenseIndex(
 	const char* indexPath);
 	
-	fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndex*> loadDynamicIndex(
+	fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndexPtr> loadDynamicIndex(
 	const char* indexPath);
 	
 	fsdk::IAGSEstimatorPtr createAGSEstimator();

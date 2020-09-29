@@ -65,4 +65,4 @@ std::vector<fsdk::Image> loadFrameSequence(const char*);
 std::tuple<DescriptorBatchResult, fsdk::IDescriptorPtr> getDescriptorFromBatch(
 	const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
 	int index,
-	std::function<fsdk::IDescriptor*(fsdk::IDescriptorBatchPtr, uint32_t)> func);
+	std::function<fsdk::ResultValue<fsdk::FSDKError, fsdk::IDescriptorPtr>(fsdk::IDescriptorBatchPtr, uint32_t)> func);
