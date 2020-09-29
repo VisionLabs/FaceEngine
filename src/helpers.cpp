@@ -79,7 +79,7 @@ bool saveFrameSequence(const std::vector<fsdk::Image>& sequence, std::string pat
 	file.write((char*)&height, sizeof(height));
 	file.write((char*)&type, sizeof(type));
 	
-	for (int i=0; i<frames; ++i){
+	for (uint32_t i = 0; i < frames; ++i){
 		auto size = sequence[i].getDataSize();
 		file.write((char*)sequence[i].getData(), size);
 	}
@@ -89,23 +89,23 @@ bool saveFrameSequence(const std::vector<fsdk::Image>& sequence, std::string pat
 std::tuple<DescriptorBatchResult, fsdk::IDescriptorPtr> getDescriptorFromBatch(
 	const fsdk::IDescriptorBatchPtr &descriptorBatchPtr,
 	int index,
-	std::function<fsdk::IDescriptor*(fsdk::IDescriptorBatchPtr, uint32_t)> func) {
+	std::function<fsdk::ResultValue<fsdk::FSDKError, fsdk::IDescriptorPtr>(fsdk::IDescriptorBatchPtr, uint32_t)> func) {
 	
 		if (!descriptorBatchPtr) {
 			return std::make_tuple(DescriptorBatchResult(
 				fsdk::makeResult(fsdk::IDescriptorBatch::Error::InvalidInput)), fsdk::IDescriptorPtr());
 		}
 		
-		if (index < 0 || index >= descriptorBatchPtr->getCount()) {
+		if ((uint32_t)index < 0 || (uint32_t)index >= descriptorBatchPtr->getCount()) {
 			return std::make_tuple(DescriptorBatchResult(
 				fsdk::makeResult(fsdk::IDescriptorBatch::Error::OutOfRange)), fsdk::IDescriptorPtr());
 		}
+	
+		fsdk::ResultValue<fsdk::FSDKError, fsdk::IDescriptorPtr> resDescriptor = func(descriptorBatchPtr, index);
 		
-		auto descriptor = fsdk::acquire(func(descriptorBatchPtr, index));
-		
-		if (descriptor) {
+		if (resDescriptor) {
 			return std::make_tuple(DescriptorBatchResult(
-				fsdk::makeResult(fsdk::IDescriptorBatch::Error::Ok)), descriptor);
+				fsdk::makeResult(fsdk::IDescriptorBatch::Error::Ok)), resDescriptor.getValue());
 		} else {
 			return std::make_tuple(DescriptorBatchResult(
 				fsdk::makeResult(fsdk::IDescriptorBatch::Error::Internal)), fsdk::IDescriptorPtr());

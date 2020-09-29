@@ -8,10 +8,31 @@
 namespace py = pybind11;
 
 
+namespace {
+	std::string getErrorMessage(const char* what, const char* instanceName) {
+		return
+			std::string("\nFailed ") + instanceName + " instance! See the "
+				"\"Troubleshooting and diagnostics\" chapter in the documentation "
+				"for possible reasons. Reason: " + what;
+	}
+	
+	template <typename R>
+	typename R::ValueType processResult(R result, const char* instanceName) {
+		if (!result) {
+			const std::string errorText = getErrorMessage(result.what(), instanceName);
+			throw py::cast_error(errorText.c_str());
+		}
+		return result.getValue();
+	}
+}
+
+
 PyIFaceEngine::PyIFaceEngine(const char* dataPath = nullptr, const char* configPath = nullptr, const char* runtimeConfigPath = nullptr) {
-	faceEnginePtr = fsdk::acquire(fsdk::createFaceEngine(dataPath, configPath, runtimeConfigPath));
-	if (!faceEnginePtr)
-		throw py::cast_error("\nFailed to create FaceEngine instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
+	auto res = fsdk::createFaceEngine(dataPath, configPath, runtimeConfigPath);
+	if (res.isError()) {
+		throw py::cast_error(getErrorMessage(res.what(), "to create FaceEngine").c_str());
+	}
+	faceEnginePtr = res.getValue();
 }
 
 fsdk::FaceEngineEdition PyIFaceEngine::getFaceEngineEdition() {
@@ -21,209 +42,158 @@ fsdk::FaceEngineEdition PyIFaceEngine::getFaceEngineEdition() {
 fsdk::IDetectorPtr PyIFaceEngine::createDetector(
 	fsdk::ObjectDetectorClassType type/* = fsdk::FACE_DET_DEFAULT*/, 
 		fsdk::SensorType mode/* = SensorType::Visible*/) {
-	fsdk::IDetectorPtr detectorPtr = fsdk::acquire(faceEnginePtr->createDetector(type, mode));
-	if (!detectorPtr)
-		throw py::cast_error("\nFailed to create detector instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-
-	return detectorPtr;
+	auto res = faceEnginePtr->createDetector(type, mode);
+	return processResult(res, "to create detector");
 }
 
 fsdk::IAttributeEstimatorPtr PyIFaceEngine::createAttributeEstimator() {
-	fsdk::IAttributeEstimatorPtr attributeEstimatorPtr = fsdk::acquire(faceEnginePtr->createAttributeEstimator());
-	if (!attributeEstimatorPtr)
-		throw py::cast_error("\nFailed to create attribute estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-
-	return attributeEstimatorPtr;
+	auto res = faceEnginePtr->createAttributeEstimator();
+	return processResult(res, "to create attribute estimator");
 }
 
 fsdk::IQualityEstimatorPtr PyIFaceEngine::createQualityEstimator() {
 
-	fsdk::IQualityEstimatorPtr qualityEstimatorPtr = fsdk::acquire(faceEnginePtr->createQualityEstimator());
-	if (!qualityEstimatorPtr) {
-		throw py::cast_error("\nFailed to create quality estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	}
-	return qualityEstimatorPtr;
+	auto res = faceEnginePtr->createQualityEstimator();
+	return processResult(res, "to create attribute estimator");
 }
 
 //	warper
 fsdk::IWarperPtr PyIFaceEngine::createWarper() {
-	fsdk::IWarperPtr warperPtr = fsdk::acquire(faceEnginePtr->createWarper());
-	if (!warperPtr)
-		throw py::cast_error("\nFailed to create warper instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return warperPtr;
+	auto res = faceEnginePtr->createWarper();
+	return processResult(res, "to create warper");
 }
 
 fsdk::IHumanWarperPtr PyIFaceEngine::createHumanWarper() {
-	fsdk::IHumanWarperPtr humanWarperPtr = fsdk::acquire(faceEnginePtr->createHumanWarper());
-	if (!humanWarperPtr)
-		throw py::cast_error("\nFailed to create human warper instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return humanWarperPtr;
+	auto res = faceEnginePtr->createHumanWarper();
+	return processResult(res, "to create human warper");
 }
 
 //	descriptor
 fsdk::IDescriptorPtr PyIFaceEngine::createDescriptor(const uint32_t version) {
-	fsdk::IDescriptorPtr descriptorPtr = fsdk::acquire(faceEnginePtr->createDescriptor(version));
-	if (!descriptorPtr)
-		throw py::cast_error("\nFailed to create descriptor instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return descriptorPtr;
+	auto res = faceEnginePtr->createDescriptor(version);
+	return processResult(res, "to create descriptor");
 }
 
 fsdk::IDescriptorBatchPtr PyIFaceEngine::createDescriptorBatch(int32_t size, int32_t version) {
-	fsdk::IDescriptorBatchPtr descriptorBatchPtr = fsdk::acquire(faceEnginePtr->createDescriptorBatch(size, version));
-	if (!descriptorBatchPtr)
-		throw py::cast_error("\nFailed to create descriptor batch instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return descriptorBatchPtr;
+	auto res = faceEnginePtr->createDescriptorBatch(size, version);
+	return processResult(res, "to create descriptor batch");
+	
 }
 
 fsdk::IDescriptorExtractorPtr PyIFaceEngine::createExtractor(const uint32_t version) {
-	fsdk::IDescriptorExtractorPtr descriptorExtractorPtr = fsdk::acquire(faceEnginePtr->createExtractor(version));
-	if (!descriptorExtractorPtr)
-		throw py::cast_error("\nFailed to create descriptor extractor instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return descriptorExtractorPtr;
+	auto res = faceEnginePtr->createExtractor(version);
+	return processResult(res, "to create extractor");
 }
 
 fsdk::IDescriptorMatcherPtr PyIFaceEngine::createMatcher(const uint32_t version) {
-	fsdk::IDescriptorMatcherPtr descriptorMatcherPtr = fsdk::acquire(faceEnginePtr->createMatcher(version));
-	if (!descriptorMatcherPtr)
-		throw py::cast_error("\nFailed to create descriptor matcher instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return descriptorMatcherPtr;
+	auto res = faceEnginePtr->createMatcher(version);
+	return processResult(res, "to create matcher");
 }
 
 //	second part of estimators
 fsdk::IHeadPoseEstimatorPtr PyIFaceEngine::createHeadPoseEstimator() {
-	fsdk::IHeadPoseEstimatorPtr headPoseEstimatorPtr = fsdk::acquire(faceEnginePtr->createHeadPoseEstimator());
-	if (!headPoseEstimatorPtr)
-		throw py::cast_error("\nFailed to create head pose estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return headPoseEstimatorPtr;
+	auto res = faceEnginePtr->createHeadPoseEstimator();
+	return processResult(res, "to create head pose estimator");
 }
 
 fsdk::Ref<fsdk::IBlackWhiteEstimator> PyIFaceEngine::createBlackWhiteEstimator() {
-	fsdk::Ref<fsdk::IBlackWhiteEstimator> blackWhiteEstimator = fsdk::acquire(faceEnginePtr->createBlackWhiteEstimator());
-	if (!blackWhiteEstimator)
-		throw py::cast_error("\nFailed to create black white estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return blackWhiteEstimator;
+	auto res = faceEnginePtr->createBlackWhiteEstimator();
+	return processResult(res, "to create black-white estimator");
+	
 }
 
 fsdk::ILivenessDepthEstimatorPtr PyIFaceEngine::createDepthEstimator() {
-	fsdk::ILivenessDepthEstimatorPtr livenessDepthEstimatorPtr = fsdk::acquire(faceEnginePtr->createDepthEstimator());
-	if (!livenessDepthEstimatorPtr)
-		throw py::cast_error("\nFailed to create depth liveness estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return livenessDepthEstimatorPtr;
+	auto res = faceEnginePtr->createDepthEstimator();
+	return processResult(res, "to create depth liveness estimator");
 }
 
 fsdk::ILivenessIREstimatorPtr PyIFaceEngine::createIREstimator() {
-	fsdk::ILivenessIREstimatorPtr livenessIREstimatorPtr = fsdk::acquire(faceEnginePtr->createIREstimator());
-
-	if (!livenessIREstimatorPtr)
-		throw py::cast_error("\nFailed to create liveness estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return livenessIREstimatorPtr;
+	auto res = faceEnginePtr->createIREstimator();
+	return processResult(res, "to create liveness ir estimator");
 }
 
 fsdk::ILivenessFlyingFacesEstimatorPtr PyIFaceEngine::createLivenessFlyingFacesEstimator() {
-	fsdk::ILivenessFlyingFacesEstimatorPtr livenessFlyingFacesEstimatorPtr = fsdk::acquire(faceEnginePtr->createLivenessFlyingFacesEstimator());
-
-	if (!livenessFlyingFacesEstimatorPtr)
-		throw py::cast_error("\nFailed to create liveness flying faces estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return livenessFlyingFacesEstimatorPtr;
+	auto res = faceEnginePtr->createLivenessFlyingFacesEstimator();
+	return processResult(res, "to create liveness flying faces estimator");
 }
 
 
 fsdk::ILivenessRGBMEstimatorPtr PyIFaceEngine::createLivenessRGBMEstimator() {
-	fsdk::ILivenessRGBMEstimatorPtr estimatorPtr = fsdk::acquire(faceEnginePtr->createLivenessRGBMEstimator());
-
-	if (!estimatorPtr)
-		throw py::cast_error("\nFailed to create liveness rgbm estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return estimatorPtr;
+	auto res = faceEnginePtr->createLivenessRGBMEstimator();
+	return processResult(res, "to create liveness rgbm estimator");
 }
 
 fsdk::ILivenessFlowEstimatorPtr PyIFaceEngine::createFaceFlowEstimator() {
-	fsdk::ILivenessFlowEstimatorPtr livenessFlowEstimatorPtr = fsdk::acquire(faceEnginePtr->createFaceFlowEstimator());
-	if (!livenessFlowEstimatorPtr)
-		throw py::cast_error("\nFailed to create liveness flow estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return livenessFlowEstimatorPtr;
+	auto res = faceEnginePtr->createFaceFlowEstimator();
+	return processResult(res, "to create liveness flow estimator");
 }
 
 fsdk::IEyeEstimatorPtr PyIFaceEngine::createEyeEstimator(fsdk::SensorType mode/* = fsdk::SensorType::Visible*/) {
-	fsdk::IEyeEstimatorPtr eyeEstimatorPtr = fsdk::acquire(faceEnginePtr->createEyeEstimator(mode));
-	if (!eyeEstimatorPtr)
-		throw py::cast_error("\nFailed to create eyes estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return eyeEstimatorPtr;
+	auto res = faceEnginePtr->createEyeEstimator(mode);
+	return processResult(res, "to create eye estimator");
 }
 
 fsdk::IEmotionsEstimatorPtr PyIFaceEngine::createEmotionsEstimator() {
-	fsdk::IEmotionsEstimatorPtr emotionsEstimatorPtr = fsdk::acquire(faceEnginePtr->createEmotionsEstimator());
-	if (!emotionsEstimatorPtr)
-		throw py::cast_error("\nFailed to create emotions estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return emotionsEstimatorPtr;
+	auto res = faceEnginePtr->createEmotionsEstimator();
+	return processResult(res, "to create emotions estimator");
 }
 
 fsdk::IGazeEstimatorPtr PyIFaceEngine::createGazeEstimator(fsdk::SensorType mode /* = fsdk::SensorType::Visible*/) {
-	fsdk::IGazeEstimatorPtr gazeEstimatorPtr = fsdk::acquire(faceEnginePtr->createGazeEstimator(mode));
-	if (!gazeEstimatorPtr)
-		throw py::cast_error("\nFailed to create gaze estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return gazeEstimatorPtr;
+	auto res = faceEnginePtr->createGazeEstimator(mode);
+	return processResult(res, "to create gaze estimator");
 }
 
 fsdk::IGlassesEstimatorPtr PyIFaceEngine::createGlassesEstimator() {
-	fsdk::IGlassesEstimatorPtr glassesEstimatorPtr = fsdk::acquire(faceEnginePtr->createGlassesEstimator());
-	if (!glassesEstimatorPtr)
-		throw py::cast_error("\nFailed to create glasses estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return glassesEstimatorPtr;
+	auto res = faceEnginePtr->createGlassesEstimator();
+	return processResult(res, "to create glasses estimator");
 }
 
 fsdk::IIndexBuilderPtr PyIFaceEngine::createIndexBuilder() {
-	fsdk::IIndexBuilderPtr indexBuilderPtr = fsdk::acquire(faceEnginePtr->createIndexBuilder());
-	
-	if (!indexBuilderPtr)
-		throw py::cast_error("\nFailed to create indexBuilder instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return indexBuilderPtr;
+	auto res = faceEnginePtr->createIndexBuilder();
+	return processResult(res, "to create indexBuilder");
 }
 
 fsdk::Ref<fsdk::IHumanDetector> PyIFaceEngine::createHumanDetector() {
-	fsdk::Ref<fsdk::IHumanDetector> humanDetector = fsdk::acquire(faceEnginePtr->createHumanDetector());
-	
-	if (!humanDetector)
-		throw py::cast_error("\nFailed to create HumanDetector instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return humanDetector;
+	auto res = faceEnginePtr->createHumanDetector();
+	return processResult(res, "to create human detector");
 }
 
 
-fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndex*> PyIFaceEngine::loadDenseIndex(
+fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndexPtr> PyIFaceEngine::loadDenseIndex(
 	const char* indexPath) {
-	return faceEnginePtr->loadDenseIndex(indexPath);
+	auto res = faceEnginePtr->loadDenseIndex(indexPath);
+	if (!res)
+		throw py::cast_error(getErrorMessage(res.what(), "to create IDenseIndex").c_str());
+	return res;
 }
 
-fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndex*> PyIFaceEngine::loadDynamicIndex(
+fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndexPtr> PyIFaceEngine::loadDynamicIndex(
 	const char* indexPath) {
-	return faceEnginePtr->loadDynamicIndex(indexPath);
+	auto res = faceEnginePtr->loadDynamicIndex(indexPath);
+	if (!res)
+		throw py::cast_error(getErrorMessage(res.what(), "to create IDynamicIndex").c_str());
+	return res;
 }
 
 fsdk::IAGSEstimatorPtr PyIFaceEngine::createAGSEstimator() {
-	fsdk::IAGSEstimatorPtr agsEstimatorPtr = fsdk::acquire(faceEnginePtr->createAGSEstimator());
-	if (!agsEstimatorPtr)
-		throw py::cast_error("\nFailed to create ags estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return agsEstimatorPtr;
+	auto res = faceEnginePtr->createAGSEstimator();
+	return processResult(res, "to create ags estimator");
 }
 
 fsdk::IMouthEstimatorPtr PyIFaceEngine::createMouthEstimator() {
-	fsdk::IMouthEstimatorPtr mouthEstimator = fsdk::acquire(faceEnginePtr->createMouthEstimator());
-	if (!mouthEstimator)
-		throw py::cast_error("\nFailed to create mouth estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return mouthEstimator;
+	auto res = faceEnginePtr->createMouthEstimator();
+	return processResult(res, "to create mouth estimator");
 }
 
 fsdk::IMedicalMaskEstimatorPtr PyIFaceEngine::createMedicalMaskEstimator() {
-	fsdk::IMedicalMaskEstimatorPtr estimator = fsdk::acquire(faceEnginePtr->createMedicalMaskEstimator());
-	if (!estimator)
-		throw py::cast_error("\nFailed to create medical mask estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return estimator;
+	auto res = faceEnginePtr->createMedicalMaskEstimator();
+	return processResult(res, "to create medical mask estimator");
+	
 }
 
 fsdk::IOverlapEstimatorPtr PyIFaceEngine::createOverlapEstimator() {
-	fsdk::IOverlapEstimatorPtr estimator = fsdk::acquire(faceEnginePtr->createOverlapEstimator());
-	if (!estimator)
-		throw py::cast_error("\nFailed to create overlap estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
-	return estimator;
+	auto res = faceEnginePtr->createOverlapEstimator();
+	return processResult(res, "to create overlap estimator");
 }
 
 void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
@@ -232,8 +202,9 @@ void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 
 PyISettingsProvider PyIFaceEngine::getSettingsProvider() {
 	fsdk::ISettingsProviderPtr config{ faceEnginePtr->getSettingsProvider() };
-	if (!config)
-		throw py::cast_error("\nFailed to get settings provider instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
+	if (!config) {
+		throw py::cast_error(getErrorMessage("", "to get settings provider").c_str());
+	}
 	
 	return PyISettingsProvider(config);
 }
@@ -241,7 +212,7 @@ PyISettingsProvider PyIFaceEngine::getSettingsProvider() {
 PyISettingsProvider PyIFaceEngine::getRuntimeSettingsProvider() {
 	fsdk::ISettingsProviderPtr config{ faceEnginePtr->getRuntimeSettingsProvider() };
 	if (!config)
-		throw py::cast_error("\nFailed to get runtime settings provider instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
+		throw py::cast_error(getErrorMessage("", "to get runtime provider").c_str());
 	
 	return PyISettingsProvider(config);
 }

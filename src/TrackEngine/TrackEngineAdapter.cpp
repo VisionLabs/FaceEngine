@@ -5,7 +5,14 @@
 namespace py = pybind11;
 
 PyITrackEngine::PyITrackEngine(const PyIFaceEngine &fsdk, const std::string &configPath) {
-	m_trackEngine = fsdk::acquire(tsdk::createTrackEngine(fsdk.faceEnginePtr.get(), configPath.c_str()));
+	auto res = tsdk::createTrackEngine(fsdk.faceEnginePtr.get(), configPath.c_str());
+	if (res.isError()) {
+		const std::string message = std::string("\nFailed to create TrackEngine instance! See the "
+			"\"Troubleshooting and diagnostics\" chapter in the documentation "
+			"for possible reasons. Error: ") + res.what();
+		throw py::cast_error(message.c_str());
+	}
+	m_trackEngine =res.getValue();
 }
 
 PyIStream PyITrackEngine::createStream() {
