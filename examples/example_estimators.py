@@ -56,7 +56,7 @@ def liveness_flying_faces_batch_example(_faces):
         exit(1)
 
 
-def quality_blackWhite_smile_example(image):
+def quality_blackWhite_example(image):
     qualityEstimator = faceEngine.createQualityEstimator()
     blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
 
@@ -382,7 +382,7 @@ if __name__ == "__main__":
         # print_landmarks(landmarks5, "landmarks5: ")
         (warp_image, transformed_landmarks5, transformed_landmarks68, transformation) = \
             warper_example(image, detection, landmarks5, landmarks68)
-        quality_blackWhite_smile_example(warp_image)
+        quality_blackWhite_example(warp_image)
         glasses_example(faceEngine, warp_image)
         overlap_example(faceEngine, image, detection)
         err, attribute_result = attribute_example(warp_image)

@@ -25,7 +25,6 @@ print(fe.PyIFaceEngine.createHeadPoseEstimator.__doc__)
 print(fe.PyIFaceEngine.createBlackWhiteEstimator.__doc__)
 print(fe.PyIFaceEngine.createDepthEstimator.__doc__)
 print(fe.PyIFaceEngine.createIREstimator.__doc__)
-print(fe.PyIFaceEngine.createSmileEstimator.__doc__)
 print(fe.PyIFaceEngine.createFaceFlowEstimator.__doc__)
 print(fe.PyIFaceEngine.createEyeEstimator.__doc__)
 print(fe.PyIFaceEngine.createEmotionsEstimator.__doc__)
@@ -154,9 +153,6 @@ print(fe.ILivenessDepthEstimatorPtr.setRange.__doc__)
 print(fe.ILivenessIREstimatorPtr.__doc__)
 print(fe.ILivenessIREstimatorPtr.estimate.__doc__)
 
-print(fe.ISmileEstimatorPtr.__doc__)
-print(fe.ISmileEstimatorPtr.estimate.__doc__)
-
 print(fe.ILivenessFlowEstimatorPtr.__doc__)
 print(fe.ILivenessFlowEstimatorPtr.estimate.__doc__)
 
@@ -233,10 +229,6 @@ print(fe.HeadPoseEstimation.__doc__)
 print(fe.HeadPoseEstimation.__init__.__doc__)
 print(fe.HeadPoseEstimation.__repr__.__doc__)
 print(fe.HeadPoseEstimation.getFrontalFaceType.__doc__)
-
-print(fe.SmileEstimation.__doc__)
-print(fe.SmileEstimation.__init__.__doc__)
-print(fe.SmileEstimation.__repr__.__doc__)
 
 print(fe.EyesEstimation.__doc__)
 print(fe.EyesEstimation.__init__.__doc__)
