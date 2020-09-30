@@ -414,7 +414,7 @@ void estimators_module(py::module& f) {
 			const fsdk::Image& small,
 			const std::vector<fsdk::Image>& frames) {
 				double score = 0.0;
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(small, frames.data(), (int)frames.size(), score);
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(small, frames, score);
 				return std::make_tuple(FSDKErrorResult(err), score); },
 			"Check if correct optical flow can be calculated from input images..\n"
 			"\tArgs\n"

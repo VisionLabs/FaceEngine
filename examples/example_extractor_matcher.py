@@ -37,14 +37,14 @@ def extractor_example(image_list, batch_size):
         print("Failed to extract descriptor2, reason: ", res2.what)
         exit(-1)
 
-    res_batch1, aggregated_garbage_score, value_batch_1 = extractor.extractFromWarpedImageBatch(image_list, descriptor_batch, aggregation, batch_size)
+    res_batch1, aggregated_garbage_score, value_batch_1 = extractor.extractFromWarpedImageBatch(image_list, descriptor_batch, aggregation)
     if res_batch1.isError:
         print("Failed to extract batch descriptor1, reason: ", res_batch1.what)
         exit(-1)
 
     print("aggregation: version = {0}, desciptor size = {1}".format(aggregation.getModelVersion(), aggregation.getDescriptorLength()))
     print("Garbage score list1:", value_batch_1)
-    res_batch2, value_batch_2 = extractor.extractFromWarpedImageBatch(image_list, descriptor_batch, batch_size)
+    res_batch2, value_batch_2 = extractor.extractFromWarpedImageBatch(image_list, descriptor_batch)
     if res_batch2.isError:
         print("Failed to extract batch descriptor2, reason: ", res_batch2.what)
         exit(-1)
@@ -120,7 +120,7 @@ def extractor_test_aggregation(version, use_mobile_net, cpu_type, device, warps)
     descriptor2 = face_engine.createDescriptor()
     aggregation = face_engine.createDescriptor()
 
-    result, aggregated_garbage_score, garbage_scores = descriptor_extractor.extractFromWarpedImageBatch(warps, batch, aggregation, batch_size)
+    result, aggregated_garbage_score, garbage_scores = descriptor_extractor.extractFromWarpedImageBatch(warps, batch, aggregation)
     if result.isError:
         print("aggregation: failed to extract descriptor batch, reason:", result.what)
         exit(-1)

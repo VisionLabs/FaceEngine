@@ -242,15 +242,17 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		const fsdk::IDescriptorExtractorPtr& extractor,
 		const std::vector<fsdk::Image>& warpsBatch,
 		const fsdk::IDescriptorBatchPtr& descriptorBatch,
-		const fsdk::IDescriptorPtr& aggregation,
-		uint32_t batchSize) {
+		const fsdk::IDescriptorPtr& aggregation) {
+
+			const std::size_t batchSize = warpsBatch.size();
 			std::vector<float> garbageScoreBatch(batchSize);
 			fsdk::ResultValue<fsdk::FSDKError, float> err = extractor->extractFromWarpedImageBatch(
-				warpsBatch.data(),
+				warpsBatch,
 				descriptorBatch,
 				aggregation,
-				garbageScoreBatch.data(),
-				batchSize);
+				garbageScoreBatch
+			);
+
 			if (err.isOk())
 				return std::make_tuple(FSDKErrorResult(err), err.getValue(), std::move(garbageScoreBatch));
 			else
@@ -272,14 +274,15 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 	.def("extractFromWarpedImageBatch",[](
 		const fsdk::IDescriptorExtractorPtr& extractor,
 		const std::vector<fsdk::Image>& warpsBatch,
-		const fsdk::IDescriptorBatchPtr& descriptorBatch,
-		uint32_t batchSize) {
+		const fsdk::IDescriptorBatchPtr& descriptorBatch) {
+
+			const std::size_t batchSize = warpsBatch.size();
 			std::vector<float> garbageScoreBatch(batchSize);
 			fsdk::Result<fsdk::FSDKError> err = extractor->extractFromWarpedImageBatch(
-				warpsBatch.data(),
+				warpsBatch,
 				descriptorBatch,
-				garbageScoreBatch.data(),
-				batchSize);
+				garbageScoreBatch
+			);
 			if (err.isOk())
 				return std::make_tuple(FSDKErrorResult(err), std::move(garbageScoreBatch));
 			else
@@ -344,7 +347,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		const fsdk::IDescriptorPtr& reference,
 		const fsdk::IDescriptorBatchPtr& candidates) {
 			std::vector<fsdk::MatchingResult> results(candidates->getCount());
-			fsdk::Result<fsdk::FSDKError> err = matcherPtr->match(reference, candidates, results.data());
+			fsdk::Result<fsdk::FSDKError> err = matcherPtr->match(reference, candidates, results);
 			if (err.isOk())
 				return std::make_tuple(FSDKErrorResult(err), std::move(results));
 			else
@@ -376,7 +379,7 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 						std::vector<uint32_t>());
 		
 			std::vector<fsdk::MatchingResult> results(candidates->getCount());
-			fsdk::Result<fsdk::FSDKError> err = matcherPtr->match(reference, candidates, results.data());
+			fsdk::Result<fsdk::FSDKError> err = matcherPtr->match(reference, candidates, results);
 			if(err.isError())
 				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MatchingResult>(), std::vector<uint32_t>());
 			
