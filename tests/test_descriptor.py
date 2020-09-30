@@ -63,7 +63,7 @@ class TestFaceEngineRect(unittest.TestCase):
         extractor = self.faceEngine.createExtractor(46)
         batch = self.faceEngine.createDescriptorBatch(2, 46)
 
-        extractor.extractFromWarpedImageBatch(warps, batch, 2)
+        extractor.extractFromWarpedImageBatch(warps, batch)
 
         batch_loaded = self.faceEngine.createDescriptorBatch(2, 54)
 
@@ -116,7 +116,7 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertTrue(err.isOk)
             images.append(image)
         self.assertTrue(extractor.extractFromWarpedImage(images[0], descriptor))
-        self.assertTrue(extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation, batch_size))
+        self.assertTrue(extractor.extractFromWarpedImageBatch(images, descriptorBatch, aggregation))
 
         def assertMatchingResult(result):
             self.assertEqual(result.similarity, 1.0)
@@ -271,7 +271,7 @@ class TestFaceEngineRect(unittest.TestCase):
         batch = self.faceEngine.createDescriptorBatch(2)
         descriptor = self.faceEngine.createDescriptor()
 
-        res_batch, _, garbage_scores = extractor.extractFromWarpedImageBatch(warps, batch, descriptor, 2)
+        res_batch, _, garbage_scores = extractor.extractFromWarpedImageBatch(warps, batch, descriptor)
         self.assertTrue(res_batch.isOk)
         with open(self.test_data_path + "/batch12_" + str(version) + "_actual.bin", "wb") as out_file:
             for i in range(2):
@@ -376,7 +376,7 @@ class TestFaceEngineRect(unittest.TestCase):
         batch = faceEngine.createDescriptorBatch(2)
         descriptor = faceEngine.createDescriptor()
         aggr = faceEngine.createDescriptor()
-        res = extractor.extractFromWarpedImageBatch(warps, batch, aggr, 1)
+        res = extractor.extractFromWarpedImageBatch(warps, batch, aggr)
         self.assertFalse(res[0].isError)
         res, value = extractor.extractFromWarpedImage(warps[0], descriptor)
         self.assertTrue(res.isOk)
@@ -420,7 +420,7 @@ class TestFaceEngineRect(unittest.TestCase):
 
         descriptor_batch = self.faceEngine.createDescriptorBatch(2)
         images = [empty_image, empty_image]
-        res_batch, aggr_garbage_score, garbage_scores = extractor.extractFromWarpedImageBatch(images, descriptor_batch, aggregation, 2)
+        res_batch, aggr_garbage_score, garbage_scores = extractor.extractFromWarpedImageBatch(images, descriptor_batch, aggregation)
         self.assertTrue(res_batch.isError)
         self.assertEqual(res_batch.error, fe.FSDKError.InvalidImage)
 
@@ -460,7 +460,7 @@ class TestFaceEngineRect(unittest.TestCase):
                 warps.append(warp_result)
             i_image += 1
 
-        err_batch_extraction, _ = extractor.extractFromWarpedImageBatch(warps, batch, 7)
+        err_batch_extraction, _ = extractor.extractFromWarpedImageBatch(warps, batch)
         self.assertTrue(err_batch_extraction.isOk)
         getErr, descriptor = batch.getDescriptorSlow(0)
         self.assertTrue(getErr.isOk)
@@ -507,7 +507,7 @@ class TestFaceEngineRect(unittest.TestCase):
         batch = self.faceEngine.createDescriptorBatch(2, version)
         descriptor = self.faceEngine.createDescriptor(version)
 
-        res_batch, _, garbage_scores = extractor.extractFromWarpedImageBatch(warps, batch, descriptor, 2)
+        res_batch, _, garbage_scores = extractor.extractFromWarpedImageBatch(warps, batch, descriptor)
         batch_version = 54
         batch_loaded = self.faceEngine.createDescriptorBatch(2, batch_version)
 
@@ -535,7 +535,7 @@ class TestFaceEngineRect(unittest.TestCase):
         empty_batch = self.faceEngine.createDescriptorBatch(batchSize, version)
 
         partly_filled_batch = self.faceEngine.createDescriptorBatch(batchSize, version)
-        res_batch, _ = extractor.extractFromWarpedImageBatch(warps, partly_filled_batch, 2)
+        res_batch, _ = extractor.extractFromWarpedImageBatch(warps, partly_filled_batch)
         self.assertTrue(res_batch.isOk)
 
         def check(batch, index, isOk, referenceError):
@@ -575,7 +575,7 @@ class TestFaceEngineRect(unittest.TestCase):
         # batch size is 2, batch is empty
         self.assertEqual(batch.getCount(), 0)
         # batch is filled, batch count is 2
-        res_batch, _ = extractor.extractFromWarpedImageBatch(warps, batch, batchCount)
+        res_batch, _ = extractor.extractFromWarpedImageBatch(warps, batch)
         self.assertEqual(batch.getCount(), batchCount)
         # batch is cleared, batch count must be 0
         batch.clear()
