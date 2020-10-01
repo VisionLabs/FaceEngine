@@ -203,7 +203,7 @@ class TestFaceEngineRect(unittest.TestCase):
             dataExpected = descriptorExpected.getData()
             self.assertEqual(descriptorExpected.getModelVersion(), descriptor.getModelVersion())
             for i in range(descriptor.getDescriptorLength()):
-                self.assertEqual(dataActual[i], dataExpected[i])
+                self.assertAlmostEqual(dataActual[i], dataExpected[i], delta=2)
 
             descriptor_cases = {descriptor: dataActual, descriptorExpected: dataExpected}
             for i, data in descriptor_cases.items():
