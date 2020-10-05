@@ -24,10 +24,13 @@ def get_info():
 
 def check_license(license):
 
-    if license.isActivated():
+    errCode, val = license.isActivated()
+    if val:
         print("License is activated!")
     else:
         print("License is NOT activated!")
+        print("check_license: failed, reason:", errCode.what)
+        exit(-1)
 
     freatures = [
         fe.LicenseFeature.Detection,
@@ -44,7 +47,12 @@ def check_license(license):
     ]
 
     for feature in freatures:
-        if license.checkFeatureId(feature):
+        errCode, val = license.checkFeatureId(feature)
+        if errCode.isError:
+            print("check_license: failed, reason:", errCode.what)
+            exit(-1)
+
+        if val:
             print("{0} is available".format(feature))
         else:
             print("{0} is NOT available".format(feature))

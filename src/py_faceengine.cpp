@@ -772,45 +772,47 @@ PYBIND11_MODULE(FaceEngine, f) {
 			const fsdk::ILicensePtr& license,
 			uint32_t featureId
 			) {
-				return license->checkFeatureId(featureId);
+				const auto res = license->checkFeatureId(featureId);
+				return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), res.getValue());
 			},
 			"Checks if the feature with featureId is available in this license.\n"
 			"\t\t(see fsdk::LicenseFeature for details\n"
 			"\tArgs:\n"
 			"\t\tparam1 (featureId): featureId to check if it available\n"
 			"\tReturns:\n"
-			"\t\t(bool): True if feature is available, False if there is not such feature in this"
+			"\t\t(tuple with FSDKErrorResult and bool): tuple with FSDKErrorResult and True if feature is available, False if there is not such feature in this"
 			"\t\tlicense or feature is expired or license was not activated.\n")
 
 		.def("isActivated", [](
 			const fsdk::ILicensePtr& license) {
-				return license->isActivated();
+				const auto res = license->isActivated();
+				return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), res.getValue());
 			},
 			"Checks if current license object is activated and could be used by FaceEngine."
 			"License object which was not activated could not be used because all features are disabled by default.\n"
 			"\tReturns:\n"
-			"\t\tTrue if object is activated, False otherwise.\n")
+			"\t\t(tuple with FSDKErrorResult and bool): tuple with FSDKErrorResult and and True if object is activated, False otherwise.\n")
 
 		.def("loadFromFile", [](
 			const fsdk::ILicensePtr& license,
 			const char * path) {
-				return license->loadFromFile(path);
+				return FSDKErrorResult(fsdk::makeResult(license->loadFromFile(path).getError()));
 			},
 			"Loads license from file.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (str) path to the file.\n"
 			"\tReturns:\n"
-			"\t\t(bool): True if license was read from file successfully, False otherwise.\n")
+			"\t\t(FSDKError): @see FSDKError for details.\n")
 
 		.def("saveToFile", [](
 			const fsdk::ILicensePtr& license,
 			const char * path) {
-				return license->saveToFile(path);
+				return FSDKErrorResult(fsdk::makeResult(license->saveToFile(path).getError()));
 			},
 			"Saves license as raw format to the file. This file could be used in the next run of the application.\n"
 			"\t\tparam1 (str) path to the file.\n"
 			"\tReturns:\n"
-			"\t\t(bool): True if license was saved to file successfully, False otherwise.\n")
+			"\t\t(FSDKError): @see FSDKError for details.\n")
 			;
 
 	f.doc() = R"pbdoc(
