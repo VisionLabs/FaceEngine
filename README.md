@@ -445,7 +445,7 @@ Please, check the license for the LUNA SDK (see the FaceEngine_Handbook.pdf from
 - Wrong configuration file.
 The LUNA SDK modules use the LUNA SDK configuration file during initialization. If this file is corrupted or contains invalid parameters, LUNA SDK modules could not be initialized correctly (See the ConfigurationGuide.pdf from the LUNA SDK package for details).
 
-- Absense of one or a few configuration files such as faceengine.conf, runtime.conf, cnn46_descriptor.conf and etc in "data" folder of the LUNA SDK.
+- Absense of one or a few configuration files such as faceengine.conf, runtime.conf, cnnXX_descriptor.conf and etc in "data" folder of the LUNA SDK.
 The LUNA SDK modules use different configuration files during initialization. If this files are corrupted or contain invalid parameters, LUNA SDK modules could not be initialized correctly (See the ConfigurationGuide.pdf from the LUNA SDK package for details).
 
 2. FaceEngine.createDescriptor or FaceEngine.createDescriptorBatch raises an exception.

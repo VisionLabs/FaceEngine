@@ -100,25 +100,23 @@ def set_logging(value):
     print("Config settings: \"system\", \"verboseLogging\" = {0}".format(val))
 
 
-def extractor_test_aggregation(version, use_mobile_net, cpu_type, device, warps):
+def extractor_test_aggregation(version, cpu_type, device, warps):
     print("Extractor_test_aggregation")
     config = fe.createSettingsProvider("data/faceengine.conf")
     runtime_config = fe.createSettingsProvider("data/runtime.conf")
     config_path = config.getDefaultPath()
     print("Default path = ", config_path)
-    config.setValue("DescriptorFactory::Settings", "model", version)
-    config.setValue("DescriptorFactory::Settings", "useMobileNet", use_mobile_net)
     config.setValue("system", "verboseLogging", 1)
     runtime_config.setValue("Runtime", "deviceClass", device)
     runtime_config.setValue("Runtime", "cpuClass", cpu_type)
     face_engine.setSettingsProvider(config)
     face_engine.setRuntimeSettingsProvider(runtime_config)
     batch_size = len(warps)
-    descriptor_extractor = face_engine.createExtractor()
-    batch = face_engine.createDescriptorBatch(batch_size)
-    descriptor1 = face_engine.createDescriptor()
-    descriptor2 = face_engine.createDescriptor()
-    aggregation = face_engine.createDescriptor()
+    descriptor_extractor = face_engine.createExtractor(version)
+    batch = face_engine.createDescriptorBatch(batch_size, version)
+    descriptor1 = face_engine.createDescriptor(version)
+    descriptor2 = face_engine.createDescriptor(version)
+    aggregation = face_engine.createDescriptor(version)
 
     result, aggregated_garbage_score, garbage_scores = descriptor_extractor.extractFromWarpedImageBatch(warps, batch, aggregation)
     if result.isError:
@@ -157,7 +155,7 @@ if __name__ == "__main__":
         # print_descriptor(descriptor2)
         # as test
         warps = [image_list[0], image_list[1]]
-        extractor_test_aggregation(46, True, "auto", "cpu", warps)
+        extractor_test_aggregation(56, "auto", "cpu", warps)
     except RuntimeError as ex:
         print(ex)
         exit(1)
