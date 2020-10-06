@@ -60,12 +60,12 @@ class TestFaceEngineRect(unittest.TestCase):
         err2 = warps[1].load(os.path.join(self.test_data_path, "warp2.ppm"))
         self.assertTrue(err2.isOk)
 
-        extractor = self.faceEngine.createExtractor(46)
-        batch = self.faceEngine.createDescriptorBatch(2, 46)
+        extractor = self.faceEngine.createExtractor(54)
+        batch = self.faceEngine.createDescriptorBatch(2, 54)
 
         extractor.extractFromWarpedImageBatch(warps, batch)
 
-        batch_loaded = self.faceEngine.createDescriptorBatch(2, 54)
+        batch_loaded = self.faceEngine.createDescriptorBatch(2, 56)
 
         err, full_data_default1 = batch.save()
         self.assertTrue(err.isOk)
@@ -83,7 +83,7 @@ class TestFaceEngineRect(unittest.TestCase):
         aggregation = self.faceEngine.createDescriptor()
         self.matchDescriptor(extractor, descriptor, aggregation, matcher)
 
-        test_cases = (46, 52, 54, 56)
+        test_cases = (54, 56, 57)
         for model in test_cases:
             with self.subTest(model=model):
                 extractor = self.faceEngine.createExtractor(model)
@@ -137,7 +137,7 @@ class TestFaceEngineRect(unittest.TestCase):
         del descriptorBatch
 
     def testMatchDifferentVersion(self):
-        test_cases = {52: 46, 54: 46, 56: 46}
+        test_cases = {54: 56, 56: 57}
         for desc1, desc2 in test_cases.items():
             with self.subTest(match_with=desc1):
                 matcher = self.faceEngine.createMatcher(desc1)
@@ -147,8 +147,8 @@ class TestFaceEngineRect(unittest.TestCase):
                 self.assertEqual(err_descriptor.error, fe.FSDKError.IncompatibleDescriptors)
 
     def testMatchDifferentVersionBatch(self):
-        test_cases = (52, 56)
-        batch = self.faceEngine.createDescriptorBatch(2, 46)
+        test_cases = (56, 57)
+        batch = self.faceEngine.createDescriptorBatch(2, 54)
         for model in test_cases:
             with self.subTest(match_with=model):
                 descriptor = self.faceEngine.createDescriptor(model)
@@ -231,11 +231,7 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertEqual(data[i], full_data_no_signature[i + diff_actual_no_signature])
 
     def testExtractor(self):
-        test_cases = {"46_mobilenet": [46, 0.9718, True, "auto", "cpu"],
-                      "46_no_mobilnet": [46, 0.9718, False, "auto", "cpu"],
-                      "52_mobilnet": [52, 1.0, True, "auto", "cpu"],
-                      "52_no_mobilnet": [52, 0.8926, False, "auto", "cpu"],
-                      "54_mobilnet": [54, 0.9094, True, "auto", "cpu"],
+        test_cases = {"54_mobilnet": [54, 0.9094, True, "auto", "cpu"],
                       "54_no_mobilnet": [54, 0.9411, False, "auto", "cpu"],
                       "56_no_mobilnet": [56, 0.7673, False, "auto", "cpu"]}
         for key, value in test_cases.items():
@@ -335,11 +331,7 @@ class TestFaceEngineRect(unittest.TestCase):
                 self.assertEqual(data[j], data_loaded[j])
 
     def testExtractorBatch(self):
-        test_cases = {"46_mobilenet": [46, True, "auto", "cpu"],
-                      "46_no_mobilenet": [46, False, "auto", "cpu"],
-                      "52_mobilnet": [52, True, "auto", "cpu"],
-                      "52_no_mobilnet": [52, False, "auto", "cpu"],
-                      "54_mobilnet": [54, True, "auto", "cpu"],
+        test_cases = {"54_mobilnet": [54, True, "auto", "cpu"],
                       "54_no_mobilnet": [54, False, "auto", "cpu"],
                       "56_no_mobilnet": [56, False, "auto", "cpu"]}
         for key, value in test_cases.items():
@@ -395,12 +387,7 @@ class TestFaceEngineRect(unittest.TestCase):
         del aggr
 
     def testExtractorAggregation(self):
-        test_cases = {"46_mobilenet": [46, True, "auto", "cpu"],
-                      "46_no_mobilenet": [46, False, "auto", "cpu"],
-                      "52_mobilnet": [52, True, "auto", "cpu"],
-                      "52_no_mobilnet": [52, False, "auto", "cpu"],
-                      "54_mobilnet": [54, True, "auto", "cpu"],
-                      "54_no_mobilnet": [54, False, "auto", "cpu"],
+        test_cases = {"54_no_mobilnet": [54, False, "auto", "cpu"],
                       "56_no_mobilnet": [56, False, "auto", "cpu"]}
         for key, value in test_cases.items():
             version, useMobileNet, cpuType, device = value
@@ -502,13 +489,13 @@ class TestFaceEngineRect(unittest.TestCase):
         err2 = warps[1].load(os.path.join(self.test_data_path, "warp2.ppm"))
         self.assertTrue(err2.isOk and warps[1].isValid())
 
-        version = 46
+        version = 57
         extractor = self.faceEngine.createExtractor(version)
         batch = self.faceEngine.createDescriptorBatch(2, version)
         descriptor = self.faceEngine.createDescriptor(version)
 
         res_batch, _, garbage_scores = extractor.extractFromWarpedImageBatch(warps, batch, descriptor)
-        batch_version = 54
+        batch_version = 101
         batch_loaded = self.faceEngine.createDescriptorBatch(2, batch_version)
 
         err, full_data_default1 = batch.save()
@@ -529,7 +516,7 @@ class TestFaceEngineRect(unittest.TestCase):
         err2 = warps[1].load(os.path.join(self.test_data_path, "warp2.ppm"))
         self.assertTrue(err2.isOk and warps[1].isValid())
 
-        version = 46
+        version = 57
         extractor = self.faceEngine.createExtractor(version)
         batchSize = 5
         empty_batch = self.faceEngine.createDescriptorBatch(batchSize, version)
@@ -568,7 +555,7 @@ class TestFaceEngineRect(unittest.TestCase):
         err2 = warps[1].load(os.path.join(self.test_data_path, "warp1.ppm"))
         self.assertTrue(err2.isOk and warps[1].isValid())
 
-        version = 52
+        version = 57
         extractor = self.faceEngine.createExtractor(version)
         batchCount = 2
         batch = self.faceEngine.createDescriptorBatch(batchCount, version)
@@ -594,4 +581,3 @@ class TestFaceEngineRect(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
