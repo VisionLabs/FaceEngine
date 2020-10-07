@@ -793,11 +793,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("getExpirationDate", [](
 			const fsdk::ILicensePtr& license,
 			uint32_t featureId) {
-				long long timestamp = 0;
+				uint32_t timestamp = 0;
 				bool result = license->getExpirationDate(featureId, timestamp);
 				if (!result)
 					timestamp = 0;
-				return static_cast<int>(timestamp);
+				return timestamp;
 			},
 			"Get the expiation date for the current license object for the feature.\n"
 			"\tArgs:\n"
