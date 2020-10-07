@@ -132,7 +132,7 @@ if __name__ == "__main__":
         exit(-1)
     image_path = sys.argv[2]
     image = fe.Image()
-    err_image_loaded = image.load(image_path)
+    err_image_loaded = image.load(image_path, fe.FormatType.R8G8B8)
     if not image.isValid():
         print("Image error = ", err_image_loaded)
         exit(-1)

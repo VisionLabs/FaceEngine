@@ -76,7 +76,7 @@ def load_list_of_images(batch_size, sys_argv):
     for i in range(batch_size):
         image = fe.Image()
         print("Adding image {0}".format(sys_argv[i + 2]))
-        image.load(sys_argv[i + 2])
+        image.load(sys_argv[i + 2], fe.FormatType.R8G8B8)
         if not image.isValid():
             print("Failed list creating: one of images is not found {0}".format(sys_argv[i + 2]))
             exit(1)
