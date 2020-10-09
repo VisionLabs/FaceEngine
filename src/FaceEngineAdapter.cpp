@@ -225,6 +225,6 @@ fsdk::ILicensePtr PyIFaceEngine::getLicense() {
 	return fsdk::ILicensePtr{faceEnginePtr->getLicense()};
 }
 
-bool PyIFaceEngine::activateLicense(const fsdk::ILicensePtr& license, const char* configPath) {
+fsdk::Result<fsdk::FSDKError> PyIFaceEngine::activateLicense(const fsdk::ILicensePtr& license, const char* configPath) {
 	return fsdk::activateLicense(license.get(), configPath);
 }

@@ -52,8 +52,9 @@ def draw_bounding_boxes(frame_to_draw, bboxes_to_draw):
 if __name__ == "__main__":
     cap = cv2.VideoCapture(int(sys.argv[2]))
     faceEngine = fe.createFaceEngine("data")
-    if not make_activation(faceEngine):
-        print("failed to activate license!")
+    res = make_activation(faceEngine)
+    if res.isError:
+        print("Failed to activate license! Reason: {0}".format(res.what))
         exit(-1)
     trackEngine = te.createTrackEngine(faceEngine, "data/trackengine.conf")
     stream = trackEngine.createStream()

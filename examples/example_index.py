@@ -167,8 +167,9 @@ if __name__ == "__main__":
     # correct path or put directory "data" with example.py
     # Create FaceEngine root SDK object.
     face_engine = fe.createFaceEngine("data")
-    if not make_activation(face_engine):
-        print("failed to activate license!")
+    res = make_activation(face_engine)
+    if res.isError:
+        print("Failed to activate license! Reason: {0}".format(res.what))
         exit(-1)
     if face_engine.getFaceEngineEdition() != fe.CompleteEdition:
         print("FaceEngine SDK Frontend edition doesn't support face descriptors. Use FaceEngine SDK Complete edition")

@@ -277,7 +277,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine& faceEngine,
 			const fsdk::ILicensePtr& license,
 			const char * licenseConfPath) {
-				return faceEngine.activateLicense(license, licenseConfPath);
+				return FSDKErrorResult(faceEngine.activateLicense(license, licenseConfPath));
 			},
 			"Makes License activation with some platform specific manner. Network connection is required.\n"
 			"\t\tThis method should be usend only on mobile or ARM platforms.\n"
@@ -285,7 +285,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\t\t param1 (fsdk::ILicensePtr): license object to activate.\n"
 			"\t\t param2 (str): path to the license.conf file.\n"
 			"\tReturns:\n"
-			"\t\t (bool): True if license was successfully activated, False otherwise."
+			"\t\t(FSDKError): @see FSDKError for details.\n"
 			)
 				; // FaceEngine
 	

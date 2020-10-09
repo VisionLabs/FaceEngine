@@ -37,7 +37,8 @@ class TestFaceEngineEstimators(unittest.TestCase):
     @classmethod
     def setUp(cls):
         cls.faceEngine = f.createFaceEngine("data")
-        if not make_activation(cls.faceEngine):
+        res = make_activation(cls.faceEngine)
+        if res.isError:
             raise ActivationLicenseError("License is not activated!")
         cls.config_desc = f.createSettingsProvider("data/cnndescriptor_54.conf")
         cls.config = f.createSettingsProvider("data/faceengine.conf")

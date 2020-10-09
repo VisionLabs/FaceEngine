@@ -25,8 +25,9 @@ def print_landmarks(landmarks, message=""):
 if __name__ == "__main__":
     faceEngine = fe.createFaceEngine("data")
 
-    if not make_activation(faceEngine):
-        print("failed to activate license!")
+    res = make_activation(faceEngine)
+    if res.isError:
+        print("Failed to activate license! Reason: {0}".format(res.what))
         exit(1)
     liveness_engine = fe.createLivenessEngine(faceEngine, "./data")
     video_path = sys.argv[2]

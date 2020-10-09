@@ -142,8 +142,9 @@ if __name__ == "__main__":
     batch_size = len(sys.argv) - 2
     # correct path or put directory "data" with example.py
     face_engine = fe.createFaceEngine("data")
-    if not make_activation(face_engine):
-        print("failed to activate license!")
+    res = make_activation(face_engine)
+    if res.isError:
+        print("Failed to activate license! Reason: {0}".format(res.what))
         exit(-1)
     # more detailed description of config see in luna-sdk/doc/ConfigurationGuide.pdf
     set_logging(1)
