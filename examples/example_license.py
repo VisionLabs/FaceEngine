@@ -25,12 +25,14 @@ def get_info():
 def check_license(license):
 
     errCode, val = license.isActivated()
+    if errCode.isError:
+            print("check_license: failed, reason:", errCode.what)
+            return errCode, val
+
     if val:
         print("License is activated!")
     else:
         print("License is NOT activated!")
-        print("check_license: failed, reason:", errCode.what)
-        exit(-1)
 
     freatures = [
         fe.LicenseFeature.Detection,
@@ -50,14 +52,14 @@ def check_license(license):
         errCode, val = license.checkFeatureId(feature)
         if errCode.isError:
             print("check_license: failed, reason:", errCode.what)
-            exit(-1)
+            return errCode, val
 
         if val:
             print("{0} is available".format(feature))
         else:
             print("{0} is NOT available".format(feature))
 
-    return license.isActivated()
+    return errCode, val
 
 
 def make_activation(_face_engine, _license_conf_path="data/license.conf"):
@@ -78,7 +80,11 @@ if __name__ == "__main__":
     try:
         license = faceEngine.getLicense()
 
-        if not check_license(license):
+        errCode, val = check_license(license)
+        if errCode.isError:
+            print("check_license: failed, reason:", errCode.what)
+
+        if not val:
             # check facility for not activated license
             try:
                 print("Trying to create detector before activation.")
@@ -87,12 +93,18 @@ if __name__ == "__main__":
             except Exception as ex:
                 print("Detector creation failed. Exception: {0} {1}".format(type(ex).__name__, ex))
 
-        if faceEngine.activateLicense(license, licenseConfPath):
+        res = faceEngine.activateLicense(license, licenseConfPath)
+        if res.isOk:
             print("License was sucessfully activated!")
         else:
-            print("License activation failed! See debug logs for details.")
+            print("License activation failed! See debug logs for details. Reason: {0}".format(res.what))
 
-        if check_license(license):
+
+        errCode, val = check_license(license)
+        if errCode.isError:
+            print("check_license: failed, reason:", errCode.what)
+
+        if val:
             # check facility for activated license
             try:
                 print("Trying to create detector after activation.")

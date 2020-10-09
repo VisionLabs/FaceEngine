@@ -22,7 +22,7 @@ if __name__ == "__main__":
 	#check license
 	license = root.getLicense()
 	if not root.activateLicense(license, args.data + "/license.conf"):
-		print("Failed to activate license!")
+		print("Failed to activate license! Reason: {0}".format(res.what))
 		exit(-1)
 	
 	detector = root.createDetector(fe.FACE_DET_V1)

@@ -19,8 +19,9 @@ from example_license import make_activation
 
 # correct paths or put directory "data" with example_gaze_cv.py
 faceEngine = fe.createFaceEngine("data")
-if not make_activation(faceEngine):
-    print("failed to activate license!")
+res = make_activation(faceEngine)
+if res.isError:
+    print("Failed to activate license! Reason: {0}".format(res.what))
     exit(-1)
 
 

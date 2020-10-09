@@ -38,7 +38,8 @@ class TestFaceEngineRect(unittest.TestCase):
     @classmethod
     def setUp(cls):
         cls.faceEngine = fe.createFaceEngine("data")
-        if not make_activation(cls.faceEngine):
+        res = make_activation(cls.faceEngine)
+        if res.isError:
             raise ActivationLicenseError("License is not activated!")
 
     # helpers
@@ -164,7 +165,8 @@ class TestFaceEngineRect(unittest.TestCase):
         runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
 
         faceEngine = fe.createFaceEngine(self.dataPath)
-        self.assertTrue(make_activation(faceEngine))
+        res = make_activation(faceEngine)
+        self.assertTrue(res.isOk)
         config = fe.createSettingsProvider(configPath)
         runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
 
@@ -244,7 +246,8 @@ class TestFaceEngineRect(unittest.TestCase):
         runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
 
         faceEngine = fe.createFaceEngine(self.dataPath)
-        self.assertTrue(make_activation(faceEngine))
+        res = make_activation(faceEngine)
+        self.assertTrue(res.isOk)
         config = fe.createSettingsProvider(configPath)
         runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
 
@@ -345,7 +348,8 @@ class TestFaceEngineRect(unittest.TestCase):
         runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
 
         faceEngine = fe.createFaceEngine(self.dataPath)
-        self.assertTrue(make_activation(faceEngine))
+        res = make_activation(faceEngine)
+        self.assertTrue(res.isOk)
         config = fe.createSettingsProvider(configPath)
         runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
 

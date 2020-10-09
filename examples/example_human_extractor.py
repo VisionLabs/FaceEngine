@@ -99,8 +99,9 @@ if __name__ == "__main__":
         n_images = len(sys.argv) - 2
         # correct path or put directory "data" with example*.py
         face_engine = fe.createFaceEngine("data")
-        if not make_activation(face_engine):
-            print("failed to activate license!")
+        res = make_activation(face_engine)
+        if res.isError:
+            print("Failed to activate license! Reason: {0}".format(res.what))
             exit(-1)
         image_list = load_list_of_images(n_images, sys.argv)
         warps = human_detect_warp_example(image_list)

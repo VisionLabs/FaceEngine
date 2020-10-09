@@ -361,8 +361,9 @@ if __name__ == "__main__":
     # correct path or put directory "data" with example.py
     faceEngine = fe.createFaceEngine("data")
     get_info()
-    if not make_activation(faceEngine):
-        print("failed to activate license!")
+    res = make_activation(faceEngine)
+    if res.isError:
+        print("Failed to activate license! Reason: {0}".format(res.what))
         exit(-1)
     image_path = sys.argv[2]
     image = image_load(image_path)

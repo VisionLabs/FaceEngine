@@ -87,5 +87,5 @@ public:
 
 	fsdk::ILicensePtr getLicense();
 
-	bool activateLicense(const fsdk::ILicensePtr& license, const char* configPath);
+	fsdk::Result<fsdk::FSDKError> activateLicense(const fsdk::ILicensePtr& license, const char* configPath);
 };
