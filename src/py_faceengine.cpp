@@ -770,7 +770,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"Use License objects to adopt FaceEngine functionality.\n")
 		.def("checkFeatureId", [](
 			const fsdk::ILicensePtr& license,
-			uint32_t featureId
+			fsdk::LicenseFeature featureId
 			) {
 				const auto res = license->checkFeatureId(featureId);
 				return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), res.getValue());
