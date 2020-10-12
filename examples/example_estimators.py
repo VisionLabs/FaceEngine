@@ -23,7 +23,7 @@ def image_load(image_path):
     print("image path: {0}".format(image_path))
     image = fe.Image()
     # print(fe.FormatType.R8)
-    err = image.load(image_path)
+    err = image.load(image_path, fe.FormatType.R8G8B8)
     # only for numpy and matplotlib
     # img_np = image.getData()
     # plt.imshow(img_np)
