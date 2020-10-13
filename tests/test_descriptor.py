@@ -233,9 +233,14 @@ class TestFaceEngineRect(unittest.TestCase):
             self.assertEqual(data[i], full_data_no_signature[i + diff_actual_no_signature])
 
     def testExtractor(self):
-        test_cases = {"54_mobilnet": [54, 0.9094, True, "auto", "cpu"],
-                      "54_no_mobilnet": [54, 0.9411, False, "auto", "cpu"],
-                      "56_no_mobilnet": [56, 0.7673, False, "auto", "cpu"]}
+        runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
+        runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
+        cpuClass    = runtimeConf.getValue("Runtime", "cpuClass")
+        deviceClass = runtimeConf.getValue("Runtime", "deviceClass")
+
+        test_cases = {"54_mobilnet": [54, 0.9094, True, cpuClass[0], deviceClass[0]],
+                      "54_no_mobilnet": [54, 0.9411, False, cpuClass[0], deviceClass[0]],
+                      "56_no_mobilnet": [56, 0.7673, False, cpuClass[0], deviceClass[0]]}
         for key, value in test_cases.items():
             version, refGS, useMobileNet, cpuType, device = value
             with self.subTest(key=key):
@@ -334,9 +339,14 @@ class TestFaceEngineRect(unittest.TestCase):
                 self.assertEqual(data[j], data_loaded[j])
 
     def testExtractorBatch(self):
-        test_cases = {"54_mobilnet": [54, True, "auto", "cpu"],
-                      "54_no_mobilnet": [54, False, "auto", "cpu"],
-                      "56_no_mobilnet": [56, False, "auto", "cpu"]}
+        runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
+        runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
+        cpuClass    = runtimeConf.getValue("Runtime", "cpuClass")
+        deviceClass = runtimeConf.getValue("Runtime", "deviceClass")
+
+        test_cases = {"54_mobilnet": [54, True, cpuClass[0], deviceClass[0]],
+                      "54_no_mobilnet": [54, False, cpuClass[0], deviceClass[0]],
+                      "56_no_mobilnet": [56, False, cpuClass[0], deviceClass[0]]}
         for key, value in test_cases.items():
             version, useMobileNet, cpuType, device = value
             with self.subTest(key=key):
@@ -391,8 +401,13 @@ class TestFaceEngineRect(unittest.TestCase):
         del aggr
 
     def testExtractorAggregation(self):
-        test_cases = {"54_no_mobilnet": [54, False, "auto", "cpu"],
-                      "56_no_mobilnet": [56, False, "auto", "cpu"]}
+        runtimeConfigPath = os.path.join(self.dataPath, "runtime.conf")
+        runtimeConf = fe.createSettingsProvider(runtimeConfigPath)
+        cpuClass    = runtimeConf.getValue("Runtime", "cpuClass")
+        deviceClass = runtimeConf.getValue("Runtime", "deviceClass")
+
+        test_cases = {"54_no_mobilnet": [54, False, cpuClass[0], deviceClass[0]],
+                      "56_no_mobilnet": [56, False, cpuClass[0], deviceClass[0]]}
         for key, value in test_cases.items():
             version, useMobileNet, cpuType, device = value
             with self.subTest(key=key):
