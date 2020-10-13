@@ -30,7 +30,7 @@ def load_images(images_dir_path, list_path):
             image_name = line
             image_path = images_dir_path + "/" + image_name
             image = fe.Image()
-            err = image.load(image_path)
+            err = image.load(image_path, fe.FormatType.R8G8B8)
             if err.isError:
                 print("Failed to load image: {0}".format(image_path))
             else:
@@ -220,7 +220,7 @@ if __name__ == "__main__":
         print(im)
 
     image = fe.Image()
-    if image.load(image_path).isError:
+    if image.load(image_path, fe.FormatType.R8G8B8).isError:
         print("Failed to load image:{0}".format())
 
     # Extract face descriptor of ref image.

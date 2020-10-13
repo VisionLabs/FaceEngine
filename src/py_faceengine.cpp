@@ -790,6 +790,21 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\tReturns:\n"
 			"\t\tTrue if object is activated, False otherwise.\n")
 
+		.def("getExpirationDate", [](
+			const fsdk::ILicensePtr& license,
+			uint32_t featureId) {
+				uint32_t timestamp = 0;
+				bool result = license->getExpirationDate(featureId, timestamp);
+				if (!result)
+					timestamp = 0;
+				return timestamp;
+			},
+			"Get the expiation date for the current license object for the feature.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (featureId): featureId to check if it available\n"
+			"\tReturns:\n"
+			"\t\tTimestamp in unixtime format. Zero in case of error.\n")
+
 		.def("loadFromFile", [](
 			const fsdk::ILicensePtr& license,
 			const char * path) {

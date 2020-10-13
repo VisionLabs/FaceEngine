@@ -84,7 +84,7 @@ def load_list_of_images(size, sys_argv):
     for i in range(size):
         image = fe.Image()
         print("Loading image {0}".format(sys_argv[i + 2]))
-        err_load = image.load(sys_argv[i + 2])
+        err_load = image.load(sys_argv[i + 2], fe.FormatType.R8G8B8)
         if err_load.isError or not image.isValid():
             print("Failed to load image: {0} . Reason: {1}".format(sys_argv[i + 2]), err_load.what)
             exit(1)
