@@ -103,7 +103,45 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\tthus it is safe to release the source descriptor object later.\n"
 		"\tReturns:\n"
 		"\t\t(DescriptorBatchResult): One of the error codes specified by DescriptorBatchError.\n")
-	
+
+	.def("add",[] (
+		const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
+		const fsdk::IDescriptorBatchPtr& desc,
+		uint32_t offset) {
+			fsdk::Result<fsdk::IDescriptorBatch::Error> error = descriptorBatchPtr->add(desc, offset);
+			return DescriptorBatchResult(error);
+		},
+		"Add a descriptor batch content to the batch. Descriptors to copy from the source bath are selected based on offset parameters.\n"
+		"\tWhen adding the first descriptor to an empty batch, the initial internal parameters (like version,\n"
+		"\tetc) of the batch are set to correspond ones of the descriptor. This means that incompatible descriptors\n"
+		"\tadded later will be rejected. See getModelVersion() to check whether a descriptor can be added to the batch.\n"
+		"\tArgs:\n"
+		"\t\tparam1 (IDescriptorPtr): descriptor to add. Descriptor data is copied and to internal reference is held.\n"
+		"\t\tparam2 (uint32): offset of descriptors to copy.\n"
+		"\t\tthus it is safe to release the source descriptor object later.\n"
+		"\tReturns:\n"
+		"\t\t(DescriptorBatchResult): One of the error codes specified by DescriptorBatchError.\n")
+
+	.def("add",[] (
+		const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
+		const fsdk::IDescriptorBatchPtr& desc,
+		uint32_t offset,
+		uint32_t count) {
+			fsdk::Result<fsdk::IDescriptorBatch::Error> error = descriptorBatchPtr->add(desc, offset, count);
+			return DescriptorBatchResult(error);
+		},
+		"Add a descriptor batch content to the batch. Descriptors to copy from the source bath are selected based on offset parameters.\n"
+		"\tWhen adding the first descriptor to an empty batch, the initial internal parameters (like version,\n"
+		"\tetc) of the batch are set to correspond ones of the descriptor. This means that incompatible descriptors\n"
+		"\tadded later will be rejected. See getModelVersion() to check whether a descriptor can be added to the batch.\n"
+		"\tArgs:\n"
+		"\t\tparam1 (IDescriptorPtr): descriptor to add. Descriptor data is copied and to internal reference is held.\n"
+		"\t\tparam2 (uint32): offset of descriptors to copy.\n"
+		"\t\tparam3 (uint32): count of descriptors to copy.\n"
+		"\t\tthus it is safe to release the source descriptor object later.\n"
+		"\tReturns:\n"
+		"\t\t(DescriptorBatchResult): One of the error codes specified by DescriptorBatchError.\n")
+
 	.def("removeFast",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr, const int index) {
 			fsdk::Result<fsdk::IDescriptorBatch::Error> error = descriptorBatchPtr->removeFast(index);
 			return DescriptorBatchResult(error); },
