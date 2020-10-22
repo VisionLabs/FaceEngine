@@ -68,9 +68,11 @@ def human_landmarks_detect_example(image1, image2):
                         print("\tPoint ", i, ":")
                         score = landmarks17[i].score
                         point = landmarks17[i].point
+                        visible = landmarks17[i].visible
                         print("\t\tx:", point.x)
                         print("\t\ty:", point.y)
                         print("\t\tscore:", score)
+                        print("\t\tvisible:", visible)
                 else:
                     print("human_landmarks_detect_example - landmarks failed!")
 
