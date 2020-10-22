@@ -433,6 +433,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			if (i >= s.landmarksCount) throw py::index_error();
 			s.landmarks[i].point = v.point;
 			s.landmarks[i].score = v.score;
+			s.landmarks[i].visible = v.visible;
 			return s.landmarks[i];
 		}, "Called to implement assignment to self[key]. \n"
 			"\tThe method `__setitem__` is used only for test and research purposes with class Vector2f.\n "
@@ -459,6 +460,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def(py::init<>())
 		.def_readwrite("score", &fsdk::HumanLandmark::score)
 		.def_readwrite("point", &fsdk::HumanLandmark::point)
+		.def_readwrite("visible", &fsdk::HumanLandmark::visible)
 		;
 
 // doc Template
