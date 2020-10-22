@@ -775,7 +775,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 			fsdk::LicenseFeature featureId
 			) {
 				const auto res = license->checkFeatureId(featureId);
-				return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), res.getValue());
+				if (res.isOk()) {
+					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), res.getValue());
+				}
+
+				return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), false);
 			},
 			"Checks if the feature with featureId is available in this license.\n"
 			"\t\t(see fsdk::LicenseFeature for details\n"
@@ -788,7 +792,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("isActivated", [](
 			const fsdk::ILicensePtr& license) {
 				const auto res = license->isActivated();
-				return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), res.getValue());
+				if (res.isOk()) {
+					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), res.getValue());
+				}
+
+				return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), false);
 			},
 			"Checks if current license object is activated and could be used by FaceEngine."
 			"License object which was not activated could not be used because all features are disabled by default.\n"
