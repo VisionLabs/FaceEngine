@@ -370,6 +370,7 @@ if __name__ == "__main__":
     if not make_activation(faceEngine):
         print("failed to activate license!")
         exit(-1)
+
     image_path = sys.argv[2]
     image = image_load(image_path)
     try:
@@ -381,6 +382,9 @@ if __name__ == "__main__":
         if not face.landmarks5_opt.isValid() or not face.landmarks68_opt.isValid():
             print("Detector: landmarks are not valid.")
             exit(-1)
+        if not face.isValid():
+           print("Detector: faces not found.")
+           exit(-1)
         (detection, landmarks5, landmarks68) = \
             face.detection, \
             face.landmarks5_opt.value(), \
