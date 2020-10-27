@@ -803,6 +803,22 @@ PYBIND11_MODULE(FaceEngine, f) {
 			"\tReturns:\n"
 			"\t\t(tuple with FSDKErrorResult and bool): tuple with FSDKErrorResult and and True if object is activated, False otherwise.\n")
 
+		.def("getExpirationDate", [](
+			const fsdk::ILicensePtr& license,
+			fsdk::LicenseFeature feature) {
+				const auto res = license->getExpirationDate(feature);
+				if (res.isOk()) {
+					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), res.getValue());
+				}
+
+				return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), uint32_t{0});
+			},
+			"Get the expiation date for the current license object for the feature.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (featureId): featureId to check if it available\n"
+			"\tReturns:\n"
+			"\t\t(tuple with FSDKErrorResult and timestamp): Tuple with FSDKErrorResult and timestamp in unixtime format. Zero in case of error.\n")
+
 		.def("loadFromFile", [](
 			const fsdk::ILicensePtr& license,
 			const char * path) {
@@ -1296,6 +1312,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			ILicensePtr
 			ILicensePtr.checkFeatureId
+			ILicensePtr.getExpirationDate
 			ILicensePtr.isActivated
 			ILicensePtr.loadFromFile
 			ILicensePtr.saveToFile
