@@ -1,8 +1,9 @@
 import sys
+import time
 
 
 def help():
-    print("python example_license.py <path to dir with FaceEngine*.so> <path to the folder with license.conf>")
+    print("python example_license.py <path to dir with FaceEngine*.so> <path to license.conf file>")
     exit(1)
 
 
@@ -34,7 +35,7 @@ def check_license(license):
     else:
         print("License is NOT activated!")
 
-    freatures = [
+    features = [
         fe.LicenseFeature.Detection,
         fe.LicenseFeature.BestShot,
         fe.LicenseFeature.Attributes,
@@ -48,7 +49,7 @@ def check_license(license):
         fe.LicenseFeature.HumanDetection
     ]
 
-    for feature in freatures:
+    for feature in features:
         errCode, val = license.checkFeatureId(feature)
         if errCode.isError:
             print("check_license: failed, reason:", errCode.what)
@@ -56,6 +57,11 @@ def check_license(license):
 
         if val:
             print("{0} is available".format(feature))
+            errorCode, timestamp = license.getExpirationDate(feature)
+            if errorCode.isError:
+                print("check_license: failed, reason:", errorCode.what)
+            else:
+                print("{0} expiration date: {1}".format(feature, time.gmtime(timestamp)))
         else:
             print("{0} is NOT available".format(feature))
 
@@ -89,13 +95,13 @@ if __name__ == "__main__":
             try:
                 print("Trying to create detector before activation.")
                 detector = faceEngine.createDetector(fe.FACE_DET_V1)
-                print("Strange, but detector was created sucessfully!")
+                print("Strange, but detector was created successfully!")
             except Exception as ex:
                 print("Detector creation failed. Exception: {0} {1}".format(type(ex).__name__, ex))
 
         res = faceEngine.activateLicense(license, licenseConfPath)
         if res.isOk:
-            print("License was sucessfully activated!")
+            print("License was successfully activated!")
         else:
             print("License activation failed! See debug logs for details. Reason: {0}".format(res.what))
 
