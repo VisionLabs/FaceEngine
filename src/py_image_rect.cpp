@@ -96,6 +96,8 @@ py::enum_<fsdk::Format::Type>(f, "FormatType", "Format type enumeration.\n")
 		"\t3 channel, 8 bit per channel format with InfraRed semantics")
 	.value("YUV_NV21", fsdk::Format::YUV_NV21,
 		"\t 4:2:0 format with a plane of 8-bit Y samples followed by interleaved 2x2 subsampled V/U 8-bit chroma samples;")
+	.value("YUV_NV12", fsdk::Format::YUV_NV12,
+		"\t 4:2:0 format with a plane of 8-bit Y samples followed by interleaved 2x2 subsampled U/V 8-bit chroma samples;")
 	;
 
 py::class_<fsdk::Image>(f, "Image",
