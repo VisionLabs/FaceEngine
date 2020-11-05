@@ -254,7 +254,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
     def testDepthEstimator(self):
         depthEstimator = self.faceEngine.createDepthEstimator()
-        reference = f.DepthEstimation(0.9397, True)
+        reference = f.DepthEstimation(0.9864, True)
 
         depthImage = f.Image()
         depthImage.load("testData/warpeddepth9397.png")
