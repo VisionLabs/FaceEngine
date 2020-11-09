@@ -345,6 +345,26 @@ def overlap_example(_face_engine, _image, _detection):
         exit(1)
 
 
+def orientation_example(_face_engine, _image):
+    estimator = _face_engine.createOrientationEstimator()
+
+    # basic example with one image
+    err, orientation = estimator.estimate(_image)
+    if err.isOk:
+        print("Orientation result: {0}".format(orientation))
+    else:
+        print("Failed orientation estimation. Reason: {0}".format(err.what))
+        exit(1)
+
+    # batch example
+    err, result_list = estimator.estimate([_image, _image, _image])
+    if err.isOk:
+        print("Batched orientation results: {0}".format(result_list))
+    else:
+        print("Failed orientation estimation. Reason: {0}".format(err.what))
+        exit(1)
+
+
 def print_landmarks(landmarks, message=""):
     print(message)
     for i in range(len(landmarks)):
@@ -368,6 +388,10 @@ if __name__ == "__main__":
     image_path = sys.argv[2]
     image = image_load(image_path)
     try:
+        # Orientation example is the first because other examples could not work 
+        # with images with not normal orientation
+        orientation_example(faceEngine, image)
+
         # take the simplest example and first detection, see example_detector_warper.py
         err, face = detector_one_example(image)
         if err.isError or not face.isValid():

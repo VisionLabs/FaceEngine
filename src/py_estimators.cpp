@@ -1027,4 +1027,47 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and OverlapEstimation\n")
 		;
+
+	py::class_<fsdk::IOrientationEstimatorPtr>(f, "IOrientationEstimatorPtr",
+		"Image orientation estimator interface.\n"
+		"\tEstimates the image orientation.\n")
+		.def("estimate", [] (
+			const fsdk::IOrientationEstimatorPtr& estimator,
+			const fsdk::Image& image) {
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::OrientationType> err = 
+					estimator->estimate(image);
+				if (err.isOk()) {
+					return std::make_tuple(FSDKErrorResult(err), err.getValue());
+				}
+				else {
+					return std::make_tuple(FSDKErrorResult(err), fsdk::OrientationType::OT_NORMAL);
+				}
+			},
+			"\tEstimates the image orientation.\n"
+			"\tArgs\n"
+			"\t\tparam1 (image): image source image in R8G8B8 format.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns error code FSDKErrorResult and OrientationType\n")
+
+		.def("estimate", [] (
+			const fsdk::IOrientationEstimatorPtr& estimator,
+			const std::vector<fsdk::Image>& imagesVec) {
+				std::vector<fsdk::OrientationType> results(imagesVec.size());
+				fsdk::Result<fsdk::FSDKError> err = 
+					estimator->estimate(imagesVec, results);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err),
+						std::vector<fsdk::OrientationType>(results.begin(), results.end())
+					);
+				else
+					return std::make_tuple(FSDKErrorResult(err),
+						std::vector<fsdk::OrientationType>()
+					); 
+			},
+			"\tEstimates the images orientation.\n"
+			"\tArgs\n"
+			"\t\tparam1 (list of Images): list of Images. Format must be R8G8B8\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns error code FSDKErrorResult and OrientationType result list\n")
+		;
 }
