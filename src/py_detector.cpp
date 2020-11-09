@@ -223,22 +223,7 @@ void detector_module(py::module& f) {
 			"\t\tparam2 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
 			"\tReturns:\n"
 			"\t\t(tuple) tuple with FSDKErrorResult, list of tuples from Detection, list of FSDKErrorResult for each face\n")
-		
-		.def("estimateOrientation", [](
-			const fsdk::IDetectorPtr& det,
-			const fsdk::Image& image) {
-				fsdk::ResultValue<fsdk::FSDKError, fsdk::OrientationType> result = det->estimateOrientation(image);
-				if(result.isOk())
-					return std::make_tuple(FSDKErrorResult(result), result.getValue());
-				else
-					return std::make_tuple(FSDKErrorResult(result), fsdk::OrientationType());
-			}, py::arg("image"),
-			"estimate orientation of all image (Normal, Left, Right, UpSideSown).\n"
-			"\tArgs:\n"
-			"\t\tparam1 (image): input image\n"
-			"\tReturns:\n"
-			"\t\t(tuple) tuple with FSDKErrorResult, OrientationType\n"
-			);
+		;
 	
 	py::class_<fsdk::Ref<fsdk::IHumanDetector>>(f, "IHumanDetectorPtr", "Human detector interface.\n")
 		.def("detect", [](

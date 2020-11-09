@@ -68,6 +68,8 @@ public:
 	fsdk::IIndexBuilderPtr createIndexBuilder();
 	
 	fsdk::Ref<fsdk::IHumanDetector> createHumanDetector();
+
+	fsdk::Ref<fsdk::IOrientationEstimator> createOrientationEstimator();
 	
 	fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndexPtr> loadDenseIndex(
 	const char* indexPath);

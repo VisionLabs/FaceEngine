@@ -158,6 +158,10 @@ fsdk::Ref<fsdk::IHumanDetector> PyIFaceEngine::createHumanDetector() {
 	return processResult(res, "to create human detector");
 }
 
+fsdk::Ref<fsdk::IOrientationEstimator> PyIFaceEngine::createOrientationEstimator() {
+	auto res = faceEnginePtr->createOrientationEstimator();
+	return processResult(res, "to create orientation estimator");
+}
 
 fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndexPtr> PyIFaceEngine::loadDenseIndex(
 	const char* indexPath) {

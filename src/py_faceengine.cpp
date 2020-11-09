@@ -187,6 +187,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createMouthEstimator", &PyIFaceEngine::createMouthEstimator, "Creates Mouth estimator\n")
 		.def("createMedicalMaskEstimator", &PyIFaceEngine::createMedicalMaskEstimator, "Creates Medical Mask estimator\n")
 		.def("createOverlapEstimator", &PyIFaceEngine::createOverlapEstimator, "Creates Overlap estimator\n")
+		.def("createOrientationEstimator", &PyIFaceEngine::createOrientationEstimator, "Creates Orientation estimator\n")
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			"Creates a detector of given type.\n", 
 			py::arg("type") = fsdk::ObjectDetectorClassType::FACE_DET_DEFAULT,
@@ -936,11 +937,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IDetectorPtr.detect
 			IDetectorPtr.detectOne
 			IDetectorPtr.setDetectionComparer
-
 			IDetectorPtr.redetectOne
 			IDetectorPtr.redetect
-
-			IDetectorPtr.estimateOrientation
 
 			Face
 			Face.isValid
