@@ -146,9 +146,9 @@ class TestFaceEngineEstimators(unittest.TestCase):
 
     def assertResult(self, result1, result):
         self.assertEqual(result1.gender_opt.value(), result.gender_opt.value())
-        self.assertAlmostEqual(result1.genderScore_opt.value(), result.genderScore_opt.value(), delta=0.00000001)
+        self.assertAlmostEqual(result1.genderScore_opt.value(), result.genderScore_opt.value(), delta=0.000001)
         self.assertEqual(result1.ethnicity_opt.value().caucasian, result.ethnicity_opt.value().caucasian)
-        self.assertEqual(result1.age_opt.value(), result.age_opt.value())
+        self.assertAlmostEqual(result1.age_opt.value(), result.age_opt.value(), delta=0.00001)
 
     def testQualityEstimator(self):
         qualityEstimator = self.faceEngine.createQualityEstimator()
