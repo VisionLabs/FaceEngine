@@ -973,7 +973,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IDescriptorBatchPtr.getCount
 			IDescriptorBatchPtr.getModelVersion
 			IDescriptorBatchPtr.getDescriptorType
-			IDescriptorBatchPtr.getDescriptorSize
+			IDescriptorBatchPtr.getDescriptorLength
 			IDescriptorBatchPtr.getDescriptorSlow
 			IDescriptorBatchPtr.getDescriptorFast
 			IDescriptorBatchPtr.clear

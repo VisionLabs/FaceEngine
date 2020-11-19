@@ -188,8 +188,8 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		 "\tReturns:\n"
 		 "\t\t(enum): type as enum.\n")
 	
-	.def("getDescriptorSize",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
-			return descriptorBatchPtr->getDescriptorSize(); },
+	.def("getDescriptorLength",[]( const fsdk::IDescriptorBatchPtr& descriptorBatchPtr) {
+			return descriptorBatchPtr->getDescriptorLength(); },
 		"Get length of one descriptor. Specified by version of descriptors in batch.\n"
 		"\tReturns:\n"
 		"\t\t(int): Length of one descriptor in batch.\n")
