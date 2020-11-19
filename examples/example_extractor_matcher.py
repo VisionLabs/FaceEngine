@@ -50,7 +50,7 @@ def extractor_example(image_list, batch_size):
         exit(-1)
     print("Garbage score list2:", value_batch_2)
     print("Descriptor batch test: count = {0}, version = {1}, desciptor size = {2}".format(descriptor_batch.getCount(),
-          descriptor_batch.getModelVersion(), descriptor_batch.getDescriptorSize()))
+          descriptor_batch.getModelVersion(), descriptor_batch.getDescriptorLength()))
     return descriptor1, descriptor2, descriptor_batch
 
 
