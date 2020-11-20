@@ -344,6 +344,13 @@ def overlap_example(_face_engine, _image, _detection):
         print("Failed overlap estimation. Reason: {0}".format(err.what))
         exit(1)
 
+def liveness_oneshot_rgb_estimator_example(_face_engine, _image, _face):
+    liveness_estimator = _face_engine.createLivenessOneShotRGBEstimator()
+    err, estimation = liveness_estimator.estimate(_image, _face)
+    if err.isOk:
+        print(estimation)
+    else:
+        print("Failed LivenessOneShotRGB estimation!. Reason: {0}".format(err.what))
 
 def orientation_example(_face_engine, _image):
     estimator = _face_engine.createOrientationEstimator()
@@ -437,6 +444,7 @@ if __name__ == "__main__":
         medical_mask_cropped_example(image, detection)
         medical_mask_warped_batch_example([warp_image, warp_image])
         medical_mask_cropped_batch_example([image, image], [detection, detection])
+        liveness_oneshot_rgb_estimator_example(faceEngine, image, face)
         # examples with hardcoded paths to images, special needs
         # depth_example("images/warp.depth")
         # ir_example("images/irWarp.ppm")
