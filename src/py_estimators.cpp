@@ -1070,4 +1070,36 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and OrientationType result list\n")
 		;
+
+	py::class_<fsdk::LivenessOneShotRGBEstimation>(f, "LivenessOneShotRGBEstimation", "LivenessOneShotRGB estimation output.\n")
+		.def_readwrite("score", &fsdk::LivenessOneShotRGBEstimation::score, "Liveness score\n")
+		.def_readwrite("isReal", &fsdk::LivenessOneShotRGBEstimation::isReal, "Is real or not\n")
+		.def_readwrite("qualityScore", &fsdk::LivenessOneShotRGBEstimation::qualityScore, "Is real or not\n")
+		.def("__repr__", [](const fsdk::LivenessOneShotRGBEstimation& e) {
+			return "LivenessOneShotRGBEstimation: \n"
+				"score = " + std::to_string(e.score) + "\n" +
+				"isReal = " + (e.isReal ? "True\n" : "False\n") +
+				"qualityScore = " + std::to_string(e.qualityScore) + "\n";
+			})
+		;
+
+	py::class_<fsdk::ILivenessOneShotRGBEstimatorPtr>(f, "ILivenessOneShotRGBEstimatorPtr",
+		"LivenessOneShotRGB estimator interface.\n"
+		"\tEstimates the liveness state of the face.\n")
+		.def("estimate", [](
+			const fsdk::ILivenessOneShotRGBEstimatorPtr& estimator,
+			const fsdk::Image& image,
+			const fsdk::Face& face) {
+				fsdk::LivenessOneShotRGBEstimation out = {};
+				fsdk::Result<fsdk::FSDKError> status = estimator->estimate(image, face, out);
+				return std::make_tuple(FSDKErrorResult(status), out);
+			},
+			"\tEstimates the liveness state of the face.\n"
+			"\tArgs\n"
+			"\t\tparam1 (image): image source image in R8G8B8 format.\n"
+			"\t\tparam2 (image): warped face detection in R8G8B8 format.\n"
+			"\t\tparam3 (detection): detection coords in image space for the target face.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns error code FSDKErrorResult and LivenessOneShotRGBEstimation\n")
+		;
 }

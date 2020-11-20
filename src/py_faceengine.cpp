@@ -171,6 +171,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createFaceFlowEstimator", &PyIFaceEngine::createFaceFlowEstimator, "Creates Liveness flow estimator. \n"
 			"Note: this estimator is required only for liveness detection purposes.\n")
 		.def("createLivenessRGBMEstimator", &PyIFaceEngine::createLivenessRGBMEstimator, "Creates Liveness RGBM estimator. \n")
+		.def("createLivenessOneShotRGBEstimator", &PyIFaceEngine::createLivenessOneShotRGBEstimator, "Creates Liveness OneShotRGB estimator. \n")
 
 		.def("createEyeEstimator", &PyIFaceEngine::createEyeEstimator, 
 			"Creates Eye estimator of given recognition mode\n",
