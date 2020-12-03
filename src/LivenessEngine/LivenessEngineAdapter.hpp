@@ -1,10 +1,7 @@
-//
-// Created by mar on 24.02.19.
-//
-
 #pragma once
 
-#include "FaceEngineAdapter.hpp"
+#include <FaceEngineAdapter.hpp>
+
 #include <fsdk/FaceEngine.h>
 #include <lsdk/LivenessEngine.h>
 

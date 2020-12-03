@@ -23,6 +23,7 @@ sys.path.append(path_to_binding)
 
 # if FaceEngine is installed only this string of code is required for module importing
 import FaceEngine as fe
+import LivenessEngine as le
 
 # erase two first arguments for unittest argument parsing
 del(sys.argv[1])
@@ -34,7 +35,7 @@ def createLivenessEngine(preparedConfig):
     faceEngine.setSettingsProvider(preparedConfig)
     if not make_activation(faceEngine):
         raise ActivationLicenseError("License is not activated!")
-    liveness_engine = fe.createLivenessEngine(faceEngine, "data")
+    liveness_engine = le.createLivenessEngine(faceEngine, "data")
     return liveness_engine
 
 test_data_path = "testData"
@@ -46,36 +47,36 @@ def print_landmarks(landmarks, message=""):
         print(landmarks[i])
 
 #implementation
-print(fe.LA_PITCH_DOWN)
-print(fe.LA_PITCH_UP)
-print(fe.LA_YAW_LEFT)
-print(fe.LA_YAW_RIGHT)
-print(fe.LA_SMILE)
-print(fe.LA_MOUTH)
-print(fe.LA_EYEBROW)
-print(fe.LA_EYE)
-print(fe.LA_ZOOM)
-print(fe.LA_INFRARED)
-print(fe.LA_EYEBROW)
+print(le.LA_PITCH_DOWN)
+print(le.LA_PITCH_UP)
+print(le.LA_YAW_LEFT)
+print(le.LA_YAW_RIGHT)
+print(le.LA_SMILE)
+print(le.LA_MOUTH)
+print(le.LA_EYEBROW)
+print(le.LA_EYE)
+print(le.LA_ZOOM)
+print(le.LA_INFRARED)
+print(le.LA_EYEBROW)
 
-print(fe.CLA_DEPTH)
+print(le.CLA_DEPTH)
 
-print(fe.LSDKError.Ok)
-print(fe.LSDKError.NotInitialized)
-print(fe.LSDKError.NotReady)
-print(fe.LSDKError.PreconditionFailed)
-print(fe.LSDKError.Internal)
-angles = fe.Angles()
+print(le.LSDKError.Ok)
+print(le.LSDKError.NotInitialized)
+print(le.LSDKError.NotReady)
+print(le.LSDKError.PreconditionFailed)
+print(le.LSDKError.Internal)
+angles = le.Angles()
 angles.yaw = 10
 angles.pitch = 20
 angles.roll = 30
 print("angles {0}, {1} {2}".format(angles.yaw, angles.pitch, angles.roll))
-scores = fe.Scores()
+scores = le.Scores()
 scores.smile = 0.3
 scores.mouth = 0.3
 scores.eyebrow = 0.4
 print("scores {0}, {1} {2}".format(scores.smile, scores.mouth, scores.eyebrow))
-eye_states = fe.EyeStates()
+eye_states = le.EyeStates()
 eye_states.left = 0
 eye_states.right = 1
 print("eye_states {0}, {1} ".format(eye_states.left, eye_states.right))
@@ -83,8 +84,8 @@ print("eye_states {0}, {1} ".format(eye_states.left, eye_states.right))
 configPath = os.path.join("data", "faceengine.conf")
 config = fe.createSettingsProvider(configPath)
 liveness_engine = createLivenessEngine(config)
-liveness = liveness_engine.createLiveness(fe.LA_INFRARED)
-complex_liveness = liveness_engine.createComplexLiveness(fe.CLA_DEPTH)
+liveness = liveness_engine.createLiveness(le.LA_INFRARED)
+complex_liveness = liveness_engine.createComplexLiveness(le.CLA_DEPTH)
 image = fe.Image()
 image_path = test_data_path + "/image1.ppm"
 err = image.load(image_path)
@@ -170,17 +171,17 @@ class TestFaceEngineLiveness(unittest.TestCase):
         self.assertTrue(success)
 
     def test_liveness(self):
-        self.simpleLivenessTest(fe.LA_INFRARED, test_data_path + "/infrared.bin")
-        self.simpleLivenessTest(fe.LA_YAW_RIGHT, test_data_path + "/yawright.bin")
-        self.simpleLivenessTest(fe.LA_YAW_LEFT, test_data_path + "/yawleft.bin")
-        self.simpleLivenessTest(fe.LA_PITCH_UP, test_data_path + "/pitchup.bin")
-        self.simpleLivenessTest(fe.LA_PITCH_DOWN, test_data_path + "/pitchdown.bin")
-        self.simpleLivenessTest(fe.LA_MOUTH, test_data_path + "/mouth.bin")
-        self.simpleLivenessTest(fe.LA_EYEBROW, test_data_path + "/eyebrow.bin")
-        self.simpleLivenessTest(fe.LA_EYE, test_data_path + "/eye.bin")
-        self.simpleLivenessTest(fe.LA_ZOOM, test_data_path + "/zoom.bin")
-        self.simpleLivenessTest(fe.LA_SMILE, test_data_path + "/smile.bin")
-        self.complexLivenessTest(fe.CLA_DEPTH, test_data_path + "/color.bin", test_data_path + "/depth.bin")
+        self.simpleLivenessTest(le.LA_INFRARED, test_data_path + "/infrared.bin")
+        self.simpleLivenessTest(le.LA_YAW_RIGHT, test_data_path + "/yawright.bin")
+        self.simpleLivenessTest(le.LA_YAW_LEFT, test_data_path + "/yawleft.bin")
+        self.simpleLivenessTest(le.LA_PITCH_UP, test_data_path + "/pitchup.bin")
+        self.simpleLivenessTest(le.LA_PITCH_DOWN, test_data_path + "/pitchdown.bin")
+        self.simpleLivenessTest(le.LA_MOUTH, test_data_path + "/mouth.bin")
+        self.simpleLivenessTest(le.LA_EYEBROW, test_data_path + "/eyebrow.bin")
+        self.simpleLivenessTest(le.LA_EYE, test_data_path + "/eye.bin")
+        self.simpleLivenessTest(le.LA_ZOOM, test_data_path + "/zoom.bin")
+        self.simpleLivenessTest(le.LA_SMILE, test_data_path + "/smile.bin")
+        self.complexLivenessTest(le.CLA_DEPTH, test_data_path + "/color.bin", test_data_path + "/depth.bin")
 
 
 if __name__ == '__main__':

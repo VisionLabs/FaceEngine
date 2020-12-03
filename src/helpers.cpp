@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 
 #include <fsdk/FaceEngine.h>
 #include "helpers.hpp"

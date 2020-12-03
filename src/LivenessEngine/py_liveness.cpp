@@ -1,23 +1,50 @@
+#include "LivenessEngineAdapter.hpp"
+
 #include <lsdk/LivenessEngine.h>
-#include <pybind11/pybind11.h>
 #include <fsdk/FaceEngine.h>
+
+#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
-#include <pybind11/numpy.h>
-#include "LivenessEngineAdapter.hpp"
-#include "ErrorsAdapter.hpp"
 
 namespace py = pybind11;
 
-void liveness_module(py::module& f) {
-	
-	py::class_<PyILivenessEngine>(f, "PyILivenessEngine", "Root Liveness object interface\n")
+PyILivenessEngine createPyLivenessEnginePtr(
+	const PyIFaceEngine& pyIFaceEngine,
+	const char* dataPath = nullptr) {
+		return PyILivenessEngine(pyIFaceEngine, dataPath);
+	}
+
+// liveness error
+struct LSDKErrorResult {
+	bool isOk;
+	bool isError;
+	lsdk::LSDKError error;
+	const char* what;
+
+	LSDKErrorResult(fsdk::ResultValue<lsdk::LSDKError, bool> err) :
+			isOk(err.isOk()),
+			isError(err.isError()),
+			error(err.getError()),
+			what(err.what())
+	{};
+};
+
+PYBIND11_MODULE(LivenessEngine, le) {
+
+	le.def("createLivenessEngine", &createPyLivenessEnginePtr, py::return_value_policy::take_ownership,
+		  "Create the Liveness object\n"
+		  "\tArgs:\n"
+		  "\t\tparam1 (FaceEngine obj): the LUNA SDK root object.\n"
+		  "\t\tparam2 (str): [optional] path to folder with FSDK data.\n");
+
+	py::class_<PyILivenessEngine>(le, "PyILivenessEngine", "Root Liveness object interface\n")
 		.def("createLiveness", &PyILivenessEngine::createLiveness, "liveness object if succeeded, nullptr if failed.\n")
 		.def("setSettingsProvider", &PyILivenessEngine::setSettingsProvider, "\n")
 		.def("createComplexLiveness", &PyILivenessEngine::createComplexLiveness, "\n")
 			; // PyILivenessEngine
 	
-	py::enum_<lsdk::LivenessAlgorithmType>(f, "LivenessType",
+	py::enum_<lsdk::LivenessAlgorithmType>(le, "LivenessType",
 			"Liveness type enumeration.\n")
 		.value("LA_PITCH_DOWN", lsdk::LA_PITCH_DOWN, "Algorithm based on downward face movement.\n")
 		.value("LA_PITCH_UP", lsdk::LA_PITCH_UP, "Algorithm based on upward face movement.\n")
@@ -32,13 +59,13 @@ void liveness_module(py::module& f) {
 		.export_values();
 			;
 	
-	py::enum_<lsdk::ComplexLivenessAlgorithmType>(f, "ComplexLivenessType", py::arithmetic(),
+	py::enum_<lsdk::ComplexLivenessAlgorithmType>(le, "ComplexLivenessType", py::arithmetic(),
 			"Liveness type enumeration.\n")
 		.value("CLA_DEPTH", lsdk::CLA_DEPTH, "Algorithm based on depth map analysis.\n")
 		.export_values();
 			;
 	
-	py::enum_<lsdk::LSDKError>(f, "LSDKError", "Liveness type enumeration.\n")
+	py::enum_<lsdk::LSDKError>(le, "LSDKError", "Liveness type enumeration.\n")
 		.value("Ok", lsdk::LSDKError::Ok, "Ok.\n")
 		.value("NotInitialized", lsdk::LSDKError::NotInitialized,
 			"Liveness not initialized..\n")
@@ -50,7 +77,7 @@ void liveness_module(py::module& f) {
 		.export_values();
 			;
 	
-	py::class_<lsdk::Angles>(f, "Angles")
+	py::class_<lsdk::Angles>(le, "Angles")
 		.def(py::init<>())
 		.def_readwrite("yaw", &lsdk::Angles::yaw)
 		.def_readwrite("pitch", &lsdk::Angles::pitch)
@@ -65,7 +92,7 @@ void liveness_module(py::module& f) {
 			})
 			;
 	
-	py::class_<lsdk::Scores>(f, "Scores")
+	py::class_<lsdk::Scores>(le, "Scores")
 		.def(py::init<>())
 		.def_readwrite("smile", &lsdk::Scores::smile)
 		.def_readwrite("mouth", &lsdk::Scores::mouth)
@@ -81,7 +108,7 @@ void liveness_module(py::module& f) {
 		;
 			;
 	
-	py::class_<lsdk::EyeStates>(f, "EyeStates")
+	py::class_<lsdk::EyeStates>(le, "EyeStates")
 		.def(py::init<>())
 		.def_readwrite("left", &lsdk::EyeStates::left)
 		.def_readwrite("right", &lsdk::EyeStates::right)
@@ -94,7 +121,7 @@ void liveness_module(py::module& f) {
 			})
 			;
 	
-	py::class_<lsdk::ILivenessPtr>(f, "Liveness")
+	py::class_<lsdk::ILivenessPtr>(le, "Liveness")
 	.def("update", [](
 			const lsdk::ILivenessPtr& livenessPtr,
 			fsdk::Image &image) {
@@ -150,7 +177,7 @@ void liveness_module(py::module& f) {
 	})
 		;
 	
-	py::class_<lsdk::IComplexLivenessPtr>(f, "ComplexLiveness")
+	py::class_<lsdk::IComplexLivenessPtr>(le, "ComplexLiveness")
 	.def("update", [](
 			const lsdk::IComplexLivenessPtr& livenessPtr,
 			fsdk::Image &rgb,
@@ -206,5 +233,21 @@ void liveness_module(py::module& f) {
 		return py::make_tuple(success, eyeStates);
 	})
 		;
-	
+
+	//	Errors
+	py::class_<LSDKErrorResult>(le, "LSDKErrorResult",
+								"Wrapper for LSDK::Error that encapsulates an action result enumeration.\n"
+								"\tAn enum should specify a result code.\n")
+			.def_readonly("isOk", &LSDKErrorResult::isOk)
+			.def_readonly("isError", &LSDKErrorResult::isError)
+			.def_readonly("error", &LSDKErrorResult::error)
+			.def_readonly("what", &LSDKErrorResult::what)
+			.def("__repr__",
+				 [](const LSDKErrorResult &err) {
+					 return "LSDKErrorResult: "
+							"isOk = " + std::to_string(err.isOk)
+							+ ", isError = " + std::to_string(err.isError)
+							+ ", error = " + std::to_string(static_cast<uint32_t>(err.error))
+							+ ", what = " + err.what; })
+			;
 }

@@ -1,7 +1,4 @@
-//
-// Created by mar on 28.04.18.
-//
-#include "SettingsProviderAdapter.hpp"
+#include <SettingsProviderAdapter.hpp>
 #include <pybind11/detail/common.h>
 
 namespace py = pybind11;

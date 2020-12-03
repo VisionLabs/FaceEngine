@@ -2,7 +2,7 @@
 
 #include "CallbackObserver.hpp"
 
-#include "../FaceEngineAdapter.hpp"
+#include <FaceEngineAdapter.hpp>
 
 #include "tsdk/ITrackEngine.h"
 
