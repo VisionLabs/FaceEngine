@@ -30,7 +30,7 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 			 return desc->getDescriptorType(); },
 		 "Get type of descriptor: face or human.\n"
 		 "\tReturns:\n"
-		 "\t\t(enum): type as DesctiptorType.\n")
+		 "\t\t(enum): type as DescriptorType.\n")
 	
 	.def("getDescriptorLength",[]( const fsdk::IDescriptorPtr& desc) {
 			return desc->getDescriptorLength(); },

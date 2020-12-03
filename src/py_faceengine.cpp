@@ -318,9 +318,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("OutOfRange", fsdk::IDescriptorBatch::Error::OutOfRange)
 			;
 	
-	py::enum_<fsdk::DesctiptorType>(f, "DesctiptorType", "Determines which type of descriptor to use.\n")
-		.value("DT_FACE", fsdk::DesctiptorType::DT_FACE)
-		.value("DT_HUMAN", fsdk::DesctiptorType::DT_HUMAN)
+	py::enum_<fsdk::DescriptorType>(f, "DescriptorType", "Determines which type of descriptor to use.\n")
+		.value("DT_FACE", fsdk::DescriptorType::DT_FACE)
+		.value("DT_HUMAN", fsdk::DescriptorType::DT_HUMAN)
 		.export_values()
 			;
 	
