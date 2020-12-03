@@ -1,8 +1,4 @@
-//
-// Created by mar on 28.04.18.
-//
-
-#include "FaceEngineAdapter.hpp"
+#include <FaceEngineAdapter.hpp>
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;

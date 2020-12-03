@@ -3,7 +3,7 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 #include <pybind11/numpy.h>
-#include "ErrorsAdapter.hpp"
+#include <ErrorsAdapter.hpp>
 
 namespace py = pybind11;
 

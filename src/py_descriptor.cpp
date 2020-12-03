@@ -1,10 +1,12 @@
-#include <pybind11/pybind11.h>
+#include <ErrorsAdapter.hpp>
+
 #include <fsdk/FaceEngine.h>
+
+#include "helpers.hpp"
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
-#include <pybind11/numpy.h>
-#include "ErrorsAdapter.hpp"
-#include "helpers.hpp"
 
 namespace py = pybind11;
 
@@ -42,7 +44,7 @@ py::class_<fsdk::IDescriptorPtr>(f, "IDescriptorPtr", "Descriptor interface. Use
 			std::vector<uint8_t> buffer(size);
 			bool isOk = desc->getDescriptor(buffer.data());
 			if (isOk)
-				return std::move(buffer);
+				return buffer;
 			else
 				return std::vector<uint8_t>(); },
 		"Copy descriptor data to python list.\n "

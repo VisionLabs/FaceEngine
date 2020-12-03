@@ -14,6 +14,7 @@ if len(sys.argv) != 3:
 
 sys.path.append(sys.argv[1])
 import FaceEngine as fe
+import LivenessEngine as le
 from example_license import make_activation
 
 def print_landmarks(landmarks, message=""):
@@ -29,7 +30,7 @@ if __name__ == "__main__":
     if res.isError:
         print("Failed to activate license! Reason: {0}".format(res.what))
         exit(1)
-    liveness_engine = fe.createLivenessEngine(faceEngine, "./data")
+    liveness_engine = le.createLivenessEngine(faceEngine, "./data")
     video_path = sys.argv[2]
     print("downloading of video: {0}".format(video_path))
 
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     vidcap = cv2.VideoCapture(video_path)
     success = False
     process = True
-    liveness = liveness_engine.createLiveness(fe.LA_INFRARED)
+    liveness = liveness_engine.createLiveness(le.LA_INFRARED)
     n = 0
     image = fe.Image()
     while process:

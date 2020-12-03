@@ -1,18 +1,16 @@
-#include <iostream>
-#include <pybind11/pybind11.h>
-#include <fsdk/FaceEngine.h>
-#include <pybind11/functional.h>
-#include <pybind11/stl.h>
-#include <pybind11/stl_bind.h>
-#include <pybind11/operators.h>
-#include <pybind11/numpy.h>
-#include "ErrorsAdapter.hpp"
-#include "FaceEngineAdapter.hpp"
-#include "LivenessEngineAdapter.hpp"
-#include "SettingsProviderAdapter.hpp"
-#include "helpers.hpp"
+#include <ErrorsAdapter.hpp>
+
+#include <FaceEngineAdapter.hpp>
+#include <SettingsProviderAdapter.hpp>
+
 #include <fsdk/Version.h>
+#include <fsdk/FaceEngine.h>
 #include <fsdk/Types/HumanLandmarks.h>
+
+#include <pybind11/operators.h>
+#include <pybind11/pybind11.h>
+
+#include <iostream>
 
 namespace py = pybind11;
 
@@ -30,12 +28,6 @@ PyIFaceEngine createPyFaceEnginePtr(
 	const char* configPath = nullptr,
 	const char* runtimeConfigPath = nullptr) {
 	return PyIFaceEngine(dataPath, configPath, runtimeConfigPath);
-}
-
-PyILivenessEngine createPyLivenessEnginePtr(
-	const PyIFaceEngine& pyIFaceEngine,
-	const char* dataPath = nullptr) {
-	return PyILivenessEngine(pyIFaceEngine, dataPath);
 }
 
 PyISettingsProvider createSettingsProviderPtr(const char* path) {
@@ -83,7 +75,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 	detector_module(f);
 	descriptor_module(f);
 	warper_module(f);
-	liveness_module(f);
 	set_optional_class(f);
 	
 	enum class FaceEngineEdition {
@@ -145,12 +136,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 		"Create object SettingsProvider\n"
 		"\tArgs:\n"
 		"\t\tparam1 (str): configuration file path\n");
-	
-	f.def("createLivenessEngine", &createPyLivenessEnginePtr, py::return_value_policy::take_ownership,
-		  "Create the Liveness object\n"
-		"\tArgs:\n"
-		"\t\tparam1 (FaceEngine obj): the LUNA SDK root object.\n"
-		"\t\tparam2 (str): [optional] path to folder with FSDK data.\n");
 	
 	py::class_<PyIFaceEngine>(f, "PyIFaceEngine", "Root LUNA SDK object interface\n")
 		.def("getFaceEngineEdition", &PyIFaceEngine::getFaceEngineEdition,
@@ -519,23 +504,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 						+ ", FSDKError = " + std::to_string(static_cast<uint32_t>(err.error))
 						+ ", what = " + err.what; })
 			;
-	
-	//	Errors
-	py::class_<LSDKErrorResult>(f, "LSDKErrorResult",
-			"Wrapper for LSDK::Error that encapsulates an action result enumeration.\n"
-			"\tAn enum should specify a result code.\n")
-		.def_readonly("isOk", &LSDKErrorResult::isOk)
-		.def_readonly("isError", &LSDKErrorResult::isError)
-		.def_readonly("error", &LSDKErrorResult::error)
-		.def_readonly("what", &LSDKErrorResult::what)
-		.def("__repr__",
-			 [](const LSDKErrorResult &err) {
-				 return "LSDKErrorResult: "
-							"isOk = " + std::to_string(err.isOk)
-						+ ", isError = " + std::to_string(err.isError)
-						+ ", error = " + std::to_string(static_cast<uint32_t>(err.error))
-						+ ", what = " + err.what; })
-		;
+
+
 	
 	py::class_<DescriptorBatchResult>(f, "DescriptorBatchResult",
 		"Wrapper for DescriptorBatch::Error that encapsulates an action result enumeration.\n"

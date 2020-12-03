@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../FaceEngineAdapter.hpp"
+#include <FaceEngineAdapter.hpp>
 
 class PyICallback {
 public:

@@ -4,7 +4,6 @@
 #pragma once
 
 #include <fsdk/FaceEngine.h>
-#include <lsdk/LivenessEngine.h>
 #include <fstream>
 
 struct FSDKErrorResult {
@@ -18,21 +17,6 @@ struct FSDKErrorResult {
 	isError(err.isError()),
 	error(err.getError()),
 	what(err.what())
-	{};
-};
-
-// liveness error
-struct LSDKErrorResult {
-	bool isOk;
-	bool isError;
-	lsdk::LSDKError error;
-	const char* what;
-	
-	LSDKErrorResult(fsdk::ResultValue<lsdk::LSDKError, bool> err) :
-		isOk(err.isOk()),
-		isError(err.isError()),
-		error(err.getError()),
-		what(err.what())
 	{};
 };
 

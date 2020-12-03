@@ -1,6 +1,7 @@
 #include "TrackEngineAdapter.hpp"
 #include "TrackEngineCallback.hpp"
-#include "../FaceEngineAdapter.hpp"
+
+#include <FaceEngineAdapter.hpp>
 
 #include <fsdk/FaceEngine.h>
 

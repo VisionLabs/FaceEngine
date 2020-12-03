@@ -34,7 +34,8 @@ if (CONFIG_INSTALL)
 			-P cmake_install.cmake)
 else()
 
-option(BUILD_TE_BINDINGS "Building Track Engine Bindings library" ON)
+option(BUILD_TE_BINDINGS "Building Track Engine Bindings library" OFF)
+option(BUILD_LE_BINDINGS "Building Liveness Engine Bindings library" OFF)
 
 set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -50,35 +51,37 @@ endif()
 find_package(FaceEngineSDK REQUIRED)
 include_directories(${FSDK_INCLUDE_DIRS})
 
-if (FSDK_FOUND)
-	if (NOT DEFINED LSDK_ROOT)
-		# We can't just use FSDK_ROOT - it could be relative.
-		set(LSDK_ROOT "${FSDK_INCLUDE_DIRS}/../." CACHE PATH "LSDK directory")
+include_directories(include)
+
+message("FSDK_LIBRARIES = ${FSDK_LIBRARIES}")
+message("FSDK_INCLUDE_DIRS = ${FSDK_INCLUDE_DIRS}")
+
+if(BUILD_LE_BINDINGS)
+	if (FSDK_FOUND)
+		if (NOT DEFINED LSDK_ROOT)
+			# We can't just use FSDK_ROOT - it could be relative.
+			set(LSDK_ROOT "${FSDK_INCLUDE_DIRS}/../." CACHE PATH "LSDK directory")
+		endif()
 	endif()
+	find_package(LivenessEngineSDK REQUIRED)
+	include_directories(${LSDK_INCLUDE_DIRS})
+	message("LSDK_LIBRARIES = ${LSDK_LIBRARIES}")
+	message("LSDK_INCLUDE_DIRS = ${LSDK_INCLUDE_DIRS}")
 endif()
 
-find_package(LivenessEngineSDK REQUIRED)
-include_directories(${LSDK_INCLUDE_DIRS})
-
-if (FSDK_FOUND)
-	if (NOT DEFINED TSDK_ROOT)
-		# We can't just use FSDK_ROOT - it could be relative.
-		set(TSDK_ROOT "${FSDK_INCLUDE_DIRS}/../." CACHE PATH "TSDK directory")
-	endif()
-endif()
 
 if(BUILD_TE_BINDINGS)
+	if (FSDK_FOUND)
+		if (NOT DEFINED TSDK_ROOT)
+			# We can't just use FSDK_ROOT - it could be relative.
+			set(TSDK_ROOT "${FSDK_INCLUDE_DIRS}/../." CACHE PATH "TSDK directory")
+		endif()
+	endif()
 	find_package(TrackEngineSDK REQUIRED)
 	include_directories(${TSDK_INCLUDE_DIRS})
 	message("TSDK_LIBRARIES = ${TSDK_LIBRARIES}")
 	message("TSDK_INCLUDE_DIRS = ${TSDK_INCLUDE_DIRS}")
 endif()
-
-message("FSDK_LIBRARIES = ${FSDK_LIBRARIES}")
-message("FSDK_INCLUDE_DIRS = ${FSDK_INCLUDE_DIRS}")
-
-message("LSDK_LIBRARIES = ${LSDK_LIBRARIES}")
-message("LSDK_INCLUDE_DIRS = ${LSDK_INCLUDE_DIRS}")
 
 
 add_subdirectory(pybind11)
@@ -86,12 +89,23 @@ add_subdirectory(pybind11)
 file(GLOB SOURCES src/*.cpp)
 message("FaceEngine sources: ${SOURCES}")
 pybind11_add_module(FaceEngine ${SOURCES})
-target_link_libraries(FaceEngine PRIVATE pybind11::module ${FSDK_LIBRARIES} ${LSDK_LIBRARIES})
+target_link_libraries(FaceEngine PRIVATE pybind11::module ${FSDK_LIBRARIES})
 
 install(TARGETS FaceEngine
 	LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT libs)
 
 message(STATUS "install path is ${CMAKE_INSTALL_PREFIX}")
+
+if(BUILD_LE_BINDINGS)
+	file(GLOB SOURCES src/LivenessEngine/*.cpp)
+	message("LivenessEngine sources: ${SOURCES}")
+	
+	pybind11_add_module(LivenessEngine ${SOURCES})
+	target_link_libraries(LivenessEngine PRIVATE pybind11::module ${FSDK_LIBRARIES} ${LSDK_LIBRARIES})
+	
+	install(TARGETS LivenessEngine
+			LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT libs)
+endif()
 
 if(BUILD_TE_BINDINGS)
 	file(GLOB SOURCES src/TrackEngine/*.cpp)
