@@ -100,7 +100,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def(py::init<>())
 		.def(py::init<fsdk::Image>())
 		.def(py::init<fsdk::Image, fsdk::Detection>())
-		.def(py::init<fsdk::Image, fsdk::BaseDetection<float>>())
+		.def(py::init<fsdk::Image, fsdk::Detection>())
 		.def_readwrite("img", &fsdk::Face::img, "Image\n")
 		.def_readwrite("detection", &fsdk::Face::detection, "Detection\n")
 		.def_readwrite("landmarks5_opt", &fsdk::Face::landmarks5, "Landmarks5 optinal\n")
@@ -433,16 +433,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("detection", &fsdk::Human::detection, "Object bounding box")
 		.def_readwrite("landmarks17_opt", &fsdk::Human::landmarks17, "HumanLandmarks17 optional\n")
 		.def("isValid", &fsdk::Human::isValid)
-		.def("__repr__",
-			[](const fsdk::Human& d) {
-				return "Human: rect: x = " + std::to_string(d.detection.rect.x) +
-					", y = " + std::to_string(d.detection.rect.y) +
-					", width = " + std::to_string(d.detection.rect.width) +
-					", height = " + std::to_string(d.detection.rect.height) +
-					"; score = " + std::to_string(d.detection.score) +
-					"; isValid = " + std::to_string(d.detection.isValid());
-			});
-			;
+		;
 	py::class_<fsdk::HumanLandmark>(f, "HumanLandmark", "HumanLandmark keypoints\n")
 		.def(py::init<>())
 		.def_readwrite("score", &fsdk::HumanLandmark::score)

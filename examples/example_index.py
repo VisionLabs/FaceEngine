@@ -81,9 +81,10 @@ def extract_descriptor(face_engine, warper, detector, descriptor_extractor, imag
     for detection_index in range(detection_count):
         detection = detections[detection_index]
         print("Detecting facial features ({0}/{1})".format(detection_index + 1, detection_count))
-        print(detection.score)
-        if detection.score > best_score:
-            best_score = detection.score
+        score = detection.getScore()
+        print(score)
+        if score > best_score:
+            best_score = score
             best_detection_index = detection_index
     if best_score < confidence_threshold:
         print("Face detection succeeded, but no faces with good confidence found.")

@@ -82,7 +82,7 @@ def simple_redetect_example(image1, image2, _detector_type=fe.FACE_DET_V3):
     print("\nsimple_redetect_example - first result: {0}".format(face.detection))
 
     # And one more case - redetect based on the image and rect
-    redetect_result, redetected_face = detector.redetectOne(image2, face.detection.rect, fe.DT_LANDMARKS5)
+    redetect_result, redetected_face = detector.redetectOne(image2, face.detection.getRect(), fe.DT_LANDMARKS5)
     if redetect_result.isError:
         print("simple_redetect_example - failed to redetect! Reason: {0}".format(redetect_result.what))
         return
