@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     # Only one face on the target image
     if len(face_list[0]) != 1:
-        print("Exactly pne face required on the image, but found {0} faces!".format(len(face_list[0])))
+        print("Exactly one face required on the image, but found {0} faces!".format(len(face_list[0])))
         exit(-1)
 
     face = face_list[0][0]
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     principalAxes = config.getValue("LivenessOneShotRGBEstimator::Settings", "principalAxes")[0]
 
     if abs(headPoseEstimation.yaw) > principalAxes or abs(headPoseEstimation.pitch) > principalAxes or abs(headPoseEstimation.roll) > principalAxes:
-        print("Can't estiamte LivenessOneShotRGBEstimation. Yaw, pith or roll absolute value is larger than expected value: ", principalAxes)
+        print("Can't estimate LivenessOneShotRGBEstimation. Yaw, pith or roll absolute value is larger than expected value: ", principalAxes)
         print(headPoseEstimation)
         exit(-1)
 
