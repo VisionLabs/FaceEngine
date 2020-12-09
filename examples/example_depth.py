@@ -99,7 +99,7 @@ if __name__ == "__main__":
 					error, output = estimator.estimate(warpImage)
 					if(error.isOk):
 						color = (0, 255, 0) if output.isReal else (0, 0, 255)
-						box = face.detection.rect
+						box = face.detection.getRect()
 						#draw bbox
 						cv2.rectangle(cvRGBImage,
 							(int(box.x), int(box.y)),

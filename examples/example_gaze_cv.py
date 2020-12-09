@@ -83,10 +83,11 @@ if __name__ == "__main__":
                 if err.isOk and err_unwarped.isOk:
                     # print(eye_angles)
                     transformation = warper.createTransformation(detection, landmarks5)
-                    center_x_left = landmarks5[0].x + detection.rect.x
-                    center_y_left = landmarks5[0].y + detection.rect.y
-                    center_x_right = landmarks5[1].x + detection.rect.x
-                    center_y_right = landmarks5[1].y + detection.rect.y
+                    rect = detection.getRect()
+                    center_x_left = landmarks5[0].x + rect.x
+                    center_y_left = landmarks5[0].y + rect.y
+                    center_x_right = landmarks5[1].x + rect.x
+                    center_y_right = landmarks5[1].y + rect.y
                     rotated_gaze = rotate_point_3d(gaze[1],
                                                    eye_angles_unwarped.pitch / 180 * math.pi,
                                                    -eye_angles_unwarped.yaw / 180 * math.pi,
@@ -104,8 +105,8 @@ if __name__ == "__main__":
 
                     for i in range(len(landmarks68)):
                         landmark = landmarks68[i]
-                        cv2.circle(frame, (int(landmark.x + detection.rect.x),
-                                           int(landmark.y + detection.rect.y)), 1, (0, 0, 255), -1)
+                        cv2.circle(frame, (int(landmark.x + rect.x),
+                                           int(landmark.y + rect.y)), 1, (0, 0, 255), -1)
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

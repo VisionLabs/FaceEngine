@@ -136,9 +136,9 @@ void estimators_module(py::module& f) {
 		.def("estimate", [](
 				const fsdk::IMedicalMaskEstimatorPtr& est,
 				const fsdk::Image& warp) {
-				fsdk::MedicalMaskEstimation estimation{};
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, estimation);
-				return std::make_tuple(FSDKErrorResult(err), estimation); },
+					fsdk::MedicalMaskEstimation estimation{};
+					fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, estimation);
+					return std::make_tuple(FSDKErrorResult(err), estimation); },
 			"Estimate Medical Mask probabilities..\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
@@ -150,10 +150,10 @@ void estimators_module(py::module& f) {
 		.def("estimate", [](
 				const fsdk::IMedicalMaskEstimatorPtr& est,
 				const fsdk::Image &image,
-				const fsdk::BaseDetection<float>& detection) {
-				fsdk::MedicalMaskEstimation estimation{};
-				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, estimation);
-				return std::make_tuple(FSDKErrorResult(err), estimation); },
+				const fsdk::Detection& detection) {
+					fsdk::MedicalMaskEstimation estimation{};
+					fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, estimation);
+					return std::make_tuple(FSDKErrorResult(err), estimation); },
 			"Estimate Medical Mask probabilities..\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
@@ -166,13 +166,13 @@ void estimators_module(py::module& f) {
 		.def("estimate", [](
 				const fsdk::IMedicalMaskEstimatorPtr& est,
 				const std::vector<fsdk::Image>& warps) {
-				std::vector<fsdk::MedicalMaskEstimation> estimations(warps.size());
-				fsdk::Result<fsdk::FSDKError>  err = est->estimate(warps, estimations);
-				if (err.isOk())
-					return std::make_tuple(FSDKErrorResult(err), estimations);
-				else
-					return std::make_tuple(FSDKErrorResult(err),
-						std::vector<fsdk::MedicalMaskEstimation>()); },
+					std::vector<fsdk::MedicalMaskEstimation> estimations(warps.size());
+					fsdk::Result<fsdk::FSDKError>  err = est->estimate(warps, estimations);
+					if (err.isOk())
+						return std::make_tuple(FSDKErrorResult(err), estimations);
+					else
+						return std::make_tuple(FSDKErrorResult(err),
+							std::vector<fsdk::MedicalMaskEstimation>()); },
 			"Estimate Medical Mask probabilities.\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
@@ -185,18 +185,14 @@ void estimators_module(py::module& f) {
 		.def("estimate", [](
 				const fsdk::IMedicalMaskEstimatorPtr& est,
 				const std::vector<fsdk::Image>& images,
-				const std::vector<fsdk::BaseDetection<float>> detections) {
-				std::vector<fsdk::BaseDetection<int>> detectionsInt(detections.size());
-				for (uint32_t i = 0; i < detections.size(); ++i) {
-					detectionsInt[i] = fsdk::Detection(detections[i]);
-				}
-				std::vector<fsdk::MedicalMaskEstimation> estimations(images.size());
-				fsdk::Result<fsdk::FSDKError>  err = est->estimate(images, detectionsInt, estimations);
-				if (err.isOk())
-					return std::make_tuple(FSDKErrorResult(err), estimations);
-				else
-					return std::make_tuple(FSDKErrorResult(err),
-						std::vector<fsdk::MedicalMaskEstimation>()); },
+				const std::vector<fsdk::Detection> detections) {
+					std::vector<fsdk::MedicalMaskEstimation> estimations(images.size());
+					fsdk::Result<fsdk::FSDKError>  err = est->estimate(images, detections, estimations);
+					if (err.isOk())
+						return std::make_tuple(FSDKErrorResult(err), estimations);
+					else
+						return std::make_tuple(FSDKErrorResult(err),
+							std::vector<fsdk::MedicalMaskEstimation>()); },
 			"Estimate Medical Mask probabilities.\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
@@ -230,7 +226,7 @@ void estimators_module(py::module& f) {
 			const fsdk::IHeadPoseEstimatorPtr& est,
 			const fsdk::Image& image,
 			// cast to detection<int> inside c++ interface
-			const fsdk::BaseDetection<float>& detection) {
+			const fsdk::Detection& detection) {
 				fsdk::HeadPoseEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, out);
 				return std::make_tuple(FSDKErrorResult(err), out);
@@ -378,8 +374,7 @@ void estimators_module(py::module& f) {
 		.def("estimate", [](
 			const fsdk::ILivenessRGBMEstimatorPtr& est,
 			const fsdk::Image& image,
-			// cast to detection<int> inside c++ interface
-			const fsdk::BaseDetection<float>& detection,
+			const fsdk::Detection& detection,
 			const fsdk::Image& background) {
 				fsdk::LivenessRGBMEstimation estimation;
 				auto result = est->estimate(
@@ -508,8 +503,7 @@ void estimators_module(py::module& f) {
 			.def("estimate",[](
 				const fsdk::IAGSEstimatorPtr& est,
 				const fsdk::Image& image,
-					// cast to detection<int> inside c++ interface
-					const fsdk::BaseDetection<float>& detection) {
+				const fsdk::Detection& detection) {
 					fsdk::ResultValue<fsdk::FSDKError, float> err = est->estimate(image, detection);
 					if (err.isOk())
 						return std::make_tuple(FSDKErrorResult(err), err.getValue());
@@ -1013,7 +1007,7 @@ void estimators_module(py::module& f) {
 		.def("estimate", [] (
 			const fsdk::IOverlapEstimatorPtr& estimator,
 			const fsdk::Image& image,
-			const fsdk::BaseDetection<float>& detection) {
+			const fsdk::Detection& detection) {
 				fsdk::OverlapEstimation out = {};
 				fsdk::Result<fsdk::FSDKError> status = estimator->estimate(image, detection, out);
 				return std::make_tuple(FSDKErrorResult(status), out);

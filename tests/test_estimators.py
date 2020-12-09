@@ -186,9 +186,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
         err = image.load("testData/overlap_image1.jpg")
         self.assertTrue(err.isOk)
         overlap_estimator = self.faceEngine.createOverlapEstimator()
-        detection = f.DetectionFloat()
-        detection.score = 0.999
-        detection.rect = f.RectFloat(0, 0, 240, 240)
+        detection = f.Detection(f.RectFloat(0, 0, 240, 240), image.getRect(), 0.999)
         err, overlap_estimation = overlap_estimator.estimate(image, detection)
         self.assertTrue(err.isOk)
         self.assertAlmostEqual(0.996921, overlap_estimation.overlapValue, delta=0.1)
@@ -332,8 +330,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
         image = f.Image()
         image.load("testData/0_Parade_Parade_0_12.jpg")
         face = f.Face()
-        face.detection.rect = f.RectFloat(728, 131, 44, 63)
-        face.detection.score = 0.999
+        face.detection = f.Detection(f.RectFloat(728, 131, 44, 63), image.getRect(), 0.999)
         face.img = image
         faces = [face, face]
         err, flying_faces_estimation = flying_faces_estimator.estimate(face)
@@ -353,16 +350,13 @@ class TestFaceEngineEstimators(unittest.TestCase):
         frame = f.Image()
         load_err = frame.load("testData/rgbm_liveness_frame_real.png")
         self.assertTrue(load_err.isOk)
-        detection = f.DetectionFloat()
-        detection.rect = f.RectFloat(315, 206, 175, 221)
-        detection.score = 0.999
+        detection = f.Detection(f.RectFloat(315, 206, 175, 221), frame.getRect(), 0.999)
         estimation_err, estimation = estimator.estimate(frame, detection, background)
         self.assertTrue(estimation_err.isOk)
         self.assertTrue(estimation.isReal)
         self.assertAlmostEqual(estimation.score, 0.8281, delta=0.001)
 
     def testEyeEstimator(self):
-
         landmarks = (5, 68)
         for landmarksCount in landmarks:
             with self.subTest(landmarks=landmarks):
@@ -522,9 +516,8 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertTrue(err.isOk)
         self.assertAlmostEqual(eye_angles.yaw, actual[0], delta=0.1)
         self.assertAlmostEqual(eye_angles.pitch, actual[1], delta=0.1)
-        detection = f.DetectionFloat()
         rect = warp.getRect()
-        detection.rect = f.RectFloat(rect.x, rect.y, rect.width, rect.height)
+        detection = f.Detection(rect, 0.999)
         transformation = self.warper.createTransformation(detection, landmarks5)
         err_unwarp, eye_angles_umwarped = self.warper.unwarp(eye_angles, transformation)
         self.assertTrue(err_unwarp.isOk)
@@ -540,13 +533,9 @@ class TestFaceEngineEstimators(unittest.TestCase):
         image = f.Image()
         image.load("testData/photo_2017-03-30_14-47-43_p.ppm")
 
-        reference = f.DetectionFloat()
         refAGS = 0.976
-        reference.rect.x = 54.0
-        reference.rect.y = 58.0
-        reference.rect.width = 135.0
-        reference.rect.height = 178.0
-        reference.score = 0.999916
+        refRect = f.RectFloat(54.0, 58.0, 135.0, 178.0)
+        reference = f.Detection(refRect, image.getRect(), 999916)
         r = estimator.estimate(image, reference)
         self.assertFalse(r[0].isError)
         self.assertAlmostEqual(refAGS, r[1], delta=0.01)
@@ -590,7 +579,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
             with self.subTest(image=path_to_img):
                 err = image.load(path_to_img)
                 self.assertTrue(err.isOk)
-                detection = f.DetectionFloat(image.getRect(), 1.0)
+                detection = f.Detection(image.getRect(), 1.0)
                 status1, output1 = estimator.estimate(image)
                 status2, output2 = estimator.estimate(image, detection)
                 status3, output3 = estimator.estimate([image, image], [detection, detection])
@@ -712,9 +701,9 @@ class TestFaceEngineEstimators(unittest.TestCase):
         image = f.Image()
         err = image.load("testData/overlap_image1.jpg")
         self.assertTrue(err.isOk)
-        areas = {"big_area": f.DetectionFloat(f.RectFloat(0, 0, 10 ** 9, 10 ** 9), 0.999916),
-                 "bad_area": f.DetectionFloat(f.RectFloat(120, 599, 15, 10), 0.999916),
-                 "negative_area": f.DetectionFloat(f.RectFloat(-15, -30, 155, 190), 0.999916)}
+        areas = {"big_area": f.Detection(f.RectFloat(0, 0, 10 ** 9, 10 ** 9), image.getRect(), 0.999916),
+                 "bad_area": f.Detection(f.RectFloat(120, 599, 15, 10), image.getRect(), 0.999916),
+                 "negative_area": f.Detection(f.RectFloat(-15, -30, 155, 190), image.getRect(), 0.999916)}
         estimator_types = ('RGBM', 'AGS', 'HeadPose', 'Overlap', 'MedicalMask')
         for type in estimator_types:
             for area, detection in areas.items():

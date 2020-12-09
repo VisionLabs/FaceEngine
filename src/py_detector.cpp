@@ -7,80 +7,36 @@
 
 namespace py = pybind11;
 
-template<class T, class Y>
-py::class_<fsdk::BaseDetection<T>> detection_class(py::module& this_module, const char* name)
-{
-	py::class_<fsdk::BaseDetection<T>> class_instance(this_module, name);
-	
-	class_instance.def(py::init<>());
-	class_instance.def(py::init<fsdk::BaseDetection<Y>>());
-	
-	class_instance.def_readwrite("rect", &fsdk::BaseDetection<T>::rect, "Object bounding box\n");
-	class_instance.def_readwrite("score", &fsdk::BaseDetection<T>::score, "Object detection score\n");
-	class_instance.def("isValid", &fsdk::BaseDetection<T>::isValid, 
-		"Checks whether a detection is valid.\n"
-		"\t\tA detection is considered valid if it has a valid rect and score in [0..1] range.\n");
-	class_instance.def("__repr__",
-		[](const fsdk::BaseDetection<T> &r) {
-			return "x = " + std::to_string(r.rect.x) +
-				", y = " + std::to_string(r.rect.y) +
-				", width = " + std::to_string(r.rect.width) +
-				", height = " + std::to_string(r.rect.height) +
-				", score = " + std::to_string(r.score);
-		})
-		;
-	class_instance.def("set", [](fsdk::BaseDetection<T>& self, fsdk::BaseDetection<Y>& other) {
-		self = other;
-		return self;
-	});
-	
-	class_instance.def(py::init(
-		[](const fsdk::BaseRect<T>& rect,
-			const float score) {
-			fsdk::BaseDetection<T> detection;
-			detection.rect = rect;
-			detection.score = score;
-			return detection;
-		}
-	));
-	
-	class_instance.def(py::init(
-		[](const fsdk::BaseRect<Y>& rect,
-			const float score) {
-			fsdk::BaseDetection<T> detection;
-			detection.rect = rect;
-			detection.score = score;
-			return detection;
-		}
-	));
-	
-	class_instance.def("asInt", [](fsdk::BaseDetection<T>& self) {
-		fsdk::BaseDetection<int> detection;
-		detection.rect = self.rect;
-		detection.score = self.score;
-		return detection;
-	});
-	
-	class_instance.def("asFloat", [](fsdk::BaseDetection<T>& self) {
-		fsdk::BaseDetection<float> detection;
-		detection.rect = self.rect;
-		detection.score = self.score;
-		return detection;
-	});
-	
-	return class_instance;
-}
-
-void set_detection_class(py::module& f)
-{
-	auto detection = detection_class<int, float>(f, "Detection");
-	auto detectionFloat = detection_class<float, int>(f, "DetectionFloat");
-}
-
-
 void detector_module(py::module& f) {
-	
-	set_detection_class(f);
+
+	py::class_<fsdk::Detection>(f, "Detection", "Detection structure")
+		.def(py::init<>())
+		.def(py::init<fsdk::FloatRect, float>())
+		.def(py::init<fsdk::Rect, float>())
+		.def(py::init<fsdk::FloatRect, int, int, float>())
+		.def(py::init<fsdk::Rect, int, int, float>())
+		.def(py::init<fsdk::FloatRect, fsdk::Rect, float>())
+		.def(py::init<fsdk::Rect, fsdk::Rect, float>())
+		.def("getRect", &fsdk::Detection::getRect)
+		.def("getRawRect", &fsdk::Detection::getRawRect)
+		.def("setRawRect", &fsdk::Detection::setRawRect)
+		.def("getScore", &fsdk::Detection::getScore)
+		.def("setScore", &fsdk::Detection::setScore)
+		.def("isValid", &fsdk::Detection::isValid)
+		.def("__repr__",
+			[](const fsdk::Detection& d) {
+				const auto rawRect = d.getRawRect();
+				const auto rect = d.getRect();
+				return "rawRect: x = " + std::to_string(rawRect.x) +
+					", y = " + std::to_string(rawRect.y) +
+					", width = " + std::to_string(rawRect.width) +
+					", height = " + std::to_string(rawRect.height) +
+					"; Rect: x = " + std::to_string(rect.x) +
+					", y = " + std::to_string(rect.y) +
+					", width = " + std::to_string(rect.width) +
+					", height = " + std::to_string(rect.height);
+			})
+		;
 	
 	py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr", "Face detector interface")
 		.def("detect", [](

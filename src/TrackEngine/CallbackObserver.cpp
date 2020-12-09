@@ -26,9 +26,9 @@ void Observer::bestShot(
 	c.frameId = detection.frameIndex;
 	c.trackId = detection.trackId;
 	c.image = detection.image;
-	c.bbox = detection.detection.rect;
+	c.bbox = detection.detection.getRect();
 	c.landmarks = detection.landmarks;
-	c.score = detection.detection.score;
+	c.score = detection.detection.getScore();
 	c.isDetection = true;
 	m_callbacks->emplace_back(std::move(c));
 }

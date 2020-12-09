@@ -84,17 +84,20 @@ class TestFaceEngineDetector(unittest.TestCase):
             self.assertAlmostEqual(face1_landmarks.value()[k].y, face2_landmarks.value()[k].y, delta=delta)
 
     def assertDetections(self, detection1, detection2, delta=0.01, scoreDelta=0.01):
-        self.assertAlmostEqual(detection1.rect.x, detection2.rect.x, delta=delta)
-        self.assertAlmostEqual(detection1.rect.y, detection2.rect.y, delta=delta)
-        self.assertAlmostEqual(detection1.rect.width, detection2.rect.width, delta=delta)
-        self.assertAlmostEqual(detection1.rect.height, detection2.rect.height, delta=delta)
-        self.assertAlmostEqual(detection1.score, detection2.score, delta=scoreDelta)
+        rect1 = detection1.getRect()
+        rect2 = detection2.getRect()
+        self.assertAlmostEqual(rect1.x, rect2.x, delta=delta)
+        self.assertAlmostEqual(rect1.y, rect2.y, delta=delta)
+        self.assertAlmostEqual(rect1.width, rect2.width, delta=delta)
+        self.assertAlmostEqual(rect1.height, rect2.height, delta=delta)
+        self.assertAlmostEqual(detection1.getScore(), detection2.getScore(), delta=scoreDelta)
 
     def addDetectionCoordinatesToLandmarks(self, face, landmarks):
+        rect = face.detection.getRect()
         absoluteLandmarks = fe.Landmarks68()
         for k in range(len(landmarks.value())):
-            absoluteLandmarks[k] = fe.Vector2f(face.detection.rect.x + landmarks.value()[k].x,
-                                               face.detection.rect.y + landmarks.value()[k].y)
+            absoluteLandmarks[k] = fe.Vector2f(rect.x + landmarks.value()[k].x,
+                                               rect.y + landmarks.value()[k].y)
         return fe.OptionalLandmarks68(absoluteLandmarks)
 
     def testDetectorBatchDifferentImages(self):
@@ -129,9 +132,9 @@ class TestFaceEngineDetector(unittest.TestCase):
                     self.assertFaceLandmarks(refFaces[i].landmarks68_opt, faces[0].landmarks68_opt)
 
     def testDetectorBBoxLandmarks68(self):
-        ref_values = {fe.FACE_DET_V1: fe.DetectionFloat(fe.RectFloat(288.0, 93.0, 148.0, 184.0), 0.9999),
-                      fe.FACE_DET_V2: fe.DetectionFloat(fe.RectFloat(297.0, 97.0, 152.0, 184.0), 0.9999),
-                      fe.FACE_DET_V3: fe.DetectionFloat(fe.RectFloat(297.0, 90.0, 144.0, 193.0), 0.9999)}
+        ref_values = {fe.FACE_DET_V1: fe.Detection(fe.RectFloat(288.0, 93.0, 148.0, 184.0), 0.9999),
+                      fe.FACE_DET_V2: fe.Detection(fe.RectFloat(297.0, 97.0, 152.0, 184.0), 0.9999),
+                      fe.FACE_DET_V3: fe.Detection(fe.RectFloat(297.0, 90.0, 144.0, 193.0), 0.9999)}
         lnetExpected = fe.Landmarks68()
 
         for detectorType, detection in ref_values.items():
@@ -210,10 +213,11 @@ class TestFaceEngineDetector(unittest.TestCase):
             10,
             fe.HumanDetectionType(fe.DCT_BOX))
         self.assertTrue(err_human_detector.isOk)
-        self.assertEqual(394, list_of_list_of_detections[0][0].detection.rect.x)
-        self.assertEqual(227, list_of_list_of_detections[0][0].detection.rect.y)
-        self.assertEqual(107, list_of_list_of_detections[0][0].detection.rect.width)
-        self.assertEqual(270, list_of_list_of_detections[0][0].detection.rect.height)
+        rect = list_of_list_of_detections[0][0].detection.getRect()
+        self.assertEqual(394, rect.x)
+        self.assertEqual(227, rect.y)
+        self.assertEqual(107, rect.width)
+        self.assertEqual(270, rect.height)
 
     def testRedetectDifferentImages(self):
         images = []
@@ -250,8 +254,8 @@ class TestFaceEngineDetector(unittest.TestCase):
                     self.assertFaceLandmarks(face_redetect.landmarks68_opt, facesList[i].landmarks68_opt)
 
     def testRedetectOne(self):
-        ref_values = {fe.FACE_DET_V1: fe.DetectionFloat(fe.RectFloat(290.0, 75.0, 150.0, 197.0), 0.99999),
-                      fe.FACE_DET_V3: fe.DetectionFloat(fe.RectFloat(292.0, 92.0, 151.0, 193.0), 0.9983)}
+        ref_values = {fe.FACE_DET_V1: fe.Detection(fe.RectFloat(290.0, 75.0, 150.0, 197.0), 0.99999),
+                      fe.FACE_DET_V3: fe.Detection(fe.RectFloat(292.0, 92.0, 151.0, 193.0), 0.9983)}
         for detectorType, detection in ref_values.items():
             with self.subTest(detectorType=detectorType):
                 self.faceEngine.setSettingsProvider(self.config)
@@ -264,7 +268,7 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.assertFaceValid(face_redection1)
                 self.assertDetections(face_redection1.detection, detection, delta=3, scoreDelta=0.001)
 
-                err_redetect2, face_redection2 = detector.redetectOne(face.img, face.detection.rect,
+                err_redetect2, face_redection2 = detector.redetectOne(face.img, face.detection.getRect(),
                                                                       fe.DetectionType(fe.DT_ALL))
                 self.assertFaceValid(face_redection2)
                 self.assertDetections(face_redection2.detection, detection, delta=3, scoreDelta=0.001)
@@ -355,7 +359,7 @@ class TestFaceEngineDetector(unittest.TestCase):
         face = fe.Face(self.image)
         self.assertFalse(face.isValid())
         face_initiated_by_int = fe.Face(self.image, fe.Detection(self.image.getRect(), 0.97))
-        face_initiated_by_float = fe.Face(self.image, fe.DetectionFloat(self.image.getRect(), 0.97))
+        face_initiated_by_float = fe.Face(self.image, fe.Detection(self.image.getRect(), 0.97))
         self.assertFaceValid(face_initiated_by_int, landmarks5Valid=False, landmarks68Valid=False)
         self.assertFaceValid(face_initiated_by_float, landmarks68Valid=False, landmarks5Valid=False)
         self.assertDetections(face_initiated_by_int.detection, face_initiated_by_float.detection)
