@@ -345,6 +345,10 @@ def overlap_example(_face_engine, _image, _detection):
         exit(1)
 
 def liveness_oneshot_rgb_estimator_example(_face_engine, _image, _face):
+    config = _face_engine.getSettingsProvider()
+    config.setValue("system", "verboseLogging", 1)
+    _face_engine.setSettingsProvider(config)
+
     liveness_estimator = _face_engine.createLivenessOneShotRGBEstimator()
     err, estimation = liveness_estimator.estimate(_image, _face)
     if err.isOk:
