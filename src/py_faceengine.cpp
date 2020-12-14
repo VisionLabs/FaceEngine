@@ -949,8 +949,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IDescriptorExtractorPtr.getDescriptorType
 			IDescriptorExtractorPtr.extractFromWarpedImage
 			IDescriptorExtractorPtr.extractFromWarpedImageBatch
-
-
+	
 			IDescriptorMatcherPtr
 			IDescriptorMatcherPtr.getModelVersion
 			IDescriptorMatcherPtr.match
@@ -963,7 +962,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			ILivenessDepthEstimatorPtr
 			ILivenessDepthEstimatorPtr.estimate
-			ILivenessDepthEstimatorPtr.setRange
 
 			ILivenessIREstimatorPtr
 			ILivenessIREstimatorPtr.estimate
@@ -1169,10 +1167,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			HumanDetection
 			HumanDetection.isValid
-
-			DetectionFloat
-			DetectionFloat.isValid
-			DetectionFloat.__repr__
 			
 			DetectionComparerType
 			DetectionComparerType.DCT_CONFIDENCE
