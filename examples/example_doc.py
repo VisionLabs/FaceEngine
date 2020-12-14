@@ -133,7 +133,6 @@ print(fe.DescriptorBatchError.__doc__)
 print(fe.IDescriptorExtractorPtr.__doc__)
 print(fe.IDescriptorExtractorPtr.getModelVersion.__doc__)
 print(fe.IDescriptorExtractorPtr.getDescriptorType.__doc__)
-print(fe.IDescriptorExtractorPtr.extract.__doc__)
 print(fe.IDescriptorExtractorPtr.extractFromWarpedImage.__doc__)
 print(fe.IDescriptorExtractorPtr.extractFromWarpedImageBatch.__doc__)
 
@@ -148,7 +147,6 @@ print(fe.IBlackWhiteEstimatorPtr.estimate.__doc__)
 
 print(fe.ILivenessDepthEstimatorPtr.__doc__)
 print(fe.ILivenessDepthEstimatorPtr.estimate.__doc__)
-print(fe.ILivenessDepthEstimatorPtr.setRange.__doc__)
 
 print(fe.ILivenessIREstimatorPtr.__doc__)
 print(fe.ILivenessIREstimatorPtr.estimate.__doc__)
@@ -263,10 +261,6 @@ print(fe.Transformation.__doc__)
 print(fe.Detection.__doc__)
 print(fe.Detection.isValid.__doc__)
 print(fe.Detection.__repr__.__doc__)
-
-print(fe.DetectionFloat.__doc__)
-print(fe.DetectionFloat.isValid.__doc__)
-print(fe.DetectionFloat.__repr__.__doc__)
 
 print(fe.Human.__doc__)
 print(fe.Human.isValid.__doc__)
