@@ -57,21 +57,23 @@ def extract_descriptor(face_engine, warper, detector, descriptor_extractor, imag
     print("Detecting faces.")
     detection_count = 10
 
-    detector_result, det_list = detector.detect(
+    detector_result, det_batch = detector.detect(
         [image_bgr],
         [image_bgr.getRect()],
         detection_count,
         fe.DetectionType(fe.DT_LANDMARKS5))
     detections = []
-    landmarks5l = []
+    landmarks5 = []
 
     if detector_result.isError:
         print("Failed to detect face detection. Reason: {0}".format(detector_result.what()))
-    for elem in det_list:
-        for face in elem:
-            detections.append(face.detection)
-            if face.landmarks5_opt.isValid():
-                landmarks5l.append(face.landmarks5_opt.value())
+    for i in range(0, det_batch.getSize()):
+        image_detections = det_batch.getDetections(i)
+        image_landmarks = det_batch.getLandmarks5(i)
+        for j in range(0, len(image_detections)):
+            detections.append(image_detections[j])
+            landmarks5.append(image_landmarks[j])
+
     detection_count = len(detections)
     if detection_count == 0:
         print("Faces is not found: \"{0}\".".format(image_name))
@@ -97,7 +99,7 @@ def extract_descriptor(face_engine, warper, detector, descriptor_extractor, imag
         print("Failed to create face descrtiptor instance.")
         return None
 
-    transformation = warper.createTransformation(detections[best_detection_index], landmarks5l[best_detection_index])
+    transformation = warper.createTransformation(detections[best_detection_index], landmarks5[best_detection_index])
     warpResult, warpImage = warper.warp(image, transformation)
     if warpResult.isError:
         print("Failed to warp image!")

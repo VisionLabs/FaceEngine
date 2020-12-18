@@ -9,6 +9,32 @@ namespace py = pybind11;
 
 void detector_module(py::module& f) {
 
+	py::enum_<fsdk::SensorType>(f, "SensorType", py::arithmetic(), "Camera sensor type.\n")
+		.value("Visible", fsdk::SensorType::Visible, "Visible sensor type (default mode)")
+		.value("NIR", fsdk::SensorType::NIR, "NIR sensor type")
+		.export_values();
+			;
+
+	py::enum_<fsdk::ObjectDetectorClassType>(f, "ObjectDetectorClassType", py::arithmetic(), "Object detector type enumeration.\n")
+		.value("FACE_DET_DEFAULT", fsdk::FACE_DET_DEFAULT, "Default detector cpecified in config file")
+		.value("FACE_DET_V1", fsdk::FACE_DET_V1, "First detector type")
+		.value("FACE_DET_V2", fsdk::FACE_DET_V2, "Light detector type")
+		.value("FACE_DET_V3", fsdk::FACE_DET_V3, "Third detector type")
+		.export_values();
+			;
+
+	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
+		.def(py::init<>())
+		.def(py::init<fsdk::Image>())
+		.def(py::init<fsdk::Image, fsdk::Detection>())
+		.def(py::init<fsdk::Image, fsdk::Detection>())
+		.def_readwrite("img", &fsdk::Face::img, "Image\n")
+		.def_readwrite("detection", &fsdk::Face::detection, "Detection\n")
+		.def_readwrite("landmarks5_opt", &fsdk::Face::landmarks5, "Landmarks5 optinal\n")
+		.def_readwrite("landmarks68_opt", &fsdk::Face::landmarks68, "Landmarks68 optinal\n")
+		.def("isValid", &fsdk::Face::isValid, "Valid or not\n")
+			;
+
 	py::class_<fsdk::Detection>(f, "Detection", "Detection structure")
 		.def(py::init<>())
 		.def(py::init<fsdk::FloatRect, float>())
@@ -37,35 +63,83 @@ void detector_module(py::module& f) {
 					", height = " + std::to_string(rect.height);
 			})
 		;
-	
+
+	py::class_<fsdk::IFaceDetectionBatchPtr>(f, "IFaceDetectionBatchPtr", "Face detection result batch structure")
+		.def("getSize", [](
+			const fsdk::IFaceDetectionBatchPtr& batch
+		) {
+			return batch->getSize();
+		})
+
+		.def("getDetections", [](
+			const fsdk::IFaceDetectionBatchPtr& batch,
+			size_t index) {
+				const size_t rowSize = batch->getSize(index);
+				py::list out(rowSize);
+				const auto detections = batch->getDetections(index);
+				for (size_t i = 0; i < rowSize; ++i) {
+					out[i] = detections[i];
+				}
+				return out;
+			},
+			"Returns list of detections for the one image"
+			"\tArgs:\n"
+			"\t\tparam1 (index): index of the image"
+			"\tReturns:\n"
+			"\t\t(list): \n"
+			"\t\t\tlist with of Detection objects\n")
+
+		.def("getLandmarks5", [](
+			const fsdk::IFaceDetectionBatchPtr& batch,
+			size_t index) {
+				const size_t rowSize = batch->getSize(index);
+				py::list out(rowSize);
+				const auto landmarks5 = batch->getLandmarks5(index);
+				for (size_t i = 0; i < rowSize; ++i) {
+					out[i] = landmarks5[i];
+				}
+				return out;
+			},
+			"Returns list of landmarks5 for the one image"
+			"\tArgs:\n"
+			"\t\tparam1 (index): index of the image"
+			"\tReturns:\n"
+			"\t\t(list): \n"
+			"\t\t\tlist with of Landmarks5 objects\n")
+
+		.def("getLandmarks68", [](
+			const fsdk::IFaceDetectionBatchPtr& batch,
+			size_t index) {
+				const size_t rowSize = batch->getSize(index);
+				py::list out(rowSize);
+				const auto landmarks68 = batch->getLandmarks68(index);
+				for (size_t i = 0; i < rowSize; ++i) {
+					out[i] = landmarks68[i];
+				}
+				return out;
+			},
+			"Returns list of landmarks68 for the one image"
+			"\tArgs:\n"
+			"\t\tparam1 (index): index of the image"
+			"\tReturns:\n"
+			"\t\t(list): \n"
+			"\t\t\tlist with of Landmarks68 objects\n")
+		;
+
 	py::class_<fsdk::IDetectorPtr>(f, "IDetectorPtr", "Face detector interface")
 		.def("detect", [](
 			const fsdk::IDetectorPtr& det,
-			const std::vector<fsdk::Image>& imagesVec,
-			const std::vector<fsdk::Rect>& rectanglesVec,
-			const int detectionPerImageNum,
+			const std::vector<fsdk::Image>& images,
+			const std::vector<fsdk::Rect>& rectangles,
+			const uint32_t detectionPerImageNum,
 			const fsdk::DetectionType type) {
-				fsdk::Span<const fsdk::Image> images(imagesVec);
-				fsdk::Span<const fsdk::Rect> rectangles(rectanglesVec);
-				fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Face>>> err =
-				det->detect(images, rectangles, detectionPerImageNum, type);
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IFaceDetectionBatch>> err =
+					det->detect(images, rectangles, detectionPerImageNum, type);
 				if (err.isOk()) {
-					const size_t sizeBatch = err.getValue()->getSize();
-					py::list outList(sizeBatch);
-					
-					for (size_t i = 0; i < sizeBatch; ++i) {
-						fsdk::Span<fsdk::Face> resultsSpan = err.getValue()->getResults(i);
-						const size_t rowSize = resultsSpan.size();
-						py::list outRow(rowSize);
-						for (size_t j = 0; j < rowSize; ++j) {
-							outRow[j] = resultsSpan.data()[j];
-						}
-						outList[i] = outRow;
-					}
-					return std::make_tuple(FSDKErrorResult(err), outList);
-				} else
-					return std::make_tuple(FSDKErrorResult(err), py::list());
-			
+					return std::make_tuple(FSDKErrorResult(err), err.getValue());
+				} else {
+					return std::make_tuple(FSDKErrorResult(err), fsdk::Ref<fsdk::IFaceDetectionBatch>{});
+				}
 		},
 			"Detect faces and landmarks on multiple images\n"
 			"\tArgs:\n"
@@ -76,20 +150,14 @@ void detector_module(py::module& f) {
 			"\t\tparam4 (DetectionType): type of detection: DT_BBOX, DT_LANDMARKS5 or DT_LANDMARKS68\n"
 			"\tReturns:\n"
 			"\t\t(tuple): \n"
-			"\t\t\ttuple with FSDKErrorResult code and list of lists of Faces\n")
-		
-		.def("setDetectionComparer", [](
-			const fsdk::IDetectorPtr& det,
-			fsdk::DetectionComparerType comparerType) {
-				det->setDetectionComparer(comparerType);
-		}, "Set detection comparer from SDK defined list\n")
-		
+			"\t\t\ttuple with FSDKErrorResult code and IFaceDetectionBatchPtr\n")
+
 		.def("detectOne", [](
 			const fsdk::IDetectorPtr& det,
 			const fsdk::Image& image,
 			const fsdk::Rect& rect,
-			const fsdk::DetectionType type){
-			
+			const fsdk::DetectionType type
+		) {
 			fsdk::ResultValue<fsdk::FSDKError, fsdk::Face> err = det->detectOne(image, rect, type);
 			if (err.isOk())
 				return std::make_tuple(FSDKErrorResult(err), err.getValue());
@@ -104,114 +172,146 @@ void detector_module(py::module& f) {
 				 "\tReturns:\n"
 				 "\t\t(tuple): \n"
 				 "\t\t\twith error code and Face object (detection bbox, landmarks, etc)\n")
-				 
-		.def("redetectOne", [](
-				const fsdk::IDetectorPtr& det,
-				fsdk::Face face,
-				const fsdk::DetectionType type) {
-				fsdk::ResultValue<fsdk::FSDKError, bool> err = det->redetectOne(face, type);
-				if (err.isOk() && err.getValue()) {
-					return std::make_tuple(FSDKErrorResult(err), face);
-				}
-				
-				return std::make_tuple(FSDKErrorResult(err), fsdk::Face());
-			}, py::arg("face"), py::arg("type"),
-			"Redetect face.\n"
-			"\tArgs:\n"
-			"\t\tparam1 (Face): face structure with detection and landmarks.\n"
-			"\t\tparam2 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
-			"\tReturns:\n"
-			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
-		
-		.def("redetectOne", [](
-				const fsdk::IDetectorPtr& det,
-				const fsdk::Image& image,
-				const fsdk::BaseRect<float>& rect,
-				const fsdk::DetectionType type) {
-					fsdk::ResultValue<fsdk::FSDKError, fsdk::Face> result = det->redetectOne(image, rect, type);
-					if (result.isOk()) {
-						return std::make_tuple(FSDKErrorResult(result), result.getValue());
-					}
-					return std::make_tuple(FSDKErrorResult(result), fsdk::Face());
-				}, py::arg("image"), py::arg("detection"), py::arg("type"),
-			"Redetect face.\n"
-			"\tArgs:\n"
-			"\t\tparam1 (image): input image. Format must be R8G8B8.\n"
-			"\t\tparam2 (rect): rectangle of interest on image.\n"
-			"\t\tparam3 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
-			"\tReturns:\n"
-			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
 
-		.def("redetectOne", [](
-				const fsdk::IDetectorPtr& det,
-				const fsdk::Image& image,
-				const fsdk::Rect& rect,
-				const fsdk::DetectionType type) {
-					fsdk::ResultValue<fsdk::FSDKError, fsdk::Face> result = det->redetectOne(image, rect, type);
-					if (result.isOk()) {
-						return std::make_tuple(FSDKErrorResult(result), result.getValue());
-					}
-					return std::make_tuple(FSDKErrorResult(result), fsdk::Face());
-				}, py::arg("image"), py::arg("detection"), py::arg("type"),
-			"Redetect face.\n"
-			"\tArgs:\n"
-			"\t\tparam1 (image): input image. Format must be R8G8B8.\n"
-			"\t\tparam2 (rect): rectangle of interest on image.\n"
-			"\t\tparam3 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
-			"\tReturns:\n"
-			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
-		
 		.def("redetect", [](
-				const fsdk::IDetectorPtr& det,
-				std::vector<fsdk::Face>& faces,
-				const fsdk::DetectionType type) {
-					const fsdk::Span<fsdk::Face> facesSpan(faces.data(), faces.size());
-					std::vector<fsdk::Result<fsdk::FSDKError>> outErrors(faces.size());
-					fsdk::Span<fsdk::Result<fsdk::FSDKError>> errorsSpan(outErrors);
-					fsdk::Result<fsdk::FSDKError> err = det->redetect(facesSpan, type, errorsSpan);
-					return std::make_tuple(FSDKErrorResult(err),
-						std::vector<fsdk::Face>(facesSpan.begin(), facesSpan.end()),
-						std::vector<FSDKErrorResult>(errorsSpan.begin(), errorsSpan.end()));
+			const fsdk::IDetectorPtr& det,
+			const std::vector<fsdk::Image>& images,
+			fsdk::Ref<fsdk::IFaceDetectionBatch>& detectionBatch,
+			const fsdk::DetectionType type) {
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IFaceDetectionBatch>> err = 
+					det->redetect(images, detectionBatch, type);
+				if (err.isOk()) {
+					return std::make_tuple(FSDKErrorResult(err), err.getValue());
+				} else {
+					return std::make_tuple(FSDKErrorResult(err), fsdk::Ref<fsdk::IFaceDetectionBatch>{});
+				}
 			},
 			"Batched redetect faces.\n"
 			"\tArgs:\n"
-			"\t\tparam1 ([Face]): detections list.\n"
+			"\t\tparam1 ([images]): images list.\n"
+			"\t\tparam1 (detectionBatch): result of the detect to make a redetect for.\n"
 			"\t\tparam2 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
 			"\tReturns:\n"
-			"\t\t(tuple) tuple with FSDKErrorResult, list of tuples from Detection, list of FSDKErrorResult for each face\n")
+			"\t\t(tuple) tuple with FSDKErrorResult and IFaceDetectionBatchPtr object.\n")
+
+		.def("redetect", [](
+			const fsdk::IDetectorPtr& det,
+			const std::vector<fsdk::Image>& images,
+			const std::vector<std::vector<fsdk::Detection>>& detectionBatch,
+			const fsdk::DetectionType type) {
+				std::vector<fsdk::Span<const fsdk::Detection>> detections2D;
+				detections2D.reserve(detectionBatch.size());
+				for (const auto& row : detectionBatch) {
+					detections2D.emplace_back(row.data(), row.size());
+				}
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IFaceDetectionBatch>> err = 
+					det->redetect(images, detections2D, type);
+				if (err.isOk()) {
+					return std::make_tuple(FSDKErrorResult(err), err.getValue());
+				} else {
+					return std::make_tuple(FSDKErrorResult(err), fsdk::Ref<fsdk::IFaceDetectionBatch>{});
+				}
+			},
+			"Batched redetect faces.\n"
+			"\tArgs:\n"
+			"\t\tparam1 ([images]): source images list.\n"
+			"\t\tparam1 ([detectionBatch]): detections - 2D array\n"
+			"\t\tparam2 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
+			"\tReturns:\n"
+			"\t\t(tuple) tuple with FSDKErrorResult and IFaceDetectionBatchPtr object.\n")
+
+
+		.def("redetectOne", [](
+			const fsdk::IDetectorPtr& det,
+			const fsdk::Image& image,
+			const fsdk::Detection& detection,
+			fsdk::DetectionType type) {
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::Face> result = 
+					det->redetectOne(image, detection, type);
+				if (result.isOk()) {
+					return std::make_tuple(FSDKErrorResult(result), result.getValue());
+				}
+				return std::make_tuple(FSDKErrorResult(result), fsdk::Face());
+			}, py::arg("image"), py::arg("detection"), py::arg("type"),
+			"Redetect face.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (image): input image. Format must be R8G8B8.\n"
+			"\t\tparam2 (detection): detection on image.\n"
+			"\t\tparam3 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with FSDKErrorResult and Face structure\n")
+
+		.def("setDetectionComparer", [](
+			const fsdk::IDetectorPtr& det,
+			fsdk::DetectionComparerType comparerType) {
+				det->setDetectionComparer(comparerType);
+			},
+			"Set detection comparer from SDK defined list\n")
 		;
-	
+
+
+	py::class_<fsdk::IHumanDetectionBatchPtr>(f, "IHumanDetectionBatchPtr", "Face detection result batch structure")
+		.def("getSize", [](
+			const fsdk::IHumanDetectionBatchPtr& batch
+		) {
+			return batch->getSize();
+		})
+
+		.def("getDetections", [](
+			const fsdk::IHumanDetectionBatchPtr& batch,
+			size_t index) {
+				const size_t rowSize = batch->getSize(index);
+				py::list out(rowSize);
+				const auto detections = batch->getDetections(index);
+				for (size_t i = 0; i < rowSize; ++i) {
+					out[i] = detections[i];
+				}
+				return out;
+			},
+			"Returns list of detections for the one image"
+			"\tArgs:\n"
+			"\t\tparam1 (index): index of the image"
+			"\tReturns:\n"
+			"\t\t(list): \n"
+			"\t\t\tlist with of Detection objects\n")
+
+		.def("getLandmarks17", [](
+			const fsdk::IHumanDetectionBatchPtr& batch,
+			size_t index) {
+				const size_t rowSize = batch->getSize(index);
+				py::list out(rowSize);
+				const auto landmarks5 = batch->getLandmarks17(index);
+				for (size_t i = 0; i < rowSize; ++i) {
+					out[i] = landmarks5[i];
+				}
+				return out;
+			},
+			"Returns list of landmarks17 for the one image"
+			"\tArgs:\n"
+			"\t\tparam1 (index): index of the image"
+			"\tReturns:\n"
+			"\t\t(list): \n"
+			"\t\t\tlist with of Landmarks17 objects\n")
+		;
+
+
 	py::class_<fsdk::Ref<fsdk::IHumanDetector>>(f, "IHumanDetectorPtr", "Human detector interface.\n")
 		.def("detect", [](
-				const fsdk::Ref<fsdk::IHumanDetector>& det,
-				const std::vector<fsdk::Image>& imagesVec,
-				const std::vector<fsdk::Rect>& rectanglesVec,
-				const uint32_t detectionPerImageNum,
-				fsdk::HumanDetectionType type = fsdk::HumanDetectionType::DCT_BOX) {
-					fsdk::Span<const fsdk::Image> images(imagesVec);
-					fsdk::Span<const fsdk::Rect> rectangles(rectanglesVec);
-					fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IResultBatch<fsdk::Human>>> err =
-						det->detect(
-							images,
-							rectangles,
-							detectionPerImageNum,
-							type);
-					if (err.isOk()) {
-						const size_t sizeBatch = err.getValue()->getSize();
-						py::list outList(sizeBatch);
-
-						for (size_t i = 0; i < sizeBatch; ++i) {
-							fsdk::Span<fsdk::Human> resultsSpan = err.getValue()->getResults(i);
-							const size_t rowSize = resultsSpan.size();
-							py::list outRow(rowSize);
-							for (size_t j = 0; j < rowSize; ++j) {
-								outRow[j] = resultsSpan.data()[j];
-							}
-							outList[i] = outRow;
-						}
-						return std::make_tuple(FSDKErrorResult(err), outList);
-					} else
-						return std::make_tuple(FSDKErrorResult(err), py::list());
+			const fsdk::Ref<fsdk::IHumanDetector>& det,
+			const std::vector<fsdk::Image>& images,
+			const std::vector<fsdk::Rect>& rectangles,
+			const uint32_t detectionPerImageNum,
+			fsdk::HumanDetectionType type = fsdk::HumanDetectionType::HDT_BOX) {
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::Ref<fsdk::IHumanDetectionBatch>> err =
+					det->detect(
+						images,
+						rectangles,
+						detectionPerImageNum,
+						type);
+				if (err.isOk()) {
+					return std::make_tuple(FSDKErrorResult(err), err.getValue());
+				} else
+					return std::make_tuple(FSDKErrorResult(err), fsdk::Ref<fsdk::IHumanDetectionBatch>{});
 			},
 			"Detects humans\n"
 				"\tArgs:\n"
@@ -222,19 +322,20 @@ void detector_module(py::module& f) {
 				"\t\tparam4 (HumanDetectionType) Human detection type enumeration \n"
 				"\tReturns:\n"
 				"\t\t(tuple): \n"
-				"\t\t\ttuple with FSDKErrorResult code and list of lists of Detections\n")
+				"\t\t\ttuple with FSDKErrorResult code and IHumanDetectionBatchPtr object\n")
 
 		.def("redetectOne", [](
 				const fsdk::Ref<fsdk::IHumanDetector>& det,
-				const fsdk::Human& human) {
-					fsdk::Human inOutHuman = human;
-					fsdk::ResultValue<fsdk::FSDKError, bool> resValue = 
-						det->redetectOne(inOutHuman);
-					return std::make_tuple(FSDKErrorValueBool(resValue), inOutHuman);
+				const fsdk::Image& image,
+				const fsdk::Detection& detection) {
+					fsdk::ResultValue<fsdk::FSDKError, fsdk::Human> resValue = 
+						det->redetectOne(image, detection);
+					return std::make_tuple(FSDKErrorResult(resValue), resValue.getValue());
 			},
 			"Redetects one human based on the previous detection on the new image\n"
 			"\tArgs:\n"
-			"\t\tparam1 (Human): human structure with detection and image\n"
+			"\t\tparam1 (image): image to make a redetect on\n"
+			"\t\tparam2 (detection): detection from the previous frame\n"
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with FSDKErrorValueBool and Human structure\n")
 			;

@@ -234,7 +234,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
                 self.assertAlmostEqual(headPoseEstimation.yaw, expected.yaw, delta=3.0)
                 self.assertAlmostEqual(headPoseEstimation.pitch, expected.pitch, delta=3.0)
                 # print("Actual values headPoseEstimation by image: {0}".format(headPoseEstimation))
-                self.assertEqual(f.FrontalFaceType.FrontalFace1, expected.getFrontalFaceType())
+                self.assertEqual(f.FrontalFaceType.Good, expected.getFrontalFaceType())
 
     def testBlackWhiteEstimator(self):
         blackWhiteEstimator = self.faceEngine.createBlackWhiteEstimator()
@@ -325,7 +325,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertTrue(err.isOk)
         self.assertAlmostEqual(faceFlowScore, 0.9967, delta=0.01)
 
-    def testLivenessFlyingFlowEstimator(self):
+    def testLivenessFlyingFacesEstimator(self):
         flying_faces_estimator = self.faceEngine.createLivenessFlyingFacesEstimator()
         image = f.Image()
         image.load("testData/0_Parade_Parade_0_12.jpg")

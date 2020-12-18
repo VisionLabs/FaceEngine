@@ -33,21 +33,21 @@ def detector_batch_example(_image_det, _max_detections, _detector_type=fe.FACE_D
     return detector.detect(image_list,
                            rect_list,
                            _max_detections,
-                           fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
+                           fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMARKS68))
 
 
 def detector_redetect_example(_image_det, _max_detections, _next_image, _detector_type=fe.FACE_DET_V3, _config=None):
     detector = faceEngine.createDetector(_detector_type)
-    err, face_list = detector.detect(
+    err, face_batch = detector.detect(
         [_image_det, _image_det],
         [_image_det.getRect(), _image_det.getRect()],
         _max_detections,
-        fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
-    # take first image and all its faces, rewrite img
-    for face in face_list[0]:
-        face.img = _next_image
+        fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMARKS68))
     # DetectionType must be the same as in detect. Take only first type
-    redetect_result = detector.redetect(face_list[0], fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
+    redetect_result = detector.redetect(
+        [_image_det, _image_det],
+        face_batch,
+        fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMARKS68))
     return redetect_result
 
 
@@ -56,9 +56,8 @@ def detector_redetect_one_example(_image_det, _next_image, _detector_type=fe.FAC
     err, face = detector.detectOne(_image_det, _image_det.getRect(), fe.DetectionType(fe.DT_LANDMARKS5))
     # DetectionType must be the same as in detect
     if face.isValid():
-        face.img = _next_image
-        redetect_result = detector.redetectOne(face, fe.DT_LANDMARKS5)
-        return redetect_result
+        redetect_result, face = detector.redetectOne(face.img, face.detection, fe.DT_LANDMARKS5)
+        return redetect_result, face
     else:
         return None
 
@@ -72,7 +71,7 @@ def simple_redetect_example(image1, image2, _detector_type=fe.FACE_DET_V3):
         return
 
     # Redetect by face
-    redetect_result, redetected_face = detector.redetectOne(face, fe.DT_LANDMARKS5)
+    redetect_result, redetected_face = detector.redetectOne(face.img, face.detection, fe.DT_LANDMARKS5)
     if redetect_result.isError:
         print("simple_redetect_example - failed to redetect! Reason: {0}".format(redetect_result.what))
         return
@@ -81,23 +80,11 @@ def simple_redetect_example(image1, image2, _detector_type=fe.FACE_DET_V3):
         return
     print("\nsimple_redetect_example - first result: {0}".format(face.detection))
 
-    # And one more case - redetect based on the image and rect
-    redetect_result, redetected_face = detector.redetectOne(image2, face.detection.getRect(), fe.DT_LANDMARKS5)
-    if redetect_result.isError:
-        print("simple_redetect_example - failed to redetect! Reason: {0}".format(redetect_result.what))
-        return
-    if not redetected_face.isValid():
-        print("simple_redetect_example - something goes wrong! Face structure is invalid after redetect!")
-        return
-    print("\nsimple_redetect_example - second result: {0}".format(redetected_face.detection))
-
-
-
 def detector_one_example(_image_det, _detector_type=fe.FACE_DET_V1):
     detector = faceEngine.createDetector(_detector_type)
     err, detector_result = detector.detectOne(_image_det,
                                            _image_det.getRect(),
-                                           fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
+                                           fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMARKS68))
     print(detector_result.detection)
     return err, detector_result
 
@@ -173,32 +160,32 @@ if __name__ == "__main__":
         exit(-1)
     print("\nBatch interface example: ")
     n_detections = 3
-    err_batch, detect_list_batch = detector_batch_example(image, n_detections, fe.FACE_DET_V3)
-    if err_batch.isError or not detect_list_batch[0]:
-        print("detector_batch_example: faces are not found")
+    err_batch, detect_batch = detector_batch_example(image, n_detections, fe.FACE_DET_V3)
+    if err_batch.isError:
+        print("detector_batch_example: detections error")
         exit(-1)
     # print all detections in list
-    i_detection = 0
-    i_image = 0
-    for item in detect_list_batch:
-        for item_item in item:
-            print("image " + str(i_image) + " detection " + str(i_detection) + ": ", item_item.detection)
-            i_detection += 1
+    for i in range(detect_batch.getSize()):
+        detections = detect_batch.getDetections(i)
+        landmarks5 = detect_batch.getLandmarks5(i)
+        landmarks68 = detect_batch.getLandmarks68(i)
+        for j in range(0, len(detections)):
+            det = detections[j]
+            lm5 = landmarks5[j]
+            lm68 = landmarks68[j]
+
+            print("image " + str(i) + " detection " + str(j) + ": ", det)
             # print landmarks if you need
             # if item_item.landmarks5_opt.isValid():
             #     print_landmarks(item_item.landmarks5_opt.value(), "image № " + str(i_image) + " detection № " + str(i_detection) + ", landmarks5 = ")
             # if item_item.landmarks68_opt.isValid():
             #     print_landmarks(item_item.landmarks68_opt.value())
-        i_image += 1
-        i_detection = 0
 
     # only for example take first detection in list
-    face = detect_list_batch[0][0]
-    if not face.landmarks5_opt.isValid() or not face.landmarks68_opt.isValid():
-        print("landmarks are not valid, please verify and pass"
-              " fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68) if need")
-        exit(-1)
-    (detection, landmarks5, landmarks68) = face.detection, face.landmarks5_opt.value(), face.landmarks68_opt.value()
+    detection = detect_batch.getDetections(0)[0]
+    landmarks5 = detect_batch.getLandmarks5(0)[0]
+    landmarks68 = detect_batch.getLandmarks68(0)[0]
+
     (warp_image, transformed_landmarks5, transformed_landmarks68, transformation) = \
         warper_example(image, detection, landmarks5, landmarks68)
     simple_redetect_example(image, image, fe.FACE_DET_V3)

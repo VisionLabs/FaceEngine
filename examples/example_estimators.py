@@ -37,7 +37,7 @@ def image_load(image_path):
 
 def liveness_flying_faces_example(_face):
     flying_faces_estimator = faceEngine.createLivenessFlyingFacesEstimator()
-    err, flying_faces_estimation = flying_faces_estimator.estimate(_face)
+    err, flying_faces_estimation = flying_faces_estimator.estimate(_face.img, _face.detection)
     if err.isOk:
         print(flying_faces_estimation)
     else:
@@ -45,9 +45,9 @@ def liveness_flying_faces_example(_face):
         exit(1)
 
 
-def liveness_flying_faces_batch_example(_faces):
+def liveness_flying_faces_batch_example(_images, _detections):
     flying_faces_estimator = faceEngine.createLivenessFlyingFacesEstimator()
-    flying_faces_err, flying_faces_estimations = flying_faces_estimator.estimate(_faces)
+    flying_faces_err, flying_faces_estimations = flying_faces_estimator.estimate(_images, _detections)
     if flying_faces_err.isOk:
         for i, _estimation in enumerate(flying_faces_estimations):
             print("{0}) {1}".format(i, _estimation))
@@ -344,13 +344,13 @@ def overlap_example(_face_engine, _image, _detection):
         print("Failed overlap estimation. Reason: {0}".format(err.what))
         exit(1)
 
-def liveness_oneshot_rgb_estimator_example(_face_engine, _image, _face):
+def liveness_oneshot_rgb_estimator_example(_face_engine, _image, _detection, _landmarks5):
     config = _face_engine.getSettingsProvider()
     config.setValue("system", "verboseLogging", 1)
     _face_engine.setSettingsProvider(config)
 
     liveness_estimator = _face_engine.createLivenessOneShotRGBEstimator()
-    err, estimation = liveness_estimator.estimate(_image, _face)
+    err, estimation = liveness_estimator.estimate(_image, _detection, _landmarks5)
     if err.isOk:
         print(estimation)
     else:
@@ -442,13 +442,13 @@ if __name__ == "__main__":
         elif err_eyes.isError:
             print("Failed eyes estimation. Reason: {0}".format(err_eyes.what))
         liveness_flying_faces_example(face)
-        liveness_flying_faces_batch_example([face, face])
+        liveness_flying_faces_batch_example([face.img, face.img], [face.detection, face.detection])
         ags_example(faceEngine, image, detection)
         medical_mask_warped_example(warp_image)
         medical_mask_cropped_example(image, detection)
         medical_mask_warped_batch_example([warp_image, warp_image])
         medical_mask_cropped_batch_example([image, image], [detection, detection])
-        liveness_oneshot_rgb_estimator_example(faceEngine, image, face)
+        liveness_oneshot_rgb_estimator_example(faceEngine, image, face.detection, face.landmarks5_opt.value())
         # examples with hardcoded paths to images, special needs
         # depth_example("images/warp.depth")
         # ir_example("images/irWarp.ppm")

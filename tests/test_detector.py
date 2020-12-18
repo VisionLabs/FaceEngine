@@ -50,8 +50,9 @@ class TestFaceEngineDetector(unittest.TestCase):
         err = cls.image.load(os.path.join(testDataPath, "image1.ppm"))
         cls.assertTrue(cls, err.isOk)
         cls.assertTrue(cls, cls.image.isValid())
-        cls.face_for_redetect = fe.Face(cls.image, fe.Detection(fe.Rect(289, 94, 147, 185), 0.999999))
-        cls.faces_batch_for_redetect = [cls.face_for_redetect] * 10
+        cls.image_for_redetect = cls.image
+        cls.detection_for_redetect = fe.Detection(fe.Rect(289, 94, 147, 185), 0.999999)
+        cls.detections_batch_for_redetect = [[cls.detection_for_redetect]] * 10
         cls.images_batch_for_detect = [cls.image] * 10
         cls.rectangles = [cls.image.getRect()] * 10
 
@@ -66,7 +67,7 @@ class TestFaceEngineDetector(unittest.TestCase):
         self.assertDetections(face_expected.detection, face.detection, delta=3, scoreDelta=0.001)
         if face.landmarks68_opt.isValid():
             absoluteLandmarks = self.addDetectionCoordinatesToLandmarks(face, face.landmarks68_opt)
-            self.assertFaceLandmarks(face_expected.landmarks68_opt, absoluteLandmarks, delta=4)
+            self.assertFaceLandmarks(face_expected.landmarks68_opt.value(), absoluteLandmarks.value(), delta=4)
 
     def assertFaceValid(self, face, landmarks5Valid=True, landmarks68Valid=True):
         self.assertTrue(face.isValid())
@@ -78,10 +79,10 @@ class TestFaceEngineDetector(unittest.TestCase):
             self.assertEqual(error.isOk, valid)
 
     def assertFaceLandmarks(self, face1_landmarks, face2_landmarks, delta=0.01):
-        self.assertEqual(len(face1_landmarks.value()), len(face2_landmarks.value()))
-        for k in range(len(face2_landmarks.value())):
-            self.assertAlmostEqual(face1_landmarks.value()[k].x, face2_landmarks.value()[k].x, delta=delta)
-            self.assertAlmostEqual(face1_landmarks.value()[k].y, face2_landmarks.value()[k].y, delta=delta)
+        self.assertEqual(len(face1_landmarks), len(face2_landmarks))
+        for k in range(len(face2_landmarks)):
+            self.assertAlmostEqual(face1_landmarks[k].x, face2_landmarks[k].x, delta=delta)
+            self.assertAlmostEqual(face1_landmarks[k].y, face2_landmarks[k].y, delta=delta)
 
     def assertDetections(self, detection1, detection2, delta=0.01, scoreDelta=0.01):
         rect1 = detection1.getRect()
@@ -119,17 +120,20 @@ class TestFaceEngineDetector(unittest.TestCase):
                 refFaces = []
                 for img in images:
                     res, face = detector.detectOne(img, img.getRect(),
-                                                   fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
+                                                   fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMARKS68))
                     self.assertTrue(res.isOk)
                     self.assertFaceValid(face)
                     refFaces.append(face)
-                res3, facesList = detector.detect(images, rectangles, 3,
-                                                  fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMAKRS68))
+                res3, facesBatch = detector.detect(images, rectangles, 3,
+                                                  fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS68))
                 self.assertTrue(res3.isOk)
-                for i, faces in enumerate(facesList):
-                    self.assertFaceValid(faces[0], landmarks5Valid=False)
-                    self.assertDetections(refFaces[i].detection, faces[0].detection)
-                    self.assertFaceLandmarks(refFaces[i].landmarks68_opt, faces[0].landmarks68_opt)
+                for i in range(0, facesBatch.getSize()):
+                    detections = facesBatch.getDetections(i)
+                    landmarks68 = facesBatch.getLandmarks68(i)
+                    for j in range(0, len(detections)):
+                        self.assertTrue(detections[j].isValid())
+                        self.assertDetections(refFaces[i].detection, detections[j])
+                        self.assertFaceLandmarks(refFaces[i].landmarks68_opt.value(), landmarks68[j])
 
     def testDetectorBBoxLandmarks68(self):
         ref_values = {fe.FACE_DET_V1: fe.Detection(fe.RectFloat(288.0, 93.0, 148.0, 184.0), 0.9999),
@@ -142,7 +146,7 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.faceEngine.setSettingsProvider(self.config)
                 detector = self.faceEngine.createDetector(detectorType)
                 res_one, face = detector.detectOne(self.image, self.image.getRect(),
-                                                   fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
+                                                   fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMARKS68))
                 self.assertTrue(res_one.isOk)
                 self.assertFaceValid(face)
 
@@ -180,12 +184,12 @@ class TestFaceEngineDetector(unittest.TestCase):
                      "compareDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5),
                      "landmarks5Valid": True, "landmarks68Valid": False
                      },
-                    {"refDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68),
-                     "compareDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMAKRS68),
+                    {"refDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMARKS68),
+                     "compareDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS68),
                      "landmarks5Valid": False, "landmarks68Valid": True
                      },
                     {"refDetectionType": fe.DetectionType(fe.DT_ALL),
-                     "compareDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMAKRS68),
+                     "compareDetectionType": fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS68),
                      "landmarks5Valid": False, "landmarks68Valid": True
                      },
                 ]
@@ -193,27 +197,30 @@ class TestFaceEngineDetector(unittest.TestCase):
                     with self.subTest(caseIndex=i):
                         resOne, refFace = detector.detectOne(self.image, self.image.getRect(), case['refDetectionType'])
                         self.assertTrue(resOne.isOk)
-                        res, facesList = detector.detect(self.images_batch_for_detect, self.rectangles, 10,
+                        res, facesBatch = detector.detect(self.images_batch_for_detect, self.rectangles, 10,
                                                          case["compareDetectionType"])
                         self.assertTrue(res.isOk)
-                        self.assertEqual(len(facesList), len(self.images_batch_for_detect))
-                        for faces in facesList:
-                            self.assertFaceValid(faces[0], landmarks5Valid=case['landmarks5Valid'],
-                                                 landmarks68Valid=case['landmarks68Valid'])
-                            self.assertDetections(refFace.detection, faces[0].detection)
+                        self.assertEqual(facesBatch.getSize(), len(self.images_batch_for_detect))
+                        for i in range(0, facesBatch.getSize()):
+                            detections = facesBatch.getDetections(i)
+                            self.assertTrue(detections[0].isValid())
+                            self.assertDetections(refFace.detection, detections[0])
 
     def testHumanDetector(self):
         humanDetector = self.faceEngine.createHumanDetector()
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "0_Parade_marchingband_1_620.ppm"))
         self.assertTrue(err_image.isOk)
-        err_human_detector, list_of_list_of_detections = humanDetector.detect(
+        err_human_detector, humanBatch = humanDetector.detect(
             [image],
             [image.getRect()],
             10,
-            fe.HumanDetectionType(fe.DCT_BOX))
+            fe.HumanDetectionType(fe.HDT_BOX))
         self.assertTrue(err_human_detector.isOk)
-        rect = list_of_list_of_detections[0][0].detection.getRect()
+        self.assertEqual(humanBatch.getSize(), 1)
+
+        detection = humanBatch.getDetections(0)[0]
+        rect = detection.getRect()
         self.assertEqual(394, rect.x)
         self.assertEqual(227, rect.y)
         self.assertEqual(107, rect.width)
@@ -221,12 +228,14 @@ class TestFaceEngineDetector(unittest.TestCase):
 
     def testRedetectDifferentImages(self):
         images = []
+        ROIs = []
         image_list = ["image1.ppm", "image_720.jpg", "mouth.ppm"]
         for value in image_list:
             image = fe.Image()
             err = image.load(os.path.join(testDataPath, value))
             self.assertTrue(err.isOk)
             images.append(image)
+            ROIs.append(image.getRect())
 
         detectorTypes = {fe.FACE_DET_V1, fe.FACE_DET_V2, fe.FACE_DET_V3}
         for detectorType in detectorTypes:
@@ -234,24 +243,40 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.faceEngine.setSettingsProvider(self.config)
                 detector = self.faceEngine.createDetector(detectorType)
                 faces = []
-                faces_redetect = []
+                redetections = []
                 for img in images:
                     res, face = detector.detectOne(img, img.getRect(),
-                                                   fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
+                                                   fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMARKS68))
                     self.assertTrue(res.isOk)
                     self.assertFaceValid(face)
                     faces.append(face)
                 for face in faces:
-                    err_red, redection = detector.redetectOne(face, fe.DetectionType(fe.DT_ALL))
+                    err_red, redection = detector.redetectOne(face.img, face.detection, fe.DetectionType(fe.DT_ALL))
                     self.assertTrue(err_red.isOk)
-                    faces_redetect.append(redection)
-                res1, facesList, errorList = detector.redetect(faces, fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMAKRS68))
-                self.assertTrue(res.isOk)
-                self.assertErrors(errorList, True)
+                    redetections.append(redection)
 
-                for i, face_redetect in enumerate(faces_redetect):
-                    self.assertDetections(face_redetect.detection, facesList[i].detection)
-                    self.assertFaceLandmarks(face_redetect.landmarks68_opt, facesList[i].landmarks68_opt)
+                res, facesBatch = detector.detect(
+                    images,
+                    ROIs,
+                    10,
+                    fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS68)
+                )
+                self.assertTrue(res.isOk)
+
+                res1, redetectFacesBatch = detector.redetect(
+                    images,
+                    facesBatch,
+                    fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS68)
+                )
+                self.assertTrue(res1.isOk)
+                self.assertEqual(redetectFacesBatch.getSize(), len(images))
+
+                for i in range(redetectFacesBatch.getSize()):
+                    detections = redetectFacesBatch.getDetections(i)
+                    landmarks68 = redetectFacesBatch.getLandmarks68(i)
+                    for j in range(len(detections)):
+                        self.assertDetections(redetections[i].detection, detections[j])
+                        self.assertFaceLandmarks(redetections[i].landmarks68_opt.value(), landmarks68[j])
 
     def testRedetectOne(self):
         ref_values = {fe.FACE_DET_V1: fe.Detection(fe.RectFloat(290.0, 75.0, 150.0, 197.0), 0.99999),
@@ -264,14 +289,9 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.assertTrue(err.isOk)
                 self.assertFaceValid(face)
                 # redetection
-                err_redetect1, face_redection1 = detector.redetectOne(face, fe.DetectionType(fe.DT_ALL))
+                err_redetect1, face_redection1 = detector.redetectOne(face.img, face.detection, fe.DetectionType(fe.DT_ALL))
                 self.assertFaceValid(face_redection1)
                 self.assertDetections(face_redection1.detection, detection, delta=3, scoreDelta=0.001)
-
-                err_redetect2, face_redection2 = detector.redetectOne(face.img, face.detection.getRect(),
-                                                                      fe.DetectionType(fe.DT_ALL))
-                self.assertFaceValid(face_redection2)
-                self.assertDetections(face_redection2.detection, detection, delta=3, scoreDelta=0.001)
 
     def testRedetectBatchBbox(self):
         detectorTypes = {fe.FACE_DET_V1, fe.FACE_DET_V3}
@@ -280,16 +300,23 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.faceEngine.setSettingsProvider(self.config)
                 detector = self.faceEngine.createDetector(detectorType)
 
-                res_one, refFace = detector.redetectOne(self.face_for_redetect, fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
+                res_one, refFace = detector.redetectOne(
+                    self.image_for_redetect,
+                    self.detection_for_redetect,
+                    fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
                 self.assertTrue(res_one.isOk)
-                res, faces, errorList = detector.redetect(self.faces_batch_for_redetect, fe.DetectionType(fe.DT_BBOX))
-                self.assertTrue(res.isOk)
-                self.assertErrors(errorList, True)
 
-                for face in faces:
-                    self.assertFaceValid(face, landmarks5Valid=False, landmarks68Valid=False)
-                    self.assertDetections(refFace.detection, face.detection)
-                self.assertEqual(len(faces), len(self.faces_batch_for_redetect))
+                res, facesBatch = detector.redetect(
+                    self.images_batch_for_detect,
+                    self.detections_batch_for_redetect,
+                    fe.DetectionType(fe.DT_BBOX))
+                self.assertTrue(res.isOk)
+                self.assertEqual(len(self.images_batch_for_detect), facesBatch.getSize())
+
+                for i in range(0, facesBatch.getSize()):
+                    detections = facesBatch.getDetections(i)
+                    for j in range(0, len(detections)):
+                        self.assertDetections(refFace.detection, detections[j])
 
     def testRedetectBatchLandmarks5(self):
         detectorTypes = {fe.FACE_DET_V1, fe.FACE_DET_V3}
@@ -298,18 +325,25 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.faceEngine.setSettingsProvider(self.config)
                 detector = self.faceEngine.createDetector(detectorType)
 
-                res_one, refFace = detector.redetectOne(self.face_for_redetect, fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
+                res_one, refFace = detector.redetectOne(
+                    self.image_for_redetect,
+                    self.detection_for_redetect,
+                    fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
                 self.assertTrue(res_one.isOk)
-                res, faces, errorList = detector.redetect(self.faces_batch_for_redetect,
-                                               fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
-                self.assertTrue(res.isOk)
-                self.assertErrors(errorList, True)
 
-                for face in faces:
-                    self.assertFaceValid(face, landmarks5Valid=True, landmarks68Valid=False)
-                    self.assertDetections(refFace.detection, face.detection)
-                    self.assertFaceLandmarks(face.landmarks5_opt, refFace.landmarks5_opt)
-                self.assertEqual(len(faces), len(self.faces_batch_for_redetect))
+                res, facesBatch = detector.redetect(
+                    self.images_batch_for_detect,
+                    self.detections_batch_for_redetect,
+                    fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
+                self.assertTrue(res.isOk)
+                self.assertEqual(len(self.images_batch_for_detect), facesBatch.getSize())
+
+                for i in range(0, facesBatch.getSize()):
+                    detections = facesBatch.getDetections(i)
+                    landmarks5 = facesBatch.getLandmarks5(i)
+                    for j in range(0, len(detections)):
+                        self.assertDetections(refFace.detection, detections[j])
+                        self.assertFaceLandmarks(landmarks5[j], refFace.landmarks5_opt.value())
 
     def testRedetectBatchLandmarks68(self):
         detectorTypes = {fe.FACE_DET_V1, fe.FACE_DET_V3}
@@ -318,19 +352,24 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.faceEngine.setSettingsProvider(self.config)
                 detector = self.faceEngine.createDetector(detectorType)
 
-                res_one, refFace = detector.redetectOne(self.face_for_redetect,
-                                                        fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
+                res_one, refFace = detector.redetectOne(
+                    self.image_for_redetect,
+                    self.detection_for_redetect,
+                    fe.DetectionType(fe.DT_LANDMARKS5 | fe.DT_LANDMARKS68))
                 self.assertTrue(res_one.isOk)
-                res, faces, errorList = detector.redetect(self.faces_batch_for_redetect,
-                                               fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMAKRS68))
+                res, facesBatch = detector.redetect(
+                    self.images_batch_for_detect,
+                    self.detections_batch_for_redetect,
+                    fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS68))
                 self.assertTrue(res.isOk)
-                self.assertErrors(errorList, True)
+                self.assertEqual(len(self.images_batch_for_detect), facesBatch.getSize())
 
-                for face in faces:
-                    self.assertFaceValid(face, landmarks5Valid=False, landmarks68Valid=True)
-                    self.assertDetections(refFace.detection, face.detection)
-                    self.assertFaceLandmarks(face.landmarks68_opt, refFace.landmarks68_opt)
-                self.assertEqual(len(faces), len(self.faces_batch_for_redetect))
+                for i in range(0, facesBatch.getSize()):
+                    detections = facesBatch.getDetections(i)
+                    landmarks68 = facesBatch.getLandmarks68(i)
+                    for j in range(0, len(detections)):
+                        self.assertDetections(refFace.detection, detections[j])
+                        self.assertFaceLandmarks(refFace.landmarks68_opt.value(), landmarks68[j])
 
     def testRedetectBatchAll(self):
         detectorTypes = {fe.FACE_DET_V1, fe.FACE_DET_V3}
@@ -339,19 +378,30 @@ class TestFaceEngineDetector(unittest.TestCase):
                 self.faceEngine.setSettingsProvider(self.config)
                 detector = self.faceEngine.createDetector(detectorType)
 
-                res_one, refFace = detector.redetectOne(self.face_for_redetect, fe.DetectionType(fe.DT_ALL))
+                res_one, refFace = detector.redetectOne(
+                    self.image_for_redetect,
+                    self.detection_for_redetect,
+                    fe.DetectionType(fe.DT_ALL)
+                )
                 self.assertTrue(res_one.isOk)
-                res, faces, errorList = detector.redetect(self.faces_batch_for_redetect,
-                                               fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMAKRS68))
+                res, faceBatch = detector.redetect(
+                    self.images_batch_for_detect,
+                    self.detections_batch_for_redetect,
+                    fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5 | fe.DT_LANDMARKS68)
+                )
                 self.assertTrue(res.isOk)
-                self.assertErrors(errorList, True)
 
-                for face in faces:
-                    self.assertFaceValid(face)
-                    self.assertDetections(refFace.detection, face.detection)
-                    self.assertFaceLandmarks(refFace.landmarks5_opt, face.landmarks5_opt)
-                    self.assertFaceLandmarks(refFace.landmarks68_opt, face.landmarks68_opt)
-                self.assertEqual(len(faces), len(self.faces_batch_for_redetect))
+                self.assertEqual(len(self.images_batch_for_detect), faceBatch.getSize())
+                for i in range (0, faceBatch.getSize()):
+                    detections = faceBatch.getDetections(i)
+                    landmarks5 = faceBatch.getLandmarks5(i)
+                    landmarks68 = faceBatch.getLandmarks68(i)
+                    for j in range (0, len(detections)):
+                        detection = detections[j]
+                        self.assertTrue(detection.isValid())
+                        self.assertDetections(refFace.detection, detection)
+                        self.assertFaceLandmarks(refFace.landmarks5_opt.value(), landmarks5[j])
+                        self.assertFaceLandmarks(refFace.landmarks68_opt.value(), landmarks68[j])
 
     def testFace(self):
         face = fe.Face()
@@ -369,17 +419,17 @@ class TestFaceEngineDetector(unittest.TestCase):
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "detect_1.jpeg"))
         self.assertTrue(err_image.isOk)
-        box = fe.RectFloat(120, 599, 15, 10)
-        err, redet = detector.redetectOne(image, box, fe.DetectionType(fe.DT_BBOX))
-        self.assertEqual(err.error, fe.FSDKError.InvalidRect)
+        detection = fe.Detection(fe.RectFloat(120, 599, 15, 10), 0.999999)
+        err, redet = detector.redetectOne(image, detection, fe.DetectionType(fe.DT_BBOX))
+        self.assertEqual(err.error, fe.FSDKError.InvalidInput)
 
     def testRedetectByBigBbox(self, _detectorType=fe.FACE_DET_V3):
         detector = self.faceEngine.createDetector(_detectorType)
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "image_720.jpg"))
         self.assertTrue(err_image.isOk)
-        box = fe.RectFloat(0, 0, 10 ** 9, 10 ** 9)
-        err, redet = detector.redetectOne(image, box, fe.DetectionType(fe.DT_BBOX))
+        detection = fe.Detection(fe.RectFloat(0, 0, 10 ** 9, 10 ** 9), 0.999999)
+        err, redet = detector.redetectOne(image, detection, fe.DetectionType(fe.DT_BBOX))
         self.assertFaceValid(redet, landmarks68Valid=False, landmarks5Valid=False)
 
     def testDetectByBigArea(self, _detectorType=fe.FACE_DET_V3):
@@ -387,8 +437,8 @@ class TestFaceEngineDetector(unittest.TestCase):
         image = fe.Image()
         err_image = image.load(os.path.join(testDataPath, "attrib1.jpg"))
         self.assertTrue(err_image.isOk)
-        area = fe.Rect(100, 100, image.getWidth(), image.getHeight())
-        err, face = detector.detectOne(image, area, fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
+        rect = fe.Rect(100, 100, image.getWidth(), image.getHeight())
+        err, face = detector.detectOne(image, rect, fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
         self.assertEqual(err.error, fe.FSDKError.InvalidRect)
 
     def testRedetectResetLandmarks(self):
@@ -397,7 +447,7 @@ class TestFaceEngineDetector(unittest.TestCase):
         err, face = detector.detectOne(self.image, self.image.getRect(), fe.DetectionType(fe.DT_ALL))
         self.assertTrue(err.isOk)
         self.assertFaceValid(face, landmarks68Valid=True, landmarks5Valid=True)
-        res_one, face2 = detector.redetectOne(face, fe.DetectionType(fe.DT_BBOX))
+        res_one, face2 = detector.redetectOne(face.img, face.detection, fe.DetectionType(fe.DT_BBOX))
         self.assertFaceValid(face2, landmarks68Valid=False, landmarks5Valid=False)
 
 if __name__ == '__main__':
