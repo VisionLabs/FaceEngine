@@ -25,92 +25,78 @@ if res.isError:
 
 def human_detect_example(image1, image2):
     detector = faceEngine.createHumanDetector()
-    result = detector.detect(
+    result, human_batch = detector.detect(
         [image1, image2],
         [image1.getRect(), image2.getRect()],
         10,
-        fe.HumanDetectionType(fe.DCT_BOX))
+        fe.HumanDetectionType(fe.HDT_BOX))
 
-    if not result[0].isOk:
-        print("human_detect_example - failed to detect! Reason: {0}".format(result[0].what))
+    if not result.isOk:
+        print("human_detect_example - failed to detect! Reason: {0}".format(result.what))
         return
 
-    for human_list in result[1]:
+    for i in range(human_batch.getSize()):
+        detections = human_batch.getDetections(i)
         print("human_detect_example - next image results:")
-        if len(human_list) == 0:
+        if len(detections) == 0:
             print("human_detect_example - no human on the image!")
-        else:
-            for human in human_list:
-                print(human)
-
+        for j in range(len(detections)):
+            print(detections[j])
 
 def human_landmarks_detect_example(image1, image2):
     detector = faceEngine.createHumanDetector()
-    result = detector.detect(
+    result, human_batch = detector.detect(
         [image1, image2],
         [image1.getRect(), image2.getRect()],
         10,
-        fe.HumanDetectionType(fe.DCT_BOX | fe.DCT_POINTS))
-    if not result[0].isOk:
-        print("human_landmarks_detect_example - failed to detect! Reason: {0}".format(result[0].what))
+        fe.HumanDetectionType(fe.HDT_BOX | fe.HDT_POINTS))
+    if not result.isOk:
+        print("human_landmarks_detect_example - failed to detect! Reason: {0}".format(result.what))
         return
 
-    for human_list in result[1]:
+    for i in range(human_batch.getSize()):
+        detections = human_batch.getDetections(i)
+        landmarks17 = human_batch.getLandmarks17(i)
         print("human_landmarks_detect_example - next image results:")
-        if len(human_list) == 0:
+        if len(detections) == 0:
             print("human_landmarks_detect_example - no human on the image!")
-        else:
-            for human in human_list:
-                print(human)
-                if human.landmarks17_opt.isValid() :
-                    landmarks17 = human.landmarks17_opt.value()
-                    for i in range(len(landmarks17)):
-                        print("\tPoint ", i, ":")
-                        score = landmarks17[i].score
-                        point = landmarks17[i].point
-                        visible = landmarks17[i].visible
-                        print("\t\tx:", point.x)
-                        print("\t\ty:", point.y)
-                        print("\t\tscore:", score)
-                        print("\t\tvisible:", visible)
-                else:
-                    print("human_landmarks_detect_example - landmarks failed!")
-
+        for j in range(len(detections)):
+            print(detections[j])
+            lm17 = landmarks17[j]
+            for k in range(len(lm17)):
+                print("\tPoint ", k, ":")
+                score = lm17[k].score
+                point = lm17[k].point
+                visible = lm17[k].visible
+                print("\t\tx:", point.x)
+                print("\t\ty:", point.y)
+                print("\t\tscore:", score)
+                print("\t\tvisible:", visible)
 
 def human_redetect_one_example(image1, image2):
     detector = faceEngine.createHumanDetector()
 
     # Make detection on the first image
-    result = detector.detect(
+    result, human_batch = detector.detect(
         [image1],
         [image1.getRect()],
         1,
-        fe.HumanDetectionType(fe.DCT_BOX))
-    if not result[0].isOk:
+        fe.HumanDetectionType(fe.HDT_BOX))
+    if not result.isOk:
         print("human_redetect_example - failed to detect! Reason: {0}".format(result.what))
         return
 
-    # Get human list result for the first image
-    human_list = result[1][0]
-    if len(human_list) == 0:
-        print("human_redetect_example - no any human on the image!")
-        return
     # Get the first human from the results on the first image
-    human = human_list[0]
-    if not human.isValid():
+    detection = human_batch.getDetections(0)[0]
+    if not detection.isValid():
         print("human_redetect_example - something goes wrong! Human structure is invalid after detect!")
         return
 
-    print("human_redetect_example - detect result:\n{0}".format(human))
-    # Set for the Human structure new image
-    human.img = image2
-    # And make a redetect
-    result = detector.redetectOne(human)
-    if not result[0].isOk:
-        print("human_redetect_example - failed to redetectOne! Reason: {0}".format(result[0].what))
-        return
-    if not result[0].value:
-        print("human_redetect_example - no human was found during redetectOne!")
+    print("human_redetect_example - detect result:\n{0}".format(detection))
+    # Make a redetect
+    result, human = detector.redetectOne(image2, detection)
+    if not result.isOk:
+        print("human_redetect_example - failed to redetectOne! Reason: {0}".format(result.what))
         return
     if not human.isValid():
         print("human_redetect_example - something goes wrong! Human structure is invalid after redetectOne!")

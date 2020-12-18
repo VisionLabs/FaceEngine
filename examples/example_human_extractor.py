@@ -35,27 +35,26 @@ def human_detect_warp_example(images):
     rects = []
     for image in image_list:
         rects.append(image.getRect())
-    result, all_humans = detector.detect(
+    result, human_batch = detector.detect(
         images,
         rects,
         10,
-        fe.HumanDetectionType(fe.DCT_BOX))
+        fe.HumanDetectionType(fe.HDT_POINTS))
     if not result.isOk:
         print("human_detect_example - failed to detect! Reason: {0}".format(result[0].what))
         return []
     all_warps = []
     human_warper = face_engine.createHumanWarper()
-    for i_human_list, human_list in enumerate(all_humans):
+
+    for i in range(0, human_batch.getSize()):
+        detections = human_batch.getDetections(i)
         warps_list = []
-        if len(human_list) == 0:
-            print("human_detect_warp_example - no human on the image {0}!".format(i_human_list))
-        else:
-            for human in human_list:
-                err_human, human_warp = human_warper.warp(human)
-                if err_human.isError or not human_warp.isValid():
-                    print("failed to warp {0}. Reason: {1}", human, err_human.what)
-                    continue
-                warps_list.append(human_warp)
+        for det in detections:
+            err_human, human_warp = human_warper.warp(images[i], det)
+            if err_human.isError or not human_warp.isValid():
+                print("failed to warp {0}. Reason: {1}", human, err_human.what)
+                continue
+            warps_list.append(human_warp)
         all_warps.append(warps_list)
 
     return all_warps

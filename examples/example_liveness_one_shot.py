@@ -40,7 +40,7 @@ if __name__ == "__main__":
         exit(-1)
 
     # Make detection on the image
-    err, face_list = detector.detect(
+    err, face_batch = detector.detect(
         [image],
         [image.getRect()],
         10,
@@ -52,14 +52,15 @@ if __name__ == "__main__":
         exit(-1)
 
     # Only one face on the target image
-    if len(face_list[0]) != 1:
-        print("Exactly one face required on the image, but found {0} faces!".format(len(face_list[0])))
+    if face_batch.getSize() != 1:
+        print("Exactly one face required on the image, but found {0} faces!".format(face_batch.getSize()))
         exit(-1)
 
-    face = face_list[0][0]
+    detection = face_batch.getDetections(0)[0]
+    landmarks5 = face_batch.getLandmarks5(0)[0]
 
     headPoseEstimator = faceEngine.createHeadPoseEstimator()
-    err, headPoseEstimation = headPoseEstimator.estimate(image, face.detection)
+    err, headPoseEstimation = headPoseEstimator.estimate(image, detection)
     if err.isError:
         print("Head pose estimation failed! Reason: {0}".format(err.what))
         exit(-1)
@@ -75,7 +76,7 @@ if __name__ == "__main__":
         exit(-1)
 
     # Make liveness estimation
-    err, estimation = liveness_estimator.estimate(image, face)
+    err, estimation = liveness_estimator.estimate(image, detection, landmarks5)
     if err.isOk:
         print(estimation)
     else:

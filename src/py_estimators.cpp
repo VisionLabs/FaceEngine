@@ -317,29 +317,35 @@ void estimators_module(py::module& f) {
 		
 		.def("estimate",[](
 				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
-				const fsdk::Face& face) {
+				const fsdk::Image& image,
+				const fsdk::Detection& detection) {
 					fsdk::LivenessFlyingFacesEstimation estimation = {};
-					fsdk::Result<fsdk::FSDKError> err = est->estimate(face, estimation);
+					fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, estimation);
 					return std::make_tuple(FSDKErrorResult(err), estimation);
 			},
 			"Checks whether or not detection corresponds to the real person.\n"
 			"\tArgs\n"
-			"\t\tparam1 (Face): Face with valid input image and Detection. Image format must be R8G8B8.\n"
+			"\t\tparam1 (image): Image, format must be R8G8B8.\n"
+			"\t\tparam1 (detection): Detection to proceed.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with Error code and LivenessFlyingFacesEstimation.\n")
 		.def("estimate",[](
 				const fsdk::ILivenessFlyingFacesEstimatorPtr& est,
-				const std::vector<fsdk::Face>& faces) {
-					std::vector<fsdk::LivenessFlyingFacesEstimation> out(faces.size());
+				const std::vector<fsdk::Image>& images,
+				const std::vector<fsdk::Detection>& detections) {
+					std::vector<fsdk::LivenessFlyingFacesEstimation> out(images.size());
 					auto scoreSpan = fsdk::Span<fsdk::LivenessFlyingFacesEstimation>(out.data(), out.size());
 					fsdk::Result<fsdk::FSDKError> err = est->estimate(
-						fsdk::Span<const fsdk::Face>(faces.data(), faces.size()),
-						scoreSpan);
+						fsdk::Span<const fsdk::Image>(images),
+						fsdk::Span<const fsdk::Detection>(detections),
+						scoreSpan
+					);
 					return std::make_tuple(FSDKErrorResult(err), out);
 			},
 			"Checks whether or not detections corresponds to the real persons.\n"
 			"\tArgs\n"
-			"\t\tparam1 (Faces): List of Faces with valid Images and corresponding Detections.\n"
+			"\t\tparam1 (images): List of source images \n"
+			"\t\tparam2 (detections): List of detections"
 			"\t\t\tImage format must be R8G8B8.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with Error code and list of LivenessFlyingFacesEstimations.\n")
@@ -752,9 +758,9 @@ void estimators_module(py::module& f) {
 			;
 	
 	py::enum_<fsdk::HeadPoseEstimation::FrontalFaceType>(f, "FrontalFaceType", py::arithmetic())
-		.value("FrontalFace0", fsdk::HeadPoseEstimation::FrontalFace0, "\tNon-frontal face. \n")
-		.value("FrontalFace1", fsdk::HeadPoseEstimation::FrontalFace1, "\tGood for recognition; Doesn't descrease recall and looks fine. \n")
-		.value("FrontalFace2", fsdk::HeadPoseEstimation::FrontalFace2, "\tGOST/ISO angles \n")
+		.value("Non", fsdk::HeadPoseEstimation::Non, "\tNon-frontal face. \n")
+		.value("Good", fsdk::HeadPoseEstimation::Good, "\tGood for recognition; Doesn't descrease recall and looks fine. \n")
+		.value("ISO", fsdk::HeadPoseEstimation::ISO, "\tGOST/ISO angles \n")
 			;
 		
 	py::class_<fsdk::DepthRange>(f, "DepthRange",
@@ -1081,16 +1087,17 @@ void estimators_module(py::module& f) {
 		.def("estimate", [](
 			const fsdk::ILivenessOneShotRGBEstimatorPtr& estimator,
 			const fsdk::Image& image,
-			const fsdk::Face& face) {
+			const fsdk::Detection& detection,
+			const fsdk::Landmarks5& landmarks5) {
 				fsdk::LivenessOneShotRGBEstimation out = {};
-				fsdk::Result<fsdk::FSDKError> status = estimator->estimate(image, face, out);
+				fsdk::Result<fsdk::FSDKError> status = estimator->estimate(image, detection, landmarks5, out);
 				return std::make_tuple(FSDKErrorResult(status), out);
 			},
 			"\tEstimates the liveness state of the face.\n"
 			"\tArgs\n"
 			"\t\tparam1 (image): image source image in R8G8B8 format.\n"
-			"\t\tparam2 (image): warped face detection in R8G8B8 format.\n"
-			"\t\tparam3 (detection): detection coords in image space for the target face.\n"
+			"\t\tparam2 (detection): face detection.\n"
+			"\t\tparam3 (landmarks5): face Landmarks5\n"
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and LivenessOneShotRGBEstimation\n")
 		;

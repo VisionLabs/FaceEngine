@@ -454,14 +454,19 @@ class TestFaceEngineRect(unittest.TestCase):
 
         warps = []
         rect_list = [image.getRect() for image in image_list]
-        err, face_list = detector.detect(image_list, rect_list, 10, fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
+        err, face_batch = detector.detect(
+            image_list,
+            rect_list,
+            10,
+            fe.DetectionType(fe.DT_BBOX | fe.DT_LANDMARKS5))
         self.assertTrue(err.isOk)
 
         i_image = 0
-        for list in face_list:
-            for face in list:
-                (detection, landmarks5) = face.detection, face.landmarks5_opt.value()
-                transformation = warper.createTransformation(detection, landmarks5)
+        for i in range(0, face_batch.getSize()):
+            detections = face_batch.getDetections(i)
+            landmarks5 = face_batch.getLandmarks5(i)
+            for j in range(len(detections)):
+                transformation = warper.createTransformation(detections[j], landmarks5[j])
                 err, warp_result = warper.warp(image_list[i_image], transformation)
                 self.assertTrue(err.isOk)
                 warps.append(warp_result)

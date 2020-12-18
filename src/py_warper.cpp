@@ -123,16 +123,18 @@ py::class_<fsdk::IHumanWarperPtr>(f, "IHumanWarperPtr",
 	"\t Perform cropping and resize of an image to size (192x384) for human descriptor extraction.\n")
 	.def("warp",[](
 			const fsdk::IHumanWarperPtr& warper,
-			const fsdk::Human& human) {
+			const fsdk::Image& image,
+			const fsdk::Detection& detection) {
 				fsdk::Image transformedImage;
-				fsdk::Result<fsdk::FSDKError> error = warper->warp(human, transformedImage);
+				fsdk::Result<fsdk::FSDKError> error = warper->warp(image, detection, transformedImage);
 				if (error.isOk())
 					 return std::make_tuple(FSDKErrorResult(error), transformedImage);
 				 else
 					 return std::make_tuple(FSDKErrorResult(error), fsdk::Image()); },
 			 "Warp image\n"
 			 "\tArgs:\n"
-			 "\t\tparam1 (human): human detection. The format of image inside must be R8G8B8\n"
+			 "\t\tparam1 (Image): image to make warping. The format of image must be R8G8B8.\n"
+			 "\t\tparam2 (Detection): human detection.\n"
 			 "\tReturns:\n"
 			 "\t\t(tuple): tuple with FSDKError and output transformed image, size: width = 192, height = 384\n")
 	;

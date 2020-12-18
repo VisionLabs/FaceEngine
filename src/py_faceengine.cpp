@@ -82,32 +82,6 @@ PYBIND11_MODULE(FaceEngine, f) {
 		CompleteEdition
 	};
 
-	py::enum_<fsdk::SensorType>(f, "SensorType", py::arithmetic(), "Camera sensor type.\n")
-		.value("Visible", fsdk::SensorType::Visible, "Visible sensor type (default mode)")
-		.value("NIR", fsdk::SensorType::NIR, "NIR sensor type")
-		.export_values();
-			;
-
-	py::enum_<fsdk::ObjectDetectorClassType>(f, "ObjectDetectorClassType", py::arithmetic(), "Object detector type enumeration.\n")
-		.value("FACE_DET_DEFAULT", fsdk::FACE_DET_DEFAULT, "Default detector cpecified in config file")
-		.value("FACE_DET_V1", fsdk::FACE_DET_V1, "First detector type")
-		.value("FACE_DET_V2", fsdk::FACE_DET_V2, "Light detector type")
-		.value("FACE_DET_V3", fsdk::FACE_DET_V3, "Third detector type")
-		.export_values();
-			;
-
-	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
-		.def(py::init<>())
-		.def(py::init<fsdk::Image>())
-		.def(py::init<fsdk::Image, fsdk::Detection>())
-		.def(py::init<fsdk::Image, fsdk::Detection>())
-		.def_readwrite("img", &fsdk::Face::img, "Image\n")
-		.def_readwrite("detection", &fsdk::Face::detection, "Detection\n")
-		.def_readwrite("landmarks5_opt", &fsdk::Face::landmarks5, "Landmarks5 optinal\n")
-		.def_readwrite("landmarks68_opt", &fsdk::Face::landmarks68, "Landmarks68 optinal\n")
-		.def("isValid", &fsdk::Face::isValid, "Valid or not\n")
-			;
-	
 	py::enum_<fsdk::FaceEngineEdition>(f, "FaceEngineEdition", "Complete or FrontEdition version.\n")
 		.value("FrontEndEdition", fsdk::FaceEngineEdition::FrontEndEdition)
 		.value("CompleteEdition", fsdk::FaceEngineEdition::CompleteEdition)
@@ -656,7 +630,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 	py::enum_<fsdk::DetectionType>(f, "DetectionType", py::arithmetic(), "Detection type enumeration.\n")
 		.value("DT_BBOX", fsdk::DT_BBOX, "Get bounding boxes of faces\n")
 		.value("DT_LANDMARKS5", fsdk::DT_LANDMARKS5, "Get 5 facial landmarks\n")
-		.value("DT_LANDMAKRS68", fsdk::DT_LANDMAKRS68, "Get 68 facial landmarks\n")
+		.value("DT_LANDMARKS68", fsdk::DT_LANDMARKS68, "Get 68 facial landmarks\n")
 		.value("DT_ALL", fsdk::DT_ALL, "Get all supported parameters.\n")
 		.export_values();
 			;
@@ -670,9 +644,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 			;
 	
 	py::enum_<fsdk::HumanDetectionType>(f, "HumanDetectionType", py::arithmetic(), "Human detection type enumeration.\n")
-		.value("DCT_BOX", fsdk::DCT_BOX, "Get bounding boxes of human bodies\n")
-		.value("DCT_POINTS", fsdk::DCT_POINTS, "Get 17 keypoints of human, with score for each one\n")
-		.value("DCT_ALL", fsdk::DCT_ALL, "Get all supported parameters.\n")
+		.value("HDT_BOX", fsdk::HDT_BOX, "Get bounding boxes of human bodies\n")
+		.value("HDT_POINTS", fsdk::HDT_POINTS, "Get 17 keypoints of human, with score for each one\n")
+		.value("HDT_ALL", fsdk::HDT_ALL, "Get all supported parameters.\n")
 		.export_values();
 			;
 	
@@ -1177,7 +1151,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			DetectionType
 			DetectionType.DT_BBOX
 			DetectionType.DT_LANDMARKS5
-			DetectionType.DT_LANDMAKRS68
+			DetectionType.DT_LANDMARKS68
 
 			OrientationType
 			OrientationType.Normal
