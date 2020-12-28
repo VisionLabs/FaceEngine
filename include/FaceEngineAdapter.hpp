@@ -80,6 +80,8 @@ public:
 	const char* indexPath);
 	
 	fsdk::IAGSEstimatorPtr createAGSEstimator();
+	
+	fsdk::IPPEEstimatorPtr createPPEEstimator();
 
 	void setSettingsProvider(PyISettingsProvider& provider);
 	

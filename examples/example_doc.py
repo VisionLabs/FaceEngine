@@ -174,6 +174,9 @@ print(fe.IGazeEstimatorPtr.estimate.__doc__)
 print(fe.IAGSEstimatorPtr.__doc__)
 print(fe.IAGSEstimatorPtr.estimate.__doc__)
 
+print(fe.IPPEEstimatorPtr.__doc__)
+print(fe.IPPEEstimatorPtr.estimate.__doc__)
+
 print(fe.MatchingResult.__doc__)
 
 print(fe.Landmarks5.__doc__)

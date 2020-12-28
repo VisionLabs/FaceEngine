@@ -1101,4 +1101,64 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and LivenessOneShotRGBEstimation\n")
 		;
+
+	py::enum_<fsdk::PPEState>(f, "PPEState", "Personal Protection Equipment states.\n")
+		.value("Positive", fsdk::PPEState::Positive, "\t person is wearing specific personal equipment")
+		.value("Negative", fsdk::PPEState::Negative, "\t person isn't wearing specific personal equipment")
+		.value("Unknown", fsdk::PPEState::Unknown, "\t PPE state is unknown")
+		;
+
+	py::class_<fsdk::OnePPEEstimation>(f, "OnePPEEstimation",
+		"Personal Protection Equipment estimation structure.\n"
+		"\tThis structure contains prediction scores per each personal equipment attribute.\n")
+		.def(py::init<>())
+		.def_readwrite("positive", &fsdk::OnePPEEstimation::positive)
+		.def_readwrite("negative", &fsdk::OnePPEEstimation::negative)
+		.def_readwrite("unknown", &fsdk::OnePPEEstimation::unknown)
+		.def("getPredominantState", &fsdk::OnePPEEstimation::getPredominantState)
+		.def("__repr__",
+			[](const fsdk::OnePPEEstimation &e) {
+				return "OnePPEEstimation: "
+						"positive = " + std::to_string(e.positive)
+						+ ", negative = " + std::to_string(e.negative)
+						+ ", unknown = " + std::to_string(e.unknown);
+			})
+			;
+
+	py::class_<fsdk::PPEEstimation>(f, "PPEEstimation",
+		"Personal Protection Equipment output structure.\n"
+		"\tThis structure aggregates multiple PPE attributes predictions.\n")
+		.def(py::init<>())
+		.def_readwrite("helmetEstimation", &fsdk::PPEEstimation::helmetEstimation)
+		.def_readwrite("hoodEstimation", &fsdk::PPEEstimation::hoodEstimation)
+		.def_readwrite("vestEstimation",  &fsdk::PPEEstimation::vestEstimation)
+		.def_readwrite("glovesEstimation",  &fsdk::PPEEstimation::glovesEstimation)
+		.def("__repr__",
+			[](const fsdk::PPEEstimation &e) {
+				return "PPEEstimation: "
+					" helmet: positive " + std::to_string(e.helmetEstimation.positive) + " negative: " + std::to_string(e.helmetEstimation.negative) + " unknown: " + std::to_string(e.helmetEstimation.unknown) + 
+					"\n hood: positive " + std::to_string(e.hoodEstimation.positive) + " negative: " + std::to_string(e.hoodEstimation.negative) + " unknown: " + std::to_string(e.hoodEstimation.unknown) + 
+					"\n vest: positive " + std::to_string(e.vestEstimation.positive) + " negative: " + std::to_string(e.vestEstimation.negative) + " unknown: " + std::to_string(e.vestEstimation.unknown) + 
+					"\n gloves: positive " + std::to_string(e.glovesEstimation.positive) + " negative: " + std::to_string(e.glovesEstimation.negative) + " unknown: " + std::to_string(e.glovesEstimation.unknown);
+
+			})
+			;
+
+	py::class_<fsdk::IPPEEstimatorPtr>(f, "IPPEEstimatorPtr",
+		"Personal Protection Equipment estimator interface.\n")
+		.def("estimate", [](
+			const fsdk::IPPEEstimatorPtr& estimator,
+			const fsdk::Image& image,
+			const fsdk::Detection& detection) {
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::PPEEstimation> status =
+					estimator->estimate(image, detection);
+				return std::make_tuple(FSDKErrorResult(status), status.getValue());
+			},
+			"\tEstimates PPE.\n"
+			"\tArgs\n"
+			"\t\tparam1 (image): image source image in R8G8B8 format.\n"
+			"\t\tparam2 (detection): human detection bounding box in image space.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns error code and output estimation structure\n")
+		;
 }

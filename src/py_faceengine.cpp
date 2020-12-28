@@ -144,6 +144,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createGazeEstimator", &PyIFaceEngine::createGazeEstimator, "Creates Gaze estimator\n", py::arg("mode") = fsdk::SensorType::Visible)
 		.def("createGlassesEstimator", &PyIFaceEngine::createGlassesEstimator, "Creates Glasses estimator\n")
 		.def("createAGSEstimator", &PyIFaceEngine::createAGSEstimator, "Creates AGS estimator\n")
+		.def("createPPEEstimator", &PyIFaceEngine::createPPEEstimator, "Creates PPE estimator\n")
 		.def("createMouthEstimator", &PyIFaceEngine::createMouthEstimator, "Creates Mouth estimator\n")
 		.def("createMedicalMaskEstimator", &PyIFaceEngine::createMedicalMaskEstimator, "Creates Medical Mask estimator\n")
 		.def("createOverlapEstimator", &PyIFaceEngine::createOverlapEstimator, "Creates Overlap estimator\n")
@@ -963,6 +964,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IAGSEstimatorPtr
 			IAGSEstimatorPtr.estimate
 
+			IPPEEstimatorPtr
+			IPPEEstimatorPtr.estimate
+			
 			IIndexPtr
 			IIndexPtr.search
 
