@@ -541,6 +541,38 @@ class TestFaceEngineEstimators(unittest.TestCase):
         config.setValue("system", "verboseLogging", f.SettingsProviderValue(0))
         self.faceEngine.setSettingsProvider(config)
 
+    def testPPEEstimator(self):
+        estimator = self.faceEngine.createPPEEstimator()
+        image = f.Image()
+        loadStatus = image.load("testData/test_SIZ.jpg")
+        self.assertFalse(loadStatus.isError)
+
+        refRect = f.RectFloat(458.0, 93.0, 675.0-458.0, 638.0-93.0)
+        reference = f.Detection(refRect, image.getRect(), 0.999)
+        r = estimator.estimate(image, reference)
+        self.assertFalse(r[0].isError)
+        output = r[1]
+
+        self.assertAlmostEqual(output.helmetEstimation.positive, 0.784540, delta=0.01);
+        self.assertAlmostEqual(output.helmetEstimation.negative, 0.209527, delta=0.01);
+        self.assertAlmostEqual(output.helmetEstimation.unknown, 0.065264,  delta=0.01);
+        self.assertEqual(output.helmetEstimation.getPredominantState(), f.PPEState.Positive);
+
+        self.assertAlmostEqual(output.hoodEstimation.positive, 0.104834, delta=0.01);
+        self.assertAlmostEqual(output.hoodEstimation.negative, 0.760223, delta=0.01);
+        self.assertAlmostEqual(output.hoodEstimation.unknown, 0.264629, delta=0.01);
+        self.assertEqual(output.hoodEstimation.getPredominantState(), f.PPEState.Negative);
+
+        self.assertAlmostEqual(output.vestEstimation.positive, 0.069459, delta=0.01);
+        self.assertAlmostEqual(output.vestEstimation.negative, 0.927548, delta=0.01);
+        self.assertAlmostEqual(output.vestEstimation.unknown, 0.0724038, delta=0.01);
+        self.assertEqual(output.vestEstimation.getPredominantState(), f.PPEState.Negative);
+
+        self.assertAlmostEqual(output.glovesEstimation.positive, 0.566822, delta=0.01);
+        self.assertAlmostEqual(output.glovesEstimation.negative, 0.365438, delta=0.01);
+        self.assertAlmostEqual(output.glovesEstimation.unknown, 0.235706, delta=0.01);
+        self.assertEqual(output.glovesEstimation.getPredominantState(), f.PPEState.Positive);
+
     def testMouthEstimator(self):
         estimator = self.faceEngine.createMouthEstimator()
         warper = self.faceEngine.createWarper()

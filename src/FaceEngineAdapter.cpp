@@ -184,6 +184,11 @@ fsdk::IAGSEstimatorPtr PyIFaceEngine::createAGSEstimator() {
 	return processResult(res, "to create ags estimator");
 }
 
+fsdk::IPPEEstimatorPtr PyIFaceEngine::createPPEEstimator() {
+	auto res = faceEnginePtr->createPPEEstimator();
+	return processResult(res, "to create PPE estimator");
+}
+
 fsdk::IMouthEstimatorPtr PyIFaceEngine::createMouthEstimator() {
 	auto res = faceEnginePtr->createMouthEstimator();
 	return processResult(res, "to create mouth estimator");
