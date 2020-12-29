@@ -191,7 +191,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
         refPitch = -0.770056
         refYaw = -73.53636
         refRoll = -0.255361
-        refPrecision = 0.0001
+        refPrecision = 0.05
         err, estimation = bestShotQualityEstimator.estimate(image, detection, f.BestShotQualityRequest.estimateAll)
         self.assertTrue(err.isOk)
         self.assertTrue(estimation.ags_opt.isValid())
