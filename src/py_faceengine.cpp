@@ -64,6 +64,7 @@ void set_optional_class(py::module& f)
 	auto optionalfloat = optional_class<float>(f, "Optionalfloat");
 	auto optionalEthnicityEstimation = optional_class<fsdk::EthnicityEstimation>(f, "OptionalEthnicityEstimation");
 	auto optionalLandmarks17 = optional_class<fsdk::HumanLandmarks17>(f, "OptionalLandmarks17");
+	auto optionalHeadPoseEstimation = optional_class<fsdk::HeadPoseEstimation>(f, "OptionalHeadPoseEstimation");
 }
 
 PYBIND11_MODULE(FaceEngine, f) {
@@ -123,6 +124,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createQualityEstimator", &PyIFaceEngine::createQualityEstimator, "Creates Quality estimator\n")
 		
 		.def("createHeadPoseEstimator", &PyIFaceEngine::createHeadPoseEstimator, "Creates Head pose estimator\n")
+		.def("createBestShotQualityEstimator", &PyIFaceEngine::createBestShotQualityEstimator, "\"Creates Best Shot Quality estimator\n")
 		.def("createBlackWhiteEstimator", &PyIFaceEngine::createBlackWhiteEstimator, "Creates Black/White estimator\n")
 		.def("createDepthEstimator", &PyIFaceEngine::createDepthEstimator, "Creates Liveness Depth estimator\n")
 		.def("createIREstimator", &PyIFaceEngine::createIREstimator, "Creates Liveness Infrared estimator\n")
@@ -816,6 +818,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createMouthEstimator
 			PyIFaceEngine.createMaskMedicalEstimator
 			PyIFaceEngine.createOverlapEstimator
+			PyIFaceEngine.createBestShotQualityEstimator
 	
 			PyIFaceEngine.createDetector
 			PyIFaceEngine.createWarper
@@ -1032,6 +1035,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			AttributeResult
 			AttributeResult.__init__
 			AttributeResult.__repr__
+
+			BestShotQualityRequest
+			BestShotQualityRequest.estimateAGS
+			BestShotQualityRequest.estimateHeadPose
+			BestShotQualityRequest.estimateAll
+
+			BestShotQualityResult
+			BestShotQualityResult.__init__
+			BestShotQualityResult.__repr__
 
 			Quality
 			Quality.__init__

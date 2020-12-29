@@ -21,6 +21,8 @@ public:
 	fsdk::IAttributeEstimatorPtr createAttributeEstimator();
 
 	fsdk::IQualityEstimatorPtr createQualityEstimator();
+
+	fsdk::IBestShotQualityEstimatorPtr createBestShotQualityEstimator();
 	
 //	warper
 	fsdk::IWarperPtr createWarper();
