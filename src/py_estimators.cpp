@@ -127,7 +127,88 @@ void estimators_module(py::module& f) {
 						" ethnicity = " + (r.ethnicity.valid() ? std::to_string(static_cast<int>(r.ethnicity.value().getPredominantEthnicity())) : std::string("not requested!\n"))
 						; })
 		;
-	
+
+	py::class_<fsdk::IBestShotQualityEstimatorPtr>(f, "IBestShotQualityEstimatorPtr",
+		"Best shot quality estimator interface. This estimator is designed to work with a person face image; \n"
+		"you should pass original face image and face detection. Estimated attributes are: \n"
+		"\tags;\n"
+		"\tpith;\n"
+		"\tyaw;\n"
+		"\troll;\n")
+
+	.def("estimate", [](
+		const fsdk::IBestShotQualityEstimatorPtr& est,
+		const fsdk::Image& image,
+		const fsdk::Detection& detection,
+		const fsdk::IBestShotQualityEstimator::EstimationRequest request) {
+			fsdk::IBestShotQualityEstimator::EstimationResult result;
+			fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, request, result);
+			return std::make_tuple(FSDKErrorResult(err), result); },
+		"Estimate best shot quality for image.\n"
+		"\t\t(see FSDKErrorResult for details)\n"
+		"\tArgs:\n"
+		"\t\tparam1 (Image): Image. Format must be R8G8B8\n"
+		"\t\tparam2 (Detection): detection\n"
+		"\t\tparam3 (BestShotQualityRequest): request with flags to check parameters to estimate\n"
+		"\tReturns:\n"
+		"\t\t(tuple): \n"
+		"\t\t\t tuple with FSDKErrorResult code and estimator result (see BestShotQualityResult)\n")
+
+	.def("estimate", [](
+		const fsdk::IBestShotQualityEstimatorPtr& est,
+		const std::vector<fsdk::Image>& images,
+		const std::vector<fsdk::Detection>& detections,
+		const fsdk::IBestShotQualityEstimator::EstimationRequest request) {
+			std::vector<fsdk::IBestShotQualityEstimator::EstimationResult> results(images.size());
+			fsdk::Span<fsdk::IBestShotQualityEstimator::EstimationResult> resultSpan(results.data(), images.size());
+			fsdk::Result<fsdk::FSDKError> err = est->estimate(
+				fsdk::Span<const fsdk::Image>(images.data(), images.size()),
+				fsdk::Span<const fsdk::Detection>(detections.data(), detections.size()),
+				request,
+				resultSpan);
+			if (err.isOk()) {
+				return std::make_tuple(FSDKErrorResult(err),
+					std::vector<fsdk::IBestShotQualityEstimator::EstimationResult>(resultSpan.begin(), resultSpan.end()));
+			}
+			return std::make_tuple(FSDKErrorResult(err),
+				std::vector<fsdk::IBestShotQualityEstimator::EstimationResult>()); },
+		"\"Estimate best shot quality for batch image.\n"
+		"\t\t(see FSDKErrorResult for details)\n"
+		"\tArgs:\n"
+		"\t\tparam1 (list of Images): list of images. Format must be R8G8B8\n"
+		"\t\tparam2 (list of Detection): list of detections\n"
+		"\t\tparam3 (BestShotQualityRequest): request with flags to check parameters to estimate\n"
+		"\tReturns:\n"
+		"\t\t(tuple): \n"
+		"\t\t\t tuple with FSDKErrorResult code and estimator result (see BestShotQualityResult)\n")
+	;
+
+	py::enum_<fsdk::IBestShotQualityEstimator::EstimationRequest>(f, "BestShotQualityRequest", py::arithmetic(), "Best shot quality estimation request type.\n")
+		.value("estimateAGS", fsdk::IBestShotQualityEstimator::estimateAGS, "Estimate AGS")
+		.value("estimateHeadPose", fsdk::IBestShotQualityEstimator::estimateHeadPose, "Estimate Head pose")
+		.value("estimateAll", fsdk::IBestShotQualityEstimator::estimateAll, "Estimate AGS and Head pose")
+		.export_values();
+
+	py::class_<fsdk::IBestShotQualityEstimator::EstimationResult>(f, "BestShotQualityResult",
+		"Best shot quality estimator results.")
+		.def(py::init<>())
+		.def_readwrite("ags_opt", &fsdk::IBestShotQualityEstimator::EstimationResult::ags, "ags estimation optional\n")
+		.def_readwrite("headpose_opt", &fsdk::IBestShotQualityEstimator::EstimationResult::headPose, "head pose estimation optional\n")
+		.def("__repr__",
+			[](const fsdk::IBestShotQualityEstimator::EstimationResult& r) {
+				fsdk::HeadPoseEstimation headPoseEstimation;
+				bool headPoseIsValid = r.headPose.valid();
+				if (headPoseIsValid) {
+					headPoseEstimation = r.headPose.value();
+				}
+				return "BestShotQualityResult: "
+						" ags = " + (r.ags.valid() ? std::to_string(r.ags.value()) : std::string("not requested!\n")) +
+						" pitch = " + (headPoseIsValid ? std::to_string(headPoseEstimation.pitch) : std::string("not requested!\n")) +
+						" yaw = " + (headPoseIsValid ? std::to_string(headPoseEstimation.yaw) : std::string("not requested!\n")) +
+						" roll = " + (headPoseIsValid ? std::to_string(headPoseEstimation.roll) : std::string("not requested!\n"))
+						; })
+		;
+
 	py::class_<fsdk::IMedicalMaskEstimatorPtr>(f, "IMedicalMaskEstimatorPtr",
 		"Medical mask estimator interface.\n"
 		"\tStores flags that indicates which medical mask feature is present; \n"

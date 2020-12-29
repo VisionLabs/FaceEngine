@@ -163,11 +163,11 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertTrue(subj_quality_result1.isGood())
         #compare estimate_subjective_quality vs estimate 
         floatprecision = 0.0001
-        self.assertAlmostEqual(subj_quality_result.blur, subj_quality_result1.blur, floatprecision)
-        self.assertAlmostEqual(subj_quality_result.light, subj_quality_result1.light, floatprecision)
-        self.assertAlmostEqual(subj_quality_result.darkness, subj_quality_result1.darkness, floatprecision)
-        self.assertAlmostEqual(subj_quality_result.illumination, subj_quality_result1.illumination, floatprecision)
-        self.assertAlmostEqual(subj_quality_result.specularity, subj_quality_result1.specularity, floatprecision)
+        self.assertAlmostEqual(subj_quality_result.blur, subj_quality_result1.blur, delta=floatprecision)
+        self.assertAlmostEqual(subj_quality_result.light, subj_quality_result1.light, delta=floatprecision)
+        self.assertAlmostEqual(subj_quality_result.darkness, subj_quality_result1.darkness, delta=floatprecision)
+        self.assertAlmostEqual(subj_quality_result.illumination, subj_quality_result1.illumination, delta=floatprecision)
+        self.assertAlmostEqual(subj_quality_result.specularity, subj_quality_result1.specularity, delta=floatprecision)
         #test estimate_quality
         qualityRef = f.Quality()
         qualityRef.light = 0.96277028322
@@ -176,10 +176,32 @@ class TestFaceEngineEstimators(unittest.TestCase):
         qualityRef.blur  = 0.961572766304
         refPrecision = 0.001
         err, quality = qualityEstimator.estimate_quality(image)
-        self.assertAlmostEqual(quality.light, qualityRef.light, refPrecision)
-        self.assertAlmostEqual(quality.dark, qualityRef.dark, refPrecision)
-        self.assertAlmostEqual(quality.gray, qualityRef.gray, refPrecision)
-        self.assertAlmostEqual(quality.blur, qualityRef.blur, refPrecision)
+        self.assertAlmostEqual(quality.light, qualityRef.light, delta=refPrecision)
+        self.assertAlmostEqual(quality.dark, qualityRef.dark, delta=refPrecision)
+        self.assertAlmostEqual(quality.gray, qualityRef.gray, delta=refPrecision)
+        self.assertAlmostEqual(quality.blur, qualityRef.blur, delta=refPrecision)
+
+    def testBestShotQualityEstimator(self):
+        bestShotQualityEstimator = self.faceEngine.createBestShotQualityEstimator()
+        image = f.Image()
+        image.load("testData/sample.png")
+        self.assertTrue(image.isValid())
+        detection = f.Detection(f.RectFloat(365, 119, 145, 204), image.getRect(), 0.999)
+        refAgs = 0.3734353
+        refPitch = -0.770056
+        refYaw = -73.53636
+        refRoll = -0.255361
+        refPrecision = 0.0001
+        err, estimation = bestShotQualityEstimator.estimate(image, detection, f.BestShotQualityRequest.estimateAll)
+        self.assertTrue(err.isOk)
+        self.assertTrue(estimation.ags_opt.isValid())
+        self.assertTrue(estimation.headpose_opt.isValid())
+        agsEstimation = estimation.ags_opt.value()
+        headPoseEstimation = estimation.headpose_opt.value()
+        self.assertAlmostEqual(agsEstimation, refAgs, delta=refPrecision)
+        self.assertAlmostEqual(headPoseEstimation.pitch, refPitch, delta=refPrecision)
+        self.assertAlmostEqual(headPoseEstimation.yaw, refYaw, delta=refPrecision)
+        self.assertAlmostEqual(headPoseEstimation.roll, refRoll, delta=refPrecision)
 
     def testOverlapEstimator(self):
         image = f.Image()

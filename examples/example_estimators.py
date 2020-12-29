@@ -344,6 +344,7 @@ def overlap_example(_face_engine, _image, _detection):
         print("Failed overlap estimation. Reason: {0}".format(err.what))
         exit(1)
 
+
 def liveness_oneshot_rgb_estimator_example(_face_engine, _image, _detection, _landmarks5):
     config = _face_engine.getSettingsProvider()
     config.setValue("system", "verboseLogging", 1)
@@ -355,6 +356,7 @@ def liveness_oneshot_rgb_estimator_example(_face_engine, _image, _detection, _la
         print(estimation)
     else:
         print("Failed LivenessOneShotRGB estimation!. Reason: {0}".format(err.what))
+
 
 def orientation_example(_face_engine, _image):
     estimator = _face_engine.createOrientationEstimator()
@@ -374,6 +376,27 @@ def orientation_example(_face_engine, _image):
     else:
         print("Failed orientation estimation. Reason: {0}".format(err.what))
         exit(1)
+
+
+def best_shot_quality_estimator_example(_face_engine, _image, _detection):
+    estimator = _face_engine.createBestShotQualityEstimator()
+    error, estimation = estimator.estimate(_image, _detection, fe.BestShotQualityRequest.estimateAll)
+    if error.isOk:
+        print(estimation)
+    else:
+        print("Failed best shot quality estimation. Reason : ", error.what)
+        exit(1)
+
+
+def best_shot_quality_estimator_batch_example(_face_engine, _images, _detections):
+    estimator = _face_engine.createBestShotQualityEstimator()
+    error, estimations = estimator.estimate(_images, _detections, fe.BestShotQualityRequest.estimateAll)
+    if error.isError:
+        print("Failed best shot quality estimation. Reason : ", error.what)
+        exit(1)
+
+    for i, estimation in enumerate(estimations):
+        print("number: ", i, estimation)
 
 
 def print_landmarks(landmarks, message=""):
@@ -449,6 +472,8 @@ if __name__ == "__main__":
         medical_mask_warped_batch_example([warp_image, warp_image])
         medical_mask_cropped_batch_example([image, image], [detection, detection])
         liveness_oneshot_rgb_estimator_example(faceEngine, image, face.detection, face.landmarks5_opt.value())
+        best_shot_quality_estimator_example(faceEngine, image, detection)
+        best_shot_quality_estimator_batch_example(faceEngine, [image, image], [detection, detection])
         # examples with hardcoded paths to images, special needs
         # depth_example("images/warp.depth")
         # ir_example("images/irWarp.ppm")

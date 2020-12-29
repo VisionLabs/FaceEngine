@@ -53,6 +53,11 @@ fsdk::IQualityEstimatorPtr PyIFaceEngine::createQualityEstimator() {
 	return processResult(res, "to create attribute estimator");
 }
 
+fsdk::IBestShotQualityEstimatorPtr PyIFaceEngine::createBestShotQualityEstimator() {
+	auto res = faceEnginePtr->createBestShotQualityEstimator();
+	return processResult(res, "to create best shot quality estimator");
+}
+
 //	warper
 fsdk::IWarperPtr PyIFaceEngine::createWarper() {
 	auto res = faceEnginePtr->createWarper();
