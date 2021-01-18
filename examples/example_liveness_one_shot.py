@@ -59,13 +59,15 @@ if __name__ == "__main__":
     detection = face_batch.getDetections(0)[0]
     landmarks5 = face_batch.getLandmarks5(0)[0]
 
-    headPoseEstimator = faceEngine.createHeadPoseEstimator()
-    err, headPoseEstimation = headPoseEstimator.estimate(image, detection)
+    bestShotQualityEstimator = faceEngine.createBestShotQualityEstimator()
+    err, bestShotQualityEstimation = bestShotQualityEstimator.estimate(image, detection, fe.BestShotQualityRequest.estimateHeadPose)
     if err.isError:
-        print("Head pose estimation failed! Reason: {0}".format(err.what))
+        print("Best shot quality estimation failed! Reason: {0}".format(err.what))
         exit(-1)
 
-    print("Head pose estimation by image and detection:", headPoseEstimation)
+    headPoseEstimation = bestShotQualityEstimation.headpose_opt.value()
+
+    print("Head pose estimation:", headPoseEstimation)
 
     config = faceEngine.getSettingsProvider()
     principalAxes = config.getValue("LivenessOneShotRGBEstimator::Settings", "principalAxes")[0]

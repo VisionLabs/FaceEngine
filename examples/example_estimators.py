@@ -181,23 +181,6 @@ def medical_mask_cropped_batch_example(_images, _detections):
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
 
-
-def headPose_example_by_image_and_detection(_warp, _detection):
-    headPoseEstimator = faceEngine.createHeadPoseEstimator()
-    err, headPoseEstimation = headPoseEstimator.estimate(_warp, _detection)
-    if err.isOk:
-        print("Head pose estimation by image and detection:", headPoseEstimation)
-    return err, headPoseEstimation
-
-
-def headPose_example_by_landmarks68(_landmarks68):
-    headPoseEstimator = faceEngine.createHeadPoseEstimator()
-    err, headPoseEstimation = headPoseEstimator.estimate(_landmarks68)
-    if err.isOk:
-        print("Head pose estimation by landmarks68:", headPoseEstimation)
-    return err, headPoseEstimation
-
-
 def mouth_example(_warp):
     mouthEstimator = faceEngine.createMouthEstimator()
     err, mouthEstimation = mouthEstimator.estimate(_warp)
@@ -284,7 +267,7 @@ def gaze_example_infrared(_warp_image, _transformed_landmarks5):
     gaze_estimator = faceEngine.createGazeEstimator(fe.SensorType.NIR)
     err, gaze_result = gaze_estimator.estimate(_warp_image, transformed_landmarks5)
     if err.isOk:
-        err, gaze_result
+        return err, gaze_result
     else:
         print("Failed gaze estimation. Reason: {0}".format(err.what))
         exit(1)
@@ -300,29 +283,6 @@ def gaze_example_rgb(_warp_image, _transformed_landmarks5):
     else:
         print("Failed ir gaze estimation. Reason: {0}".format(err.what))
         exit(1)
-
-
-def ags_example(_faceEngine, _image, _detection):
-    config = fe.createSettingsProvider("data/faceengine.conf")
-    # to get ags estimation we need to switch on betamode
-    # switch on betaMode
-    config.setValue("system", "betaMode", 1)
-    # switch on logs to see that betamode is enabled
-    config.setValue("system", "verboseLogging", 5)
-    _faceEngine.setSettingsProvider(config)
-    # create ags estimator only after betamode is enabled
-    agsEstimator = faceEngine.createAGSEstimator()
-    err, ags_result = agsEstimator.estimate(_image, _detection)
-    if err.isOk:
-        print("AGS estimator value: {0}".format(ags_result))
-    else:
-        print("Failed AGS estimation. Reason: {0}".format(err.what))
-        exit(1)
-    # switch off betaMode if we do not need it yet
-    config.setValue("system", "betaMode", 0)
-    # switch off logs
-    config.setValue("system", "verboseLogging", 0)
-    _faceEngine.setSettingsProvider(config)
 
 
 def glasses_example(_faceEngine, _warp):
@@ -451,12 +411,6 @@ if __name__ == "__main__":
         print("aggregate attribute result: ", aggregate_result)
         emotions_example(warp_image)
         mouth_example(warp_image)
-        err_headPose, headPoseEstimation = headPose_example_by_landmarks68(landmarks68)
-        if err_headPose.isError:
-            print("Failed head pose estimation in headPose_example_by_landmarks68. Reason: {0}".format(err_headPose.what))
-        err_headPose, headPoseEstimation = headPose_example_by_image_and_detection(warp_image, detection)
-        if err_headPose.isError:
-            print("Failed head pose estimation in headPose_example_by_image_and_detection. Reason: {0}".format(err_headPose.what))
         err_eyes, eyesEstimation = eye_example(warp_image, transformed_landmarks5)
         err_gaze, gaze_result = gaze_example_rgb(warp_image, transformed_landmarks5)
         if err_gaze.isOk:
@@ -466,7 +420,6 @@ if __name__ == "__main__":
             print("Failed eyes estimation. Reason: {0}".format(err_eyes.what))
         liveness_flying_faces_example(face)
         liveness_flying_faces_batch_example([face.img, face.img], [face.detection, face.detection])
-        ags_example(faceEngine, image, detection)
         medical_mask_warped_example(warp_image)
         medical_mask_cropped_example(image, detection)
         medical_mask_warped_batch_example([warp_image, warp_image])
