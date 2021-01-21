@@ -93,8 +93,11 @@ void detector_module(py::module& f) {
 			const fsdk::IFaceDetectionBatchPtr& batch,
 			size_t index) {
 				const size_t rowSize = batch->getSize(index);
-				py::list out(rowSize);
 				const auto landmarks5 = batch->getLandmarks5(index);
+				if (landmarks5.empty()) {
+					return py::list{};
+				}
+				py::list out(rowSize);
 				for (size_t i = 0; i < rowSize; ++i) {
 					out[i] = landmarks5[i];
 				}
@@ -111,8 +114,11 @@ void detector_module(py::module& f) {
 			const fsdk::IFaceDetectionBatchPtr& batch,
 			size_t index) {
 				const size_t rowSize = batch->getSize(index);
-				py::list out(rowSize);
 				const auto landmarks68 = batch->getLandmarks68(index);
+				if (landmarks68.empty()) {
+					return py::list{};
+				}
+				py::list out(rowSize);
 				for (size_t i = 0; i < rowSize; ++i) {
 					out[i] = landmarks68[i];
 				}
@@ -279,10 +285,13 @@ void detector_module(py::module& f) {
 			const fsdk::IHumanDetectionBatchPtr& batch,
 			size_t index) {
 				const size_t rowSize = batch->getSize(index);
+				const auto landmarks17 = batch->getLandmarks17(index);
+				if (landmarks17.empty()) {
+					return py::list{};
+				}
 				py::list out(rowSize);
-				const auto landmarks5 = batch->getLandmarks17(index);
 				for (size_t i = 0; i < rowSize; ++i) {
-					out[i] = landmarks5[i];
+					out[i] = landmarks17[i];
 				}
 				return out;
 			},
