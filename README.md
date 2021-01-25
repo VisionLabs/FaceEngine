@@ -51,13 +51,24 @@ cd pythonBindings
 ```bash
 $ python3 setup.py install 
 ```
-Library `FaceEngine*.so` will be generated and installed in system.  
+Library `FaceEngine*.so` will be generated and installed in system.
+
+If you want to install also TrackEngine and LivenessEngine:
+```bash
+$ python3 setup.py install --build-te-bindings --build-le-bindings
+```
 
 to uninstall it:
 
 ```bash
 $ pip uninstall FaceEngine 
 ```
+
+Also clear directory `build`:
+```bash
+$ rm -rf build/* 
+```
+
 Possible you'll need **sudo rights** or use python3 and pip3.
 
 4. **For library building without installing**:

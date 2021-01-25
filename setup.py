@@ -4,10 +4,29 @@ import sys
 import platform
 import subprocess
 
-
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
+from setuptools.command.install import install
 from distutils.version import LooseVersion
+
+
+class InstallCommand(install):
+    user_options = install.user_options + [
+        ('build-te-bindings', None, 'Build TrackEngine bindings.'),
+        ('build-le-bindings', None, 'Build LivenessEngine bindings.')
+    ]
+
+    def __init__(self, dist):
+        super().__init__(dist)
+        self.build_le_bindings = False
+        self.build_te_bindings = False
+
+    def run(self):
+        global build_te_bindings
+        global build_le_bindings
+        build_te_bindings = self.build_te_bindings
+        build_le_bindings = self.build_le_bindings
+        self.do_egg_install()
 
 
 class CMakeExtension(Extension):
@@ -36,19 +55,25 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
         path_to_fsdk = os.environ.get('FSDK_ROOT')
         if path_to_fsdk is not None:
-               print("FSDK_ROOT is set as environment variable: {0}".format(path_to_fsdk))
+            print("FSDK_ROOT is set as environment variable: {0}".format(path_to_fsdk))
         else:
-               path_to_fsdk = os.path.split(os.path.realpath(__file__))[0] + '/..'
-               print("FSDK_ROOT is UNSET, default path to LUNA SDK: {0}, you could try to change it".format(path_to_fsdk))
-        cmake_args = ['-DFSDK_ROOT=' + path_to_fsdk,'-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
+            path_to_fsdk = os.path.split(os.path.realpath(__file__))[0] + '/..'
+            print("FSDK_ROOT is UNSET, default path to LUNA SDK: {0}, you could try to change it".format(path_to_fsdk))
+        cmake_args = ['-DFSDK_ROOT=' + path_to_fsdk, '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
+
+        if build_te_bindings:
+            cmake_args.append('-DBUILD_TE_BINDINGS=ON')
+
+        if build_le_bindings:
+            cmake_args.append('-DBUILD_LE_BINDINGS=ON')
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
 
         if platform.system() == "Windows":
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
-            if sys.maxsize > 2**32:
+            if sys.maxsize > 2 ** 32:
                 cmake_args += ['-A', 'x64']
             build_args += ['--', '/m']
         else:
@@ -64,14 +89,16 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
         print(cmake_args)
 
-setup(
-    name='FaceEngine',
-    version='4.2.0.0',
-    author='VisionLabs',
-    author_email='info@visionlabs.ru',
-    description='Python bindings of FaceEngine using pybind11 and CMake',
-    long_description='',
-    ext_modules=[CMakeExtension('FaceEngine')],
-    cmdclass=dict(build_ext=CMakeBuild),
-    zip_safe=False,
-)
+
+if __name__ == '__main__':
+    setup(
+        name='FaceEngine',
+        version='4.2.0.0',
+        author='VisionLabs',
+        author_email='info@visionlabs.ru',
+        description='Python bindings of FaceEngine using pybind11 and CMake',
+        long_description='',
+        ext_modules=[CMakeExtension('FaceEngine')],
+        cmdclass=dict(install=InstallCommand, build_ext=CMakeBuild),
+        zip_safe=False,
+    )
