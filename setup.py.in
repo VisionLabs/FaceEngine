@@ -3,6 +3,7 @@ import re
 import sys
 import platform
 import subprocess
+import distutils.command.install as orig
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -26,7 +27,7 @@ class InstallCommand(install):
         global build_le_bindings
         build_te_bindings = self.build_te_bindings
         build_le_bindings = self.build_le_bindings
-        self.do_egg_install()
+        orig.install.run(self)
 
 
 class CMakeExtension(Extension):
