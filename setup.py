@@ -9,6 +9,8 @@ from setuptools.command.build_ext import build_ext
 from setuptools.command.install import install
 from distutils.version import LooseVersion
 
+build_te_bindings = False
+build_le_bindings = False
 
 class InstallCommand(install):
     user_options = install.user_options + [
