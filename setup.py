@@ -3,6 +3,7 @@ import re
 import sys
 import platform
 import subprocess
+import distutils.command.install as orig
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -28,7 +29,7 @@ class InstallCommand(install):
         global build_le_bindings
         build_te_bindings = self.build_te_bindings
         build_le_bindings = self.build_le_bindings
-        self.do_egg_install()
+        orig.install.run(self)
 
 
 class CMakeExtension(Extension):
@@ -95,7 +96,7 @@ class CMakeBuild(build_ext):
 if __name__ == '__main__':
     setup(
         name='FaceEngine',
-        version='4.2.0.0',
+        version='5.0.0.1',
         author='VisionLabs',
         author_email='info@visionlabs.ru',
         description='Python bindings of FaceEngine using pybind11 and CMake',
