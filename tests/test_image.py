@@ -64,7 +64,7 @@ class TestFaceEngineImage(unittest.TestCase):
         self.assertEqual(load_error_R8G8B8.isOk, 1)
         self.assertEqual(load_error_R8.isOk, 1)
         # R16 is used for internal transformation for depth map and cannot be saved or downloaded
-        self.assertEqual(load_error_R16.what, "Requiered conversion not implemented")
+        self.assertEqual(load_error_R16.what, "Required conversion not implemented")
         self.assertEqual(load_error_Unknown.what, "Unsupported type")
 
     def test_identity(self):
