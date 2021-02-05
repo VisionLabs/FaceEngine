@@ -127,6 +127,13 @@ fsdk::ILivenessFlyingFacesEstimatorPtr PyIFaceEngine::createLivenessFlyingFacesE
 	return livenessFlyingFacesEstimatorPtr;
 }
 
+fsdk::ILivenessFPREstimatorPtr PyIFaceEngine::createLivenessFPREstimator() {
+	fsdk::ILivenessFPREstimatorPtr estimator = fsdk::acquire(faceEnginePtr->createLivenessFPREstimator());
+	if (!estimator)
+		throw py::cast_error("\nFailed to create liveness FPR instance! VERIFY PATH to \"data\" directory!");
+	return estimator;
+}
+
 
 fsdk::ILivenessRGBMEstimatorPtr PyIFaceEngine::createLivenessRGBMEstimator() {
 	fsdk::ILivenessRGBMEstimatorPtr estimatorPtr = fsdk::acquire(faceEnginePtr->createLivenessRGBMEstimator());

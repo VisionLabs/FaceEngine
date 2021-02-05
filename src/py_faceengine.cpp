@@ -168,6 +168,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createDepthEstimator", &PyIFaceEngine::createDepthEstimator, "Creates Liveness Depth estimator\n")
 		.def("createIREstimator", &PyIFaceEngine::createIREstimator, "Creates Liveness Infrared estimator\n")
 		.def("createLivenessFlyingFacesEstimator", &PyIFaceEngine::createLivenessFlyingFacesEstimator, "Creates Liveness Flying Faces estimator\n")
+		.def("createLivenessFPREstimator", &PyIFaceEngine::createLivenessFPREstimator, "Creates Liveness FPR estimator\n")
 		.def("createSmileEstimator", &PyIFaceEngine::createSmileEstimator, "Creates Smile estimator\n")
 		.def("createFaceFlowEstimator", &PyIFaceEngine::createFaceFlowEstimator, "Creates Liveness flow estimator. \n"
 			"Note: this estimator is required only for liveness detection purposes.\n")
@@ -850,6 +851,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createAttributeEstimator
 			PyIFaceEngine.createQualityEstimator
 			PyIFaceEngine.createLivenessFlyingFacesEstimator
+			PyIFaceEngine.createLivenessFPREstimator
 			PyIFaceEngine.createLivenessRGBMEstimator
 
 			PyIFaceEngine.createHeadPoseEstimator
@@ -914,6 +916,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			ILivenessFlyingFacesEstimatorPtr
 			ILivenessFlyingFacesEstimatorPtr.estimate
+
+			ILivenessFPREstimatorPtr
+			ILivenessFPREstimatorPtr.estimate
 
 			ILivenessRGBMEstimatorPtr
 			ILivenessRGBMEstimatorPtr.update
@@ -1136,6 +1141,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			LivenessFlyingFacesEstimation
 			LivenessFlyingFacesEstimation.__init__
 			LivenessFlyingFacesEstimation.__repr__
+
+			LivenessFPREstimation
+			LivenessFPREstimation.__init__
+			LivenessFPREstimation.__repr__
 
 			LivenessRGBMEstimation
 			LivenessRGBMEstimation.__init__
