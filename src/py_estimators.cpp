@@ -361,6 +361,50 @@ void estimators_module(py::module& f) {
 			"\t\t(tuple): tuple with Error code and list of LivenessFlyingFacesEstimations.\n")
 		;
 
+	py::class_<fsdk::ILivenessFPREstimatorPtr>(f, "ILivenessFPREstimatorPtr",
+		"FPR liveness estimator interface.\n"
+		"\t\tThis estimator helps determine whether a person is real or not.\n")
+
+		.def("estimate", [](
+			const fsdk::ILivenessFPREstimatorPtr& est,
+			const fsdk::Face& face,
+			bool useJpegCompression) {
+				fsdk::LivenessFPREstimation estimation = {};
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(face, useJpegCompression, estimation);
+				return std::make_tuple(FSDKErrorResult(err), estimation);
+			},
+			"Checks whether or not detection corresponds to the real person.\n"
+			"\tArgs\n"
+			"\t\tparam1 (Face): Face with valid input image, landmarks5 and Detection. Image format must be R8G8B8.\n"
+			"\t\tparam2 (bool): Whether Jpeg compression should be used or not.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with Error code and LivenessFPREstimation.\n")
+
+		.def("getCompressedWarp", [](
+			const fsdk::ILivenessFPREstimatorPtr& est) {
+				return est->getCompressedWarp();
+			},
+			"Returns the internal compressed warp for debug.\n"
+			"Note. The compressed warp will be empty before the first estimate function call!\n")
+
+		.def("setCompressedWarp", [](
+			const fsdk::ILivenessFPREstimatorPtr& est,
+			const fsdk::Image& warp) {
+				est->setCompressedWarp(warp);
+			},
+			"Sets the internal compressed warp for debug.\n"
+			"Note. If the internal compressed warp is set, estimator will not prepare it by itself!\n"
+			"All next estimation calls will use this compressed warp! To stop using this compressed warp\n"
+			"and ask estimator to prepare a new one - use the clearCompressedWarp method.\n")
+
+		.def("clearCompessedWarp", [](
+			const fsdk::ILivenessFPREstimatorPtr& est) {
+				est->clearCompessedWarp();
+			},
+			"Clears the internal compressed warp.\n")
+
+			;
+
 	py::class_<fsdk::ILivenessRGBMEstimatorPtr>(f, "ILivenessRGBMEstimatorPtr",
 		"LivenessRGBMEstimator interface.\n"
 		"\t\tThis estimator helps determine whether a person is real or not.\n")
@@ -956,6 +1000,30 @@ void estimators_module(py::module& f) {
 						", isReal = " + std::to_string(est.isReal);
 			 })
 		;
+
+	// LivenessFPREstimation
+	py::class_<fsdk::LivenessFPREstimation>(f, "LivenessFPREstimation",
+			"LivenessFPREstimation estimation output.\n"
+			"\tThese values are produced by ILivenessFPREstimatorPtr object.\n"
+			"\tTotal score is returned in range [0, 1), 1 - is maximum and real, 0 - is minimum and not real, "
+			"\tisReal - is boolean answer, true - person is real, false - fake.\n")
+		.def(py::init<>())
+		.def_readwrite("phoneScore", &fsdk::LivenessFPREstimation::phoneScore, "\tphoneScore in range [0,1]\n")
+		.def_readwrite("replayScore", &fsdk::LivenessFPREstimation::replayScore, "\treplayScore in range [0,1]\n")
+		.def_readwrite("flyingFacesScore", &fsdk::LivenessFPREstimation::flyingFacesScore, "\tscore in range [0,1]\n")
+		.def_readwrite("totalScore", &fsdk::LivenessFPREstimation::totalScore, "\ttotal score in range [0,1]\n")
+		.def_readwrite("isReal", &fsdk::LivenessFPREstimation::isReal, "\tis real person or not\n")
+		.def("__repr__",
+			[](const fsdk::LivenessFPREstimation &est) {
+				return "LivenessFPREstimation: "
+						" phoneScore = " + std::to_string(est.phoneScore) +
+						", replayScore = " + std::to_string(est.replayScore) +
+						", flyingFacesScore = " + std::to_string(est.flyingFacesScore) +
+						", totalScore = " + std::to_string(est.totalScore) +
+						", isReal = " + std::to_string(est.isReal);
+			})
+		;
+
 
 	// LivenessRGBMEstimation
 	py::class_<fsdk::LivenessRGBMEstimation>(f, "LivenessRGBMEstimation",
