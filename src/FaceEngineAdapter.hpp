@@ -47,6 +47,8 @@ public:
 
 	fsdk::ILivenessFlyingFacesEstimatorPtr createLivenessFlyingFacesEstimator();
 
+	fsdk::ILivenessFPREstimatorPtr createLivenessFPREstimator();
+
 	fsdk::ILivenessRGBMEstimatorPtr createLivenessRGBMEstimator();
 
 	fsdk::ISmileEstimatorPtr createSmileEstimator();
