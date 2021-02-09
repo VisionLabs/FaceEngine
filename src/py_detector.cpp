@@ -158,6 +158,24 @@ void detector_module(py::module& f) {
 			"\t\t(tuple): \n"
 			"\t\t\ttuple with FSDKErrorResult code and IFaceDetectionBatchPtr\n")
 
+		.def("validate", [](
+			 const fsdk::IDetectorPtr& det,
+			 const std::vector<fsdk::Image>& images,
+			 const std::vector<fsdk::Rect>& rects,
+			 const int detectionPerImageNum) {
+				 std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
+				 fsdk::Result<fsdk::FSDKError> err = det->validate(images, rects, detectionPerImageNum, errors);
+				 return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); 
+			},
+			 "Validate input of multiple frames in a single function call.\n"
+			 "\tArgs:\n"
+			 "\t\tparam1 (list of Images): list of Images.\n"
+			 "\t\tparam2 (list of Detections): list of detections.\n"
+			 "\t\tparam3 (int): max number of detections per input image.\n"
+			 "\tReturns:\n"
+			 "\t\t(tuple): \n"
+			 "\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
+
 		.def("detectOne", [](
 			const fsdk::IDetectorPtr& det,
 			const fsdk::Image& image,
@@ -199,7 +217,25 @@ void detector_module(py::module& f) {
 			"\t\tparam2 (type): type of detection: BBox, 5landmarks or 68landmarks.\n"
 			"\tReturns:\n"
 			"\t\t(tuple) tuple with FSDKErrorResult and IFaceDetectionBatchPtr object.\n")
-
+		
+		.def("validate", [](
+			const fsdk::IDetectorPtr& det,
+			const std::vector<fsdk::Image>& images,
+			fsdk::Ref<fsdk::IFaceDetectionBatch>& detectionBatch,
+			const uint32_t detectionPerImageNum) {
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
+				fsdk::Result<fsdk::FSDKError> err = det->validate(images, detectionBatch, errors);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); 
+			},
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 ([images]): images list.\n"
+			"\t\tparam1 (detectionBatch): result of the detect to make a redetect for.\n"
+			"\t\tparam3 (int): max number of detections per input image.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
+			
 		.def("redetect", [](
 			const fsdk::IDetectorPtr& det,
 			const std::vector<fsdk::Image>& images,
@@ -226,6 +262,45 @@ void detector_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple) tuple with FSDKErrorResult and IFaceDetectionBatchPtr object.\n")
 
+		.def("validate", [](
+			const fsdk::IDetectorPtr& det,
+			const std::vector<fsdk::Image>& images,
+			const std::vector<std::vector<fsdk::Detection>>& detectionBatch) {
+
+				const uint32_t batchSize = detectionBatch.size();
+				std::vector<fsdk::Span<const fsdk::Detection>> detections2D;
+				detections2D.reserve(batchSize);
+				std::vector<fsdk::Span<fsdk::Result<fsdk::FSDKError>>> errors2DSpan;
+				errors2DSpan.reserve(batchSize);
+				std::vector<std::vector<fsdk::Result<fsdk::FSDKError>>> errors2DVec(batchSize);
+
+				for (uint32_t i = 0; i < batchSize; ++i) {
+					const auto& row = detectionBatch[i];
+					detections2D.emplace_back(row.data(), row.size());
+					errors2DVec[i].resize(row.size());
+					errors2DSpan.emplace_back(errors2DVec[i].data(), errors2DVec[i].size());
+				}
+				fsdk::Result<fsdk::FSDKError> err = det->validate(images, detections2D, errors2DSpan);
+				const auto errorSize = errors2DSpan.size();
+				py::list outErrors(errorSize);
+				for (auto i = 0; i < errorSize; ++i) {
+					const auto& row = errors2DSpan[i];
+					py::list rowList(row.size());
+					for (auto j = 0; j < rowList.size(); ++j) {
+						rowList[j] = FSDKErrorResult(row[j]);
+					}
+					outErrors[i] = rowList;
+				}
+				return std::make_tuple(FSDKErrorResult(err), outErrors);
+
+			 },
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 ([images]): source images list.\n"
+			"\t\tparam1 ([detectionBatch]): detections - 2D array\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, and List of List of errors)\n")
 
 		.def("redetectOne", [](
 			const fsdk::IDetectorPtr& det,
@@ -254,7 +329,6 @@ void detector_module(py::module& f) {
 			},
 			"Set detection comparer from SDK defined list\n")
 		;
-
 
 	py::class_<fsdk::IHumanDetectionBatchPtr>(f, "IHumanDetectionBatchPtr", "Face detection result batch structure")
 		.def("getSize", [](
@@ -331,7 +405,25 @@ void detector_module(py::module& f) {
 				"\t\tparam4 (HumanDetectionType) Human detection type enumeration \n"
 				"\tReturns:\n"
 				"\t\t(tuple): \n"
-				"\t\t\ttuple with FSDKErrorResult code and IHumanDetectionBatchPtr object\n")
+				"\t\t\ttuple with FSDKErrorResult code and list of lists of Detections\n")
+		
+		.def("validate", [](
+			 const fsdk::IHumanDetectorPtr& est,
+			 const std::vector<fsdk::Image>& images,
+			 const std::vector<fsdk::Rect>& rects,
+			 const int detectionPerImageNum) {
+				 std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
+				 fsdk::Result<fsdk::FSDKError> err = est->validate(images, rects, detectionPerImageNum, errors);
+				 return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); 
+			},
+			 "Validate input of multiple frames in a single function call.\n"
+			 "\tArgs:\n"
+			 "\t\tparam1 (list of Images): list of Images.\n"
+			 "\t\tparam2 (list of Detections): list of detections.\n"
+			 "\t\tparam3 (int): max number of detections per input image.\n"
+			 "\tReturns:\n"
+			 "\t\t(tuple): \n"
+				 "\t\t\t tuple with FSDKErrorResult code and IHumanDetectionBatchPtr object\n")
 
 		.def("redetectOne", [](
 				const fsdk::Ref<fsdk::IHumanDetector>& det,

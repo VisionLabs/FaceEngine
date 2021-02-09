@@ -56,6 +56,18 @@ class TestFaceEngineDetector(unittest.TestCase):
         cls.images_batch_for_detect = [cls.image] * 10
         cls.rectangles = [cls.image.getRect()] * 10
 
+    def validationTest(self, ins, isOk, i_failed_list, *args):
+        val_err, val_result = ins.validate(*args)
+        self.assertEqual(val_err.isOk, isOk)
+        self.assertTrue(type(args[0]) is list)
+        self.assertTrue(len(args[0]) > 0)
+        input_list = args[0]
+        for i in range(len(input_list)):
+            if i in i_failed_list:
+                self.assertTrue(val_result[i].isError)
+            else:
+                self.assertTrue(val_result[i].isOk)
+
     def setUp(self):
         self.configPath = os.path.join("data", "faceengine.conf")
         self.config = fe.createSettingsProvider(self.configPath)
@@ -134,6 +146,10 @@ class TestFaceEngineDetector(unittest.TestCase):
                         self.assertTrue(detections[j].isValid())
                         self.assertDetections(refFaces[i].detection, detections[j])
                         self.assertFaceLandmarks(refFaces[i].landmarks68_opt.value(), landmarks68[j])
+                        self.validationTest(detector, True, [], [images[0], images[0]], [rectangles[0], rectangles[0]], 2)
+                self.validationTest(detector, False, [1], [images[0], fe.Image()], [rectangles[0], rectangles[0]], 2)
+                self.validationTest(detector, False, [0], [images[0], images[0]], [fe.Rect(), rectangles[0]], 2)
+                self.validationTest(detector, False, [], [images[0], images[0]], [rectangles[0], rectangles[0]], 0)
 
     def testDetectorBBoxLandmarks68(self):
         ref_values = {fe.FACE_DET_V1: fe.Detection(fe.RectFloat(288.0, 93.0, 148.0, 184.0), 0.9999),
@@ -278,6 +294,20 @@ class TestFaceEngineDetector(unittest.TestCase):
                         self.assertDetections(redetections[i].detection, detections[j])
                         self.assertFaceLandmarks(redetections[i].landmarks68_opt.value(), landmarks68[j])
 
+                val_err, val_result = detector.validate(
+                    [face.img, face.img, fe.Image()],
+                    [[fe.Detection()],
+                     [face.detection, fe.Detection()],
+                     [face.detection, face.detection, fe.Detection()]])
+
+                self.assertTrue(val_err.isError)
+                errors0 = val_result[0]
+                self.assertEqual(len(errors0), 1)
+                errors1 = val_result[1]
+                self.assertEqual(len(errors1), 2)
+                errors2 = val_result[2]
+                self.assertEqual(len(errors2), 3)
+
     def testRedetectOne(self):
         ref_values = {fe.FACE_DET_V1: fe.Detection(fe.RectFloat(290.0, 75.0, 150.0, 197.0), 0.99999),
                       fe.FACE_DET_V3: fe.Detection(fe.RectFloat(292.0, 92.0, 151.0, 193.0), 0.9983)}
@@ -421,7 +451,7 @@ class TestFaceEngineDetector(unittest.TestCase):
         self.assertTrue(err_image.isOk)
         detection = fe.Detection(fe.RectFloat(120, 599, 15, 10), 0.999999)
         err, redet = detector.redetectOne(image, detection, fe.DetectionType(fe.DT_BBOX))
-        self.assertEqual(err.error, fe.FSDKError.InvalidInput)
+        self.assertEqual(err.error, fe.FSDKError.InvalidRect)
 
     def testRedetectByBigBbox(self, _detectorType=fe.FACE_DET_V3):
         detector = self.faceEngine.createDetector(_detectorType)

@@ -73,10 +73,22 @@ class TestFaceEngineRect(unittest.TestCase):
         err_load = batch_loaded.load(full_data_default1, len(full_data_default1))
         # Ok if size of descriptors the same
         self.assertEqual(err_load.error, fe.SerializeError.Ok)
-
+        self.validationTest(extractor, True, [], warps)
         del extractor
         del batch
         del batch_loaded
+
+    def validationTest(self, ins, isOk, i_failed_list, *args):
+        val_err, val_result = ins.validate(*args)
+        self.assertEqual(val_err.isOk, isOk)
+        self.assertTrue(type(args[0]) is list)
+        self.assertTrue(len(args[0]) > 0)
+        input_list = args[0]
+        for i in range(len(input_list)):
+            if i in i_failed_list:
+                self.assertTrue(val_result[i].isError)
+            else:
+                self.assertTrue(val_result[i].isOk)
 
     def testVersion(self):
         extractor = self.faceEngine.createExtractor()
@@ -239,7 +251,8 @@ class TestFaceEngineRect(unittest.TestCase):
         cpuClass    = runtimeConf.getValue("Runtime", "cpuClass")
         deviceClass = runtimeConf.getValue("Runtime", "deviceClass")
 
-        test_cases = {"54_mobilnet": [54, 0.9094, True, cpuClass[0], deviceClass[0]],
+        test_cases = {
+            #"54_mobilnet": [54, 0.9094, True, cpuClass[0], deviceClass[0]],
                       "54_no_mobilnet": [54, 0.9411, False, cpuClass[0], deviceClass[0]],
                       "56_no_mobilnet": [56, 0.7673, False, cpuClass[0], deviceClass[0]]}
         for key, value in test_cases.items():
@@ -345,7 +358,8 @@ class TestFaceEngineRect(unittest.TestCase):
         cpuClass    = runtimeConf.getValue("Runtime", "cpuClass")
         deviceClass = runtimeConf.getValue("Runtime", "deviceClass")
 
-        test_cases = {"54_mobilnet": [54, True, cpuClass[0], deviceClass[0]],
+        test_cases = {
+            #"54_mobilnet": [54, True, cpuClass[0], deviceClass[0]],
                       "54_no_mobilnet": [54, False, cpuClass[0], deviceClass[0]],
                       "56_no_mobilnet": [56, False, cpuClass[0], deviceClass[0]]}
         for key, value in test_cases.items():
@@ -429,7 +443,7 @@ class TestFaceEngineRect(unittest.TestCase):
         images = [empty_image, empty_image]
         res_batch, aggr_garbage_score, garbage_scores = extractor.extractFromWarpedImageBatch(images, descriptor_batch, aggregation)
         self.assertTrue(res_batch.isError)
-        self.assertEqual(res_batch.error, fe.FSDKError.InvalidImage)
+        self.assertEqual(res_batch.error, fe.FSDKError.ValidationFailed)
 
         del descriptor
         del descriptor_batch
