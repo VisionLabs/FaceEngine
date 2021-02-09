@@ -75,25 +75,24 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): \n"
 			"\t\t\t tuple with FSDKErrorResult code and EstimatorResult (see AttributeResult)\n")
+		
 		.def("estimate", [](
 				const fsdk::IAttributeEstimatorPtr& est,
 				const std::vector<fsdk::Image>& warps,
 				const fsdk::IAttributeEstimator::EstimationRequest request) {
 					std::vector<fsdk::AttributeEstimationResult> results(warps.size());
-					fsdk::Span<fsdk::AttributeEstimationResult> resultSpan(results.data(), warps.size());
 					fsdk::ResultValue<fsdk::FSDKError, fsdk::AttributeEstimationResult>  err = est->estimate(
-						fsdk::Span<const fsdk::Image>(warps.data(), warps.size()),
+						warps,
 						request,
-						resultSpan);
+						results);
 					if (err.isOk())
 						return std::make_tuple(FSDKErrorResult(err),
-							std::vector<fsdk::AttributeEstimationResult>(resultSpan.begin(), resultSpan.end()),
+							results,
 							err.getValue());
-					else
-						return std::make_tuple(FSDKErrorResult(err),
+					return std::make_tuple(FSDKErrorResult(err),
 							std::vector<fsdk::AttributeEstimationResult>(),
 							fsdk::AttributeEstimationResult()); },
-			"Estimate the attributes for batch image.\n"
+			"Estimate the attributes of image batch.\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
 			"\t\tparam1 (list of Images): list of warped Images. Format must be R8G8B8\n"
@@ -101,6 +100,21 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): \n"
 			"\t\t\t tuple with FSDKErrorResult code, attribute result and aggregation of results (see AttributeResult)\n")
+		.def("validate", [](
+			const fsdk::IAttributeEstimatorPtr& est,
+			const std::vector<fsdk::Image>& warps,
+			const fsdk::IAttributeEstimator::EstimationRequest request) {
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->validate(warps, request, errors);
+				
+				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of warped Images.\n"
+			"\t\tparam2 (AttributeRequest): request with flags to check parameters to estimate\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
 			;
 
 	py::enum_<fsdk::IAttributeEstimator::EstimationRequest>(f, "AttributeRequest", py::arithmetic(),
@@ -181,7 +195,31 @@ void estimators_module(py::module& f) {
 		"\tReturns:\n"
 		"\t\t(tuple): \n"
 		"\t\t\t tuple with FSDKErrorResult code and estimator result (see BestShotQualityResult)\n")
-	;
+
+
+	.def("validate", [](
+		const fsdk::IBestShotQualityEstimatorPtr& est,
+		const std::vector<fsdk::Image>& images,
+		const std::vector<fsdk::Detection>& detections,
+		const fsdk::IBestShotQualityEstimator::EstimationRequest request) {
+			std::vector<fsdk::Result<fsdk::FSDKError>> results(images.size());
+			fsdk::Span<fsdk::Result<fsdk::FSDKError>> resultSpan(results);
+			fsdk::Result<fsdk::FSDKError> err = est->validate(
+				fsdk::Span<const fsdk::Image>(images),
+				fsdk::Span<const fsdk::Detection>(detections),
+				request,
+				resultSpan);
+
+			return std::make_tuple(FSDKErrorResult(err),
+					std::vector<FSDKErrorResult>(results.begin(), results.end())); },
+		"Validate input of multiple frames in a single function call.\n"
+		"\tArgs:\n"
+		"\t\tparam1 (list of Images): list of Images.\n"
+		"\t\tparam2 (list of Detections): list of detections.\n"
+		"\tReturns:\n"
+		"\t\t(tuple): \n"
+		"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
+		;
 
 	py::enum_<fsdk::IBestShotQualityEstimator::EstimationRequest>(f, "BestShotQualityRequest", py::arithmetic(), "Best shot quality estimation request type.\n")
 		.value("estimateAGS", fsdk::IBestShotQualityEstimator::estimateAGS, "Estimate AGS")
@@ -217,10 +255,10 @@ void estimators_module(py::module& f) {
 		.def("estimate", [](
 				const fsdk::IMedicalMaskEstimatorPtr& est,
 				const fsdk::Image& warp) {
-					fsdk::MedicalMaskEstimation estimation{};
-					fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, estimation);
-					return std::make_tuple(FSDKErrorResult(err), estimation); },
-			"Estimate Medical Mask probabilities..\n"
+				fsdk::MedicalMaskEstimation estimation{};
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, estimation);
+				return std::make_tuple(FSDKErrorResult(err), estimation); },
+			"Estimate Medical Mask probabilities.\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
 			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8\n"
@@ -232,10 +270,10 @@ void estimators_module(py::module& f) {
 				const fsdk::IMedicalMaskEstimatorPtr& est,
 				const fsdk::Image &image,
 				const fsdk::Detection& detection) {
-					fsdk::MedicalMaskEstimation estimation{};
-					fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, estimation);
-					return std::make_tuple(FSDKErrorResult(err), estimation); },
-			"Estimate Medical Mask probabilities..\n"
+				fsdk::MedicalMaskEstimation estimation{};
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, estimation);
+				return std::make_tuple(FSDKErrorResult(err), estimation); },
+			"Estimate Medical Mask probabilities.\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
 			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8\n"
@@ -247,33 +285,33 @@ void estimators_module(py::module& f) {
 		.def("estimate", [](
 				const fsdk::IMedicalMaskEstimatorPtr& est,
 				const std::vector<fsdk::Image>& warps) {
-					std::vector<fsdk::MedicalMaskEstimation> estimations(warps.size());
-					fsdk::Result<fsdk::FSDKError>  err = est->estimate(warps, estimations);
-					if (err.isOk())
-						return std::make_tuple(FSDKErrorResult(err), estimations);
-					else
-						return std::make_tuple(FSDKErrorResult(err),
-							std::vector<fsdk::MedicalMaskEstimation>()); },
+				std::vector<fsdk::MedicalMaskEstimation> estimations(warps.size());
+				fsdk::Result<fsdk::FSDKError>  err = est->estimate(warps, estimations);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), estimations);
+				
+				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MedicalMaskEstimation>()); },
 			"Estimate Medical Mask probabilities.\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
 			"\t\tparam1 (list of Images): list of warped images, format of images must be R8G8B8. Must be warped!\n"
-			"\t\tparam2 (estimations): request with flags to check parameters to estimate\n"
 			"\tReturns:\n"
 			"\t\t(tuple): \n"
 			"\t\t\t tuple with FSDKErrorResult code and list of MedicalMaskEstimation estimations\n")
 			
 		.def("estimate", [](
-				const fsdk::IMedicalMaskEstimatorPtr& est,
-				const std::vector<fsdk::Image>& images,
-				const std::vector<fsdk::Detection> detections) {
-					std::vector<fsdk::MedicalMaskEstimation> estimations(images.size());
-					fsdk::Result<fsdk::FSDKError>  err = est->estimate(images, detections, estimations);
-					if (err.isOk())
-						return std::make_tuple(FSDKErrorResult(err), estimations);
-					else
-						return std::make_tuple(FSDKErrorResult(err),
-							std::vector<fsdk::MedicalMaskEstimation>()); },
+			const fsdk::IMedicalMaskEstimatorPtr& est,
+			const std::vector<fsdk::Image>& images,
+			const std::vector<fsdk::Detection> detections) {
+				std::vector<fsdk::MedicalMaskEstimation> estimations(images.size());
+				fsdk::Result<fsdk::FSDKError>  err = est->estimate(
+					images,
+					detections,
+					estimations);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), estimations);
+				return std::make_tuple(FSDKErrorResult(err),
+						std::vector<fsdk::MedicalMaskEstimation>()); },
 			"Estimate Medical Mask probabilities.\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
@@ -282,6 +320,34 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): \n"
 			"\t\t\t tuple with FSDKErrorResult code and list of MedicalMaskEstimation estimations\n")
+			
+		.def("validate", [](
+			const fsdk::IMedicalMaskEstimatorPtr& est,
+			const std::vector<fsdk::Image>& warps) {
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->validate(warps, errors);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of warped Images.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
+			
+		.def("validate", [](
+			const fsdk::IMedicalMaskEstimatorPtr& est,
+			const std::vector<fsdk::Image>& images,
+			const std::vector<fsdk::Detection>& detections) {
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
+				fsdk::Result<fsdk::FSDKError> err = est->validate(images, detections, errors);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of Images.\n"
+			"\t\tparam2 (list of Detections): list of detections.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
 		;
 	
 	//	second part of estimators
@@ -306,7 +372,6 @@ void estimators_module(py::module& f) {
 		.def("estimate",[](
 			const fsdk::IHeadPoseEstimatorPtr& est,
 			const fsdk::Image& image,
-			// cast to detection<int> inside c++ interface
 			const fsdk::Detection& detection) {
 				fsdk::HeadPoseEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, out);
@@ -318,6 +383,40 @@ void estimators_module(py::module& f) {
 			"\t\tparam2 (Detection): detection.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with error code FSDKErrorResult and output EthnicityEstimation\n")
+			
+		.def("estimate", [](
+			const fsdk::IHeadPoseEstimatorPtr& est,
+			const std::vector<fsdk::Image>& images,
+			const std::vector<fsdk::Detection>& detections) {
+				std::vector<fsdk::HeadPoseEstimation> estimations(images.size());
+			
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(images, detections, estimations);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), estimations);
+				else
+					return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::HeadPoseEstimation>()); },
+			"Estimate the Head Pose for batchs of images and detections.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of Images.\n"
+			"\t\tparam2 (list of Detections): list of Detections.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of Head Pose estimations\n")
+			
+		.def("validate", [](
+			const fsdk::IHeadPoseEstimatorPtr & est,
+			const std::vector<fsdk::Image>& images,
+			const std::vector<fsdk::Detection>& detections) {
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
+				fsdk::Result<fsdk::FSDKError> err = est->validate(images, detections, errors);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of Images.\n"
+			"\t\tparam2 (list of Detections): list of detections.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
 			;
 	
 	py::class_<fsdk::Ref<fsdk::IBlackWhiteEstimator>>(f, "IBlackWhiteEstimatorPtr",
@@ -340,10 +439,10 @@ void estimators_module(py::module& f) {
 			;
 	
 	py::class_<fsdk::ILivenessDepthEstimatorPtr>(f, "ILivenessDepthEstimatorPtr",
-			"Depth estimator interface.\n"
-			"\tThis estimator is designed for face analysis using depth map. "
-			"It works with 16 bit depth map of face warp.\n"
-			"\tSee IWarper for details")
+		"Depth estimator interface.\n"
+		"\tThis estimator is designed for face analysis using depth map. "
+		"It works with 16 bit depth map of face warp.\n"
+		"\tSee IWarper for details")
 		.def("estimate",[](
 			const fsdk::ILivenessDepthEstimatorPtr& est,
 			const fsdk::Image& image) {
@@ -390,6 +489,34 @@ void estimators_module(py::module& f) {
 			"\t\tparam1 (Image): irWarp infra red face warp\n"
 			"\tReturns:\n"
 			"\t\t(tuple):  tuple with Error code and irEstimation\n")
+		
+		.def("estimate", [](
+			const fsdk::ILivenessIREstimatorPtr& est,
+			const std::vector<fsdk::Image>& warps) {
+				std::vector<fsdk::IREstimation> estimations(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warps, estimations);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), estimations);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::IREstimation>()); },
+			"Check whether or not infrared warp corresponds to the real person.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): irWarp list of infra red face warped images\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with list of FSDKErrorResult code, list of infra red estimations\n")
+		
+		.def("validate", [](
+			const fsdk::ILivenessIREstimatorPtr & est,
+			const std::vector<fsdk::Image>& warps) {
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->validate(warps, errors);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of warped Images.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
 				;
 	
 	py::class_<fsdk::ILivenessFlyingFacesEstimatorPtr>(f, "ILivenessFlyingFacesEstimatorPtr",
@@ -430,6 +557,21 @@ void estimators_module(py::module& f) {
 			"\t\t\tImage format must be R8G8B8.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): tuple with Error code and list of LivenessFlyingFacesEstimations.\n")
+		
+		.def("validate", [](
+			const fsdk::ILivenessFlyingFacesEstimatorPtr & est,
+				const std::vector<fsdk::Image>& images,
+				const std::vector<fsdk::Detection>& detections)  {
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
+				fsdk::Result<fsdk::FSDKError> err = est->validate(images, detections, errors);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end()));
+			},
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Faces): list of faces.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
 		;
 
 	py::class_<fsdk::ILivenessRGBMEstimatorPtr>(f, "ILivenessRGBMEstimatorPtr",
@@ -461,6 +603,7 @@ void estimators_module(py::module& f) {
 		.def("estimate", [](
 			const fsdk::ILivenessRGBMEstimatorPtr& est,
 			const fsdk::Image& image,
+			// cast to detection<int> inside c++ interface
 			const fsdk::Detection& detection,
 			const fsdk::Image& background) {
 				fsdk::LivenessRGBMEstimation estimation;
@@ -513,20 +656,52 @@ void estimators_module(py::module& f) {
 		"See EyesEstimation for output details.\n"
 		"More detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n")
 		.def("estimate",[](
-				const fsdk::IEyeEstimatorPtr& est,
-				const fsdk::Image& warp,
-				const fsdk::EyeCropper::EyesRects& eyeRects) {
+			const fsdk::IEyeEstimatorPtr& est,
+			const fsdk::Image& warp,
+			const fsdk::EyeCropper::EyesRects& eyeRects) {
 				fsdk::EyesEstimation out;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, eyeRects, out);
 				return std::make_tuple(FSDKErrorResult(err), out);
 			},
-			"Estimate the attributes.\n"
-				"\tArgs\n"
-				"\t\tparam1 (Image): warp source image. Format must be R8G8B8. Must be warped!\n"
-				"\t\tparam2 (EyeRects): Cropped rects.\n"
-				"\tReturns:\n"
-				"\t\t(tuple): returns error code FSDKErrorResult and EyesEstimation\n")
-			;
+			"Estimate the eye attributes.\n"
+			"\tArgs\n"
+			"\t\tparam1 (Image): warp source image. Format must be R8G8B8. Must be warped!\n"
+			"\t\tparam2 (EyeRects): Cropped rects.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns error code FSDKErrorResult and EyesEstimation\n")
+
+		.def("estimate", [](
+			const fsdk::IEyeEstimatorPtr& est,
+			const std::vector<fsdk::Image>& warps,
+			const std::vector<fsdk::EyeCropper::EyesRects>& eyeRects) {
+				std::vector<fsdk::EyesEstimation> estimations(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warps, eyeRects, estimations);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), estimations);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::EyesEstimation>()); },
+			"Estimate the Eye Estimator for batchs of images and detections.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list): list of warped Images. Format must be R8G8B8\n"
+			"\t\tparam2 (list): list of EyesRects.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of Head Pose estimations\n")
+		
+		.def("validate", [](
+			const fsdk::IEyeEstimatorPtr& est,
+			const std::vector<fsdk::Image>& warps,
+			const std::vector<fsdk::EyeCropper::EyesRects>& eyeRects) {
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->validate(warps, eyeRects, errors);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of warped Images.\n"
+			"\t\tparam2 (list of EyeRects): list of EyeRects.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image\n")
+		;
 	
 	py::class_<fsdk::IEmotionsEstimatorPtr>(f, "IEmotionsEstimatorPtr",
 		"Emotions estimator interface.\n"
@@ -558,9 +733,9 @@ void estimators_module(py::module& f) {
 			"\tInput points should be relative to the same coordinate system. Best results are achieved\n"
 			"\tif coordinate system is tied to image on which input data was retrieved.\n")
 		.def("estimate",[](
-				const fsdk::IGazeEstimatorPtr& est,
-				const fsdk::Image& warp,
-				const fsdk::Landmarks5& landmarks5Transformed) {
+			const fsdk::IGazeEstimatorPtr& est,
+			const fsdk::Image& warp,
+			const fsdk::Landmarks5& landmarks5Transformed) {
 				fsdk::GazeEstimation outEyeAngles;
 				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, landmarks5Transformed, outEyeAngles);
 				return std::make_tuple(FSDKErrorResult(err), outEyeAngles);
@@ -568,13 +743,40 @@ void estimators_module(py::module& f) {
 			"Estimate the eye angles.\n"
 			"\tArgs\n"
 			"\t\tparam1 (Image): Warped Image.\n"
-			"\t\tparam2 (Landmarks5): Origin Landmarks5 got from face detector.\n"
-			"\t\tparam3 (Landmarks5): Transformed Landmarks5 got from warper. See Warper.\n"
+			"\t\tparam2 (Landmarks5): Transformed Landmarks5 got from warper. See Warper.\n"
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and GazeEstimation\n")
+		.def("estimate",[](
+			const fsdk::IGazeEstimatorPtr& est,
+			const std::vector<fsdk::Image>& warps,
+			const std::vector<fsdk::Landmarks5>& landmarks5Transformed) {
+				std::vector<fsdk::GazeEstimation> outEyeAngles(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warps, landmarks5Transformed, outEyeAngles);
+				return std::make_tuple(FSDKErrorResult(err), outEyeAngles);
+			},
+			"Estimates eye angles of multiple frames in a single estimate function call\n"
+			"\tArgs\n"
+			"\t\tparam1 (lis of Images): list of Warped Image.\n"
+			"\t\tparam2 (list of Landmarks5): Transformed Landmarks5 got from warper. See Warper.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns error code FSDKErrorResult and list of GazeEstimation for eash image\n")
+		.def("validate", [](
+			const fsdk::IGazeEstimatorPtr& est,
+			const std::vector<fsdk::Image>& warps,
+			const std::vector<fsdk::Landmarks5>& landmarks5Transformed) {
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->validate(warps, landmarks5Transformed, errors);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of warped Images.\n"
+			"\t\tparam2 (list of Landmarks5): Transformed Landmarks5 got from warper. See Warper.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
 		.def("getFaceCenter",[](
-				const fsdk::IGazeEstimatorPtr& est,
-				const fsdk::Landmarks5& landmarks5) {
+			const fsdk::IGazeEstimatorPtr& est,
+			const fsdk::Landmarks5& landmarks5) {
 				return est->getFaceCenter(landmarks5);
 			},
 			"Estimate the point for calculating of gaze projection.\n"
@@ -587,21 +789,59 @@ void estimators_module(py::module& f) {
 	py::class_<fsdk::IAGSEstimatorPtr>(f, "IAGSEstimatorPtr",
 		"Approximate Garbage Score estimator interface.\n"
 		"\tThis estimator is designed to work with Image and detection.\n")
-			.def("estimate",[](
-				const fsdk::IAGSEstimatorPtr& est,
-				const fsdk::Image& image,
+		.def("estimate",[](
+			const fsdk::IAGSEstimatorPtr& est,
+			const fsdk::Image& image,
+				// cast to detection<int> inside c++ interface
 				const fsdk::Detection& detection) {
-					fsdk::ResultValue<fsdk::FSDKError, float> err = est->estimate(image, detection);
-					if (err.isOk())
-						return std::make_tuple(FSDKErrorResult(err), err.getValue());
-					else
-						return std::make_tuple(FSDKErrorResult(err), 0.0f); },
+				fsdk::ResultValue<fsdk::FSDKError, float> err = est->estimate(image, detection);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), err.getValue());
+				return std::make_tuple(FSDKErrorResult(err), 0.0f); },
 				"Estimate the ags.\n"
 				"\tArgs\n"
 				"\t\tparam1 (Image): image source image in R8G8B8 format.\n"
 				"\t\tparam2 (detection): detection coords in image space.\n"
 				"\tReturns:\n"
 				"\t\t(tuple with FSDKErrorResult and float value): Error code and float value.")
+		.def("estimate", [](
+			const fsdk::IAGSEstimatorPtr& est,
+			const std::vector<fsdk::Image>& images,
+			const std::vector<fsdk::Detection>& detections) {
+				std::vector<float> scores(images.size());
+				fsdk::Result<fsdk::FSDKError>  err = est->estimate(
+					images,
+					detections,
+					scores);
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), scores);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<float>()); },
+			"Estimate ags of multiple frames in a single estimate function call.\n"
+			"\t\t(see FSDKErrorResult for details)\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of Images. Format must be R8G8B8\n"
+			"\t\tparam1 (list of Detections): list of face detections.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code and list of AGS scores\n")
+		.def("validate", [](
+			const fsdk::IAGSEstimatorPtr& est,
+			const std::vector<fsdk::Image>& images,
+			const std::vector<fsdk::Detection>& detections) {
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
+				fsdk::Result<fsdk::FSDKError>  err = est->validate(
+					images,
+					detections,
+					errors);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+			"Validate input of multiple frames in a single function call.\n"
+			"\t\t(see FSDKErrorResult for details)\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of Images.\n"
+			"\t\tparam1 (list of Detections): list of face detections.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image\n")
 					;
 	
 	py::class_<fsdk::IGlassesEstimatorPtr>(f, "IGlassesEstimatorPtr",
@@ -1135,9 +1375,7 @@ void estimators_module(py::module& f) {
 				fsdk::Result<fsdk::FSDKError> err = 
 					estimator->estimate(imagesVec, results);
 				if (err.isOk())
-					return std::make_tuple(FSDKErrorResult(err),
-						std::vector<fsdk::OrientationType>(results.begin(), results.end())
-					);
+					return std::make_tuple(FSDKErrorResult(err), results);
 				else
 					return std::make_tuple(FSDKErrorResult(err),
 						std::vector<fsdk::OrientationType>()
@@ -1148,7 +1386,21 @@ void estimators_module(py::module& f) {
 			"\t\tparam1 (list of Images): list of Images. Format must be R8G8B8\n"
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and OrientationType result list\n")
-		;
+		
+		.def("validate", [](
+			const fsdk::IOrientationEstimatorPtr& est,
+			const std::vector<fsdk::Image>& images) {
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
+				fsdk::Result<fsdk::FSDKError> err = est->validate(images, errors);
+				
+				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of Images.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
+			;
 
 	py::class_<fsdk::LivenessOneShotRGBEstimation>(f, "LivenessOneShotRGBEstimation", "LivenessOneShotRGB estimation output.\n")
 		.def_readwrite("score", &fsdk::LivenessOneShotRGBEstimation::score, "Liveness score\n")

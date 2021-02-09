@@ -67,12 +67,14 @@ print(fe.IQualityEstimatorPtr.estimate.__doc__)
 
 print(fe.ILivenessFlyingFacesEstimatorPtr.__doc__)
 print(fe.ILivenessFlyingFacesEstimatorPtr.estimate.__doc__)
+print(fe.ILivenessFlyingFacesEstimatorPtr.validate.__doc__)
 
 print(fe.IOverlapEstimatorPtr.__doc__)
 print(fe.IOverlapEstimatorPtr.estimate.__doc__)
 
 print(fe.IAttributeEstimatorPtr.__doc__)
 print(fe.IAttributeEstimatorPtr.estimate.__doc__)
+print(fe.IAttributeEstimatorPtr.validate.__doc__)
 
 print(fe.IGlassesEstimatorPtr.__doc__)
 print(fe.IGlassesEstimatorPtr.estimate.__doc__)
@@ -82,9 +84,11 @@ print(fe.IMouthEstimatorPtr.estimate.__doc__)
 
 print(fe.IMedicalMaskEstimatorPtr.__doc__)
 print(fe.IMedicalMaskEstimatorPtr.estimate.__doc__)
+print(fe.IMedicalMaskEstimatorPtr.validate.__doc__)
 
 print(fe.IDetectorPtr.__doc__)
 print(fe.IDetectorPtr.detect.__doc__)
+print(fe.IDetectorPtr.validate.__doc__)
 print(fe.IDetectorPtr.detectOne.__doc__)
 print(fe.IDetectorPtr.setDetectionComparer.__doc__)
 
@@ -135,12 +139,14 @@ print(fe.IDescriptorExtractorPtr.getModelVersion.__doc__)
 print(fe.IDescriptorExtractorPtr.getDescriptorType.__doc__)
 print(fe.IDescriptorExtractorPtr.extractFromWarpedImage.__doc__)
 print(fe.IDescriptorExtractorPtr.extractFromWarpedImageBatch.__doc__)
+print(fe.IDescriptorExtractorPtr.validate.__doc__)
 
 print(fe.IDescriptorMatcherPtr.__doc__)
 print(fe.IDescriptorMatcherPtr.match.__doc__)
 
 print(fe.IHeadPoseEstimatorPtr.__doc__)
 print(fe.IHeadPoseEstimatorPtr.estimate.__doc__)
+print(fe.IHeadPoseEstimatorPtr.validate.__doc__)
 
 print(fe.IBlackWhiteEstimatorPtr.__doc__)
 print(fe.IBlackWhiteEstimatorPtr.estimate.__doc__)
@@ -150,12 +156,14 @@ print(fe.ILivenessDepthEstimatorPtr.estimate.__doc__)
 
 print(fe.ILivenessIREstimatorPtr.__doc__)
 print(fe.ILivenessIREstimatorPtr.estimate.__doc__)
+print(fe.ILivenessIREstimatorPtr.validate.__doc__)
 
 print(fe.ILivenessFlowEstimatorPtr.__doc__)
 print(fe.ILivenessFlowEstimatorPtr.estimate.__doc__)
 
 print(fe.IEyeEstimatorPtr.__doc__)
 print(fe.IEyeEstimatorPtr.estimate.__doc__)
+print(fe.IEyeEstimatorPtr.validate.__doc__)
 
 print(fe.EyesRects.__doc__)
 print(fe.EyesRects.leftEyeRect.__doc__)
@@ -170,9 +178,11 @@ print(fe.IEmotionsEstimatorPtr.estimate.__doc__)
 
 print(fe.IGazeEstimatorPtr.__doc__)
 print(fe.IGazeEstimatorPtr.estimate.__doc__)
+print(fe.IGazeEstimatorPtr.validate.__doc__)
 
 print(fe.IAGSEstimatorPtr.__doc__)
 print(fe.IAGSEstimatorPtr.estimate.__doc__)
+print(fe.IAGSEstimatorPtr.validate.__doc__)
 
 print(fe.IPPEEstimatorPtr.__doc__)
 print(fe.IPPEEstimatorPtr.estimate.__doc__)

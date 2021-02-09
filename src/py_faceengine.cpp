@@ -21,7 +21,6 @@ void settings_provider_module(py::module& f);
 void detector_module(py::module& f);
 void descriptor_module(py::module& f);
 void warper_module(py::module& f);
-void liveness_module(py::module& f);
 
 PyIFaceEngine createPyFaceEnginePtr(
 	const char* dataPath = nullptr,
@@ -411,6 +410,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("landmarks17_opt", &fsdk::Human::landmarks17, "HumanLandmarks17 optional\n")
 		.def("isValid", &fsdk::Human::isValid)
 		;
+
 	py::class_<fsdk::HumanLandmark>(f, "HumanLandmark", "HumanLandmark keypoints\n")
 		.def(py::init<>())
 		.def_readwrite("score", &fsdk::HumanLandmark::score)
@@ -691,6 +691,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("IncompatibleModelVersions", fsdk::FSDKError::IncompatibleModelVersions)
 		.value("ModelNotLoaded", fsdk::FSDKError::ModelNotLoaded)
 		.value("InvalidConfig", fsdk::FSDKError::InvalidConfig)
+		.value("ValidationFailed", fsdk::FSDKError::ValidationFailed)
 			;
 
 	py::enum_<fsdk::LicenseFeature>(f, "LicenseFeature", "License features.\n")
@@ -853,6 +854,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IAttributeEstimatorPtr
 			IAttributeEstimatorPtr.estimate
+			IAttributeEstimatorPtr.validate
 
 			IGlassesEstimatorPtr
 			IGlassesEstimatorPtr.estimate
@@ -862,12 +864,14 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IMedicalMaskEstimatorPtr
 			IMedicalMaskEstimatorPtr.estimate
+			IMedicalMaskEstimatorPtr.validate
 
 			IOverlapEstimatorPtr
 			IOverlapEstimatorPtr.estimate
 
 			ILivenessFlyingFacesEstimatorPtr
 			ILivenessFlyingFacesEstimatorPtr.estimate
+			ILivenessFlyingFacesEstimatorPtr.validate
 
 			ILivenessRGBMEstimatorPtr
 			ILivenessRGBMEstimatorPtr.update
@@ -875,6 +879,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IDetectorPtr
 			IDetectorPtr.detect
+			IDetectorPtr.validate
 			IDetectorPtr.detectOne
 			IDetectorPtr.setDetectionComparer
 			IDetectorPtr.redetectOne
@@ -885,6 +890,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IHumanDetectorPtr
 			IHumanDetectorPtr.detect
+			IHumanDetectorPtr.validate
 
 			Human
 			Human.isValid
@@ -927,13 +933,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 			IDescriptorExtractorPtr.getDescriptorType
 			IDescriptorExtractorPtr.extractFromWarpedImage
 			IDescriptorExtractorPtr.extractFromWarpedImageBatch
-	
+			IDescriptorExtractorPtr.validate
+
 			IDescriptorMatcherPtr
 			IDescriptorMatcherPtr.getModelVersion
 			IDescriptorMatcherPtr.match
 
 			IHeadPoseEstimatorPtr
 			IHeadPoseEstimatorPtr.estimate
+			IHeadPoseEstimatorPtr.validate
 
 			IBlackWhiteEstimatorPtr
 			IBlackWhiteEstimatorPtr.estimate
@@ -943,13 +951,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			ILivenessIREstimatorPtr
 			ILivenessIREstimatorPtr.estimate
+			ILivenessIREstimatorPtr.validate
 
 			ILivenessFlowEstimatorPtr
 			ILivenessFlowEstimatorPtr.estimate
 
 			IEyeEstimatorPtr
 			IEyeEstimatorPtr.estimate
-			
+			IEyeEstimatorPtr.validate
+
 			EyesRects
 			EyesRects.leftEyeRect
 			EyesRects.leftEyeRect
@@ -963,9 +973,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			IGazeEstimatorPtr
 			IGazeEstimatorPtr.estimate
+			IGazeEstimatorPtr.validate
 
 			IAGSEstimatorPtr
 			IAGSEstimatorPtr.estimate
+			IAGSEstimatorPtr.validate
 
 			IPPEEstimatorPtr
 			IPPEEstimatorPtr.estimate
@@ -1040,6 +1052,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			BestShotQualityRequest.estimateAGS
 			BestShotQualityRequest.estimateHeadPose
 			BestShotQualityRequest.estimateAll
+			BestShotQualityRequest.validate
 
 			BestShotQualityResult
 			BestShotQualityResult.__init__

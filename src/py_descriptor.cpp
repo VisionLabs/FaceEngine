@@ -338,7 +338,21 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\t(tuple): tuple result with error code specified by FSDKError and\n "
 		"\t\t\tthe list of descriptor scores normalized in range [0, 1]\n"
 		"\t\t\t1 - face on the input warp; 0 - garbage on the input warp.\n")
+	.def("validate", [](
+		 const fsdk::IDescriptorExtractorPtr& ext,
+		 const std::vector<fsdk::Image>& warps) {
 		
+			 std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
+			 fsdk::Result<fsdk::FSDKError> err = ext->validate(warps, errors);
+			 return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); 
+		},
+		 "Validate input of multiple frames in a single function call.\n"
+		 "\tArgs:\n"
+		 "\t\tparam1 (list of Images): list of warped Images.\n"
+		 "\tReturns:\n"
+		 "\t\t(tuple): \n"
+		 "\t\t\t tuple with FSDKErrorResult code, list of errors for each image\n")
+
 	.def("getModelVersion",[](
 		const fsdk::IDescriptorExtractorPtr& extractorPtr) {
 			return extractorPtr->getModelVersion();

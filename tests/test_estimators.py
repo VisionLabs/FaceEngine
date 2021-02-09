@@ -124,6 +124,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
     def testAttributeEstimator(self):
         attributeEstimator = self.faceEngine.createAttributeEstimator()
         image = f.Image()
+        empty_image = f.Image()
         image.load("testData/00205_9501_p.ppm")
         self.assertTrue(image.isValid())
         attributeRequest = f.AttributeRequest(
@@ -143,6 +144,19 @@ class TestFaceEngineEstimators(unittest.TestCase):
             with self.subTest(i=i):
                 for result in list_result:
                     self.assertResult(i, result)
+        self.validationTest(attributeEstimator, False, [1], [image, empty_image], attributeRequest)
+
+    def validationTest(self, ins, isOk, i_failed_list, *args):
+        val_err, val_result = ins.validate(*args)
+        self.assertEqual(val_err.isOk, isOk)
+        self.assertTrue(type(args[0]) is list)
+        self.assertTrue(len(args[0]) > 0)
+        input_list = args[0]
+        for i in range(len(input_list)):
+            if i in i_failed_list:
+                self.assertTrue(val_result[i].isError)
+            else:
+                self.assertTrue(val_result[i].isOk)
 
     def assertResult(self, result1, result):
         self.assertEqual(result1.gender_opt.value(), result.gender_opt.value())
@@ -202,6 +216,7 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertAlmostEqual(headPoseEstimation.pitch, refPitch, delta=refPrecision)
         self.assertAlmostEqual(headPoseEstimation.yaw, refYaw, delta=refPrecision)
         self.assertAlmostEqual(headPoseEstimation.roll, refRoll, delta=refPrecision)
+        self.validationTest(bestShotQualityEstimator, False, [0], [f.Image(), image], [detection, detection], f.BestShotQualityRequest.estimateAll)
 
     def testOverlapEstimator(self):
         image = f.Image()
@@ -257,6 +272,9 @@ class TestFaceEngineEstimators(unittest.TestCase):
                 self.assertAlmostEqual(headPoseEstimation.pitch, expected.pitch, delta=3.0)
                 # print("Actual values headPoseEstimation by image: {0}".format(headPoseEstimation))
                 self.assertEqual(f.FrontalFaceType.Good, expected.getFrontalFaceType())
+                self.validationTest(headPoseEstimator, True, [], [image, image], [detection, detection])
+                self.validationTest(headPoseEstimator, False, [1], [image, f.Image()], [detection, detection])
+                self.validationTest(headPoseEstimator, False, [0], [image, image], [f.Detection(), detection])
 
     def testBlackWhiteEstimator(self):
         blackWhiteEstimator = self.faceEngine.createBlackWhiteEstimator()
@@ -311,6 +329,8 @@ class TestFaceEngineEstimators(unittest.TestCase):
         # print("irResult = ", irRestult)
         self.assertFalse(irRestult.isReal)
         self.assertAlmostEqual(irRestult.score, 0.2499, delta=0.01)
+        self.validationTest(iREstimator, True, [], [irImage, irImage])
+        self.validationTest(iREstimator, False, [1], [irImage, f.Image()])
 
     def testIREstimatorAmbarella(self):
         config = f.createSettingsProvider("data/faceengine.conf")
@@ -454,6 +474,9 @@ class TestFaceEngineEstimators(unittest.TestCase):
             self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
             self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
 
+        self.validationTest(eyeEstimator, True, [], [warp, warp], [eyeRectsByLandmarks, eyeRectsByLandmarks])
+        self.validationTest(eyeEstimator, False, [1], [warp, f.Image()], [eyeRectsByLandmarks, eyeRectsByLandmarks])
+
     def testEmotionsEstimator(self):
         reference1 = f.EmotionsEstimation()
         reference2 = f.EmotionsEstimation()
@@ -544,6 +567,8 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertTrue(err_unwarp.isOk)
         self.assertAlmostEqual(eye_angles_umwarped.yaw, actual_unwarped[0], delta=0.1)
         self.assertAlmostEqual(eye_angles_umwarped.pitch, actual_unwarped[1], delta=0.1)
+        self.validationTest(gaze_estimator_rgb, True, [], [warp, warp], [rotated_landmarks5, rotated_landmarks5])
+        self.validationTest(gaze_estimator_rgb, False, [1], [warp, f.Image()], [rotated_landmarks5, rotated_landmarks5])
 
     def testAGSEstimator(self):
         config = f.createSettingsProvider("data/faceengine.conf")
@@ -562,6 +587,9 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertAlmostEqual(refAGS, r[1], delta=0.01)
         config.setValue("system", "verboseLogging", f.SettingsProviderValue(0))
         self.faceEngine.setSettingsProvider(config)
+        self.validationTest(estimator, True, [], [image, image], [reference, reference])
+        self.validationTest(estimator, False, [1], [image, f.Image()], [reference, reference])
+        self.validationTest(estimator, False, [1], [image, image], [reference, f.Detection()])
 
     def testPPEEstimator(self):
         estimator = self.faceEngine.createPPEEstimator()
@@ -648,6 +676,11 @@ class TestFaceEngineEstimators(unittest.TestCase):
                 assertMedicalMask(status4, output4[0], result)
                 assertMedicalMask(status3, output3[1], result)
                 assertMedicalMask(status4, output4[1], result)
+
+        self.validationTest(estimator, True, [], [image, image])
+        self.validationTest(estimator, False, [1], [image, f.Image()])
+        self.validationTest(estimator, True, [], [image, image], [detection, detection])
+        self.validationTest(estimator, False, [1], [image, image], [detection, f.Detection()])
 
     def testIrEyeEstimator(self):
         imagePath = "testData/eyes/IrWarp.png"
