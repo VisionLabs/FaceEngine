@@ -56,6 +56,16 @@ def liveness_flying_faces_batch_example(_images, _detections):
         exit(1)
 
 
+def liveness_fpr_example(_face):
+    fpr_estimator = faceEngine.createLivenessFPREstimator()
+    error, fpr_estimation = fpr_estimator.estimate(_face.img, _face.detection, _face.landmarks5_opt.value(), False)
+    if error.isOk:
+        print(fpr_estimation)
+    else:
+        print("Failed liveness FPR estimation. Reason: {0}".format(err.what))
+        exit(1)
+
+
 def quality_blackWhite_example(image):
     qualityEstimator = faceEngine.createQualityEstimator()
     blackWhiteEstimator = faceEngine.createBlackWhiteEstimator()
@@ -420,6 +430,7 @@ if __name__ == "__main__":
             print("Failed eyes estimation. Reason: {0}".format(err_eyes.what))
         liveness_flying_faces_example(face)
         liveness_flying_faces_batch_example([face.img, face.img], [face.detection, face.detection])
+        liveness_fpr_example(face)
         medical_mask_warped_example(warp_image)
         medical_mask_cropped_example(image, detection)
         medical_mask_warped_batch_example([warp_image, warp_image])
