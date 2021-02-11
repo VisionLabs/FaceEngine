@@ -118,6 +118,11 @@ fsdk::ILivenessFlyingFacesEstimatorPtr PyIFaceEngine::createLivenessFlyingFacesE
 	return processResult(res, "to create liveness flying faces estimator");
 }
 
+fsdk::ILivenessFPREstimatorPtr PyIFaceEngine::createLivenessFPREstimator() {
+	auto res = faceEnginePtr->createLivenessFPREstimator();
+	return processResult(res, "to create liveness FPR estimator");
+}
+
 fsdk::ILivenessOneShotRGBEstimatorPtr PyIFaceEngine::createLivenessOneShotRGBEstimator() {
 	auto res = faceEnginePtr->createLivenessOneShotRGBEstimator();
 	return processResult(res, "to create liveness oneshot rgb estimator");

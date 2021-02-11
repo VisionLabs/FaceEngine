@@ -383,6 +383,27 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertAlmostEqual(flying_faces_estimations[1].score, 0.9981, delta=0.001)
         self.assertTrue(flying_faces_estimation.isReal)
 
+    def testLivenessFPREstimator(self):
+        fpr_estimator = self.faceEngine.createLivenessFPREstimator()
+        image = f.Image()
+        image_load_error = image.load("testData/liveness_fpr_test.png")
+        self.assertTrue(image_load_error.isOk)
+        self.assertTrue(image.isValid())
+        detector = self.faceEngine.createDetector(f.FACE_DET_V1)
+        err_detect, face = detector.detectOne(image, image.getRect(), f.DT_ALL)
+        err, fpr_estimation = fpr_estimator.estimate(
+            image,
+            face.detection,
+            face.landmarks5_opt.value(),
+            False
+        )
+        self.assertTrue(err.isOk)
+        self.assertAlmostEqual(fpr_estimation.phoneScore,  0.999, delta=0.001)
+        self.assertAlmostEqual(fpr_estimation.replayScore,  0.0, delta=0.001)
+        self.assertAlmostEqual(fpr_estimation.flyingFacesScore, 0.9907, delta=0.001)
+        self.assertAlmostEqual(fpr_estimation.totalScore,  0.664, delta=0.001)
+        self.assertTrue(fpr_estimation.isReal)
+
     def testLivenessRGBMEstimator(self):
         estimator = self.faceEngine.createLivenessRGBMEstimator()
         background = f.Image()
