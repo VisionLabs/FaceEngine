@@ -65,24 +65,77 @@ py::class_<fsdk::IWarperPtr>(f, "IWarperPtr",
 		"\t\tparam2 (Transformation): transformation data\n"
 		"\tReturns:\n"
 		"\t\t(tuple): tuple with FSDKErrorResult and transformed landmarks68\n")
-	
+
 	.def("unwarp",[](
-			const fsdk::IWarperPtr& warper,
-			const fsdk::GazeEstimation& eyeAngles,
-			const fsdk::Transformation& transformation) {
+		const fsdk::IWarperPtr& warper,
+		const fsdk::EyesEstimation& eyesEstimationInWarpCoordinates,
+		const fsdk::Transformation& transformation) {
+
+			fsdk::EyesEstimation outEyeEstimation;
+			fsdk::Result<fsdk::FSDKError> error = warper->unwarp(eyesEstimationInWarpCoordinates, transformation, outEyeEstimation);
+			if (error.isOk())
+				return std::make_tuple(FSDKErrorResult(error), outEyeEstimation);
+			else
+				return std::make_tuple(FSDKErrorResult(error), fsdk::EyesEstimation()); },
+		"Warp iris and eyelid  Landmarks in EyesEstimation struct for both eyes.\n"
+		"\tArgs:\n"
+		"\t\tparam1 (EyesEstimation) Eye Estimation straight out of EyeEstimator.\n"
+		"\t\tparam2 (Transformation): transformation data\n"
+		"\tReturns:\n"
+		"\t\t(tuple): tuple with FSDKErrorResult and eyes estimation landmarks warped to source image coord. space.\n")
+
+	.def("unwarp",[](
+		const fsdk::IWarperPtr& warper,
+		const fsdk::Landmarks5& landmarks5,
+		const fsdk::Transformation& transformation) {
+			fsdk::Landmarks5 outLandmarks5;
+			fsdk::Result<fsdk::FSDKError> error = warper->unwarp(landmarks5, transformation, outLandmarks5);
+			if (error.isOk())
+				return std::make_tuple(FSDKErrorResult(error), outLandmarks5);
+			else
+				return std::make_tuple(FSDKErrorResult(error), fsdk::Landmarks5()); },
+		"Warp landmarks of size 5 back to source image coords.\n"
+		"\tArgs:\n"
+		"\t\tparam1 (Landmarks5) warped landmarks array of size 5..\n"
+		"\t\tparam2 (Transformation): transformation data\n"
+		"\tReturns:\n"
+		"\t\t(tuple): tuple with FSDKErrorResult and landmarks of size 5 warped back to source image coords.\n")
+
+	.def("unwarp",[](
+		const fsdk::IWarperPtr& warper,
+		const fsdk::Landmarks68& landmarks68,
+		const fsdk::Transformation& transformation) {
+			fsdk::Landmarks68 outLandmarks68;
+			fsdk::Result<fsdk::FSDKError> error = warper->unwarp(landmarks68, transformation, outLandmarks68);
+			if (error.isOk())
+				return std::make_tuple(FSDKErrorResult(error), outLandmarks68);
+			else
+				return std::make_tuple(FSDKErrorResult(error), fsdk::Landmarks68()); },
+		"Warp landmarks of size 68 back to source image coords.\n"
+		"\tArgs:\n"
+		"\t\tparam1 (Landmarks68) warped landmarks array of size 68.\n"
+		"\t\tparam2 (Transformation): transformation data\n"
+		"\tReturns:\n"
+		"\t\t(tuple): tuple with FSDKErrorResult and landmarks of size 68 warped back to source image coords.\n")
+
+	.def("unwarp",[](
+		const fsdk::IWarperPtr& warper,
+		const fsdk::GazeEstimation& eyeAngles,
+		const fsdk::Transformation& transformation) {
+
 			fsdk::GazeEstimation outEyeAngles;
 			fsdk::Result<fsdk::FSDKError> error = warper->unwarp(eyeAngles, transformation, outEyeAngles);
 			if (error.isOk())
 				return std::make_tuple(FSDKErrorResult(error), outEyeAngles);
 			else
 				return std::make_tuple(FSDKErrorResult(error), fsdk::GazeEstimation()); },
-		"Warp landmarks of size 68\n"
+		"Warp eyeAngles back to source image coords\n"
 		"\tArgs:\n"
 		"\t\tparam1 (Landmarks68): landmarks array of size 68\n"
 		"\t\tparam2 (Transformation): transformation data\n"
 		"\tReturns:\n"
-		"\t\t(tuple): tuple with FSDKErrorResult and transformed landmarks68\n")
-		
+		"\t\t(tuple): tuple with FSDKErrorResult and transformed eyeAngles\n")
+
 	.def("createTransformation",[](
 		const fsdk::IWarperPtr& warper,
 		// cast to detection<int> inside c++ interface

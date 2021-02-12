@@ -106,7 +106,7 @@ def warper_example(image_det, _detection, _landmarks5, _landmarks68):
     if err_transformed_landmarks68.isError:
         print("Failed extraction of transformed landmarsks68.")
         return None
-    return (_warp_image, _transformed_landmarks5, _transformed_landmarks68, _transformation)
+    return _warp_image, _transformed_landmarks5, _transformed_landmarks68, _transformation, warper
 
 
 def unwarp_gaze(eye_angles, _transformation):
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     landmarks5 = detect_batch.getLandmarks5(0)[0]
     landmarks68 = detect_batch.getLandmarks68(0)[0]
 
-    (warp_image, transformed_landmarks5, transformed_landmarks68, transformation) = \
+    (warp_image, transformed_landmarks5, transformed_landmarks68, transformation, _) = \
         warper_example(image, detection, landmarks5, landmarks68)
     simple_redetect_example(image, image, fe.FACE_DET_V3)
     print_landmarks(landmarks5, "landmarks5: ")

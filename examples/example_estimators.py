@@ -263,6 +263,46 @@ def eye_example(_warp_image, _transformed_landmarks5):
     return err, eyesEstimation
 
 
+# to get eye estimation in a space of origin coordinates
+def unwarp_eye_estimation(warper, transformation, eye_estimation_warped):
+    err_code, eye_estimation_unwarped = warper.unwarp(eye_estimation_warped, transformation)
+    return err_code, eye_estimation_unwarped
+
+
+def draw_eye_points(image_cv, detection, eye_list1, eye_list2, color):
+    import cv2
+    detx = detection.getRect().x
+    dety = detection.getRect().y
+    for left, right in zip(eye_list1, eye_list2):
+        x1 = int(detx + left.x)
+        y1 = int(dety + left.y)
+        x2 = int(detx + right.x)
+        y2 = int(dety + right.y)
+        cv2.circle(image_cv, (x1, y1), 1, color, 2)
+        cv2.circle(image_cv, (x2, y2), 1, color, 2)
+
+    return image_cv
+
+
+def save_origin_image_with_landmarks(detection, eyes_unwarped, path):
+    # get numpy aray
+    image_cv = image.getData()
+    image_cv = draw_eye_points(image_cv, detection, eyes_unwarped.leftEye.eyelid, eyes_unwarped.rightEye.eyelid, (0, 255, 0))
+    image_cv = draw_eye_points(image_cv, detection, eyes_unwarped.leftEye.iris, eyes_unwarped.rightEye.iris, (255, 0, 0))
+    # convert image to opencv
+    image_saved = fe.Image()
+    err_set_data = image_saved.setData(image_cv, fe.FormatType.R8G8B8)
+    if err_set_data.isError:
+        print("Image was not converted, reason: ", err_set_data.what)
+        return
+    err_save = image_saved.save(path)
+    if err_save.isError:
+        print("Image was not converted, reason: ", err_save.what)
+        return
+    else:
+        print("Saved image: ", path)
+
+
 def emotions_example(warp_image):
     emotionsEstimator = faceEngine.createEmotionsEstimator()
     err, emotions_result = emotionsEstimator.estimate(warp_image)
@@ -409,7 +449,7 @@ if __name__ == "__main__":
             face.landmarks5_opt.value(), \
             face.landmarks68_opt.value()
         # print_landmarks(landmarks5, "landmarks5: ")
-        (warp_image, transformed_landmarks5, transformed_landmarks68, transformation) = \
+        (warp_image, transformed_landmarks5, transformed_landmarks68, transformation, warper) = \
             warper_example(image, detection, landmarks5, landmarks68)
         quality_blackWhite_example(warp_image)
         glasses_example(faceEngine, warp_image)
@@ -422,6 +462,11 @@ if __name__ == "__main__":
         emotions_example(warp_image)
         mouth_example(warp_image)
         err_eyes, eyesEstimation = eye_example(warp_image, transformed_landmarks5)
+        # to get eye estimation in origin coords
+        err_eye_unwarped, eyes_unwarped = unwarp_eye_estimation(warper, transformation, eyesEstimation)
+        # if err_eye_unwarped.isOk:
+            # will be saved in working directory, be sure you have numpy and cv2
+            # save_origin_image_with_landmarks(detection, eyes_unwarped, "iris_eyelid_image.png")
         err_gaze, gaze_result = gaze_example_rgb(warp_image, transformed_landmarks5)
         if err_gaze.isOk:
             gaze = unwarp_gaze(gaze_result, transformation)
