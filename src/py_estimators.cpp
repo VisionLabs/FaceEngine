@@ -1480,12 +1480,29 @@ void estimators_module(py::module& f) {
 
 	py::class_<fsdk::LivenessOneShotRGBEstimation>(f, "LivenessOneShotRGBEstimation", "LivenessOneShotRGB estimation output.\n")
 		.def_readwrite("score", &fsdk::LivenessOneShotRGBEstimation::score, "Liveness score\n")
-		.def_readwrite("isReal", &fsdk::LivenessOneShotRGBEstimation::isReal, "Is real or not\n")
+		.def_readwrite("State", &fsdk::LivenessOneShotRGBEstimation::LivenessOneShotRGBEstimation::state, "Liveness estimation result\n")
 		.def_readwrite("qualityScore", &fsdk::LivenessOneShotRGBEstimation::qualityScore, "Is real or not\n")
 		.def("__repr__", [](const fsdk::LivenessOneShotRGBEstimation& e) {
+			std::string state;
+			switch (e.state) {
+				case fsdk::LivenessOneShotRGBEstimation::State::Alive : {
+					state = "Alive";
+					break;
+				}
+				case fsdk::LivenessOneShotRGBEstimation::State::Fake : {
+					state = "Fake";
+					break;
+				}
+				case fsdk::LivenessOneShotRGBEstimation::State::Unknown : {
+					state = "Unknown";
+					break;
+				}
+				default: break;
+			}
+
 			return "LivenessOneShotRGBEstimation: \n"
 				"score = " + std::to_string(e.score) + "\n" +
-				"isReal = " + (e.isReal ? "True\n" : "False\n") +
+				"state = " + state + "\n" +
 				"qualityScore = " + std::to_string(e.qualityScore) + "\n";
 			})
 		;
@@ -1497,9 +1514,10 @@ void estimators_module(py::module& f) {
 			const fsdk::ILivenessOneShotRGBEstimatorPtr& estimator,
 			const fsdk::Image& image,
 			const fsdk::Detection& detection,
-			const fsdk::Landmarks5& landmarks5) {
+			const fsdk::Landmarks5& landmarks5,
+			const float& qualityThreshold = -1.f) {
 				fsdk::LivenessOneShotRGBEstimation out = {};
-				fsdk::Result<fsdk::FSDKError> status = estimator->estimate(image, detection, landmarks5, out);
+				fsdk::Result<fsdk::FSDKError> status = estimator->estimate(image, detection, landmarks5, out, qualityThreshold);
 				return std::make_tuple(FSDKErrorResult(status), out);
 			},
 			"\tEstimates the liveness state of the face.\n"
@@ -1507,6 +1525,7 @@ void estimators_module(py::module& f) {
 			"\t\tparam1 (image): image source image in R8G8B8 format.\n"
 			"\t\tparam2 (detection): face detection.\n"
 			"\t\tparam3 (landmarks5): face Landmarks5\n"
+			"\t\tparam4 (qualityThreshold): quality threshold\n"
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and LivenessOneShotRGBEstimation\n")
 		;
