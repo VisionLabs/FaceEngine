@@ -73,6 +73,50 @@ def human_landmarks_detect_example(image1, image2):
                 print("\t\tscore:", score)
                 print("\t\tvisible:", visible)
 
+def human_landmarks_redetect_one_example(image1):
+    detector = faceEngine.createHumanDetector()
+
+    # Make detection on the first image
+    result, human_batch = detector.detect(
+        [image1],
+        [image1.getRect()],
+        10,
+        fe.HumanDetectionType(fe.HDT_BOX))
+    if not result.isOk:
+        print("human_landmarks_redetect_one_example - failed to detect! Reason: {0}".format(result.what))
+        return
+
+    detections = human_batch.getDetections(0)
+    print("human_landmarks_redetect_one_example - next image results:")
+    if len(detections) == 0:
+        print("human_landmarks_redetect_one_example - no human on the image!")
+        return
+
+    for j in range(len(detections)):
+        redetectOneResult, human = detector.redetectOne(image1, detections[j], fe.HumanDetectionType(fe.HDT_BOX | fe.HDT_POINTS))
+        if not redetectOneResult.isOk:
+            print("human_landmarks_redetect_one_example - failed to redetectOne! Reason: {0}".format(result.what))
+            return
+        if not human.isValid():
+            print("human_landmarks_redetect_one_example - something goes wrong! Human structure is invalid after redetectOne!")
+            return
+
+        if not human.landmarks17_opt.isValid():
+            print("human_landmarks_redetect_one_example - something goes wrong! HumanLandmarks17 optional is invalid after redetectOne!")
+            return
+
+        print(format(human))
+        landmarks17 = human.landmarks17_opt.value()
+        for k in range(len(landmarks17)):
+            print("\tPoint ", k, ":")
+            score = landmarks17[k].score
+            point = landmarks17[k].point
+            visible = landmarks17[k].visible
+            print("\t\tx:", point.x)
+            print("\t\ty:", point.y)
+            print("\t\tscore:", score)
+            print("\t\tvisible:", visible)
+
 def human_redetect_one_example(image1, image2):
     detector = faceEngine.createHumanDetector()
 
@@ -94,7 +138,7 @@ def human_redetect_one_example(image1, image2):
 
     print("human_redetect_example - detect result:\n{0}".format(detection))
     # Make a redetect
-    result, human = detector.redetectOne(image2, detection)
+    result, human = detector.redetectOne(image2, detection, fe.HumanDetectionType(fe.HDT_BOX))
     if not result.isOk:
         print("human_redetect_example - failed to redetectOne! Reason: {0}".format(result.what))
         return
@@ -129,3 +173,4 @@ if __name__ == "__main__":
     human_detect_example(image, image)
     human_redetect_one_example(image, image)
     human_landmarks_detect_example(image, image)
+    human_landmarks_redetect_one_example(image)

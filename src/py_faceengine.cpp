@@ -410,6 +410,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def_readwrite("detection", &fsdk::Human::detection, "Object bounding box")
 		.def_readwrite("landmarks17_opt", &fsdk::Human::landmarks17, "HumanLandmarks17 optional\n")
 		.def("isValid", &fsdk::Human::isValid)
+		.def("__repr__",
+			[](const fsdk::Human& h) {
+				const fsdk::Rect rect = h.detection.getRect();
+				return "Human: rect: x = " + std::to_string(rect.x) +
+					", y = " + std::to_string(rect.y) +
+					", width = " + std::to_string(rect.width) +
+					", height = " + std::to_string(rect.height) +
+					"; score = " + std::to_string(h.detection.getScore()) +
+					"; isValid = " + (h.detection.isValid() ? "True\n" : "False\n");
+			});
 		;
 
 	py::class_<fsdk::HumanLandmark>(f, "HumanLandmark", "HumanLandmark keypoints\n")
