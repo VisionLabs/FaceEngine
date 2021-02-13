@@ -40,7 +40,8 @@ def check_license(license):
         fe.LicenseFeature.DescriptorIndex,
         fe.LicenseFeature.LivenessEngine,
         fe.LicenseFeature.TrackEngine,
-        fe.LicenseFeature.HumanDetection
+        fe.LicenseFeature.HumanDetection,
+        fe.LicenseFeature.MedicalMaskDetection
     ]
 
     for feature in freatures:
