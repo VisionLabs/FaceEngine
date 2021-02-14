@@ -717,6 +717,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("LivenessEngine", fsdk::LicenseFeature::LivenessEngine)
 		.value("TrackEngine", fsdk::LicenseFeature::TrackEngine)
 		.value("HumanDetection", fsdk::LicenseFeature::HumanDetection)
+		.value("MobileLiveness", fsdk::LicenseFeature::MobileLiveness)
 		.value("MedicalMaskDetection", fsdk::LicenseFeature::MedicalMaskDetection)
 			;
 
@@ -1286,6 +1287,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			LicenseFeature.LivenessEngine
 			LicenseFeature.TrackEngine
 			LicenseFeature.HumanDetection
+			LicenseFeature.MobileLiveness
 			LicenseFeature.MedicalMaskDetection
 
 			ILicensePtr
