@@ -47,6 +47,7 @@ def check_license(license):
         fe.LicenseFeature.LivenessEngine,
         fe.LicenseFeature.TrackEngine,
         fe.LicenseFeature.HumanDetection,
+        fe.LicenseFeature.MobileLiveness,
         fe.LicenseFeature.MedicalMaskDetection
     ]
 
