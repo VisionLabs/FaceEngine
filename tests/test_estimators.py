@@ -723,6 +723,25 @@ class TestFaceEngineEstimators(unittest.TestCase):
                     self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].x, reference.rightEye.eyelid[i].x, delta=acceptableDiff)
                     self.assertAlmostEqual(eyesEstimation.rightEye.eyelid[i].y, reference.rightEye.eyelid[i].y, delta=acceptableDiff)
 
+    def testCredibilityCheckEstimator(self):
+        warp_1 = f.Image()
+        load_error = warp_1.load("testData/credibility_1.jpg")
+        self.assertTrue(load_error.isOk)
+
+        warp_2 = f.Image()
+        load_error = warp_2.load("testData/credibility_2.jpg")
+        self.assertTrue(load_error.isOk)
+
+        estimator = self.faceEngine.createCredibilityCheckEstimator()
+        est_error, estimation = estimator.estimate(warp_2)
+        self.assertTrue(est_error.isOk)
+        self.assertAlmostEqual(estimation.value, 0.8642, delta=0.01)
+
+        est_error, estimations = estimator.estimate([warp_1, warp_2])
+        self.assertTrue(est_error.isOk)
+        self.assertAlmostEqual(estimations[0].value, 0.3483, delta=0.01)
+        self.assertAlmostEqual(estimations[1].value, 0.8642, delta=0.01)
+
     def testSimpleOptionalType(self):
         value = 5.0
         x = f.Optionalfloat(value)
