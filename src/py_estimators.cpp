@@ -1528,6 +1528,48 @@ void estimators_module(py::module& f) {
 			"\t\tparam4 (qualityThreshold): quality threshold\n"
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and LivenessOneShotRGBEstimation\n")
+		
+		.def("estimate", [](
+			const fsdk::ILivenessOneShotRGBEstimatorPtr & est,
+			const std::vector<fsdk::Image>& images,
+			const std::vector<fsdk::Detection>& detections,
+			const std::vector<fsdk::Landmarks5>& landmarks5,
+			const float& qualityThreshold = -1.f) {
+
+				std::vector<fsdk::LivenessOneShotRGBEstimation> results(images.size());
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(images, detections, landmarks5, results, qualityThreshold);
+				
+				if (err.isError())
+					return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::LivenessOneShotRGBEstimation>());
+				
+				return std::make_tuple(FSDKErrorResult(err), results); },
+			"Estimate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of Images.\n"
+			"\t\tparam2 (list of Detections): list of detections.\n"
+			"\t\tparam3 (list of landmarks5): list of landmarks5.\n"
+			"\t\tparam4 (qualityThreshold): quality threshold.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
+
+		.def("validate", [](
+			const fsdk::ILivenessOneShotRGBEstimatorPtr & est,
+			const std::vector<fsdk::Image>& images,
+			const std::vector<fsdk::Detection>& detections,
+			const std::vector<fsdk::Landmarks5>& landmarks5) {
+
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
+				fsdk::Result<fsdk::FSDKError> err = est->validate(images, detections, landmarks5, errors);
+				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of Images.\n"
+			"\t\tparam2 (list of Detections): list of detections.\n"
+			"\t\tparam3 (list of landmarks5): list of landmarks5.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
 		;
 
 	py::enum_<fsdk::PPEState>(f, "PPEState", "Personal Protection Equipment states.\n")
