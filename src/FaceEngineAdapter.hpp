@@ -68,6 +68,8 @@ public:
 	fsdk::IMedicalMaskEstimatorPtr createMedicalMaskEstimator();
 	
 	fsdk::IOverlapEstimatorPtr createOverlapEstimator();
+
+	fsdk::ICredibilityCheckEstimatorPtr createCredibilityCheckEstimator();
 	
 	fsdk::IIndexBuilderPtr createIndexBuilder();
 	

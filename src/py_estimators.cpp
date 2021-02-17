@@ -619,6 +619,44 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and GlassesEstimation\n")
 				;
+
+	py::class_<fsdk::ICredibilityCheckEstimatorPtr>(f, "ICredibilityCheckEstimatorPtr",
+		"Credibility check estimator\n"
+		"\tThis estimator is designed to work with a person face image.\n"
+		"\tsee IWarper for details.\n")
+		.def("estimate", [](
+			const fsdk::ICredibilityCheckEstimatorPtr& est,
+			const fsdk::Image& warp) {
+				fsdk::CredibilityCheckEstimation out = {};
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
+			"\tEstimates the reliability of person\n"
+			"\tArgs\n"
+			"\t\tparam1 (Image): warped image in R8G8B8 format.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns Error code and CredibilityCheckEstimation\n")
+
+		.def("estimate", [](
+			const fsdk::ICredibilityCheckEstimatorPtr& est,
+			const std::vector<fsdk::Image>& warps) {
+				std::vector<fsdk::CredibilityCheckEstimation> out(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(
+					fsdk::Span<const fsdk::Image>(warps.data(), warps.size()),
+					fsdk::Span<fsdk::CredibilityCheckEstimation>(out.data(), out.size()));
+				if (err.isError()) {
+					std::make_tuple(
+						FSDKErrorResult(err),
+						std::vector<fsdk::CredibilityCheckEstimation>{});
+				}
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
+			"\tEstimates the reliability of person\n"
+			"\tArgs\n"
+			"\t\tparam1 (Images): List of warped images in R8G8B8 format.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns Error code and list of CredibilityCheckEstimation\n")
+				;
 	
 	py::class_<fsdk::MatchingResult>(f, "MatchingResult", "Result of descriptor matching.")
 		.def(py::init<>(), "Initializes result to default values.")
@@ -1108,6 +1146,15 @@ void estimators_module(py::module& f) {
 			return "OverlapEstimation: \n"
 				"overlapValue = " + std::to_string(e.overlapValue) + "\n" +
 				"isOpened = " + std::string(e.overlapped ? "True\n" : "False\n");
+			})
+		;
+
+	py::class_<fsdk::CredibilityCheckEstimation>(f, "CredibilityCheckEstimation",
+		"Face credibility check estimation output.\n")
+		.def(py::init<>())
+		.def_readwrite("value", &fsdk::CredibilityCheckEstimation::value, "Person reliability estimation\n")
+		.def("__repr__", [](const fsdk::CredibilityCheckEstimation& e) {
+			return "CredibilityCheckEstimation: value = " + std::to_string(e.value) + "\n";
 			})
 		;
 
