@@ -144,6 +144,21 @@ def medical_mask_warped_example(_warp):
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
 
+def medical_mask_extended_warped_example(_warp):
+    estimator = faceEngine.createMedicalMaskEstimator()
+    err, estimation = estimator.estimate_extended(_warp)
+    if err.isOk:
+        print("\nmedical_mask_extended_warped_example:\n")
+        print("Result: {}".format(estimation.result))
+        print("Scores: \n\tmask: {}\n\tnoMask: {}\n\tmaskNotInPlace: {}\n\toccludedFace: {}\n".format(
+            estimation.maskScore,
+            estimation.noMaskScore,
+            estimation.maskNotInPlace,
+            estimation.occludedFaceScore
+        ))
+    else:
+        print("Failed medical mask estimation. Reason: {0}".format(err.what))
+        exit(1)
 
 def medical_mask_cropped_example(_image, _detection):
     estimator = faceEngine.createMedicalMaskEstimator()
@@ -160,6 +175,21 @@ def medical_mask_cropped_example(_image, _detection):
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
 
+def medical_mask_extended_сropped_example(_image, _detection):
+    estimator = faceEngine.createMedicalMaskEstimator()
+    err, estimation = estimator.estimate_extended(_image, _detection)
+    if err.isOk:
+        print("\nmedical_mask_extended_cropped_example:\n")
+        print("Result: {}".format(estimation.result))
+        print("Scores: \n\tmask: {}\n\tnoMask: {}\n\tmaskNotInPlace: {}\n\toccludedFace: {}\n".format(
+            estimation.maskScore,
+            estimation.noMaskScore,
+            estimation.maskNotInPlace,
+            estimation.occludedFaceScore
+        ))
+    else:
+        print("Failed medical mask estimation. Reason: {0}".format(err.what))
+        exit(1)
 
 def medical_mask_warped_batch_example(_warps):
     estimator = faceEngine.createMedicalMaskEstimator()
@@ -430,6 +460,8 @@ if __name__ == "__main__":
         liveness_fpr_example(face)
         ags_example(faceEngine, image, detection)
         medical_mask_warped_example(warp_image)
+        medical_mask_extended_warped_example(warp_image)
+        medical_mask_extended_сropped_example(image, detection)
         medical_mask_cropped_example(image, detection)
         medical_mask_warped_batch_example([warp_image, warp_image])
         medical_mask_cropped_batch_example([image, image], [detection, detection])
