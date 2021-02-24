@@ -265,6 +265,20 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): \n"
 			"\t\t\t tuple with FSDKErrorResult code and MedicalMaskEstimation\n")
+
+		.def("estimate_extended", [](
+				const fsdk::IMedicalMaskEstimatorPtr& est,
+				const fsdk::Image& warp) {
+				fsdk::MedicalMaskEstimationExtended estimation{};
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, estimation);
+				return std::make_tuple(FSDKErrorResult(err), estimation); },
+			"Estimate Medical Mask probabilities..\n"
+			"\t\t(see FSDKErrorResult for details)\n"
+			"\tArgs:\n"
+			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code and MedicalMaskEstimationExtended\n")
 			
 		.def("estimate", [](
 				const fsdk::IMedicalMaskEstimatorPtr& est,
@@ -281,12 +295,30 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): \n"
 			"\t\t\t tuple with FSDKErrorResult code and MedicalMaskEstimation\n")
-			
+
+		.def("estimate_extended", [](
+				const fsdk::IMedicalMaskEstimatorPtr& est,
+				const fsdk::Image &image,
+				const fsdk::Detection& detection) {
+				fsdk::MedicalMaskEstimationExtended estimation{};
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(image, detection, estimation);
+				return std::make_tuple(FSDKErrorResult(err), estimation); },
+			"Estimate Medical Mask probabilities..\n"
+			"\t\t(see FSDKErrorResult for details)\n"
+			"\tArgs:\n"
+			"\t\tparam1 (Image): image with warped face. Format must be R8G8B8\n"
+			"\t\tparam2 (Detection): detection coords in image space;\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code and MedicalMaskEstimationExtended\n")
+
 		.def("estimate", [](
 				const fsdk::IMedicalMaskEstimatorPtr& est,
 				const std::vector<fsdk::Image>& warps) {
 				std::vector<fsdk::MedicalMaskEstimation> estimations(warps.size());
-				fsdk::Result<fsdk::FSDKError>  err = est->estimate(warps, estimations);
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(
+						warps,
+						fsdk::Span<fsdk::MedicalMaskEstimation>(&estimations[0], estimations.size()));
 				if (err.isOk())
 					return std::make_tuple(FSDKErrorResult(err), estimations);
 				
@@ -298,20 +330,67 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): \n"
 			"\t\t\t tuple with FSDKErrorResult code and list of MedicalMaskEstimation estimations\n")
-			
+
+		.def("estimate", [](
+				const fsdk::IMedicalMaskEstimatorPtr& est,
+				const std::vector<fsdk::Image>& warps) {
+				std::vector<fsdk::MedicalMaskEstimationExtended> estimations(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(
+						warps,
+						fsdk::Span<fsdk::MedicalMaskEstimationExtended>(&estimations[0], estimations.size()));
+				if (err.isOk()) {
+					return std::make_tuple(FSDKErrorResult(err), estimations);
+				}
+				
+				return std::make_tuple(FSDKErrorResult(err), std::vector<fsdk::MedicalMaskEstimationExtended>()); },
+			"Estimate Medical Mask probabilities.\n"
+			"\t\t(see FSDKErrorResult for details)\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of warped images, format of images must be R8G8B8. Must be warped!\n"
+			"\t\tparam2 (estimations): request with flags to check parameters to estimate\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code and list of MedicalMaskEstimationExtended estimations\n")
+
 		.def("estimate", [](
 			const fsdk::IMedicalMaskEstimatorPtr& est,
 			const std::vector<fsdk::Image>& images,
 			const std::vector<fsdk::Detection> detections) {
+				std::vector<fsdk::Detection> detectionsInt(detections.size());
+				for (uint32_t i = 0; i < detections.size(); ++i) {
+					detectionsInt[i] = fsdk::Detection(detections[i]);
+				}
 				std::vector<fsdk::MedicalMaskEstimation> estimations(images.size());
-				fsdk::Result<fsdk::FSDKError>  err = est->estimate(
-					images,
-					detections,
-					estimations);
+				fsdk::Result<fsdk::FSDKError>  err = est->estimate(images, detectionsInt, fsdk::Span<fsdk::MedicalMaskEstimation>(&estimations[0], estimations.size()));
 				if (err.isOk())
 					return std::make_tuple(FSDKErrorResult(err), estimations);
-				return std::make_tuple(FSDKErrorResult(err),
+				else
+					return std::make_tuple(FSDKErrorResult(err),
 						std::vector<fsdk::MedicalMaskEstimation>()); },
+			"Estimate Medical Mask probabilities.\n"
+			"\t\t(see FSDKErrorResult for details)\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of warped images, format of images must be R8G8B8. Must be warped!\n"
+			"\t\tparam2 (estimations): request with flags to check parameters to estimate\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code and list of MedicalMaskEstimationExtended estimations\n")
+
+		.def("estimate", [](
+				const fsdk::IMedicalMaskEstimatorPtr& est,
+				const std::vector<fsdk::Image>& images,
+				const std::vector<fsdk::Detection> detections) {
+					std::vector<fsdk::Detection> detectionsInt(detections.size());
+				for (uint32_t i = 0; i < detections.size(); ++i) {
+					detectionsInt[i] = fsdk::Detection(detections[i]);
+				}
+				std::vector<fsdk::MedicalMaskEstimationExtended> estimations(images.size());
+				fsdk::Result<fsdk::FSDKError>  err = est->estimate(images, detectionsInt, fsdk::Span<fsdk::MedicalMaskEstimationExtended>(&estimations[0], estimations.size()));
+				if (err.isOk())
+					return std::make_tuple(FSDKErrorResult(err), estimations);
+				else
+					return std::make_tuple(FSDKErrorResult(err),
+						std::vector<fsdk::MedicalMaskEstimationExtended>()); },
 			"Estimate Medical Mask probabilities.\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
@@ -1367,6 +1446,16 @@ void estimators_module(py::module& f) {
 		.export_values();
 		;
 
+	//	MedicalMaskExtended
+	py::enum_<fsdk::MedicalMaskExtended>(f, "MedicalMaskExtended", py::arithmetic(),
+		"MedicalMask estimator output enumeration.\n")
+		.value("Mask", fsdk::MedicalMaskExtended::Mask, "Medical mask is on the face\n")
+		.value("NoMask", fsdk::MedicalMaskExtended::NoMask, "No medical mask on the face\n")
+		.value("MaskNotInPlace", fsdk::MedicalMaskExtended::MaskNotInPlace, "Mask is not on the right place\n")
+		.value("OccludedFace", fsdk::MedicalMaskExtended::OccludedFace, "Face is occluded by something\n")
+		.export_values()
+		;
+
 	py::class_<fsdk::MedicalMaskEstimation>(f, "MedicalMaskEstimation",
 		"MedicalMaskEstimator output structure\n"
 		"\tResult enumeration with the medical status.\n"
@@ -1375,6 +1464,17 @@ void estimators_module(py::module& f) {
 		.def_readwrite("maskScore", &fsdk::MedicalMaskEstimation::maskScore, "Medical mask is on the face score\n")
 		.def_readwrite("noMaskScore", &fsdk::MedicalMaskEstimation::noMaskScore, "No medical mask on the face score\n")
 		.def_readwrite("occludedFaceScore", &fsdk::MedicalMaskEstimation::occludedFaceScore, "Face is occluded by something score\n")
+		;
+
+	py::class_<fsdk::MedicalMaskEstimationExtended>(f, "MedicalMaskEstimationExtended",
+		"MedicalMaskEstimator output structure\n"
+		"\tResult enumeration with the medical status.\n"
+		"\tProbability scores are defined in [0,1] range.\n")
+		.def_readwrite("result", &fsdk::MedicalMaskEstimationExtended::result, "Estimation result\n")
+		.def_readwrite("maskScore", &fsdk::MedicalMaskEstimationExtended::maskScore, "Medical mask is on the face score\n")
+		.def_readwrite("noMaskScore", &fsdk::MedicalMaskEstimationExtended::noMaskScore, "No medical mask on the face score\n")
+		.def_readwrite("maskNotInPlace", &fsdk::MedicalMaskEstimationExtended::maskNotInPlace, "Mask is not on the right place\n")
+		.def_readwrite("occludedFaceScore", &fsdk::MedicalMaskEstimationExtended::occludedFaceScore, "Face is occluded by something score\n")
 		;
 	
 	py::class_<fsdk::OverlapEstimation>(f, "OverlapEstimation", "Face overlap estimation output.\n")
