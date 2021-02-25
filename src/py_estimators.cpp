@@ -1672,6 +1672,15 @@ void estimators_module(py::module& f) {
 			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
 		;
 
+	// fsdk::LivenessOneShotRGBEstimation::State
+	py::enum_<fsdk::LivenessOneShotRGBEstimation::State>(f, "LivenessOneShotState" "Liveness state", py::arithmetic(),
+	 	"LivenessOneShotRGBEstimation estimator output enumeration.\n")
+	 	.value("Alive", fsdk::LivenessOneShotRGBEstimation::State::Alive, "The person on image is real\n")
+		.value("Fake", fsdk::LivenessOneShotRGBEstimation::State::Fake, "The person on image is fake (photo, printed image)\n")
+		.value("Unknown", fsdk::LivenessOneShotRGBEstimation::State::Unknown, "The liveness status of person on image is Unknown\n")
+		.export_values()
+		;
+
 	py::enum_<fsdk::PPEState>(f, "PPEState", "Personal Protection Equipment states.\n")
 		.value("Positive", fsdk::PPEState::Positive, "\t person is wearing specific personal equipment")
 		.value("Negative", fsdk::PPEState::Negative, "\t person isn't wearing specific personal equipment")
