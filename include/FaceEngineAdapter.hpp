@@ -71,7 +71,9 @@ public:
 	
 	fsdk::IOverlapEstimatorPtr createOverlapEstimator();
 	
-	fsdk::IIndexBuilderPtr createIndexBuilder();
+	fsdk::IIndexBuilderPtr createIndexBuilder(
+		const uint32_t capacity = 0,
+		const uint32_t version = 0);
 	
 	fsdk::Ref<fsdk::IHumanDetector> createHumanDetector();
 

@@ -177,7 +177,11 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createMatcher", &PyIFaceEngine::createMatcher, py::arg("version") = 0, "Creates descriptor matcher (version >= DV_MIN_HUMAN_DESCRIPTOR_VERSION is human descriptor)\n")
 		
 		// Index
-		.def("createIndexBuilder", &PyIFaceEngine::createIndexBuilder, "Creates index builder.\n")
+		.def("createIndexBuilder", &PyIFaceEngine::createIndexBuilder,
+			py::arg("capacity") = 0,
+			py::arg("version") = 0,
+			"Creates index builder"
+			"(version >= DV_MIN_HUMAN_DESCRIPTOR_VERSION is human descriptor)\n")
 		
 		.def("loadDenseIndex", [](
 			PyIFaceEngine& faceEngine,
