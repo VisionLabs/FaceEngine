@@ -69,6 +69,14 @@ void index_module(py::module& f) {
 			const fsdk::IDenseIndexPtr& indexPtr) {
 			return indexPtr->size();
 		}, "Return size of internal storage. if not initialized, 0 is returned.\n")
+
+		.def("getDescriptorVersion", [](
+			const fsdk::IDenseIndexPtr& indexPtr) {
+				return indexPtr->getDescriptorVersion();
+			},
+			"Returns descriptor version."
+			"\tReturns:\n"
+			"\t\t(int): descriptor version\n")
 		
 		.def("descriptorByIndex", [](
 			const fsdk::IDenseIndexPtr& indexPtr,
@@ -159,6 +167,14 @@ void index_module(py::module& f) {
 			const fsdk::IDynamicIndexPtr& indexPtr) {
 			return indexPtr->size();
 		}, "Returns size of internal storage. If not initialized, 0 is returned.\n")
+
+		.def("getDescriptorVersion", [](
+			const fsdk::IDynamicIndexPtr& indexPtr) {
+				return indexPtr->getDescriptorVersion();
+			},
+			"Returns descriptor version."
+			"\tReturns:\n"
+			"\t\t(int): descriptor version\n")
 		
 		.def("descriptorByIndex", [](
 			const fsdk::IDynamicIndexPtr& indexPtr,
@@ -301,5 +317,13 @@ void index_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple of FSDKErrorResult and descriptor):tuple with FSDKErrorResult and descriptor\n"
 			"\t\tMore detailed description see in FaceEngineSDK_Handbook.pdf or source C++ interface.\n")
-				;
+
+		.def("getDescriptorVersion", [](
+			const fsdk::IIndexBuilderPtr& indexPtr) {
+				return indexPtr->getDescriptorVersion();
+			},
+			"Returns descriptor version."
+			"\tReturns:\n"
+			"\t\t(int): descriptor version\n")
+			;
 }

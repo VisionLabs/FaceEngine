@@ -158,8 +158,11 @@ fsdk::IGlassesEstimatorPtr PyIFaceEngine::createGlassesEstimator() {
 	return processResult(res, "to create glasses estimator");
 }
 
-fsdk::IIndexBuilderPtr PyIFaceEngine::createIndexBuilder() {
-	auto res = faceEnginePtr->createIndexBuilder();
+fsdk::IIndexBuilderPtr PyIFaceEngine::createIndexBuilder(
+	const uint32_t capacity,
+	const uint32_t version) {
+
+	auto res = faceEnginePtr->createIndexBuilder(capacity, version);
 	return processResult(res, "to create indexBuilder");
 }
 

@@ -197,6 +197,7 @@ class TestFaceEngineRect(unittest.TestCase):
         resBuilt = builtIndex.search(descriptor, searchResultSize)
 
         self.assertEqual(builtIndex.size(), sizeOfBatch - countOfRemovals)
+        self.assertEqual(builtIndex.getDescriptorVersion(), descriptor.getModelVersion())
         self.assertEqual(builtIndex.countOfIndexedDescriptors(), sizeOfBatch - countOfRemovals)
         self.query(batch, builtIndex, faceEngine, IndexTest(169, 7712))
         densePath = testDataPath + "/dense_index.txt"
@@ -210,9 +211,11 @@ class TestFaceEngineRect(unittest.TestCase):
     def testDynamicSerialization(self):
         faceEngine, descriptor, batch = load("descriptor57_ref.bin", "batch57_1k.bin")
         builtIndex = buildAcquiredIndexWithBatch(faceEngine, batch)
+
         self.assertEqual(builtIndex.size(), sizeOfBatch)
+        self.assertEqual(builtIndex.getDescriptorVersion(), batch.getModelVersion())
         self.assertEqual(builtIndex.countOfIndexedDescriptors(), sizeOfBatch)
-        resBuilt = builtIndex.search(descriptor, searchResultSize);
+        resBuilt = builtIndex.search(descriptor, searchResultSize)
         indexPath = testDataPath + "/dynamic_index_tmp"
         res = builtIndex.saveToDynamicIndex(indexPath)
         self.assertTrue(res.isOk)
