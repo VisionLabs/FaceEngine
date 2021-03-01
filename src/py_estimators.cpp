@@ -1673,7 +1673,7 @@ void estimators_module(py::module& f) {
 		;
 
 	// fsdk::LivenessOneShotRGBEstimation::State
-	py::enum_<fsdk::LivenessOneShotRGBEstimation::State>(f, "LivenessOneShotState" "Liveness state", py::arithmetic(),
+	py::enum_<fsdk::LivenessOneShotRGBEstimation::State>(f, "LivenessOneShotState", "Liveness state\n", py::arithmetic(),
 	 	"LivenessOneShotRGBEstimation estimator output enumeration.\n")
 	 	.value("Alive", fsdk::LivenessOneShotRGBEstimation::State::Alive, "The person on image is real\n")
 		.value("Fake", fsdk::LivenessOneShotRGBEstimation::State::Fake, "The person on image is fake (photo, printed image)\n")
