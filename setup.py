@@ -96,7 +96,7 @@ class CMakeBuild(build_ext):
 if __name__ == '__main__':
     setup(
         name='FaceEngine',
-        version='5.0.0.1',
+        version='5.1.0.0',
         author='VisionLabs',
         author_email='info@visionlabs.ru',
         description='Python bindings of FaceEngine using pybind11 and CMake',
