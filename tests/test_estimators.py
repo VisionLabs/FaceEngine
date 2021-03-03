@@ -161,25 +161,25 @@ class TestFaceEngineEstimators(unittest.TestCase):
         err1, subj_quality_result1 = qualityEstimator.estimate_subjective_quality(image)
         self.assertTrue(err1.isOk)
         self.assertTrue(subj_quality_result1.isGood())
-        #compare estimate_subjective_quality vs estimate 
+        # compare estimate_subjective_quality vs estimate
         floatprecision = 0.0001
-        self.assertAlmostEqual(subj_quality_result.blur, subj_quality_result1.blur, floatprecision)
-        self.assertAlmostEqual(subj_quality_result.light, subj_quality_result1.light, floatprecision)
-        self.assertAlmostEqual(subj_quality_result.darkness, subj_quality_result1.darkness, floatprecision)
-        self.assertAlmostEqual(subj_quality_result.illumination, subj_quality_result1.illumination, floatprecision)
-        self.assertAlmostEqual(subj_quality_result.specularity, subj_quality_result1.specularity, floatprecision)
-        #test estimate_quality
+        self.assertAlmostEqual(subj_quality_result.blur, subj_quality_result1.blur, delta=floatprecision)
+        self.assertAlmostEqual(subj_quality_result.light, subj_quality_result1.light, delta=floatprecision)
+        self.assertAlmostEqual(subj_quality_result.darkness, subj_quality_result1.darkness, delta=floatprecision)
+        self.assertAlmostEqual(subj_quality_result.illumination, subj_quality_result1.illumination, delta=floatprecision)
+        self.assertAlmostEqual(subj_quality_result.specularity, subj_quality_result1.specularity, delta=floatprecision)
+        # test estimate_quality
         qualityRef = f.Quality()
         qualityRef.light = 0.96277028322
-        qualityRef.dark  = 0.974349558353
-        qualityRef.gray  = 0.979210078716
-        qualityRef.blur  = 0.961572766304
+        qualityRef.dark = 0.974349558353
+        qualityRef.gray = 0.979210078716
+        qualityRef.blur = 0.961572766304
         refPrecision = 0.001
         err, quality = qualityEstimator.estimate_quality(image)
-        self.assertAlmostEqual(quality.light, qualityRef.light, refPrecision)
-        self.assertAlmostEqual(quality.dark, qualityRef.dark, refPrecision)
-        self.assertAlmostEqual(quality.gray, qualityRef.gray, refPrecision)
-        self.assertAlmostEqual(quality.blur, qualityRef.blur, refPrecision)
+        self.assertAlmostEqual(quality.light, qualityRef.light, delta=refPrecision)
+        self.assertAlmostEqual(quality.dark, qualityRef.dark, delta=refPrecision)
+        self.assertAlmostEqual(quality.gray, qualityRef.gray, delta=refPrecision)
+        self.assertAlmostEqual(quality.blur, qualityRef.blur, delta=refPrecision)
 
     def testOverlapEstimator(self):
         image = f.Image()
@@ -273,46 +273,55 @@ class TestFaceEngineEstimators(unittest.TestCase):
         config = f.createSettingsProvider("data/faceengine.conf")
         config.setValue("LivenessIREstimator::Settings", "name", f.SettingsProviderValue("universal"))
         self.faceEngine.setSettingsProvider(config)
-        iREstimator = self.faceEngine.createIREstimator()
+        estimator = self.faceEngine.createIREstimator()
 
-        irImage = f.Image()
-        irImage.load("testData/ir_Universal_real.jpg")
-        self.assertTrue(irImage.isValid())
-        err, irRestult = iREstimator.estimate(irImage)
+        real = f.Image()
+        err = real.load("testData/ir_Universal_real.jpg")
         self.assertTrue(err.isOk)
-        # print("irResult = ", irRestult)
-        self.assertTrue(irRestult.isReal)
-        self.assertAlmostEqual(irRestult.score, 0.9999, delta=0.01)
 
-        irImage.load("testData/ir_Universal_fake.jpg")
-        self.assertTrue(irImage.isValid())
-        err, irRestult = iREstimator.estimate(irImage)
+        fake = f.Image()
+        err = fake.load("testData/ir_Universal_fake.jpg")
         self.assertTrue(err.isOk)
-        # print("irResult = ", irRestult)
-        self.assertFalse(irRestult.isReal)
-        self.assertAlmostEqual(irRestult.score, 0.2499, delta=0.01)
+
+        self.irLivenessEstimateOne(estimator, real, 0.9999, True, 0.01)
+        self.irLivenessEstimateOne(estimator, fake, 0.2499, False, 0.01)
+        self.irLivenessEstimateBatch(estimator, [real, fake], [0.9999, 0.2499], [True, False], 0.01)
 
     def testIREstimatorAmbarella(self):
         config = f.createSettingsProvider("data/faceengine.conf")
-
         config.setValue("LivenessIREstimator::Settings", "name", f.SettingsProviderValue("ambarella"))
         self.faceEngine.setSettingsProvider(config)
-        iREstimator = self.faceEngine.createIREstimator()
+        estimator = self.faceEngine.createIREstimator()
 
-        irImage = f.Image()
-        irImage.load("testData/ir_Ambarella_real.jpg")
-        self.assertTrue(irImage.isValid())
-        err, irRestult = iREstimator.estimate(irImage)
+        real = f.Image()
+        err = real.load("testData/ir_Ambarella_real.jpg")
         self.assertTrue(err.isOk)
-        self.assertTrue(irRestult.isReal)
-        self.assertAlmostEqual(irRestult.score, 0.8933, delta=0.01)
 
-        irImage.load("testData/ir_Ambarella_fake.jpg")
-        self.assertTrue(irImage.isValid())
-        err, irRestult = iREstimator.estimate(irImage)
+        fake = f.Image()
+        err = fake.load("testData/ir_Ambarella_fake.jpg")
         self.assertTrue(err.isOk)
-        self.assertFalse(irRestult.isReal)
-        self.assertAlmostEqual(irRestult.score, 0.6871, delta=0.01)
+
+        self.irLivenessEstimateOne(estimator, real, 0.8933, True, 0.01)
+        self.irLivenessEstimateOne(estimator, fake, 0.6871, False, 0.01)
+        self.irLivenessEstimateBatch(estimator, [real, fake], [0.8933, 0.6871], [True, False], 0.01)
+
+    def testIREstimatorVerme(self):
+        config = f.createSettingsProvider("data/faceengine.conf")
+        config.setValue("LivenessIREstimator::Settings", "name", f.SettingsProviderValue("verme"))
+        self.faceEngine.setSettingsProvider(config)
+        estimator = self.faceEngine.createIREstimator()
+
+        real = f.Image()
+        err = real.load("testData/ir_verme_real.png")
+        self.assertTrue(err.isOk)
+
+        fake = f.Image()
+        err = fake.load("testData/ir_verme_fake.png")
+        self.assertTrue(err.isOk)
+
+        self.irLivenessEstimateOne(estimator, real, 0.9902, True, 0.01)
+        self.irLivenessEstimateOne(estimator, fake, 0.0006, False, 0.01)
+        self.irLivenessEstimateBatch(estimator, [real, fake], [0.9902, 0.0006], [True, False], 0.01)
 
     def testSmileEstimator(self):
         smileEstimator = self.faceEngine.createSmileEstimator()
@@ -827,7 +836,27 @@ class TestFaceEngineEstimators(unittest.TestCase):
         err, estimation = estimator.estimate(image, detection, *background)
         self.assertEqual(err.error, f.FSDKError.InvalidRect) if area == "bad_area" else self.assertTrue(err.isOk)
 
+    def irLivenessEstimateOne(self, estimator, ir_warp: f.Image, score: float, label: bool, delta: float = 0.01):
+        self.assertTrue(ir_warp.isValid())
+        err, estimation = estimator.estimate(ir_warp)
+        self.assertTrue(err.isOk)
+        self.assertTrue(estimation.isReal == label)
+        self.assertAlmostEqual(estimation.score, score, delta=delta)
+
+    def irLivenessEstimateBatch(self, estimator, ir_warps: list, scores: list, labels: list, delta: float = 0.01):
+        self.assertEqual(len(ir_warps), len(scores), "Size of input lists must be equal")
+        self.assertEqual(len(ir_warps), len(labels), "Size of input lists must be equal")
+        batch_size = len(ir_warps)
+
+        for ir_warp in ir_warps:
+            self.assertTrue(ir_warp.isValid())
+
+        err, estimations = estimator.estimate(ir_warps)
+        self.assertTrue(err.isOk)
+        for estimation, ref_score, ref_label in zip(estimations, scores, labels):
+            self.assertTrue(estimation.isReal == ref_label)
+            self.assertAlmostEqual(estimation.score, ref_score, delta=delta)
+
 
 if __name__ == '__main__':
     unittest.main()
-
