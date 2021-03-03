@@ -36,8 +36,13 @@ del (sys.argv[1])
 def change_value_in_trackengine_conf(param_name, key, new_value, section_name):
     tree = ET.ElementTree(file='data/trackengine.conf')
     elem = tree.find(".//*[@name='{0}']/param[@name='{1}']".format(section_name, param_name))
-    if new_value != '':
-       elem.set(key, new_value)
+    if elem is None:
+        print("{0} in {1} not found".format(param_name, section_name))
+        exit(1)
+    if elem.get(key) is None:
+        print("{0} not found in {1}".format(key, param_name))
+        exit(1)
+    elem.set(key, new_value)
     tree.write('data/trackengine.conf', "UTF-8")
 
 
@@ -57,7 +62,7 @@ class TestTrackEngine(unittest.TestCase):
         self.config = fe.createSettingsProvider(self.configPath)
         #при frg-subtractor=1 в детектор отправляются только области с движением
         change_value_in_trackengine_conf('frg-subtractor', 'x', "0", section_name="other")
-        change_value_in_trackengine_conf('use-preprocessing-thread', 'x', "0", section_name="other")
+        #change_value_in_trackengine_conf('use-preprocessing-thread', 'x', "0", section_name="other")
 
     def testMinimalTrackLength(self):
         test_values = {"FaceDetV1": (("10", 10), ("5", 15), ("19", 1)),
