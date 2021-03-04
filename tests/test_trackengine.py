@@ -171,7 +171,7 @@ class TestTrackEngine(unittest.TestCase):
                 for callback in clb:
                     if 'ctBestShot' in str(callback.type):
                         bestshot_cb_count += 1
-                self.assertEqual(bestshot_cb_count, expected_callback_count,
+                self.assertEqual(bestshot_cb_count, max_frames_det - int(min_track_length) + 1,
                                  "ctBestShot callbacks count dont match the expected value!")
 
                 if int(case['skip-frames']) < max_frames_no_det:
