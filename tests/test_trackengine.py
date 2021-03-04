@@ -136,8 +136,8 @@ class TestTrackEngine(unittest.TestCase):
                 image_without_detection = fe.Image()
                 err_image_loaded = image_with_detection.load(image_with_detection_path)
                 err_image2_loaded = image_without_detection.load(image_without_detection_path)
-                self.assertTrue(err_image_loaded.isOk)
-                self.assertTrue(err_image2_loaded.isOk)
+                self.assertTrue(err_image_loaded.isOk, "Error while loading image\n{}".format(err_image_loaded))
+                self.assertTrue(err_image2_loaded.isOk, "Error while loading image\n{}".format(err_image2_loaded))
 
                 stream = self.trackengine.createStream()
                 print('Stream created!')
