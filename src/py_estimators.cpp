@@ -376,11 +376,12 @@ void estimators_module(py::module& f) {
 		.def_readwrite("isReal", &fsdk::IREstimation::isReal, "\tbool answer, the real person or not")
 		.def_readwrite("score", &fsdk::IREstimation::score, "\t score")
 		.def("__repr__",
-			[](const fsdk::IREstimation &result) {
-				return "isReal = " + std::to_string(result.isReal)
-						+ ", score = " + std::to_string(result.score); })
-		;
-	
+			[](const fsdk::IREstimation& res) {
+				return "IREstimation: "
+					" score = " + std::to_string(res.score) +
+					", isReal = " + std::to_string(res.isReal);
+			});
+
 	py::class_<fsdk::ILivenessIREstimatorPtr>(f, "ILivenessIREstimatorPtr",
 		"Infra-red liveness estimator interface.\n"
 		"\tThis estimator is designed for face analysis using infra red facial warp (8-bit 1 channel) image.\n"
@@ -398,8 +399,26 @@ void estimators_module(py::module& f) {
 			"\t\tparam1 (Image): irWarp infra red face warp\n"
 			"\tReturns:\n"
 			"\t\t(tuple):  tuple with Error code and irEstimation\n")
+
+		.def("estimate", [](
+			const fsdk::ILivenessIREstimatorPtr& est,
+			const std::vector<fsdk::Image>& irWarps) {
+				std::vector<fsdk::IREstimation> out(irWarps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(irWarps, out);
+				if (err.isOk()) {
+					return std::make_tuple(FSDKErrorResult(err), out);
+				}
+				return std::make_tuple(
+					FSDKErrorResult(err),
+					std::vector<fsdk::IREstimation>());
+			},
+			"Check whether or not list of infrared warps correspond to the real person.\n"
+			"\tArgs\n"
+			"\t\tparam1 (Images): List of infra red face warps\n"
+			"\tReturns:\n"
+			"\t\t(tuple): tuple with Error code and List of IREstimation\n")
 				;
-	
+
 	py::class_<fsdk::ILivenessFlyingFacesEstimatorPtr>(f, "ILivenessFlyingFacesEstimatorPtr",
 		"Flying faces liveness estimator interface.\n"
 		"\t\tThis estimator helps determine whether a person is real or not.\n")
