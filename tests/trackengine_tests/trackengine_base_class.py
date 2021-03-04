@@ -8,7 +8,6 @@ import time
 from license_helper import make_activation, ActivationLicenseError
 
 
-
 # if FaceEngine is installed only this string of code is required for module importing
 import FaceEngine as fe
 import TrackEngine as te
