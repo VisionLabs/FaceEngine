@@ -124,6 +124,7 @@ class TestTrackEngine(unittest.TestCase):
             {'skip-frames': '6'}
         )
         for case in cases:
+            print("Running test for skip-frames {}".format(case))
             with self.subTest(case=case):
                 min_track_length = '5'
                 change_value_in_trackengine_conf("skip-frames", "x", case['skip-frames'], section_name="other")

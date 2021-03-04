@@ -5,6 +5,7 @@ import time
 import FaceEngine as fe
 import TrackEngine as te
 
+
 class TestTrackEngineSkipFrames(TestTrackEngine):
 
     def test_skip_frames(self):
@@ -13,6 +14,7 @@ class TestTrackEngineSkipFrames(TestTrackEngine):
             {'skip-frames': '6'}
         )
         for case in cases:
+            print("Running test for skip-frames {}".format(case))
             with self.subTest(case=case):
                 min_track_length = '5'
                 change_value_in_trackengine_conf("skip-frames", "x", case['skip-frames'], section_name="other")
@@ -60,7 +62,7 @@ class TestTrackEngineSkipFrames(TestTrackEngine):
                 for callback in clb:
                     if 'ctBestShot' in str(callback.type):
                         bestshot_cb_count += 1
-                self.assertEqual(bestshot_cb_count, expected_callback_count,
+                self.assertEqual(bestshot_cb_count, max_frames_det - int(min_track_length) + 1,
                                  "ctBestShot callbacks count dont match the expected value!")
 
                 if int(case['skip-frames']) < max_frames_no_det:
