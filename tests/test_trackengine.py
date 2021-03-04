@@ -131,7 +131,7 @@ class TestTrackEngine(unittest.TestCase):
                 max_frames_det = 10
                 max_frames_no_det = 5
                 image_with_detection_path = 'testData/image_1080_1_face.jpg'
-                image_without_detection_path = 'testData/image2'
+                image_without_detection_path = 'testData/black_1080.jpg'
                 image_with_detection = fe.Image()
                 image_without_detection = fe.Image()
                 err_image_loaded = image_with_detection.load(image_with_detection_path)
