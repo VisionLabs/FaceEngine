@@ -62,6 +62,7 @@ class TestTrackEngine(unittest.TestCase):
         self.config = fe.createSettingsProvider(self.configPath)
         #при frg-subtractor=1 в детектор отправляются только области с движением
         change_value_in_trackengine_conf('frg-subtractor', 'x', "0", section_name="other")
+        change_value_in_trackengine_conf("detector-scaling", "x", "0", section_name="other")
         #change_value_in_trackengine_conf('use-preprocessing-thread', 'x', "0", section_name="other")
 
     def testMinimalTrackLength(self):
