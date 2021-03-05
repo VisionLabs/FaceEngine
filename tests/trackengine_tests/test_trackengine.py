@@ -3,10 +3,10 @@ import argparse
 import sys
 import os
 
-from trackengine_tests.test_detector_scaling import TestTrackEngineDetectorScaling
-from trackengine_tests.test_minimal_track_length import TestTrackEngineMinimalTrackLength
-from trackengine_tests.test_skip_frames import TestTrackEngineSkipFrames
-from trackengine_tests.test_tracker_type import TestTrackEngineTrackerType
+from test_detector_scaling import TestTrackEngineDetectorScaling
+from test_minimal_track_length import TestTrackEngineMinimalTrackLength
+from test_skip_frames import TestTrackEngineSkipFrames
+from test_tracker_type import TestTrackEngineTrackerType
 
 
 # if FaceEngine is not installed within the system, add the directory with FaceEngine*.so to system paths

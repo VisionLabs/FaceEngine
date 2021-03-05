@@ -1,5 +1,5 @@
-from trackengine_tests.trackengine_base_class import TestTrackEngine
-from trackengine_tests.trackengine_base_class import change_value_in_trackengine_conf
+from trackengine_base_class import TestTrackEngine
+from trackengine_base_class import change_value_in_trackengine_conf
 import time
 
 import FaceEngine as fe
