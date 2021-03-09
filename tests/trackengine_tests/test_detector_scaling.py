@@ -40,10 +40,10 @@ class TestTrackEngineDetectorScaling(TestTrackEngine):
                     print(c.bbox)
                 self.assertEqual(bestshots, case['expected'], "Number of besthots dont match the number of frames.")
 
-    def test_detector_scaling_not_correct_resolution(self):
+    def test_detector_scaling_small_resolution(self):
         images = (
-            "testData/image_640_20.jpg",
-            "testData/image_40_23.jpg"
+            "testData/image_640_32.jpg",
+            "testData/image_32_32.jpg"
         )
         for image in images:
             with self.subTest(case=image):
