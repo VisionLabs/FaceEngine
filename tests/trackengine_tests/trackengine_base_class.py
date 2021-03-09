@@ -1,6 +1,4 @@
 import unittest
-import argparse
-import sys
 import os
 import xml.etree.cElementTree as ET
 import time
@@ -41,7 +39,7 @@ class TestTrackEngine(unittest.TestCase):
         #при frg-subtractor=1 в детектор отправляются только области с движением
         change_value_in_trackengine_conf('frg-subtractor', 'x', "0", section_name="other")
         change_value_in_trackengine_conf("detector-scaling", "x", "0", section_name="other")
+        change_value_in_trackengine_conf("scale-result-size", "x", "640", section_name="other")
         change_value_in_trackengine_conf("minimal-track-length", "x", "1", section_name="other")
         #change_value_in_trackengine_conf('use-preprocessing-thread', 'x', "0", section_name="other")
-
 

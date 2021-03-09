@@ -41,4 +41,30 @@ class TestTrackEngineDetectorScaling(TestTrackEngine):
                 self.assertEqual(bestshots, case['expected'], "Number of besthots dont match the number of frames.")
 
     def test_detector_scaling_not_correct_resolution(self):
-        pass
+        images = (
+            "testData/image_640_20.jpg",
+            "testData/image_40_23.jpg"
+        )
+        for image in images:
+            with self.subTest(case=image):
+                change_value_in_trackengine_conf("detector-scaling", "x", "1", section_name="other")
+                self.trackengine = te.createTrackEngine(self.faceEngine, "data/trackengine.conf")
+                image_path = image
+                image_object = fe.Image()
+                err_image_loaded = image_object.load(image_path)
+                self.assertTrue(err_image_loaded.isOk)
+                stream = self.trackengine.createStream()
+                print('Stream created!')
+                for x in range(0, 5):
+                    while not (stream.pushFrame(image, x)):
+                        time.sleep(0.01)
+                    print("pushed {0}".format(x), flush=True)
+                print("All frames are pushed")
+                stream.waitStream()
+                clb = stream.getCallbacks()
+                visual_cb_count = 0
+                for callback in clb:
+                    if 'ctVisual' in str(callback.type):
+                        visual_cb_count += 1
+                self.assertEqual(visual_cb_count, 5,
+                                 "ctVisual callbacks count dont match the expected value!")
