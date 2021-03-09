@@ -34,15 +34,26 @@ class TestTrackEngineSkipFrames(TestTrackEngine):
                 stream = self.trackengine.createStream()
                 print('Stream created!')
                 for x in range(0, max_frames_det):
-                    while not (stream.pushFrame(image_with_detection, x)):
+                    time_elapsed = 0.0
+                    while not (stream.pushFrame(image_with_detection, x)) and time_elapsed < 10:
                         time.sleep(0.01)
-                    print("pushed {0}".format(x), flush=True)
+                        time_elapsed += 0.01
+                    if time_elapsed < 10:
+                        print("pushed {0}".format(x), flush=True)
+                    else:
+                        print("Timeout expired while pushing frame.")
+                        exit(1)
                 print('Pushing frames with no detection')
                 for x in range(max_frames_det, max_frames_det + max_frames_no_det):
-                    while not (stream.pushFrame(image_without_detection, x)):
+                    time_elapsed = 0.0
+                    while not (stream.pushFrame(image_without_detection, x)) and time_elapsed < 10:
                         time.sleep(0.01)
-                    print("pushed {0}".format(x), flush=True)
-
+                        time_elapsed += 0.01
+                    if time_elapsed < 10:
+                        print("pushed {0}".format(x), flush=True)
+                    else:
+                        print("Timeout expired while pushing frame.")
+                        exit(1)
                 print("All frames are pushed")
                 stream.waitStream()
                 clb = stream.getCallbacks()
