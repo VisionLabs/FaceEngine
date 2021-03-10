@@ -48,7 +48,7 @@ class TestTrackEngineDetectorScaling(TestTrackEngine):
 
     def test_detector_scaling_small_resolution(self):
         cases = (
-            {'image': 'testData/image_640_32.jpg', 'expected_detections': 5},
+            {'image': 'testData/image_640_32.jpg', 'expected_detections': 0},
             {'image': 'testData/image_32_32.jpg', 'expected_detections': 0}
         )
         for case in cases:
