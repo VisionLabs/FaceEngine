@@ -9,6 +9,7 @@ from license_helper import make_activation, ActivationLicenseError
 import FaceEngine as fe
 import TrackEngine as te
 
+
 def change_value_in_trackengine_conf(param_name, key, new_value, section_name):
     tree = ET.ElementTree(file='data/trackengine.conf')
     elem = tree.find(".//*[@name='{0}']/param[@name='{1}']".format(section_name, param_name))
@@ -17,6 +18,9 @@ def change_value_in_trackengine_conf(param_name, key, new_value, section_name):
         exit(1)
     if elem.get(key) is None:
         print("{0} not found in {1}".format(key, param_name))
+        exit(1)
+    if type(elem.get(key)) != type(new_value):
+        print("Wrong type for param '{0}'! Got {1}, should be {2}".format(param_name, type(new_value), type(elem.get(key))))
         exit(1)
     elem.set(key, new_value)
     tree.write('data/trackengine.conf', "UTF-8")
