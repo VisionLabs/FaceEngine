@@ -9,9 +9,9 @@ import TrackEngine as te
 class TestTrackEngineMinimalTrackLength(TestTrackEngine):
 
     def testMinimalTrackLength(self):
-        test_values = {"FaceDetV1": (("10", 10), ("5", 15), ("19", 1)),
-                       "FaceDetV2": (("10", 10), ("5", 15), ("19", 1)),
-                       "FaceDetV3": (("10", 10), ("5", 15), ("19", 1))}
+        test_values = {"FaceDetV1": (("10", 11), ("5", 16), ("19", 2)),
+                       "FaceDetV2": (("10", 11), ("5", 16), ("19", 2)),
+                       "FaceDetV3": (("10", 11), ("5", 16), ("19", 2))}
         for detector, track in test_values.items():
             for track_lenght, ref_bestshot in track:
                 with self.subTest(detector_type=detector):
@@ -20,16 +20,12 @@ class TestTrackEngineMinimalTrackLength(TestTrackEngine):
                     self.faceEngine.setSettingsProvider(self.config)
                     trackEngine = te.createTrackEngine(self.faceEngine, "data/trackengine.conf")
                     stream = trackEngine.createStream()
-                    err = self.image.load("testData/image_480.jpg")
-                    self.assertTrue(err.isOk)
-
-                    for i in range(1, 20):
-                        while not (stream.pushFrame(self.image, i)):
-                            time.sleep(0.01)
+                    image = self.load_image("testData/image_1080_1_face.jpg")
+                    self.push_frames(stream, image, 0, 20)
                     stream.waitStream()
-                    callback = stream.getCallbacks()
+                    callbacks = stream.getCallbacks()
                     number_of_bestshot = 0
-                    for c in callback:
-                        if c.type.name == 'ctBestShot':
+                    for callback in callbacks:
+                        if callback.type.name == 'ctBestShot':
                             number_of_bestshot += 1
                     self.assertEqual(number_of_bestshot, ref_bestshot)

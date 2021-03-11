@@ -12,7 +12,6 @@ class TestTrackEngineTrackerType(TestTrackEngine):
         tracker_types = {'kcf', 'none'}
         for type in tracker_types:
             with self.subTest(tracker_type=type):
-                change_value_in_trackengine_conf('minimal-track-length', 'x', "1", section_name="other")
                 change_value_in_trackengine_conf('tracker-type', 'text', type, section_name="other")
                 change_value_in_trackengine_conf('detector-step', 'x', "1", section_name="other")
                 self.config.setValue('system', 'defaultDetectorType', "FaceDetV3")
@@ -26,11 +25,11 @@ class TestTrackEngineTrackerType(TestTrackEngine):
                     push = stream.pushFrame(self.image, i)
                     self.assertTrue(push)
                 stream.waitStream()
-                callback = stream.getCallbacks()
-                self.assertNotEqual(len(callback), 0)
+                callbacks = stream.getCallbacks()
+                self.assertNotEqual(len(callbacks), 0)
                 number_of_frame = 0
-                ref_bbox = fe.Rect(246, 43, 214, 313)
-                for c in callback:
+                ref_bbox = callbacks[0].bbox
+                for callback in callbacks:
                     number_of_frame += 1
-                    self.assertEqual(c.bbox, ref_bbox)
+                    self.assertEqual(callback.bbox, ref_bbox)
                 self.assertEqual(number_of_frame, 10)

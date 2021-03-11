@@ -3,6 +3,7 @@ import argparse
 import sys
 import os
 
+
 # if FaceEngine is not installed within the system, add the directory with FaceEngine*.so to system paths
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--bind-path", type=str,
@@ -24,6 +25,7 @@ sys.path.append(path_to_binding)
 # erase two first arguments for unittest argument parsing
 del (sys.argv[1])
 del (sys.argv[1])
+
 
 from test_detector_scaling import TestTrackEngineDetectorScaling
 from test_minimal_track_length import TestTrackEngineMinimalTrackLength

@@ -36,10 +36,31 @@ class TestTrackEngine(unittest.TestCase):
     def setUp(self):
         self.configPath = os.path.join("data", "faceengine.conf")
         self.config = fe.createSettingsProvider(self.configPath)
-        #при frg-subtractor=1 в детектор отправляются только области с движением
+        change_value_in_trackengine_conf('detector-step', 'x', '7', section_name='other')
+        change_value_in_trackengine_conf('skip-frames', 'x', '36', section_name='other')
+        change_value_in_trackengine_conf('tracker-type', 'text', 'kcf', section_name='other')
         change_value_in_trackengine_conf('frg-subtractor', 'x', "0", section_name="other")
         change_value_in_trackengine_conf("detector-scaling", "x", "0", section_name="other")
         change_value_in_trackengine_conf("scale-result-size", "x", "640", section_name="other")
         change_value_in_trackengine_conf("minimal-track-length", "x", "1", section_name="other")
-        #change_value_in_trackengine_conf('use-preprocessing-thread', 'x', "0", section_name="other")
+
+    def push_frames(self, stream, image, start_frame_number, end_frame_number):
+        for x in range(start_frame_number, end_frame_number):
+            time_elapsed = 0.0
+            while not (stream.pushFrame(image, x)) and time_elapsed < 10:
+                time.sleep(0.01)
+                time_elapsed += 0.01
+            if time_elapsed < 10:
+                print("pushed {0}".format(x), flush=True)
+            else:
+                print("Timeout expired while pushing frame.")
+                exit(1)
+
+    def load_image(self, image_path):
+        image_path = image_path
+        image = fe.Image()
+        err_image_loaded = image.load(image_path)
+        self.assertTrue(err_image_loaded.isOk,
+                        "Error while loading image\n{}".format(err_image_loaded.error.name))
+        return image
 

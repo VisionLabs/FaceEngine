@@ -25,16 +25,7 @@ class TestTrackEngineDetectorScaling(TestTrackEngine):
                 self.assertTrue(err_image_loaded.isOk)
                 stream = self.trackengine.createStream()
                 print('Stream created!')
-                for x in range(0, case['frames']):
-                    time_elapsed = 0.0
-                    while not (stream.pushFrame(image_full_hd, x)) and time_elapsed < 10:
-                        time.sleep(0.01)
-                        time_elapsed += 0.01
-                    if time_elapsed < 10:
-                        print("pushed {0}".format(x), flush=True)
-                    else:
-                        print("Timeout expired while pushing frame.")
-                        exit(1)
+                self.push_frames(stream, image_full_hd, 0, case['frames'])
                 print("All frames are pushed")
                 stream.waitStream()
                 clb = stream.getCallbacks()
@@ -61,16 +52,7 @@ class TestTrackEngineDetectorScaling(TestTrackEngine):
                 self.assertTrue(err_image_loaded.isOk)
                 stream = self.trackengine.createStream()
                 print('Stream created!')
-                for x in range(0, 5):
-                    time_elapsed = 0.0
-                    while not (stream.pushFrame(image_object, x)) and time_elapsed < 10:
-                        time.sleep(0.01)
-                        time_elapsed += 0.01
-                    if time_elapsed < 10:
-                        print("pushed {0}".format(x), flush=True)
-                    else:
-                        print("Timeout expired while pushing frame.")
-                        exit(1)
+                self.push_frames(stream, image_object, 0, 5)
                 print("All frames are pushed")
                 stream.waitStream()
                 clb = stream.getCallbacks()
