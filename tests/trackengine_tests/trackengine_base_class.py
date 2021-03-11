@@ -31,7 +31,6 @@ class TestTrackEngine(unittest.TestCase):
         cls.faceEngine = fe.createFaceEngine("data")
         if not make_activation(cls.faceEngine):
             raise ActivationLicenseError("License is not activated!")
-        cls.image = fe.Image()
 
     def setUp(self):
         self.configPath = os.path.join("data", "faceengine.conf")

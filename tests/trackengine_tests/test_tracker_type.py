@@ -17,13 +17,9 @@ class TestTrackEngineTrackerType(TestTrackEngine):
                 self.config.setValue('system', 'defaultDetectorType', "FaceDetV3")
                 self.faceEngine.setSettingsProvider(self.config)
                 trackEngine = te.createTrackEngine(self.faceEngine, "data/trackengine.conf")
+                image = self.load_image("testData/image_480.jpg")
                 stream = trackEngine.createStream()
-                err = self.image.load("testData/image_480.jpg")
-                self.assertTrue(err.isOk)
-
-                for i in range(1, 6):
-                    push = stream.pushFrame(self.image, i)
-                    self.assertTrue(push)
+                self.push_frames(stream, image, 1, 6)
                 stream.waitStream()
                 callbacks = stream.getCallbacks()
                 self.assertNotEqual(len(callbacks), 0)

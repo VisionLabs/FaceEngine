@@ -8,7 +8,7 @@ import TrackEngine as te
 
 class TestTrackEngineSkipFrames(TestTrackEngine):
 
-    def test_skip_frames(self):
+    def test_skip_frames_track_ended(self):
         cases = (
             {'skip-frames': '3'},
             {'skip-frames': '5'}
@@ -26,7 +26,6 @@ class TestTrackEngineSkipFrames(TestTrackEngine):
                 print("All frames are pushed")
                 stream.waitStream()
                 callbacks = stream.getCallbacks()
-
                 visual_cb_count = 0
                 bestshot_cb_count = 0
                 for callback in callbacks:

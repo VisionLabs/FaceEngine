@@ -46,13 +46,10 @@ class TestTrackEngineDetectorScaling(TestTrackEngine):
             with self.subTest(case=case):
                 change_value_in_trackengine_conf("detector-scaling", "x", "1", section_name="other")
                 self.trackengine = te.createTrackEngine(self.faceEngine, "data/trackengine.conf")
-                image_path = case['image']
-                image_object = fe.Image()
-                err_image_loaded = image_object.load(image_path)
-                self.assertTrue(err_image_loaded.isOk)
+                image = self.load_image(case['image'])
                 stream = self.trackengine.createStream()
                 print('Stream created!')
-                self.push_frames(stream, image_object, 0, 5)
+                self.push_frames(stream, image, 0, 5)
                 print("All frames are pushed")
                 stream.waitStream()
                 clb = stream.getCallbacks()
