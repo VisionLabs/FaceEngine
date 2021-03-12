@@ -1156,6 +1156,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 			LivenessRGBMEstimation.__init__
 			LivenessRGBMEstimation.__repr__
 
+			CredibilityStatus
+			
 			CredibilityCheckEstimation
 			CredibilityCheckEstimation.__init__
 			CredibilityCheckEstimation.__repr__
