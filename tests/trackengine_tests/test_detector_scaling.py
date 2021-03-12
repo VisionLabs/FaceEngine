@@ -30,8 +30,6 @@ class TestTrackEngineDetectorScaling(TestTrackEngine):
                 for c in clb:
                     if c.type.name == 'ctBestShot':
                         bestshots += 1
-                    print(c.type)
-                    print(c.bbox)
                 self.assertEqual(bestshots, case['expected_detections'], "Number of besthots dont match the number of frames.")
 
     def test_detector_scaling_small_resolution(self):
@@ -56,3 +54,14 @@ class TestTrackEngineDetectorScaling(TestTrackEngine):
                         visual_cb_count += 1
                 self.assertEqual(visual_cb_count, case['expected_detections'],
                                  "ctVisual callbacks count dont match the expected value!")
+
+    def test_detector_scaling_invalid_resolution(self):
+        """Pushing frame with less than 32 pixels resoultion on one side"""
+        change_value_in_trackengine_conf("detector-scaling", "x", "1", section_name="other")
+        self.trackengine = te.createTrackEngine(self.faceEngine, "data/trackengine.conf")
+        image = self.load_image('testData/image_40_23.jpg')
+        stream = self.trackengine.createStream()
+        print('Stream created!')
+        frame_pushed = stream.pushFrame(image, 0)
+        stream.waitStream()
+        self.assertFalse(frame_pushed, "Frame with invalid resolution was pushed!")
