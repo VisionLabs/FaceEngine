@@ -21,9 +21,7 @@ class TestTrackEngineDetectorScaling(TestTrackEngine):
                 self.trackengine = te.createTrackEngine(self.faceEngine, "data/trackengine.conf")
                 image = self.load_image('testData/image_1080_1_face.jpg')
                 stream = self.trackengine.createStream()
-                print('Stream created!')
                 self.push_frames(stream, image, 0, case['frames'])
-                print("All frames are pushed")
                 stream.waitStream()
                 clb = stream.getCallbacks()
                 bestshots = 0
@@ -43,9 +41,7 @@ class TestTrackEngineDetectorScaling(TestTrackEngine):
                 self.trackengine = te.createTrackEngine(self.faceEngine, "data/trackengine.conf")
                 image = self.load_image(case['image'])
                 stream = self.trackengine.createStream()
-                print('Stream created!')
                 self.push_frames(stream, image, 0, 5)
-                print("All frames are pushed")
                 stream.waitStream()
                 clb = stream.getCallbacks()
                 visual_cb_count = 0
@@ -61,7 +57,6 @@ class TestTrackEngineDetectorScaling(TestTrackEngine):
         self.trackengine = te.createTrackEngine(self.faceEngine, "data/trackengine.conf")
         image = self.load_image('testData/image_40_23.jpg')
         stream = self.trackengine.createStream()
-        print('Stream created!')
         frame_pushed = stream.pushFrame(image, 0)
         stream.waitStream()
         self.assertFalse(frame_pushed, "Frame with invalid resolution was pushed!")
