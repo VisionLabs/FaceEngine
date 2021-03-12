@@ -20,10 +20,8 @@ class TestTrackEngineSkipFrames(TestTrackEngine):
                 image_with_detection = self.load_image('testData/image_1080_1_face.jpg')
                 image_without_detection = self.load_image('testData/black_1080.jpg')
                 stream = self.trackengine.createStream()
-                print('Stream created!')
                 self.push_frames(stream, image_with_detection, 0, 5)
                 self.push_frames(stream, image_without_detection, 5, 11)
-                print("All frames are pushed")
                 stream.waitStream()
                 callbacks = stream.getCallbacks()
                 visual_cb_count = 0
@@ -48,10 +46,8 @@ class TestTrackEngineSkipFrames(TestTrackEngine):
         image_with_detection = self.load_image('testData/image_1080_1_face.jpg')
         image_without_detection = self.load_image('testData/black_1080.jpg')
         stream = self.trackengine.createStream()
-        print('Stream created!')
         self.push_frames(stream, image_with_detection, 0, 5)
         self.push_frames(stream, image_without_detection, 5, 11)
-        print("All frames are pushed")
         stream.waitStream()
         callbacks = stream.getCallbacks()
         visual_cb_count = 0
