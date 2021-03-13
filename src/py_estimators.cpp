@@ -1262,12 +1262,22 @@ void estimators_module(py::module& f) {
 			})
 		;
 
+	py::enum_<fsdk::CredibilityStatus>(f, "CredibilityStatus", py::arithmetic(),
+		"An enum representing all possible outcomes of CredibilityCheckEsimator.\n")
+		.value("Reliable", fsdk::CredibilityStatus::Reliable, "person is predicted to be reliable\n")
+		.value("NonReliable", fsdk::CredibilityStatus::NonReliable, "person is predicted to be non reliable\n")
+		.export_values()
+		;
+
 	py::class_<fsdk::CredibilityCheckEstimation>(f, "CredibilityCheckEstimation",
 		"Face credibility check estimation output.\n")
 		.def(py::init<>())
 		.def_readwrite("value", &fsdk::CredibilityCheckEstimation::value, "Person reliability estimation\n")
+		.def_readwrite("credibilityStatus", &fsdk::CredibilityCheckEstimation::credibilityStatus, "Predicted person's reliablity enum value\n")
 		.def("__repr__", [](const fsdk::CredibilityCheckEstimation& e) {
-			return "CredibilityCheckEstimation: value = " + std::to_string(e.value) + "\n";
+			return "CredibilityCheckEstimation: \n"
+				"value = " + std::to_string(e.value) + "\n" +
+				"status = " + std::to_string(static_cast<int>(e.credibilityStatus)) + "\n";
 			})
 		;
 
