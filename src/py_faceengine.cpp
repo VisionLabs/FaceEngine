@@ -305,6 +305,15 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.export_values()
 			;
 	
+	py::enum_<fsdk::HumanDescriptorVersion>(f, "HumanDescriptorVersion", py::arithmetic(),
+			"Human descriptor model versions.\n"
+			"\tDetermines which version of human descriptor to use.\n")
+		.value("HDV_REGULAR_HUMAN_DESCRIPTOR_VERSION", fsdk::HumanDescriptorVersion::HDV_REGULAR_HUMAN_DESCRIPTOR_VERSION)
+		.value("HDV_TRACKER_HUMAN_DESCRIPTOR_VERSION", fsdk::HumanDescriptorVersion::HDV_TRACKER_HUMAN_DESCRIPTOR_VERSION)
+		.value("HDV_PRECISE_HUMAN_DESCRIPTOR_VERSION", fsdk::HumanDescriptorVersion::HDV_PRECISE_HUMAN_DESCRIPTOR_VERSION)
+		.export_values()
+			;
+
 	py::enum_<fsdk::DescriptorVersion>(f, "DescriptorVersion", py::arithmetic(),
 			"Minimum descriptor model version.\n"
 			"\tDetermines which minimum version of descriptor to use.\n")
