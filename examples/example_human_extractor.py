@@ -13,14 +13,13 @@ sys.path.append(sys.argv[1])
 import FaceEngine as fe
 from example_license import make_activation
 
-
-def simple_human_extractor_example(all_warps):
-    extractor = face_engine.createExtractor(fe.DV_MIN_HUMAN_DESCRIPTOR_VERSION)
+def simple_human_extractor_example(all_warps, version):
+    extractor = face_engine.createExtractor(version)
     all_descriptors = []
     for i_warp_list, warp_list in enumerate(all_warps):
         descriptor_list = []
         for j_warp, warp in enumerate(warp_list):
-            descriptor = face_engine.createDescriptor(fe.DV_MIN_HUMAN_DESCRIPTOR_VERSION)
+            descriptor = face_engine.createDescriptor(version)
             res, _ = extractor.extractFromWarpedImage(warp, descriptor)
             if res.isError:
                 print("Failed to extract descriptor, reason: {0}, list number={1}, image number={2}".format(res.what, i_warp_list, j_warp))
@@ -60,8 +59,8 @@ def human_detect_warp_example(images):
     return all_warps
 
 
-def matcher_example(descriptors):
-    matcher = face_engine.createMatcher(fe.DV_MIN_HUMAN_DESCRIPTOR_VERSION)
+def matcher_example(descriptors, version):
+    matcher = face_engine.createMatcher(version)
     pairs = dict()
     if len(descriptors[0]) == 0:
         return pairs
@@ -102,10 +101,16 @@ if __name__ == "__main__":
         if res.isError:
             print("Failed to activate license! Reason: {0}".format(res.what))
             exit(-1)
+        # version of human descriptor,
+        # available versions:
+        # HDV_REGULAR_HUMAN_DESCRIPTOR_VERSION = 101,
+        # HDV_TRACKER_HUMAN_DESCRIPTOR_VERSION = 102,
+        # HDV_PRECISE_HUMAN_DESCRIPTOR_VERSION = 103
+        version = fe.HDV_REGULAR_HUMAN_DESCRIPTOR_VERSION # or 101
         image_list = load_list_of_images(n_images, sys.argv)
         warps = human_detect_warp_example(image_list)
-        descriptors = simple_human_extractor_example(warps)
-        pairs = matcher_example(descriptors)
+        descriptors = simple_human_extractor_example(warps, version)
+        pairs = matcher_example(descriptors, version)
 
         print("\nSimilarity of first descriptor and all human descriptors in other images in descent order:")
         for key in sorted(pairs.keys(), reverse=True):
