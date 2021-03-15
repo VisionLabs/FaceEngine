@@ -172,6 +172,17 @@ class TestFaceEngineRect(unittest.TestCase):
         del batch
         del descriptor
 
+
+    def testRedetectHumanByBadBox(self):
+        humanDetector = self.faceEngine.createHumanDetector()
+        image = fe.Image()
+        err_image = image.load(os.path.join(self.test_data_path, "image1.ppm"))
+        self.assertTrue(err_image.isOk)
+        detection = fe.Detection(fe.RectFloat(1, 1, 1, 1), 0.999999)
+        err, result = humanDetector.redetectOne(image, detection, fe.HumanDetectionType(fe.HDT_BOX))
+        self.assertFalse(err.isOk)
+
+
     def extractor(self, version, refGS, useMobileNet, cpuType, device):
         versionString = str(version) + ("", "_mobilenet")[useMobileNet]
         configPath = os.path.join(self.dataPath, "faceengine.conf")

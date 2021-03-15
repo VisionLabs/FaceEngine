@@ -430,9 +430,12 @@ void detector_module(py::module& f) {
 				const fsdk::Image& image,
 				const fsdk::Detection& detection,
 				fsdk::HumanDetectionType type = fsdk::HumanDetectionType::HDT_BOX) {
-					fsdk::ResultValue<fsdk::FSDKError, fsdk::Human> resValue = 
+					const fsdk::ResultValue<fsdk::FSDKError, fsdk::Human> resValue =
 						det->redetectOne(image, detection, type);
-					return std::make_tuple(FSDKErrorResult(resValue), resValue.getValue());
+					if (resValue.isOk()) {
+						return std::make_tuple(FSDKErrorResult(resValue), resValue.getValue());
+					}
+					return std::make_tuple(FSDKErrorResult(resValue), fsdk::Human{});
 			},
 			"Redetects one human based on the previous detection on the new image\n"
 			"\tArgs:\n"
