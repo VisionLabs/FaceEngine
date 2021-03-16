@@ -186,11 +186,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("loadDenseIndex", [](
 			PyIFaceEngine& faceEngine,
 			const char* indexPath) {
-				fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndexPtr> res = faceEngine.loadDenseIndex(indexPath);
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndexPtr> res =
+					faceEngine.loadDenseIndex(indexPath);
 				if (res.isOk())
-					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), res.getValue());
+					return std::make_tuple(FSDKErrorResult(
+						fsdk::makeResult(res.getError())),
+						res.getValue());
 				else
-					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::IDenseIndexPtr());
+					return std::make_tuple(
+						FSDKErrorResult(fsdk::makeResult(res.getError())),
+						fsdk::IDenseIndexPtr());
 			},
 			"Loads dense index.\n"
 			"\t\t Only indexes saved as dense are to be loaded as dense.\n"
@@ -202,11 +207,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("loadDynamicIndex", [](
 			PyIFaceEngine& faceEngine,
 			const char* indexPath) {
-				fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndexPtr> res = faceEngine.loadDynamicIndex(indexPath);
+				fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndexPtr> res =
+					faceEngine.loadDynamicIndex(indexPath);
 				if (res.isOk())
-					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), res.getValue());
+					return std::make_tuple(
+						FSDKErrorResult(fsdk::makeResult(res.getError())),
+						res.getValue());
 				else
-					return std::make_tuple(FSDKErrorResult(fsdk::makeResult(res.getError())), fsdk::IDynamicIndexPtr());
+					return std::make_tuple(
+						FSDKErrorResult(fsdk::makeResult(res.getError())),
+						fsdk::IDynamicIndexPtr());
 			},
 			"Loads dynamic index.\n"
 			"\t\t Only indexes saved as dynamic are to be loaded as dynamic.\n"
@@ -691,7 +701,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("InvalidLandmarks68", fsdk::FSDKError::InvalidLandmarks68)
 		.value("InvalidTransformation", fsdk::FSDKError::InvalidTransformation)
 		.value("InvalidDescriptor", fsdk::FSDKError::InvalidDescriptor)
+		.value("InvalidDescriptorId", fsdk::FSDKError::InvalidDescriptorId)
 		.value("InvalidDescriptorBatch", fsdk::FSDKError::InvalidDescriptorBatch)
+		.value("InvalidPath", fsdk::FSDKError::InvalidPath)
+		.value("InvalidSerializedObject", fsdk::FSDKError::InvalidSerializedObject)
 		.value("InvalidSettingsProvider", fsdk::FSDKError::InvalidSettingsProvider)
 		
 		.value("ModuleNotInitialized", fsdk::FSDKError::ModuleNotInitialized)
