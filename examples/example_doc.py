@@ -22,7 +22,7 @@ print(fe.PyIFaceEngine.createQualityEstimator.__doc__)
 print(fe.PyIFaceEngine.createLivenessFlyingFacesEstimator.__doc__)
 print(fe.PyIFaceEngine.createLivenessFPREstimator.__doc__)
 print(fe.PyIFaceEngine.createCredibilityCheckEstimator.__doc__)
-
+print(fe.PyIFaceEngine.createFacialHairEstimator.__doc__)
 print(fe.PyIFaceEngine.createHeadPoseEstimator.__doc__)
 print(fe.PyIFaceEngine.createBlackWhiteEstimator.__doc__)
 print(fe.PyIFaceEngine.createDepthEstimator.__doc__)
@@ -76,6 +76,9 @@ print(fe.ILivenessFPREstimatorPtr.estimate.__doc__)
 
 print(fe.ICredibilityCheckEstimatorPtr.__doc__)
 print(fe.ICredibilityCheckEstimatorPtr.estimate.__doc__)
+
+print(fe.IFacialHairEstimatorPtr.__doc__)
+print(fe.IFacialHairEstimatorPtr.estimate.__doc__)
 
 print(fe.IOverlapEstimatorPtr.__doc__)
 print(fe.IOverlapEstimatorPtr.estimate.__doc__)
@@ -275,6 +278,10 @@ print(fe.LivenessFPREstimation.__repr__.__doc__)
 print(fe.CredibilityCheckEstimation.__doc__)
 print(fe.CredibilityCheckEstimation.__init__.__doc__)
 print(fe.CredibilityCheckEstimation.__repr__.__doc__)
+
+print(fe.FacialHairEstimation.__doc__)
+print(fe.FacialHairEstimation.__init__.__doc__)
+print(fe.FacialHairEstimation.__repr__.__doc__)
 
 print(fe.Ethnicity.__doc__)
 print(fe.GlassesEstimation.__doc__)

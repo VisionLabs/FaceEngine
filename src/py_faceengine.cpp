@@ -190,6 +190,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createMedicalMaskEstimator", &PyIFaceEngine::createMedicalMaskEstimator, "Creates Medical Mask estimator\n")
 		.def("createOverlapEstimator", &PyIFaceEngine::createOverlapEstimator, "Creates Overlap estimator\n")
 		.def("createCredibilityCheckEstimator", &PyIFaceEngine::createCredibilityCheckEstimator, "Creates Credibility Check estimator\n")
+		.def("createFacialHairEstimator", &PyIFaceEngine::createFacialHairEstimator, "Creates Facial Hair estimator\n")
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			"Creates a detector of given type.\n", 
 			py::arg("type") = fsdk::ObjectDetectorClassType::FACE_DET_DEFAULT,
@@ -870,6 +871,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createMaskMedicalEstimator
 			PyIFaceEngine.createOverlapEstimator
 			PyIFaceEngine.createCredibilityCheckEstimator
+			PyIFaceEngine.createFacialHairEstimator
 
 			PyIFaceEngine.createDetector
 			PyIFaceEngine.createWarper
@@ -1012,6 +1014,9 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			ICredibilityCheckEstimatorPtr
 			ICredibilityCheckEstimatorPtr.estimate
+
+			IFacialHairEstimatorPtr
+			IFacialHairEstimatorPtr.estimate
 
 			IEyeEstimatorPtr
 			IEyeEstimatorPtr.estimate
@@ -1161,6 +1166,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 			CredibilityCheckEstimation
 			CredibilityCheckEstimation.__init__
 			CredibilityCheckEstimation.__repr__
+
+			FacialHairEstimation
+			FacialHairEstimation.__init__
+			FacialHairEstimation.__repr__
 
 			Ethnicity
 

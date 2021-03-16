@@ -751,6 +751,38 @@ class TestFaceEngineEstimators(unittest.TestCase):
         self.assertAlmostEqual(estimations[0].value, 0.3483, delta=0.01)
         self.assertAlmostEqual(estimations[1].value, 0.8642, delta=0.01)
 
+    def testFacialHairEstimator(self):
+        warp_1 = f.Image()
+        err = warp_1.load("testData/face_hair_1.jpg")
+        self.assertTrue(err.isOk)
+
+        warp_2 = f.Image()
+        err = warp_2.load("testData/face_hair_2.png")
+        self.assertTrue(err.isOk)
+
+        estimator = self.faceEngine.createFacialHairEstimator()
+
+        err, estimation = estimator.estimate(warp_1)
+        self.assertTrue(err.isOk)
+        self.assertAlmostEqual(estimation.noHairScore, 0.9975, delta=0.01)
+        self.assertAlmostEqual(estimation.stubbleScore, 0.0014, delta=0.01)
+        self.assertAlmostEqual(estimation.mustacheScore, 0.0003, delta=0.01)
+        self.assertAlmostEqual(estimation.beardScore, 0.0007, delta=0.01)
+        self.assertEqual(estimation.result, f.FacialHair.NoHair)
+
+        err, estimations = estimator.estimate([warp_1, warp_2])
+        self.assertTrue(err.isOk)
+        self.assertAlmostEqual(estimations[0].noHairScore, 0.9975, delta=0.01)
+        self.assertAlmostEqual(estimations[0].stubbleScore, 0.0014, delta=0.01)
+        self.assertAlmostEqual(estimations[0].mustacheScore, 0.0003, delta=0.01)
+        self.assertAlmostEqual(estimations[0].beardScore, 0.0007, delta=0.01)
+        self.assertEqual(estimations[0].result, f.FacialHair.NoHair)
+        self.assertAlmostEqual(estimations[1].noHairScore, 0.3664, delta=0.01)
+        self.assertAlmostEqual(estimations[1].stubbleScore, 0.6331, delta=0.01)
+        self.assertAlmostEqual(estimations[1].mustacheScore, 0.0005, delta=0.01)
+        self.assertAlmostEqual(estimations[1].beardScore, 0.0005, delta=0.01)
+        self.assertEqual(estimations[1].result, f.FacialHair.Stubble)
+
     def testSimpleOptionalType(self):
         value = 5.0
         x = f.Optionalfloat(value)
