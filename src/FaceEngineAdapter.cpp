@@ -178,18 +178,12 @@ fsdk::Ref<fsdk::IOrientationEstimator> PyIFaceEngine::createOrientationEstimator
 
 fsdk::ResultValue<fsdk::FSDKError, fsdk::IDenseIndexPtr> PyIFaceEngine::loadDenseIndex(
 	const char* indexPath) {
-	auto res = faceEnginePtr->loadDenseIndex(indexPath);
-	if (!res)
-		throw py::cast_error(getErrorMessage(res.what(), "to create IDenseIndex").c_str());
-	return res;
+	return faceEnginePtr->loadDenseIndex(indexPath);
 }
 
 fsdk::ResultValue<fsdk::FSDKError, fsdk::IDynamicIndexPtr> PyIFaceEngine::loadDynamicIndex(
 	const char* indexPath) {
-	auto res = faceEnginePtr->loadDynamicIndex(indexPath);
-	if (!res)
-		throw py::cast_error(getErrorMessage(res.what(), "to create IDynamicIndex").c_str());
-	return res;
+	return faceEnginePtr->loadDynamicIndex(indexPath);
 }
 
 fsdk::IAGSEstimatorPtr PyIFaceEngine::createAGSEstimator() {
