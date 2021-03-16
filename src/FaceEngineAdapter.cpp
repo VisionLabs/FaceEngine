@@ -247,6 +247,13 @@ fsdk::ICredibilityCheckEstimatorPtr PyIFaceEngine::createCredibilityCheckEstimat
 	return estimator;
 }
 
+fsdk::IFacialHairEstimatorPtr PyIFaceEngine::createFacialHairEstimator() {
+	fsdk::IFacialHairEstimatorPtr estimator = fsdk::acquire(faceEnginePtr->createFacialHairEstimator());
+	if (!estimator)
+		throw py::cast_error("\nFailed to create facial hair estimator instance! See the \"Troubleshooting and diagnostics\" chapter in the documentation for possible reasons.");
+	return estimator;
+}
+
 void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }

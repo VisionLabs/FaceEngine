@@ -18,6 +18,7 @@ if len(sys.argv) != 3:
 sys.path.append(sys.argv[1])
 import FaceEngine as fe
 
+
 # image loading example
 def image_load(image_path):
     print("image path: {0}".format(image_path))
@@ -134,6 +135,7 @@ def medical_mask_warped_example(_warp):
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
 
+
 def medical_mask_extended_warped_example(_warp):
     estimator = faceEngine.createMedicalMaskEstimator()
     err, estimation = estimator.estimate_extended(_warp)
@@ -150,6 +152,7 @@ def medical_mask_extended_warped_example(_warp):
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
 
+
 def medical_mask_cropped_example(_image, _detection):
     estimator = faceEngine.createMedicalMaskEstimator()
     err, estimation = estimator.estimate(_image, _detection)
@@ -164,6 +167,7 @@ def medical_mask_cropped_example(_image, _detection):
     else:
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
+
 
 def medical_mask_extended_сropped_example(_image, _detection):
     estimator = faceEngine.createMedicalMaskEstimator()
@@ -180,6 +184,7 @@ def medical_mask_extended_сropped_example(_image, _detection):
     else:
         print("Failed medical mask estimation. Reason: {0}".format(err.what))
         exit(1)
+
 
 def medical_mask_warped_batch_example(_warps):
     estimator = faceEngine.createMedicalMaskEstimator()
@@ -381,6 +386,16 @@ def overlap_example(_face_engine, _image, _detection):
         exit(1)
 
 
+def facial_hair_example(_warp):
+    estimator = faceEngine.createFacialHairEstimator()
+    status, estimation = estimator.estimate(_warp)
+    if status.isOk:
+        print(estimation)
+    else:
+        print("Failed facial hair estimation. Reason: {0}".format(status.what))
+        exit(1)
+
+
 def print_landmarks(landmarks, message=""):
     print(message)
     for i in range(len(landmarks)):
@@ -413,8 +428,8 @@ if __name__ == "__main__":
             print("Detector: landmarks are not valid.")
             exit(-1)
         if not face.isValid():
-           print("Detector: faces not found.")
-           exit(-1)
+            print("Detector: faces not found.")
+            exit(-1)
         (detection, landmarks5, landmarks68) = \
             face.detection, \
             face.landmarks5_opt.value(), \
@@ -454,6 +469,7 @@ if __name__ == "__main__":
         medical_mask_cropped_example(image, detection)
         medical_mask_warped_batch_example([warp_image, warp_image])
         medical_mask_cropped_batch_example([image, image], [detection, detection])
+        facial_hair_example(warp_image)
         # examples with hardcoded paths to images, special needs
         # depth_example("images/warp.depth")
         # ir_example("images/irWarp.ppm")

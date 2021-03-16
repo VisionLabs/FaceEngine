@@ -70,6 +70,8 @@ public:
 	fsdk::IOverlapEstimatorPtr createOverlapEstimator();
 
 	fsdk::ICredibilityCheckEstimatorPtr createCredibilityCheckEstimator();
+
+	fsdk::IFacialHairEstimatorPtr createFacialHairEstimator();
 	
 	fsdk::IIndexBuilderPtr createIndexBuilder();
 	
