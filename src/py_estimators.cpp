@@ -712,6 +712,40 @@ void estimators_module(py::module& f) {
 			"\t\t(tuple): returns error code FSDKErrorResult and GlassesEstimation\n")
 				;
 
+	py::class_<fsdk::IFacialHairEstimatorPtr>(f, "IFacialHairEstimatorPtr",
+		"Facial hair estimator\n"
+		"\tThis estimator is designed to work with a person face image.\n"
+		"\tsee IWarper for details.\n")
+		.def("estimate", [](
+			const fsdk::IFacialHairEstimatorPtr& est,
+			const fsdk::Image& warp) {
+				fsdk::FacialHairEstimation out = {};
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
+			"\tEstimates the facial hair of person\n"
+			"\tArgs\n"
+			"\t\tparam1 (Image): warped image in R8G8B8 format.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns Error code and FacialHairEstimation\n")
+
+		.def("estimate", [](
+			const fsdk::IFacialHairEstimatorPtr& est,
+			const std::vector<fsdk::Image>& warps) {
+				std::vector<fsdk::FacialHairEstimation> out(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warps, out);
+				if (err.isError()) {
+					out.clear();
+				}
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
+			"\tEstimates the facial hair of person\n"
+			"\tArgs\n"
+			"\t\tparam1 (Images): List of warped images in R8G8B8 format.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns Error code and list of FacialHairEstimation\n")
+				;
+
 	py::class_<fsdk::ICredibilityCheckEstimatorPtr>(f, "ICredibilityCheckEstimatorPtr",
 		"Credibility check estimator\n"
 		"\tThis estimator is designed to work with a person face image.\n"
@@ -737,7 +771,7 @@ void estimators_module(py::module& f) {
 					fsdk::Span<const fsdk::Image>(warps.data(), warps.size()),
 					fsdk::Span<fsdk::CredibilityCheckEstimation>(out.data(), out.size()));
 				if (err.isError()) {
-					std::make_tuple(
+					return std::make_tuple(
 						FSDKErrorResult(err),
 						std::vector<fsdk::CredibilityCheckEstimation>{});
 				}
@@ -1231,6 +1265,16 @@ void estimators_module(py::module& f) {
 		.export_values()
 		;
 
+	//	FacialHair
+	py::enum_<fsdk::FacialHair>(f, "FacialHair", py::arithmetic(),
+		"FacialHair estimator output enumeration.\n")
+		.value("NoHair", fsdk::FacialHair::NoHair, "No hair on the face\n")
+		.value("Stubble", fsdk::FacialHair::Stubble, "Stubble on the face\n")
+		.value("Mustache", fsdk::FacialHair::Mustache, "Mustache on the face\n")
+		.value("Beard", fsdk::FacialHair::Beard, "Beard on the face\n")
+		.export_values()
+		;
+
 	py::class_<fsdk::MedicalMaskEstimation>(f, "MedicalMaskEstimation",
 		"MedicalMaskEstimator output structure\n"
 		"\tResult enumeration with the medical status.\n"
@@ -1278,6 +1322,23 @@ void estimators_module(py::module& f) {
 			return "CredibilityCheckEstimation: \n"
 				"value = " + std::to_string(e.value) + "\n" +
 				"status = " + std::to_string(static_cast<int>(e.credibilityStatus)) + "\n";
+			})
+		;
+
+	py::class_<fsdk::FacialHairEstimation>(f, "FacialHairEstimation",
+		"Facial hair estimation output.\n")
+		.def(py::init<>())
+		.def_readwrite("result", &fsdk::FacialHairEstimation::result, "Estimation result\n")
+		.def_readwrite("noHairScore", &fsdk::FacialHairEstimation::noHairScore, "No hair on the face score\n")
+		.def_readwrite("stubbleScore", &fsdk::FacialHairEstimation::stubbleScore, "Stubble on the face score\n")
+		.def_readwrite("mustacheScore", &fsdk::FacialHairEstimation::mustacheScore, "Mustache on the face score\n")
+		.def_readwrite("beardScore", &fsdk::FacialHairEstimation::beardScore, "Beard on the face score\n")
+		.def("__repr__", [](const fsdk::FacialHairEstimation& e) {
+			return "FacialHairEstimation: \n"
+				"noHairScore = " + std::to_string(e.noHairScore) + "\n" +
+				"stubbleScore = " + std::to_string(e.stubbleScore) + "\n" +
+				"mustacheScore = " + std::to_string(e.mustacheScore) + "\n" +
+				"beardScore = " + std::to_string(e.beardScore) + "\n";
 			})
 		;
 
