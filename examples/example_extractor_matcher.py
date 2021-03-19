@@ -68,8 +68,25 @@ def matcher_example(descriptor1, descriptor2, descriptor_batch):
     if err2.isError:
         print("Failed to match descriptors, reason", err2.what)
         exit(-1)
+
+    # By default, matching calculates similarity.
+    # However, it can be disabled and computed manually by `calcSimilarity`.
+    config = face_engine.getSettingsProvider()
+    config.setValue("DescriptorFactory::Settings", "calcSimilarity", False)
+    matcher = face_engine.createMatcher() # recreate matcher because config's been changed
+    err2, value2 = matcher.match(descriptor1, descriptor_batch)
+
+    if err2.isError:
+        print("Failed to match descriptors, reason", err2.what)
+        exit(-1)
+
+    for result in value2:
+        assert(result.similarity == 0.0) # similarity must be 0
+        print(f"similarity is {result.similarity}")
+    matcher.calcSimilarity(value2)
     print("Matching result of descriptor and descriptor batch: {0}".format(value2))
 
+    config.setValue("DescriptorFactory::Settings", "calcSimilarity", True) # enable back
 
 def load_list_of_images(batch_size, sys_argv):
     image_list = []

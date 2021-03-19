@@ -12,6 +12,7 @@ namespace py = pybind11;
 
 void descriptor_module(py::module& f) {
 
+
 py::enum_<fsdk::ISerializableObject::Flags>(f, "Save", py::arithmetic(), "Serialization flags.\n")
 	.value("Default", fsdk::ISerializableObject::Flags::Default, "Meta information will be written.\n")
 	.value("NoSignature", fsdk::ISerializableObject::Flags::NoSignature, "No meta-information..\n")
@@ -476,6 +477,14 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		"\t\t(tuple): tuple with result with error code specified by FSDKError and\n"
 		"\t\t\ttwo lists (indices and matching results of K nearest neighbours)\n")
 		
+		.def("calcSimilarity",[](
+			const fsdk::IDescriptorMatcherPtr& matcherPtr,
+			std::vector<fsdk::MatchingResult>& matchingResults) {
+			matcherPtr->calcSimilarity(matchingResults);
+		},
+		"Calculate similarity\n"
+		"\tCalculates similarity based on distance of element of the matching array")
+
 		.def("getModelVersion",[](
 				const fsdk::IDescriptorMatcherPtr& matcherPtr) {
 				return matcherPtr->getModelVersion();

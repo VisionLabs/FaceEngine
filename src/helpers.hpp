@@ -8,6 +8,8 @@
 #include <tuple>
 #include <functional>
 
+#include <pybind11/stl_bind.h> // PYBIND11_MAKE_OPAQUE
+
 struct Archive: fsdk::IArchive
 {
 	const char* dataOut;
@@ -67,3 +69,6 @@ std::tuple<DescriptorBatchResult, fsdk::IDescriptorPtr> getDescriptorFromBatch(
 	const fsdk::IDescriptorBatchPtr& descriptorBatchPtr,
 	int index,
 	std::function<fsdk::ResultValue<fsdk::FSDKError, fsdk::IDescriptorPtr>(fsdk::IDescriptorBatchPtr, uint32_t)> func);
+
+using MatchingResultList = std::vector<fsdk::MatchingResult>;
+PYBIND11_MAKE_OPAQUE(MatchingResultList); //< must be placed before any binding's declaration
