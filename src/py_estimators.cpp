@@ -994,7 +994,7 @@ void estimators_module(py::module& f) {
 			"\tReturns:\n"
 			"\t\t(tuple): returns error code FSDKErrorResult and GlassesEstimation\n")
 				;
-	
+
 	py::class_<fsdk::MatchingResult>(f, "MatchingResult", "Result of descriptor matching.")
 		.def(py::init<>(), "Initializes result to default values.")
 
@@ -1010,6 +1010,19 @@ void estimators_module(py::module& f) {
 				return "distance = " + std::to_string(result.distance)
 						+ ", similarity = " + std::to_string(result.similarity); })
 			;
+	py::bind_vector<MatchingResultList>(f, "MatchingResultList", py::module_local(false) /* seen cross-module*/)
+	.def("__repr__", [](const MatchingResultList& results)
+	{
+		std::ostringstream os;
+		os << "[";
+		for(const auto& r : results) os << py::str("{}").format(r) << ", ";
+		auto str = os.str();
+		if(str.size() > 2) {
+			str.erase(str.size() - 2); //< remove last comma and white space
+		}
+		str.push_back(']');
+		return str;
+	});
 	
 	py::class_<fsdk::SearchResult>(f, "SearchResult", "Result of index search.\n")
 		.def(py::init<>(), "Default constructor.\n")
