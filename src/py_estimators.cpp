@@ -995,6 +995,53 @@ void estimators_module(py::module& f) {
 			"\t\t(tuple): returns error code FSDKErrorResult and GlassesEstimation\n")
 				;
 
+	py::class_<fsdk::ICredibilityCheckEstimatorPtr>(f, "ICredibilityCheckEstimatorPtr",
+		"Credibility check estimator\n"
+		"\tThis estimator is designed to work with a person face image.\n"
+		"\tsee IWarper for details.\n")
+		.def("estimate", [](
+			const fsdk::ICredibilityCheckEstimatorPtr& est,
+			const fsdk::Image& warp) {
+				fsdk::CredibilityCheckEstimation out = {};
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warp, out);
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
+			"\tEstimates the reliability of person\n"
+			"\tArgs\n"
+			"\t\tparam1 (Image): warped image in R8G8B8 format.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns Error code and CredibilityCheckEstimation\n")
+
+		.def("estimate", [](
+			const fsdk::ICredibilityCheckEstimatorPtr& est,
+			const std::vector<fsdk::Image>& warps) {
+				std::vector<fsdk::CredibilityCheckEstimation> out(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->estimate(warps, out);
+				if (err.isError()) out.clear();
+				return std::make_tuple(FSDKErrorResult(err), out);
+			},
+			"\tEstimates the reliability of person\n"
+			"\tArgs\n"
+			"\t\tparam1 (Images): List of warped images in R8G8B8 format.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): returns Error code and list of CredibilityCheckEstimation\n")
+
+		.def("validate", [](
+			const fsdk::ICredibilityCheckEstimatorPtr& est,
+			const std::vector<fsdk::Image>& warps) {
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
+				fsdk::Result<fsdk::FSDKError> err = est->validate(warps, errors);
+				return std::make_tuple(FSDKErrorResult(err),
+					std::vector<FSDKErrorResult>(errors.begin(), errors.end()));
+			},
+			"Validate input of multiple frames in a single function call.\n"
+			"\tArgs:\n"
+			"\t\tparam1 (list of Images): list of Images.\n"
+			"\tReturns:\n"
+			"\t\t(tuple): \n"
+			"\t\t\t tuple with FSDKErrorResult code, list of errors for each image)\n")
+				;
+
 	py::class_<fsdk::MatchingResult>(f, "MatchingResult", "Result of descriptor matching.")
 		.def(py::init<>(), "Initializes result to default values.")
 
@@ -1010,6 +1057,7 @@ void estimators_module(py::module& f) {
 				return "distance = " + std::to_string(result.distance)
 						+ ", similarity = " + std::to_string(result.similarity); })
 			;
+
 	py::bind_vector<MatchingResultList>(f, "MatchingResultList", py::module_local(false) /* seen cross-module*/)
 	.def("__repr__", [](const MatchingResultList& results)
 	{
@@ -1497,6 +1545,33 @@ void estimators_module(py::module& f) {
 			return "OverlapEstimation: \n"
 				"overlapValue = " + std::to_string(e.overlapValue) + "\n" +
 				"isOpened = " + std::string(e.overlapped ? "True\n" : "False\n");
+			})
+		;
+
+	py::enum_<fsdk::CredibilityStatus>(f, "CredibilityStatus", py::arithmetic(),
+		"An enum representing all possible outcomes of CredibilityCheckEsimator.\n")
+		.value("Reliable",
+			fsdk::CredibilityStatus::Reliable,
+			"person is predicted to be reliable\n")
+		.value("NonReliable",
+			fsdk::CredibilityStatus::NonReliable,
+			"person is predicted to be non reliable\n")
+		.export_values()
+		;
+
+	py::class_<fsdk::CredibilityCheckEstimation>(f, "CredibilityCheckEstimation",
+		"Face credibility check estimation output.\n")
+		.def(py::init<>())
+		.def_readwrite("value",
+			&fsdk::CredibilityCheckEstimation::value,
+			"Person reliability estimation\n")
+		.def_readwrite("credibilityStatus",
+			&fsdk::CredibilityCheckEstimation::credibilityStatus,
+			"Predicted person's reliability enum value\n")
+		.def("__repr__", [](const fsdk::CredibilityCheckEstimation& e) {
+			return "CredibilityCheckEstimation: "
+				"\nvalue = " + std::to_string(e.value) +
+				"\nstatus = " + std::to_string(static_cast<int>(e.credibilityStatus));
 			})
 		;
 

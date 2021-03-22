@@ -212,6 +212,11 @@ fsdk::IOverlapEstimatorPtr PyIFaceEngine::createOverlapEstimator() {
 	return processResult(res, "to create overlap estimator");
 }
 
+fsdk::ICredibilityCheckEstimatorPtr PyIFaceEngine::createCredibilityCheckEstimator() {
+	auto res = faceEnginePtr->createCredibilityCheckEstimator();
+	return processResult(res, "to create credibility estimator");
+}
+
 void PyIFaceEngine::setSettingsProvider(PyISettingsProvider& provider) {
 	faceEnginePtr->setSettingsProvider(provider.settingsProviderPtr);
 }

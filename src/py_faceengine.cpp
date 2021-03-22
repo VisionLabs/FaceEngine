@@ -151,6 +151,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.def("createMedicalMaskEstimator", &PyIFaceEngine::createMedicalMaskEstimator, "Creates Medical Mask estimator\n")
 		.def("createOverlapEstimator", &PyIFaceEngine::createOverlapEstimator, "Creates Overlap estimator\n")
 		.def("createOrientationEstimator", &PyIFaceEngine::createOrientationEstimator, "Creates Orientation estimator\n")
+		.def("createCredibilityCheckEstimator", &PyIFaceEngine::createCredibilityCheckEstimator, "Creates Credibility Check estimator\n")
 		.def("createDetector", &PyIFaceEngine::createDetector,
 			"Creates a detector of given type.\n", 
 			py::arg("type") = fsdk::ObjectDetectorClassType::FACE_DET_DEFAULT,
@@ -860,6 +861,7 @@ PYBIND11_MODULE(FaceEngine, f) {
 			PyIFaceEngine.createMouthEstimator
 			PyIFaceEngine.createMaskMedicalEstimator
 			PyIFaceEngine.createOverlapEstimator
+			PyIFaceEngine.createCredibilityCheckEstimator
 			PyIFaceEngine.createBestShotQualityEstimator
 	
 			PyIFaceEngine.createDetector
@@ -999,6 +1001,10 @@ PYBIND11_MODULE(FaceEngine, f) {
 
 			ILivenessFlowEstimatorPtr
 			ILivenessFlowEstimatorPtr.estimate
+
+			ICredibilityCheckEstimatorPtr
+			ICredibilityCheckEstimatorPtr.estimate
+			ICredibilityCheckEstimatorPtr.validate
 
 			IEyeEstimatorPtr
 			IEyeEstimatorPtr.estimate
@@ -1154,6 +1160,12 @@ PYBIND11_MODULE(FaceEngine, f) {
 			LivenessRGBMEstimation
 			LivenessRGBMEstimation.__init__
 			LivenessRGBMEstimation.__repr__
+
+			CredibilityStatus
+
+			CredibilityCheckEstimation
+			CredibilityCheckEstimation.__init__
+			CredibilityCheckEstimation.__repr__
 
 			Ethnicity
 
