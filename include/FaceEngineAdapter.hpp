@@ -70,6 +70,8 @@ public:
 	fsdk::IMedicalMaskEstimatorPtr createMedicalMaskEstimator();
 	
 	fsdk::IOverlapEstimatorPtr createOverlapEstimator();
+
+	fsdk::ICredibilityCheckEstimatorPtr createCredibilityCheckEstimator();
 	
 	fsdk::IIndexBuilderPtr createIndexBuilder(
 		const uint32_t capacity = 0,
