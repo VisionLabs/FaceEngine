@@ -464,9 +464,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 // Vector2
 	
 	py::class_<fsdk::Vector2<float>>(f, "Vector2f", "Vector with 2 float values, x and y")
-		.def(py::init<>())
-		.def(py::init<float, float>())
-		.def(py::init<const fsdk::Vector2<float>&>())
+		.def(py::init<>(), "\tInitializes a vector with zeroes")
+		.def(py::init<float, float>(),
+			"\tInitializes elements with given value\n"
+			"\tArgs:\n"
+			"\t\tparam1 (x): x coordinate value\n"
+			"\t\tparam2 (y): y coordinate value.")
+		.def(py::init<const fsdk::Vector2<float>&>(),
+			"\tCopies another vector\n"
+			"\tArgs:\n"
+			"\t\tparam1 (other): x another vector")
 		.def(py::self != py::self)
 		.def(py::self == py::self)
 		.def_readwrite("x", &fsdk::Vector2<float>::x)
@@ -478,9 +485,16 @@ PYBIND11_MODULE(FaceEngine, f) {
 		;
 	
 	py::class_<fsdk::Vector2<int>>(f, "Vector2i", "Vector with 2 integer values, x and y")
-		.def(py::init<>())
-		.def(py::init<int, int>())
-		.def(py::init<const fsdk::Vector2<int>&>())
+		.def(py::init<>(), "\tInitializes a vector with zeroes")
+		.def(py::init<int, int>(),
+			"\tInitializes elements with given value\n"
+			"\tArgs:\n"
+			"\t\tparam1 (x): x coordinate value\n"
+			"\t\tparam2 (y): y coordinate value.")
+		.def(py::init<const fsdk::Vector2<int>&>(),
+			"\tCopies another vector\n"
+			"\tArgs:\n"
+			"\t\tparam1 (other): x another vector")
 		.def(py::self != py::self)
 		.def(py::self == py::self)
 		.def_readwrite("x", &fsdk::Vector2<int>::x)

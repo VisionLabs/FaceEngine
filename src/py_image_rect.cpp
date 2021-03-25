@@ -14,11 +14,28 @@ py::class_<fsdk::BaseRect<T>> rect_class(py::module& this_module, const char* na
 {
 	py::class_<fsdk::BaseRect<T>>class_instance(this_module, name);
 	
-	class_instance.def(py::init<>());
-	class_instance.def(py::init<T, T, T, T>());
-	class_instance.def(py::init<fsdk::Vector2<T>, fsdk::Vector2<T>>());
-	class_instance.def(py::init<fsdk::BaseRect<T>>());
-	class_instance.def(py::init<fsdk::BaseRect<Y>>());
+	class_instance.def(py::init<>(),
+		"\tInitializes a default invalid rectangle.");
+	class_instance.def(py::init<T, T, T, T>(),
+		"\tInitializes a rectangle with given values\n"
+		"\tArgs:\n"
+		"\t\tparam1 (x): upper left corner x coordinate\n"
+		"\t\tparam2 (y): upper left corner y coordinate\n"
+		"\t\tparam3 (width): width\n"
+		"\t\tparam4 (height): height");
+	class_instance.def(py::init<fsdk::Vector2<T>, fsdk::Vector2<T>>(),
+		"\tInitializes a rectangle with given values.\n"
+		"\tArgs:\n"
+		"\t\tparam1 (topLeft): top-left corner point.\n"
+		"\t\tparam2 (bottomRight): bottom-right corner point");
+	class_instance.def(py::init<fsdk::BaseRect<T>>(),
+		"\tCopies another rect\n"
+		"\tArgs:\n"
+		"\t\tparam1 (other): another rect");
+	class_instance.def(py::init<fsdk::BaseRect<Y>>(),
+		"\tCopies another rect\n"
+		"\tArgs:\n"
+		"\t\tparam1 (other): another rect");
 	class_instance.def(py::self != py::self);
 	class_instance.def(py::self == py::self);
 	class_instance.def(py::self & py::self);
