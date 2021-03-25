@@ -24,10 +24,16 @@ void detector_module(py::module& f) {
 			;
 
 	py::class_<fsdk::Face>(f, "Face", "Container for detection and landmakrs\n")
-		.def(py::init<>())
-		.def(py::init<fsdk::Image>())
-		.def(py::init<fsdk::Image, fsdk::Detection>())
-		.def(py::init<fsdk::Image, fsdk::Detection>())
+		.def(py::init<>(),
+			"\tDefault constructor. Creates an invalid Detection with"
+			" zeroed rect and score and invalid image")
+		.def(py::init<fsdk::Image>(),
+			"\tSpecial constructor based on image only")
+		.def(py::init<fsdk::Image, fsdk::Detection>(),
+			"\tConstructor based on image and detection\n"
+			"\tArgs:\n"
+			"\t\tparam1 (image): image\n"
+			"\t\tparam2 (detection): detection")
 		.def_readwrite("img", &fsdk::Face::img, "Image\n")
 		.def_readwrite("detection", &fsdk::Face::detection, "Detection\n")
 		.def_readwrite("landmarks5_opt", &fsdk::Face::landmarks5, "Landmarks5 optinal\n")
@@ -36,13 +42,45 @@ void detector_module(py::module& f) {
 			;
 
 	py::class_<fsdk::Detection>(f, "Detection", "Detection structure")
-		.def(py::init<>())
-		.def(py::init<fsdk::FloatRect, float>())
-		.def(py::init<fsdk::Rect, float>())
-		.def(py::init<fsdk::FloatRect, int, int, float>())
-		.def(py::init<fsdk::Rect, int, int, float>())
-		.def(py::init<fsdk::FloatRect, fsdk::Rect, float>())
-		.def(py::init<fsdk::Rect, fsdk::Rect, float>())
+		.def(py::init<>(),
+			"\tDefault constructor. Creates an invalid Detection with"
+			" zeroed rect and score.")
+		.def(py::init<fsdk::FloatRect, float>(),
+			"\tSpecial constructor based on raw rect and score only\n"
+			"\tArgs:\n"
+			"\t\tparam1 (rect): raw detection rect\n"
+			"\t\tparam2 (score): detection score")
+		.def(py::init<fsdk::Rect, float>(),
+			"\tSpecial constructor based on raw rect and score only\n"
+			"\tArgs:\n"
+			"\t\tparam1 (rect): raw detection rect\n"
+			"\t\tparam2 (score): detection score")
+		.def(py::init<fsdk::FloatRect, int, int, float>(),
+			"\tConstructor base on the raw rect, bounding width and height\n"
+			"\tArgs:\n"
+			"\t\tparam1 (rect): raw detection rect\n"
+			"\t\tparam2 (width): bounding source image rect width\n"
+			"\t\tparam3 (height): bounding source image rect height\n"
+			"\t\tparam4 (score): detection score")
+		.def(py::init<fsdk::Rect, int, int, float>(),
+			"\tConstructor base on the raw rect, bounding width and height\n"
+			"\tArgs:\n"
+			"\t\tparam1 (rect): raw detection rect\n"
+			"\t\tparam2 (width): bounding source image rect width\n"
+			"\t\tparam3 (height): bounding source image rect height\n"
+			"\t\tparam4 (score): detection score")
+		.def(py::init<fsdk::FloatRect, fsdk::Rect, float>(),
+			"\tConstructor base on the raw rect and image rect\n"
+			"\tArgs:\n"
+			"\t\tparam1 (rect): raw detection rect\n"
+			"\t\tparam2 (imageRect): bounding source image rect\n"
+			"\t\tparam3 (score): detection score")
+		.def(py::init<fsdk::Rect, fsdk::Rect, float>(),
+			"\tConstructor base on the raw rect and image rect\n"
+			"\tArgs:\n"
+			"\t\tparam1 (rect): raw detection rect\n"
+			"\t\tparam2 (imageRect): bounding source image rect\n"
+			"\t\tparam3 (score): detection score")
 		.def("getRect", &fsdk::Detection::getRect)
 		.def("getRawRect", &fsdk::Detection::getRawRect)
 		.def("setRawRect", &fsdk::Detection::setRawRect)

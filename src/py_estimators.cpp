@@ -1295,7 +1295,11 @@ void estimators_module(py::module& f) {
 
 	py::class_<fsdk::DepthEstimation>(f, "DepthEstimation", "Depth estimator output structure\n")
 	.def(py::init<>())
-	.def(py::init<float, bool>())
+	.def(py::init<float, bool>(),
+		"\tInitialize depth estimator output structure\n"
+  		"\tArgs:\n"
+		"\t\tparam1 (score): confidence score in [0,1] range\n"
+		"\t\tparam2 (isReal): boolean flag that indicates whether a person is real")
 	.def_readwrite("score", &fsdk::DepthEstimation::score)
 	.def_readwrite("isReal", &fsdk::DepthEstimation::isReal)
 	.def("__repr__",
