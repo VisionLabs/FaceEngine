@@ -107,7 +107,7 @@ void estimators_module(py::module& f) {
 				std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
 				fsdk::Result<fsdk::FSDKError> err = est->validate(warps, request, errors);
 				
-				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+				return makeValidationTuple(err, errors); },
 			"Validate input of multiple frames in a single function call.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (list of Images): list of warped Images.\n"
@@ -210,8 +210,7 @@ void estimators_module(py::module& f) {
 				request,
 				resultSpan);
 
-			return std::make_tuple(FSDKErrorResult(err),
-					std::vector<FSDKErrorResult>(results.begin(), results.end())); },
+			return makeValidationTuple(err, results); },
 		"Validate input of multiple frames in a single function call.\n"
 		"\tArgs:\n"
 		"\t\tparam1 (list of Images): list of Images.\n"
@@ -405,7 +404,7 @@ void estimators_module(py::module& f) {
 			const std::vector<fsdk::Image>& warps) {
 				std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
 				fsdk::Result<fsdk::FSDKError> err = est->validate(warps, errors);
-				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+				return makeValidationTuple(err, errors); },
 			"Validate input of multiple frames in a single function call.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (list of Images): list of warped Images.\n"
@@ -419,7 +418,7 @@ void estimators_module(py::module& f) {
 			const std::vector<fsdk::Detection>& detections) {
 				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
 				fsdk::Result<fsdk::FSDKError> err = est->validate(images, detections, errors);
-				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+				return makeValidationTuple(err, errors); },
 			"Validate input of multiple frames in a single function call.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (list of Images): list of Images.\n"
@@ -488,7 +487,7 @@ void estimators_module(py::module& f) {
 			const std::vector<fsdk::Detection>& detections) {
 				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
 				fsdk::Result<fsdk::FSDKError> err = est->validate(images, detections, errors);
-				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+				return makeValidationTuple(err, errors); },
 			"Validate input of multiple frames in a single function call.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (list of Images): list of Images.\n"
@@ -589,7 +588,7 @@ void estimators_module(py::module& f) {
 			const std::vector<fsdk::Image>& warps) {
 				std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
 				fsdk::Result<fsdk::FSDKError> err = est->validate(warps, errors);
-				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+				return makeValidationTuple(err, errors); },
 			"Validate input of multiple frames in a single function call.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (list of Images): list of warped Images.\n"
@@ -643,7 +642,7 @@ void estimators_module(py::module& f) {
 				const std::vector<fsdk::Detection>& detections)  {
 				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
 				fsdk::Result<fsdk::FSDKError> err = est->validate(images, detections, errors);
-				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end()));
+				return makeValidationTuple(err, errors);
 			},
 			"Validate input of multiple frames in a single function call.\n"
 			"\tArgs:\n"
@@ -824,7 +823,7 @@ void estimators_module(py::module& f) {
 			const std::vector<fsdk::EyeCropper::EyesRects>& eyeRects) {
 				std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
 				fsdk::Result<fsdk::FSDKError> err = est->validate(warps, eyeRects, errors);
-				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+				return makeValidationTuple(err, errors); },
 			"Validate input of multiple frames in a single function call.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (list of Images): list of warped Images.\n"
@@ -897,7 +896,7 @@ void estimators_module(py::module& f) {
 			const std::vector<fsdk::Landmarks5>& landmarks5Transformed) {
 				std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
 				fsdk::Result<fsdk::FSDKError> err = est->validate(warps, landmarks5Transformed, errors);
-				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+				return makeValidationTuple(err, errors); },
 			"Validate input of multiple frames in a single function call.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (list of Images): list of warped Images.\n"
@@ -964,7 +963,7 @@ void estimators_module(py::module& f) {
 					images,
 					detections,
 					errors);
-				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+				return makeValidationTuple(err, errors); },
 			"Validate input of multiple frames in a single function call.\n"
 			"\t\t(see FSDKErrorResult for details)\n"
 			"\tArgs:\n"
@@ -1661,7 +1660,7 @@ void estimators_module(py::module& f) {
 				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
 				fsdk::Result<fsdk::FSDKError> err = est->validate(images, errors);
 				
-				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+				return makeValidationTuple(err, errors); },
 			"Validate input of multiple frames in a single function call.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (list of Images): list of Images.\n"
@@ -1753,7 +1752,7 @@ void estimators_module(py::module& f) {
 
 				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
 				fsdk::Result<fsdk::FSDKError> err = est->validate(images, detections, landmarks5, errors);
-				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); },
+				return makeValidationTuple(err, errors); },
 			"Validate input of multiple frames in a single function call.\n"
 			"\tArgs:\n"
 			"\t\tparam1 (list of Images): list of Images.\n"
