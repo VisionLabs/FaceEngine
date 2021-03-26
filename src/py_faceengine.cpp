@@ -730,6 +730,8 @@ PYBIND11_MODULE(FaceEngine, f) {
 		.value("BufferIsFull", fsdk::FSDKError::BufferIsFull)
 		.value("BufferIsEmpty", fsdk::FSDKError::BufferIsEmpty)
 		.value("InvalidBufferSize", fsdk::FSDKError::InvalidBufferSize)
+		.value("InvalidSpanSize", fsdk::FSDKError::InvalidSpanSize)
+		.value("InvalidBatch", fsdk::FSDKError::InvalidBatch)
 		
 		.value("IncompatibleDescriptors", fsdk::FSDKError::IncompatibleDescriptors)
 		.value("EnableJustInBetaMode", fsdk::FSDKError::EnableJustInBetaMode)

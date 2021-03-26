@@ -4,6 +4,7 @@
 #include <pybind11/stl_bind.h>
 #include <pybind11/numpy.h>
 #include <ErrorsAdapter.hpp>
+#include "helpers.hpp"
 
 namespace py = pybind11;
 
@@ -201,9 +202,9 @@ void detector_module(py::module& f) {
 			 const std::vector<fsdk::Image>& images,
 			 const std::vector<fsdk::Rect>& rects,
 			 const int detectionPerImageNum) {
-				 std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
-				 fsdk::Result<fsdk::FSDKError> err = det->validate(images, rects, detectionPerImageNum, errors);
-				 return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); 
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
+				fsdk::Result<fsdk::FSDKError> err = det->validate(images, rects, detectionPerImageNum, errors);
+				return makeValidationTuple(err, errors);
 			},
 			 "Validate input of multiple frames in a single function call.\n"
 			 "\tArgs:\n"
@@ -263,7 +264,7 @@ void detector_module(py::module& f) {
 			const uint32_t detectionPerImageNum) {
 				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
 				fsdk::Result<fsdk::FSDKError> err = det->validate(images, detectionBatch, errors);
-				return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); 
+				return makeValidationTuple(err, errors);
 			},
 			"Validate input of multiple frames in a single function call.\n"
 			"\tArgs:\n"
@@ -319,12 +320,17 @@ void detector_module(py::module& f) {
 					errors2DSpan.emplace_back(errors2DVec[i].data(), errors2DVec[i].size());
 				}
 				fsdk::Result<fsdk::FSDKError> err = det->validate(images, detections2D, errors2DSpan);
+				
+				if (err.getError() == fsdk::FSDKError::InvalidSpanSize || err.getError() == fsdk::FSDKError::InvalidBatch) {
+					return std::make_tuple(FSDKErrorResult(err), py::list());
+				}
+
 				const auto errorSize = errors2DSpan.size();
 				py::list outErrors(errorSize);
-				for (auto i = 0; i < errorSize; ++i) {
+				for (std::size_t i = 0; i < errorSize; ++i) {
 					const auto& row = errors2DSpan[i];
 					py::list rowList(row.size());
-					for (auto j = 0; j < rowList.size(); ++j) {
+					for (std::size_t j = 0; j < rowList.size(); ++j) {
 						rowList[j] = FSDKErrorResult(row[j]);
 					}
 					outErrors[i] = rowList;
@@ -450,9 +456,9 @@ void detector_module(py::module& f) {
 			 const std::vector<fsdk::Image>& images,
 			 const std::vector<fsdk::Rect>& rects,
 			 const int detectionPerImageNum) {
-				 std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
-				 fsdk::Result<fsdk::FSDKError> err = est->validate(images, rects, detectionPerImageNum, errors);
-				 return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); 
+				std::vector<fsdk::Result<fsdk::FSDKError>> errors(images.size());
+				fsdk::Result<fsdk::FSDKError> err = est->validate(images, rects, detectionPerImageNum, errors);
+				return makeValidationTuple(err, errors);
 			},
 			 "Validate input of multiple frames in a single function call.\n"
 			 "\tArgs:\n"

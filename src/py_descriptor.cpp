@@ -343,9 +343,9 @@ py::class_<fsdk::IDescriptorBatchPtr>(f, "IDescriptorBatchPtr", "Descriptor batc
 		 const fsdk::IDescriptorExtractorPtr& ext,
 		 const std::vector<fsdk::Image>& warps) {
 		
-			 std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
-			 fsdk::Result<fsdk::FSDKError> err = ext->validate(warps, errors);
-			 return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end())); 
+			std::vector<fsdk::Result<fsdk::FSDKError>> errors(warps.size());
+			fsdk::Result<fsdk::FSDKError> err = ext->validate(warps, errors);
+			return makeValidationTuple(err, errors); 
 		},
 		 "Validate input of multiple frames in a single function call.\n"
 		 "\tArgs:\n"

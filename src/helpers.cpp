@@ -110,3 +110,15 @@ std::tuple<DescriptorBatchResult, fsdk::IDescriptorPtr> getDescriptorFromBatch(
 				fsdk::makeResult(fsdk::IDescriptorBatch::Error::Internal)), fsdk::IDescriptorPtr());
 		}
 }
+
+std::tuple<FSDKErrorResult, std::vector<FSDKErrorResult>>
+	makeValidationTuple(
+		fsdk::Result<fsdk::FSDKError> err, 
+		const std::vector<fsdk::Result<fsdk::FSDKError>>& errors) {
+
+		if (err.getError() == fsdk::FSDKError::InvalidSpanSize || err.getError() == fsdk::FSDKError::InvalidBatch) {
+			return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>());
+		}
+
+		return std::make_tuple(FSDKErrorResult(err), std::vector<FSDKErrorResult>(errors.begin(), errors.end()));
+	}

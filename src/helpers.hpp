@@ -70,5 +70,10 @@ std::tuple<DescriptorBatchResult, fsdk::IDescriptorPtr> getDescriptorFromBatch(
 	int index,
 	std::function<fsdk::ResultValue<fsdk::FSDKError, fsdk::IDescriptorPtr>(fsdk::IDescriptorBatchPtr, uint32_t)> func);
 
+std::tuple<FSDKErrorResult, std::vector<FSDKErrorResult>> makeValidationTuple(
+	fsdk::Result<fsdk::FSDKError> err, 
+	const std::vector<fsdk::Result<fsdk::FSDKError>>& errors);
+
 using MatchingResultList = std::vector<fsdk::MatchingResult>;
 PYBIND11_MAKE_OPAQUE(MatchingResultList); //< must be placed before any binding's declaration
+
