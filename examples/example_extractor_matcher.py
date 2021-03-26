@@ -82,7 +82,7 @@ def matcher_example(descriptor1, descriptor2, descriptor_batch):
 
     for result in value2:
         assert(result.similarity == 0.0) # similarity must be 0
-        print(f"similarity is {result.similarity}")
+        print("similarity is {}".format(result.similarity))
     matcher.calcSimilarity(value2)
     print("Matching result of descriptor and descriptor batch: {0}".format(value2))
 
