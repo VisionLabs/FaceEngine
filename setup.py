@@ -66,7 +66,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='FaceEngine',
-    version='4.5.0.0',
+    version='4.6.0.0',
     author='VisionLabs',
     author_email='info@visionlabs.ru',
     description='Python bindings of FaceEngine using pybind11 and CMake',
