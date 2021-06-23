@@ -252,7 +252,7 @@ class TestFaceEngineDetector(unittest.TestCase):
 
     def testRedetectOne(self):
         ref_values = {fe.FACE_DET_V1: fe.DetectionFloat(fe.RectFloat(290.0, 75.0, 150.0, 197.0), 0.99999),
-                      fe.FACE_DET_V3: fe.DetectionFloat(fe.RectFloat(293.0, 96.0, 150.0, 192.0), 0.997161)}
+                      fe.FACE_DET_V3: fe.DetectionFloat(fe.RectFloat(292.0, 97.0, 151.0, 185.0), 0.99816)}
         for detectorType, detection in ref_values.items():
             with self.subTest(detectorType=detectorType):
                 self.faceEngine.setSettingsProvider(self.config)
@@ -373,11 +373,12 @@ class TestFaceEngineDetector(unittest.TestCase):
     def testRedetectByBigBbox(self, _detectorType=fe.FACE_DET_V3):
         detector = self.faceEngine.createDetector(_detectorType)
         image = fe.Image()
-        err_image = image.load(os.path.join(testDataPath, "image_720.jpg"))
+        err_image = image.load(os.path.join(testDataPath, "000010.png"))
         self.assertTrue(err_image.isOk)
         box = fe.RectFloat(0, 0, 10 ** 9, 10 ** 9)
         err, redet = detector.redetectOne(image, box, fe.DetectionType(fe.dtBBox))
         self.assertFaceValid(redet, landmarks68Valid=False, landmarks5Valid=False)
+
 
     def testDetectByBigArea(self, _detectorType=fe.FACE_DET_V3):
         detector = self.faceEngine.createDetector(_detectorType)
