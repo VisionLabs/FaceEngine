@@ -211,10 +211,10 @@ class TestFaceEngineDetector(unittest.TestCase):
             10,
             fe.HumanDetectionType(fe.DCT_BOX))
         self.assertTrue(err_human_detector.isOk)
-        self.assertEqual(394, list_of_list_of_detections[0][0].detection.rect.x)
-        self.assertEqual(227, list_of_list_of_detections[0][0].detection.rect.y)
-        self.assertEqual(107, list_of_list_of_detections[0][0].detection.rect.width)
-        self.assertEqual(270, list_of_list_of_detections[0][0].detection.rect.height)
+        self.assertEqual(861, list_of_list_of_detections[0][0].detection.rect.x)
+        self.assertEqual(312, list_of_list_of_detections[0][0].detection.rect.y)
+        self.assertEqual(127, list_of_list_of_detections[0][0].detection.rect.width)
+        self.assertEqual(319, list_of_list_of_detections[0][0].detection.rect.height)
 
     def testRedetectDifferentImages(self):
         images = []
